@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillsHub</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SkillsHub.styles.css" asp-append-version="true" />
+
+
+    <!--OWN-->
+    <link rel="stylesheet" href="~/css/myStyles.css" asp-append-version="true" />
+    <link rel="shortcut icon" type="image/x-icon" href="~/images/logo.svg">
+     <meta name="theme-color" content="rgb(253, 254, 255)">
+
+
+    <!-- ===============================================-->
+    <!--    Favicons-->
+    <!-- ===============================================-->
+    <link rel="apple-touch-icon" sizes="180x180" href="~/images/logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/logo.png">
+    <!--<link rel="icon" type="image/png" sizes="16x16" href="~/assets/img/favicons/favicon-16x16.png">-->
+    <link rel="manifest" href="~/assets/img/favicons/manifest.json">
+    <meta name="msapplication-TileImage" content="~/assets/img/favicons/mstile-150x150.png">
+
+    <link href="~/assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="~/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="~/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+    <link href="~/assets/css/theme.css" rel="stylesheet" />
+</head>
+<body>
+    <header>
+ <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" style="background-color: rgba(255, 255, 255,0.9);" 
+      >
+      <!--data-navbar-on-scroll="data-navbar-on-scroll"
+      id="scrollspy-navbar"-->
+        <div class="container"><a class="navbar-brand d-flex align-items-center fw-semi-bold fs-3" asp-controller="Home" asp-action="Index"> <img class="me-3" src="" alt="" />SKILLSHUB</a>
+          <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" 
+           aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+
+          <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto pt-2 pt-lg-0 font-base">
+              <li class="nav-item px-2" data-anchor="data-anchor">
+                <a class="nav-link" aria-current="page" href="#home">
+                  Главная
+                </a>
+              </li>
+              <li class="nav-item px-2" data-anchor="data-anchor">
+                <a class="nav-link" href="#about">
+                О нас
+                </a>
+              </li>
+
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#cources" 
+                id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Наши услуги
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="#english-adults">Английский для взрослых</a></li>
+                  <li><a class="dropdown-item" href="#english-children">Английский для детей</a></li>
+                  <li><a class="dropdown-item" href="#english-business">Английский для бизнеса</a></li>
+                  <li><a class="dropdown-item" href="#english-express">Экспресс-английский</a></li>
+
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Программирование</a></li>
+                </ul>
+              </li>
+
+              <li class="nav-item px-2" data-anchor="data-anchor"><a class="nav-link" href="#camping">Лагерь </a></li>
+              <li class="nav-item px-2" data-anchor="data-anchor"><a class="nav-link" href="#contacts">Контакты</a></li>
+            </ul>
+            <form class="ps-lg-5">
+              <button class="btn btn-outline-primary order-0" type="submit" asp-controller="Account" asp-action="SignIn">Войти</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="p-2 mb-2 " style="background-color: #091E40; font-size: 18px; color: #A79CA8;" id="contacts">
+          <!-- Grid container -->
+          <div class="container p-4">
+            <!--Grid row-->
+            <div class="row">
+              <!--Grid column-->
+              <div class="col-lg-3 col-md-6 mb-4 mb-md-0" style="font-size: 16px;">        
+                  <h5 style="color: #ffffff;">Адрес:</h5>
+
+                   Минск, пр-т. Независимости, 49
+                  (метро Я. Коласа), офис 415/416       
+              </div>
+              <!--Grid column-->
+
+              <div class="col-lg-3 col-md-6 mb-4 mb-md-0" style="font-size: 16px;">        
+                <h5 style="color: #ffffff;">Связь:</h5>
+                +375 44 707-40-07     <br/>
+                skillhubmsk@gmail.com 
+              </div>
+
+              <div class="col-lg-3 col-md-6 mb-4 mb-md-0" style="font-size: 16px;">        
+                <h5 style="color: #ffffff;">График работы:</h5>
+                Пн-Сб: 8:00 - 20:00   
+                <br/>
+                Вс: не работаем
+              </div>
+
+              <div class="col-lg-3 col-md-6 mb-4 mb-md-0" style="font-size: 16px;">        
+                <h5 style="color: #ffffff;">Мы в сетях</h5>
+                 <ul class="list-unstyled mb-0">
+                  <li class="list-inline-item me-3"><a class="text-decoration-none" href="https://www.facebook.com/skills.hub2021">
+                      <svg class="bi bi-facebook text-facebook" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"></path>
+                      </svg></a></li>
+                  <li class="list-inline-item me-3"><a href="https://www.instagram.com/skills__hub/">
+                      <svg class="bi bi-instagram text-instagram text-youtube" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"> </path>
+                      </svg></a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        <div class="text-center p-3" style="background-color: #091E40; border-top:1px solid rgba(255, 255, 255, 0.1)">
+          © 2023 Copyright:
+          <a asp-controller="Home" asp-action="Index" style="color: #5da6d6;">Skills Hub</a>
+        </div>
+        </footer>
+
+
+
+    <!-- ===============================================-->
+    <script src="~/vendors/popperjs/popper.min.js"></script>
+    <script src="~/vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="~/vendors/is/is.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+    <script src="~/assets/js/theme.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
