@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\education\asp\PizzaDelivery\EmailProvider\EmailProvider.csproj" />
+    <ProjectReference Include="..\EmailProvider\EmailProvider.csproj" />
     <ProjectReference Include="..\ViberMailer\ViberMailer.csproj" />
   </ItemGroup>
 
