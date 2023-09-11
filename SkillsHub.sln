@@ -3,15 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillsHub", "SkillsHub\SkillsHub.csproj", "{DC24500D-D2B3-4DD5-9B8A-FBA01168E9C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkillsHub", "SkillsHub\SkillsHub.csproj", "{DC24500D-D2B3-4DD5-9B8A-FBA01168E9C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillsDomain", "SkillsDomain\SkillsDomain.csproj", "{E87AD81A-C494-4407-BC92-FB369D70AD19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkillsDomain", "SkillsDomain\SkillsDomain.csproj", "{E87AD81A-C494-4407-BC92-FB369D70AD19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillsPersistence", "SkillsPersistence\SkillsPersistence.csproj", "{7025B5A5-D67E-4294-9F7C-6B3F8FA4BBA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkillsPersistence", "SkillsPersistence\SkillsPersistence.csproj", "{7025B5A5-D67E-4294-9F7C-6B3F8FA4BBA5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5783AAEF-3D12-474E-8609-6A707EE637E6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{72681BE3-D910-494B-936E-7CA2A7B16A7E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{3A74A853-593C-47D1-8DBF-834D7EC05E17}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ViberMailer", "ViberMailer\ViberMailer.csproj", "{82831A68-DBD0-4FC2-A7D5-45B05BE90268}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailProvider", "..\..\..\..\education\asp\PizzaDelivery\EmailProvider\EmailProvider.csproj", "{69DE4166-E2AA-4AAF-944D-55C9EC239535}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +37,14 @@ Global
 		{7025B5A5-D67E-4294-9F7C-6B3F8FA4BBA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7025B5A5-D67E-4294-9F7C-6B3F8FA4BBA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7025B5A5-D67E-4294-9F7C-6B3F8FA4BBA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82831A68-DBD0-4FC2-A7D5-45B05BE90268}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82831A68-DBD0-4FC2-A7D5-45B05BE90268}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82831A68-DBD0-4FC2-A7D5-45B05BE90268}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82831A68-DBD0-4FC2-A7D5-45B05BE90268}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69DE4166-E2AA-4AAF-944D-55C9EC239535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69DE4166-E2AA-4AAF-944D-55C9EC239535}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69DE4166-E2AA-4AAF-944D-55C9EC239535}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69DE4166-E2AA-4AAF-944D-55C9EC239535}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,6 +53,8 @@ Global
 		{DC24500D-D2B3-4DD5-9B8A-FBA01168E9C7} = {72681BE3-D910-494B-936E-7CA2A7B16A7E}
 		{E87AD81A-C494-4407-BC92-FB369D70AD19} = {5783AAEF-3D12-474E-8609-6A707EE637E6}
 		{7025B5A5-D67E-4294-9F7C-6B3F8FA4BBA5} = {5783AAEF-3D12-474E-8609-6A707EE637E6}
+		{82831A68-DBD0-4FC2-A7D5-45B05BE90268} = {3A74A853-593C-47D1-8DBF-834D7EC05E17}
+		{69DE4166-E2AA-4AAF-944D-55C9EC239535} = {3A74A853-593C-47D1-8DBF-834D7EC05E17}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C5515DD-E024-4A4A-95AA-1142918E67D2}
