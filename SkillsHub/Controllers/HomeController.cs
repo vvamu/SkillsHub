@@ -21,6 +21,11 @@ namespace SkillsHub.Controllers
             return View();
         }
 
+        public IActionResult Test()
+        {
+            return View();
+        }
+
 
         [HttpPost]
 
