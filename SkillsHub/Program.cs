@@ -61,19 +61,19 @@ public class Program
 
 
         #region Roles
-        using (var scope = app.Services.CreateScope())
-        {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var roles = roleManager.Roles.ToList();
-            string[] roleNames = { "Admin", "User" };
-            foreach (var roleName in roleNames)
-            {
-                if (!await roleManager.RoleExistsAsync(roleName))
-                {
-                    await roleManager.CreateAsync(new IdentityRole(roleName));
-                }
-            }
-        }
+        //using (var scope = app.Services.CreateScope())
+        //{
+        //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        //    var roles = roleManager.Roles.ToList();
+        //    string[] roleNames = { "Admin", "User" };
+        //    foreach (var roleName in roleNames)
+        //    {
+        //        if (!await roleManager.RoleExistsAsync(roleName))
+        //        {
+        //            await roleManager.CreateAsync(new IdentityRole(roleName));
+        //        }
+        //    }
+        //}
         #endregion
 
         app.Run();
