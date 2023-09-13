@@ -1,4 +1,4 @@
-﻿namespace SkillsDomain;
+﻿namespace SkillsHub.Domain.Models;
 
 public class LessonType
 {

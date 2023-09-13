@@ -1,6 +1,8 @@
-﻿namespace SkillsDomain;
+﻿using SkillsHub.Domain.BaseModels;
 
-public class Student : BaseHumanInfo
+namespace SkillsHub.Domain.Models;
+
+public class Student : ApplicationUser
 {
     public string? ParentPhone { get; set; }
     public string EnglishLevel { get; set; }

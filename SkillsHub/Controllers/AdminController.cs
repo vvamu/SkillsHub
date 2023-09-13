@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SkillsHub.Domain.DTO;
 
 namespace SkillsHub.Controllers;
 
@@ -9,7 +10,14 @@ public class AdminController : Controller
         return View();
     }
 
-    public IActionResult CreateUser() 
+    [HttpGet]
+    public IActionResult CreateStudent() 
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult CreateStudent(StudentDTO user)
     {
         return View();
     }

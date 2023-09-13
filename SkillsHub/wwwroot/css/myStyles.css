@@ -29,7 +29,7 @@ li {
     color: #091E40 !important;
 }
 
-.list-unstyled div p {
+.list-unstyled div p, .levels-english div p {
     padding-left: 4.2%;
     font-size: 16px;
 }
@@ -40,4 +40,8 @@ li {
 
 .levels-english li a {
     color: #091E40;
+}
+
+.list-conditions li {
+    font-size: 17px;
 }

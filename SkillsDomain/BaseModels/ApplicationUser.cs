@@ -1,6 +1,8 @@
-﻿namespace SkillsDomain;
+﻿using Microsoft.AspNetCore.Identity;
 
-public class BaseHumanInfo : BaseEntity
+namespace SkillsHub.Domain.BaseModels;
+
+public class ApplicationUser : IdentityUser
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
@@ -14,7 +16,7 @@ public class BaseHumanInfo : BaseEntity
 
     public string? SourceFindCources { get; set; }
     public List<string>? ExternalConnections { get; set; }
-
+    public bool IsDeleted { get; set; }
 
 
 

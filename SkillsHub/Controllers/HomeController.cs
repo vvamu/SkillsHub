@@ -1,5 +1,6 @@
 ﻿using EmailProvider.Interfaces;
 using EmailProvider.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SkillsHub.Models;
 using System.Diagnostics;

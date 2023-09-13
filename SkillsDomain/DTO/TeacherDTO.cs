@@ -1,6 +1,9 @@
-﻿namespace SkillsDomain;
+﻿using SkillsHub.Domain.BaseModels;
+using SkillsHub.Domain.Models;
 
-public class Teacher : BaseHumanInfo
+namespace SkillsHub.Domain.DTO;
+
+public class TeacherDTO : ApplicationUser
 {
     public bool IsAdmin { get; set; }
     public bool CalculatedSalary { get; set; }

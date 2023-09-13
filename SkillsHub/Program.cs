@@ -1,6 +1,12 @@
+global using SkillsHub.Domain.Models;
+
 using EmailProvider;
 using EmailProvider.Options;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using SkillsHub.Application.Helpers;
+using SkillsHub.Application.Options;
+using System.Security.Claims;
 using Viber.Bot.NetCore.Middleware;
 
 namespace SkillsHub;
@@ -13,14 +19,39 @@ public class Program
 
         builder.Services.AddControllersWithViews();
 
+        var services = builder.Services;
 
+
+        
+        services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
+
+        #region Options pattern
         IConfiguration configuration = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
         .AddJsonFile("appsettings.json")
         .Build();
 
+        builder.Services.AddSingleton(configuration);
+        services.Configure<AdminOptions>(configuration.GetSection(AdminOptions.OptionName));
+        services.Configure<ConnectionStringsOptions>(configuration.GetSection(ConnectionStringsOptions.OptionName));
+        services.Configure<MailOptions>(configuration.GetSection(MailOptions.OptionName));
 
-        #region Services
+        #endregion
+
+        #region DbConfig
+
+        var connectionString = builder.Configuration.GetConnectionString("Sqlite");
+        services.AddDbContext<SkillsHub.Persistence.ApplicationDbContext>(
+        options =>
+        {
+            options.UseSqlite(connectionString);
+        });
+
+        #endregion
+
+
+        #region Own Services
 
         //builder.Services.AddViberBotApi(opt =>
         //{
@@ -32,8 +63,26 @@ public class Program
 
         #endregion
 
-        builder.Services.AddSingleton(configuration);
-        builder.Services.Configure<MailOptions>(configuration.GetSection(MailOptions.OptionName));
+        #region Roles
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("Teacher", builderPolicy =>
+            {
+                builderPolicy.RequireClaim(ClaimTypes.Role, "Teacher");
+            });
+            options.AddPolicy("Student", builderPolicy =>
+            {
+                builderPolicy.RequireClaim(ClaimTypes.Role, "Student");
+            });
+
+            options.AddPolicy("Admin", builderPolicy =>
+            {
+                builderPolicy.RequireAssertion(x => x.User.HasClaim(ClaimTypes.Role, "Teacher") ||
+                                               x.User.HasClaim(ClaimTypes.Role, "Admin"));
+            });
+        });
+
+        #endregion
 
 
 
@@ -60,23 +109,16 @@ public class Program
             pattern: "{controller=Home}/{action=Index}/{id?}");
 
 
-        #region Roles
-        //using (var scope = app.Services.CreateScope())
-        //{
-        //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        //    var roles = roleManager.Roles.ToList();
-        //    string[] roleNames = { "Admin", "User" };
-        //    foreach (var roleName in roleNames)
-        //    {
-        //        if (!await roleManager.RoleExistsAsync(roleName))
-        //        {
-        //            await roleManager.CreateAsync(new IdentityRole(roleName));
-        //        }
-        //    }
-        //}
-        #endregion
+
 
         app.Run();
+
+    }
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+
+
 
     }
 }

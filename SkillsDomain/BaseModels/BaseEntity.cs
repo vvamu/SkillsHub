@@ -1,4 +1,4 @@
-﻿namespace SkillsDomain;
+﻿namespace SkillsHub.Domain.BaseModels;
 
 public class BaseEntity
 {
