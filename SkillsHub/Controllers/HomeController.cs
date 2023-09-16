@@ -80,21 +80,6 @@ await _mailer.SendMessage();
             return View("Index");
         }
 
-        //public async Task AddNotification()
-        //{
-        //    Url.ActionLink("viber://pa?chatURI=\"skillshub\"&context=\"<Your Context>\"&text=\"<Your Text>\"");
-        //    //Url.Re
-        //}
-
-        //public async Task<ActionResult> SendMessageResponse()
-        //{
-        //    //var r = res;
-
-        //    //return RedirectToAction("Index");
-        //    return Ok("ok");
-        //}
-
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

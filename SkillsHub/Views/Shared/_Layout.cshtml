@@ -36,80 +36,93 @@
 </head>
 
 <body>
-    <header>
- <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" style="background-color: rgba(255, 255, 255,0.9);" 
-      >
-      <!--data-navbar-on-scroll="data-navbar-on-scroll"
-      id="scrollspy-navbar"-->
-        <div class="container"><a class="navbar-brand d-flex align-items-center fw-semi-bold fs-3" asp-controller="Home" asp-action="Index"> <img class="me-3" src="" alt="" />SKILLSHUB</a>
+    @{
+        if(Context.Request.Path.Value.Contains("/CRM"))
+        {
+            <div>
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        }
+        else
+        {
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" style="background-color: rgba(255, 255, 255,0.9);" >
+              <!--data-navbar-on-scroll="data-navbar-on-scroll" id="scrollspy-navbar"-->
+                <div class="container"><a class="navbar-brand d-flex align-items-center fw-semi-bold fs-3" asp-controller="Home" asp-action="Index"> <img class="me-3" src="" alt="" />SKILLSHUB</a>
 
-                @{
-                    if (@Context.Request.Path.Value.Contains("Account") || @Context.Request.Path.Value.Contains("Test"))
-                    {
-                    }
-                    else
-                    {
-                                          <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" 
-               aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                        @{
+                            if (@Context.Request.Path.Value != "/") {}
+                            else
+                            {
+                                Console.WriteLine(Context.Request.Path.Value);
+                                                          <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" 
+                       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
-                  <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
+                                  <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
 
-                  <ul class="navbar-nav mx-auto pt-2 pt-lg-0 font-base">
-                      <li class="nav-item px-2" data-anchor="data-anchor">
-                        <a class="nav-link" aria-current="page" href="#home">
-                          Главная
-                        </a>
-                      </li>
-                      <li class="nav-item px-2" data-anchor="data-anchor">
-                        <a class="nav-link" href="#about">
-                        О нас
-                        </a>
-                      </li>
+                                  <ul class="navbar-nav mx-auto pt-2 pt-lg-0 font-base">
+                                      <li class="nav-item px-2" data-anchor="data-anchor">
+                                        <a class="nav-link" aria-current="page" href="#home">
+                                          Главная
+                                        </a>
+                                      </li>
+                                      <li class="nav-item px-2" data-anchor="data-anchor">
+                                        <a class="nav-link" href="#about">
+                                        О нас
+                                        </a>
+                                      </li>
 
-                      <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#cources" 
-                    id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Наши услуги
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                          <li><a class="dropdown-item" href="#english-adults">Английский для взрослых</a></li>
-                          <li><a class="dropdown-item" href="#english-children">Английский для детей</a></li>
-                          <li><a class="dropdown-item" href="#english-business">Английский для бизнеса</a></li>
-                          <li><a class="dropdown-item" href="#english-express">Экспресс-английский</a></li>
-                          <li><a class="dropdown-item" href="#english-speaking">Speaking club</a></li>
-                          <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item" href="#programming">Программирование</a></li>
-                        </ul>
-                      </li>
-                              <li class="nav-item px-2" data-anchor="data-anchor"><form><a class="nav-link" asp-action="Test" asp-controller="Home" >Тест</a> </form></li>
-                      <li class="nav-item px-2" data-anchor="data-anchor"><a class="nav-link" href="#camping">Лагерь </a></li>
-                      <li class="nav-item px-2" data-anchor="data-anchor"><a class="nav-link" href="#contacts">Контакты</a></li>
-                    </ul>
-                    <form class="ps-lg-5">
-                      <button class="btn btn-outline-primary order-0" type="submit" asp-controller="Account" asp-action="SignIn">Войти</button>
-                    </form>
-                    <div>
-                        <!--
-                     <a asp-action="SendMessage" asp-controller="Home">Send msg</a>
-                     <a href="viber://pa?chatURI=skillshub" >AddNotification</a>
-                     <a asp-action="Post" asp-controller="Viber">Post</a>
-                     -->
-                    </div>
-                  </div>
-                    }
-                }
+                                      <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#cources" 
+                            id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                          Наши услуги
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                          <li><a class="dropdown-item" href="#english-adults">Английский для взрослых</a></li>
+                                          <li><a class="dropdown-item" href="#english-children">Английский для детей</a></li>
+                                          <li><a class="dropdown-item" href="#english-business">Английский для бизнеса</a></li>
+                                          <li><a class="dropdown-item" href="#english-express">Экспресс-английский</a></li>
+                                          <li><a class="dropdown-item" href="#english-speaking">Speaking club</a></li>
+                                          <li><hr class="dropdown-divider"></li>
+                                          <li><a class="dropdown-item" href="#programming">Программирование</a></li>
+                                        </ul>
+                                      </li>
+                                              <li class="nav-item px-2" data-anchor="data-anchor"><form><a class="nav-link" asp-action="Test" asp-controller="Home" >Тест</a> </form></li>
+                                      <li class="nav-item px-2" data-anchor="data-anchor"><a class="nav-link" href="#camping">Лагерь </a></li>
+                                      <li class="nav-item px-2" data-anchor="data-anchor"><a class="nav-link" href="#contacts">Контакты</a></li>
+                                    </ul>
+                                    <form class="ps-lg-5">
+                                      <button class="btn btn-outline-primary order-0" type="submit" asp-controller="Account" asp-action="SignIn">Войти</button>
+                                    </form>
+                                    <div>
+                                        <!--
+                                     <a asp-action="SendMessage" asp-controller="Home">Send msg</a>
+                                     <a href="viber://pa?chatURI=skillshub" >AddNotification</a>
+                                     <a asp-action="Post" asp-controller="Viber">Post</a>
+                                     -->
+                                    </div>
+                                  </div>
+                            }
+                        }
 
+                </div>
+            </nav>
+        </header>
+        <div class="container">
+                        <main role="main" class="pb-3">
+                    @RenderBody()
+                        </main>
         </div>
-      </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+        }
+
+    }
+
+
 
     @{
-        if (@Context.Request.Path.Value.Contains("Test"))
+        if (@Context.Request.Path.Value == "/Test")
         {
             
         }
@@ -186,6 +199,13 @@
     <!-- ===============================================-->
     <script>
 
+var hamburgerDiv = document.querySelector('.hamburger');
+
+if (hamburgerDiv.classList.contains('is-active')) {
+  var iconMenu = hamburgerDiv.querySelector('.icon-menu');
+  iconMenu.innerHTML = '<i class="fa-solid fa-arrow-right-long"></i>';
+}
+
     var texts = document.getElementsByClassName('foo');
     var texts1 = document.getElementsByClassName('foo1');
     var texts2 = document.getElementsByClassName('foo2');
@@ -218,6 +238,9 @@ function flash() {
     
 }
 var clr = setInterval(flash, 1500);
+
+
+
 
     </script>
     <script src="~/vendors/popperjs/popper.min.js"></script>
