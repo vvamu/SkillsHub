@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /skillshub/CRM/
+Allow: /skillshub

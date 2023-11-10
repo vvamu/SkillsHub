@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SkillsDomain\SkillsHub.Domain.csproj" />
-    <ProjectReference Include="..\SkillsHub.Persistence\SkillsHub.Persistence.csproj" />
+    <PackageReference Include="FluentValidation" Version="11.7.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\" />
+    <ProjectReference Include="..\SkillsDomain\SkillsHub.Domain.csproj" />
+    <ProjectReference Include="..\SkillsHub.Persistence\SkillsHub.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

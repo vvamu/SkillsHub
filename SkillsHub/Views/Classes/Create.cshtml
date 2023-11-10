@@ -1,0 +1,139 @@
+﻿@* @using Microsoft.AspNetCore.Identity
+@using SkillsHub.Domain.BaseModels
+
+
+
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<!-- Section: Design Block -->
+<section class=" text-center ">
+        <link href="~/css/style.css" rel="stylesheet">
+
+  <style>
+    .rounded-t-5 {
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+    }
+
+    .rounded-bl-lg-5 {
+        border-bottom-left-radius: 0.5rem;
+      }
+    
+    .my-background {
+        background-color:#F3F3F9 !important;
+    }
+  </style>
+<div class="login-form-bg h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100">
+                <div class="col-xl-6">
+                    <div class="form-input-content">
+                        <div class="card login-form mb-0">
+                            <div class="card-body pt-5">
+                                <a class="text-center" href="index.html"> <h4>Добавить пользователю абонемент на занятия / Записать на курс</h4></a>
+
+                                <form class="mt-5 mb-5 login-input" method="post">
+                                    <div class="validation" asp-validation-summary="ModelOnly"></div>
+
+
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Выберите курс
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#">Action</a></li>
+                                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                        </ul>
+                                    </div>
+
+
+
+                                    <!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+                                    <div class="form-group">
+                                        <input type="text" asp-for="Login" class="form-control" placeholder="Логин*" required>
+                                    </div>
+
+
+
+
+                                    <input type="submit" asp-action="Create" asp-controller="Account" class="btn login-form__btn submit w-100" value="Создать"/>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-form-bg h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100">
+                <div class="col-xl-6">
+                    <div class="form-input-content">
+                        <div class="card login-form mb-0">
+                            <div class="card-body pt-5">
+                                <a class="text-center" href="index.html"> <h4>Создать курс</h4></a>
+
+                                <form class="mt-5 mb-5 login-input" method="post">
+                                    <div class="validation" asp-validation-summary="ModelOnly"></div>
+
+
+                                    <div class="col-lg-12">
+                                        <div class="card">
+                                            <div class="card-body" style="display:flex;align-items:flex-start;grid-gap:20px;">
+                                                <h6 class="card-title">Тип абонемента </h6>
+                                                <br />
+                                                <div class="basic-form">
+                                                    <div class="form-group">
+                                                        <div class="form-check mb-3">
+                                                            <label class="form-check-label">
+                                                                <input type="radio" asp-for=IsStudent class="form-check-input" />Бессрочный (с количеством занятий)
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check mb-3">
+                                                            <label class="form-check-label">
+                                                                <input type="radio" asp-for=IsTeacher class="form-check-input" />Количество занятий
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+                                    <div class="form-group">
+                                        <input type="text" asp-for="Login" class="form-control" placeholder="Логин*" required>
+                                    </div>
+
+
+
+
+                                    <input type="submit" asp-action="Create" asp-controller="Account" class="btn login-form__btn submit w-100" value="Создать" />
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!--**********************************
+        Scripts
+    ***********************************-->
+    <script src="~/plugins/common/common.min.js"></script>
+    <script src="~/js/custom.min.js"></script>
+    <script src="~/js/settings.js"></script>
+    <script src="~/js/gleek.js"></script>
+    <script src="~/js/styleSwitcher.js"></script>
+</section>
+<!-- Section: Design Block -->
+ *@

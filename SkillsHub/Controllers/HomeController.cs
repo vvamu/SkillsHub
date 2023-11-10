@@ -1,7 +1,11 @@
-﻿using EmailProvider.Interfaces;
+﻿using AutoMapper;
+using EmailProvider.Interfaces;
 using EmailProvider.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SkillsHub.Application.Services;
+using SkillsHub.Application.Services.Interfaces;
+using SkillsHub.Domain.BaseModels;
 using SkillsHub.Models;
 using System.Diagnostics;
 using System.Text;
@@ -11,14 +15,24 @@ namespace SkillsHub.Controllers
 {
     public class HomeController : Controller
     {
-        private IMailService _mailService;
-        public HomeController(IMailService mailService)
+        private readonly IMailService _mailService;
+        private readonly IExternalService _externalService;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+
+        public HomeController(IMailService mailService, IExternalService externalService, SignInManager<ApplicationUser> signInManager)
         {
             _mailService = mailService;
+            _externalService = externalService;
+            _signInManager = signInManager;
         }
 
         public IActionResult Index()
         {
+            if(_signInManager.Context.User != null)
+            {
+
+                return RedirectToAction("Index","CRM");
+            }
             return View();
         }
 
@@ -72,9 +86,10 @@ await _mailer.SendMessage();
 
             //if (!ModelState.IsValid) return View("Index",msg);
             
-           
-
             await _mailService.SendEmailAsync(msg);
+            var message = new SkillsHub.Domain.Models.EmailMessage() { Data = msg.Data, Email = msg.Email, Date = msg.Date, Name = msg.Name, Phone = msg.Phone };
+
+            await _externalService.SaveMessage(message);
 
 
             return View("Index");

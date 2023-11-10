@@ -1,0 +1,26 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace SkillsHub.Application.DTO;
+
+
+public class UserCreateDTO
+{
+    public string Login { get; set; } //unique
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Surname { get; set; } = "Default Surname";
+    public string Username { get; set; }
+    public string Sex { get; set; } = "Male";
+
+    //[DataType(DataType.Date)]
+    //[DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+    public DateTime BirthDate { get; set; }
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public string? SourceFindCompany { get; set; }
+    public string Password { get; set; } //?
+
+    public bool IsTeacher { get; set; }
+    public bool IsStudent { get; set; }
+
+}

@@ -1,0 +1,277 @@
+﻿@model (IQueryable<Cource>,IQueryable<CourceName>,IQueryable<LessonType>);
+@{
+	ViewData["Title"] = "Create";
+}
+<div class=" text-center ">
+	<link href="~/css/style.css" rel="stylesheet">
+	<style>
+		.rounded-t-5 {
+			border-top-left-radius: 0.5rem;
+			border-top-right-radius: 0.5rem;
+		}
+
+		.rounded-bl-lg-5 {
+			border-bottom-left-radius: 0.5rem;
+		}
+
+		.my-background {
+			background-color: #F3F3F9 !important;
+		}
+	</style>
+
+	<div class="row page-titles mx-0">
+		<div class="col p-md-0">
+			<ol class="breadcrumb" style="display:flex;align-items:center">
+				<li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+				<li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
+			</ol>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col">
+				@{
+					<h2>Cources</h2>
+					if (Model.Item1 == null || Model.Item1.Count() == 0)
+					{
+							<div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
+								<div>List is empty</div>
+							</div>
+
+
+					}
+					else
+					{
+						foreach (var item in Model.Item1)
+						{
+								<div class="container-fluid">
+									<div class="row">
+										<div class="col-12">
+											<div class="card">
+												<div class="card-body">
+												<form id="lessonTypesForm">
+													<h3>@item.Name</h3>
+													<div style="display:flex">
+														<label>Teacher price by type  |  |  </label>
+														<label>    Student price by type</label>
+													</div>
+													<div style="display:flex">
+														<input type="hidden" asp-for="@item.Id" value="@item.Id">
+														<input type="hidden" asp-for="@item.Name" value="@item.Name">
+														<!--<input asp-for="item."/>-->
+														<button class="btn btn-primary" onclick="SaveCourcesNames()">Save</button>
+													</div>
+												</form>
+											    </div>
+											</div>
+										</div>
+									</div>
+								</div>
+						}
+					}
+				}
+				<div class="container-fluid">
+					<div class="row"><button class="btn btn-primary">Create</button></div>
+				</div>
+			</div>
+
+			<!--CourceName-->
+			<div class="col">
+				<h2>Cource`s names</h2>
+				@{
+					if (Model.Item2 == null || Model.Item2.Count() == 0)
+					{
+							<div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
+								<h3>Cources list is empty</h3>
+							</div>
+
+					}
+					else
+					{
+						foreach (var item in Model.Item2)
+						{
+								<div class="container-fluid">
+									<div class="row">
+										<div class="col-12">
+											<div class="card">
+												<div class="card-body">
+													<form id="courcesNamesForm">
+													<div style="display:flex;justify-content:space-between">
+														<h4>@item.Name</h4>
+														<button class="btn btn-danger">☓</button>
+													</div>
+													<div style="display:flex">
+													</div>
+													<div style="display:flex">
+														<label>MinimumAge  |  </label>
+														<label>MaximumAge</label>
+													</div>
+														<div style="display:flex">
+															<input type="hidden" asp-for="@item.Id" value="@item.Id">
+															<input type="hidden" asp-for="@item.Name" value="@item.Name">
+															<br/>
+															<input type="number" asp-for="@item.MinimumAge" value="@item.MinimumAge"/>
+															<input type="number" asp-for="@item.MaximumAge" value="@item.MaximumAge" />
+															<br/>
+															<button class="btn btn-primary" onclick="SaveCourcesNames()">Save</button>
+														</div>
+													</form>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+						}
+					}
+				}
+				<div class="container-fluid">
+				<div class="row"><button class="btn btn-primary">Create</button></div>
+				</div>
+			</div>
+			<div class="col">
+				<h2>Lesson`s types</h2>
+				@{
+					if (Model.Item3 == null || Model.Item3.Count() == 0)
+					{
+							<div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
+								<h2>List is empty</h2>
+							</div>
+					}
+					else
+					{
+						foreach (var item in Model.Item3)
+						{
+								<div class="container-fluid">
+									<div class="row">
+										<div class="col-12">
+											<div class="card">
+												<div class="card-body">
+													<form id="lessonTypeForm">
+													<div style="display:flex;justify-content:space-between">
+													<h3>@item.Name</h3>
+														<!--<button class="btn btn-danger">☓</button>-->
+													</div>
+														
+														<div style="display:flex">
+															<label>Teacher price by type  BYN  |  </label>
+															<label>    Student price by type BYN</label>
+														</div>
+														<div style="display:flex">
+															<input type="hidden" asp-for="@item.Id" value="@item.Id">
+															<input type="hidden" asp-for="@item.Name" value="@item.Name">
+
+															<input value="@Convert.ToDecimal(item.TeacherPrice)" asp-for="@item.TeacherPrice"></input>
+															<input value="@Convert.ToDecimal(item.StudentPrice)" asp-for="@item.StudentPrice"></input>
+
+															
+														</div>
+													<div style="display:flex;margin-top:20px">
+														<label>Teacher price Per Cource  BYN  |  </label>
+														<label>Student price Per Cource BYN</label>
+														</div>
+													<div style="display:flex">
+														<input value="@(Convert.ToDecimal(item.TeacherPrice) * item.MinumumLessonsToPay)" disabled name="TeacherPricePerCource"></input>
+														<input value="@(Convert.ToDecimal(item.StudentPrice) * item.MinumumLessonsToPay)" disabled name="StudentPricePerCource"></input>
+													</div>
+
+													<div style="display:flex;margin-top:20px">
+														<label>MinumumLessonsToPay</label>
+													</div>
+													<div style="display:flex;justify-content:space-between">
+														<input type="number"   asp-for="@item.MinumumLessonsToPay" ></input>
+														
+													</div>
+													<div style="display:flex;margin-top:20px">
+														<label>LessonTimeInMinutes</label>
+													</div>
+													<div style="display:flex;justify-content:space-between">
+														<input type="number" asp-for="@item.LessonTimeInMinutes"></input>
+														<button class="btn btn-primary" type="button" onclick="SaveLessonType()">Save</button>
+													</div>
+													</form>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+						}
+					}
+				}
+				<div class="container-fluid">
+					<div class="row"><button class="btn btn-primary">Create</button></div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<script>
+		function SaveLessonType() {
+			//Serialize the form datas.
+			var valdata = $("#lessonTypeForm").serialize();
+			console.log(valdata);
+			//to get alert popup
+			$.ajax({
+				url: "/Cources/SaveLessonType",
+				type: "POST",
+				dataType: 'json',
+				contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+				data: valdata
+			});
+			alert("Saved");
+			//$("<div>Saved</div>").insertAfter($("#lessonTypeForm"));
+			
+		}
+		function SaveCourcesNames() {
+			//Serialize the form datas.
+			var valdata = $("#courcesNamesForm").serialize();
+			console.log(valdata);
+			//to get alert popup
+			$.ajax({
+				url: "/Cources/SaveCourcesNames",
+				type: "POST",
+				dataType: 'json',
+				contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+				data: valdata
+			});
+		}
+
+		function SaveLessonTypes() {
+			//Serialize the form datas.
+			var valdata = $("#lessonTypesForm").serialize();
+			console.log(valdata);
+			//to get alert popup
+			$.ajax({
+				url: "/Cources/SaveLessonTypes",
+				type: "POST",
+				dataType: 'json',
+				contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+				data: valdata
+			});
+		}
+
+
+		const exampleModal = document.getElementById('exampleModal')
+		exampleModal.addEventListener('show.bs.modal', event => {
+			// Кнопка, которая активировала модальное окно
+			const button = event.relatedTarget
+			// Извлекает информацию из атрибутов data-bs-*
+			const recipient = button.getAttribute('data-bs-whatever')
+			// При необходимости вы можете инициировать запрос AJAX здесь,
+			// а затем выполнить обновление в обратном вызове.
+			//
+			// Обновляет содержимое модального окна.
+			const modalTitle = exampleModal.querySelector('.modal-title')
+			const modalBodyInput = exampleModal.querySelector('.modal-body input')
+
+			modalTitle.textContent = `New message to ${recipient}`
+			modalBodyInput.value = recipient
+		})
+
+	</script>
+	<script src="~/plugins/common/common.min.js"></script>
+	<script src="~/js/custom.min.js"></script>
+	<script src="~/js/settings.js"></script>
+	<script src="~/js/gleek.js"></script>
+	<script src="~/js/styleSwitcher.js"></script>
+	</>
+

@@ -1,0 +1,121 @@
+﻿@using SkillsHub.Application.DTO;
+
+@model StudentDTO
+<div class="content-body">
+
+            <div class="row page-titles mx-0">
+                <div class="col p-md-0">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
+                    </ol>
+                </div>
+            </div>
+            <!-- row -->
+
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-validation">
+                                    <form class="form-valide" action="#" method="post"  >
+
+
+
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-suggestions">
+                                            Suggestions <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <input type="text" asp-for="ParentPhone" class="form-control" placeholder="Телефон родителя" pattern="(\+\d{4,}|\d{4,})" title="Введите корректный номер телефона">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-suggestions">
+                                            Suggestions <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <input type="text" asp-for="ParentName" class="form-control" placeholder="Имя родителя" title="Введите имя родителя для связи">
+                                        </div>
+                                    </div>
+
+                                <!--
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-suggestions">Suggestions <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="col-lg-6">
+                                                <textarea class="form-control" id="val-suggestions" name="val-suggestions" rows="5" placeholder="What would you like to see?"></textarea>
+                                            </div>
+                                        </div>
+                                -->
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-skill">Направление обучения<span class="text-danger">*</span>
+                                            </label>
+                                            <div class="col-lg-6">
+                                                <select class="form-control" id="val-skill" name="val-skill">
+                                                    
+                                            <option value="">Выберете одно или несколько</option>
+                                            @if(Model.Cources != null)
+                                            {
+                                                @foreach (CourceName item in ViewBag.CourcesNames)
+                                                {
+                                                    <option value="@item.Name">@item.Name</option>
+                                                }
+                                                
+                                            }
+                                                     <!--
+                                                    <option value="css">Английский для детей</option>
+                                                    
+                                                    <option value="javascript">Английский для бизнеса</option>
+                                                    <option value="angular">Экспресс-английский</option>
+                                                    <option value="angular">Разговорный клуб</option>
+                                                    <option value="vuejs">Программирование на Scratch</option>
+                                                    <option value="ruby">Программирование на Python</option>
+                                                    <option value="php">Программирование на Java</option>
+                                                    -->
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-skill">
+                                                Уровень владения английским<span class="text-danger">*</span>
+                                            </label>
+                                            <div class="col-lg-6">
+                                                <select class="form-control" id="val-skill" name="val-skill">
+                                                    <option value="">Выберете одно</option>
+
+                                                    <option value="html">Начальный - A1  (знание слов)</option> 
+                                                    <option value="css">Элементарный - A2 (чтение)</option>
+                                                    <option value="css">Средний - B1  (общение)</option>
+                                                    <option value="css">Выше среднего - B2 (свободное общение, грамматика)</option>
+                                                    <option value="css">Продвинутый - С1 (спонтанное общение, письмо, чтение на любую тему) </option>
+                                                    <option value="css">Средний - С2 (спонтанное общение, письмо, чтение на любую узкую тему как медицина, юриспруденция)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <!--
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label"><a href="#">Terms &amp; Conditions</a>  <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="col-lg-8">
+                                                <label class="css-control css-control-primary css-checkbox" for="val-terms">
+                                                    <input type="checkbox" class="css-control-input" id="val-terms" name="val-terms" value="1"> <span class="css-control-indicator"></span> I agree to the terms</label>
+                                            </div>
+                                        </div>
+                                         -->
+                                        <div class="form-group row">
+                                            <div class="col-lg-8 ml-auto">
+                                                <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Teachers">Submit</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- #/ container -->
+        </div>

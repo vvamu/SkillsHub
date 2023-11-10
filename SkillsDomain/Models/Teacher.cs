@@ -2,13 +2,10 @@
 
 namespace SkillsHub.Domain.Models;
 
-public class Teacher : ApplicationUser
+public class Teacher : BaseEntity
 {
-    public bool IsAdmin { get; set; }
-    public bool CalculatedSalary { get; set; }
-
-    public List<Lesson>? CurrentLessons { get; set; }
-    public List<Lesson>? TotalLessons { get; set; }
-
-
+    public Guid ApplicationUserId { get; set; }
+    public ApplicationUser ApplicationUser { get; set; }
+    public decimal CalculatedSalary { get; set; }
+    public List<Lesson>? Lessons { get; set; }
 }

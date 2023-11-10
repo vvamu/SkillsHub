@@ -80,7 +80,7 @@ public class MailService : IMailService
 
 
         var builder = new BodyBuilder();
-        builder.TextBody = $"Name: {msg.Name}\nEmail: {msg.Email}\nMessage: {msg.Data} ";
+        builder.TextBody = $"Name: {msg.Name}\nEmail: {msg.Email}\nPhone: {msg.Phone}\nMessage: {msg.Data}";
 
 
         var email = new MimeMessage();
