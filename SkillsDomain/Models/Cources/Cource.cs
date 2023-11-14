@@ -11,8 +11,9 @@ public class Cource : BaseModels.BaseEntity
 {
     public List<Lesson> Lessons { get; set; }
     public CourceName Name { get; set; }
-    public EnglishLevel? EnglishLevel { get; set; }
-    public string? RusName { get; set; }
+    public EnglishLevel? EnglishLevel { get; set; } 
+
+    public string Term { get; set; }
     public string SubscriptionType { get; set; } //Term , Termless
     public int MaxArrivedStudents { get; set; }
     public int MinimumAge { get; set; }

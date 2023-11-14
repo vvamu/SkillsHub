@@ -13,6 +13,9 @@ public class Student : BaseEntity
     public bool EnglishLevelConfirmed { get; set; } = false;
     public string? IsRecorded { get; set; }
     public int CountPayedLessons { get; set; }
+    //public Dictionary<int,DateTime> Payment {  get; set; }
+
+    //public List<Group>? Cources { get; set; }
     public List<Group>? Groups { get; set; }
     public List<Lesson> Lessons { get; set; }
 }

@@ -302,4 +302,19 @@ public class UserService : IUserService
     }
 
     #endregion
+
+
+    public async Task<IQueryable<StudentDTO>> GetAllStudentsAsync()
+    {
+        var items = _context.Students.Include(x => x.Lessons).OrderBy(on => on.Id);
+        var users = _context.Users.Include(x => x.UserStudent).Where(x => x.UserStudent != null).OrderBy(on => on.Id);
+        var mappingItems = _mapper.Map<List<StudentDTO>>(items).AsQueryable();
+        mappingItems = _mapper.Map<List<StudentDTO>>(users).AsQueryable();
+
+        //mappingItems = _mapper.Map< IQueryable < StudentDTO >> (users).AsQueryable();
+
+
+        
+        return mappingItems;
+    }
 }

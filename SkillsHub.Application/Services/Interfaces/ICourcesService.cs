@@ -16,4 +16,6 @@ public interface ICourcesService
     public IQueryable<LessonActivityType> GetAllLessonActivityType(); //Отработка Пробное Обычное
     public IQueryable<CourceName> GetAllCourcesNames(); //"English for adults", "English for children", "English for organizations"
     public IQueryable<Cource> GetAllCources();
+
+    public IQueryable<EnglishLevel> GetAllEnglishLevels();
 }

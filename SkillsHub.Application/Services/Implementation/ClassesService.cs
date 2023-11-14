@@ -55,7 +55,6 @@ public class ClassesService
 
         return item_db == null ? throw new ApplicationException() : item_db;
     }
-
     public async Task<Lesson> DeleteAsync(int id)
     {
         var item = await _context.Lessons.FindAsync(id);
@@ -64,4 +63,5 @@ public class ClassesService
         await _context.SaveChangesAsync();
         return item;
     }
+
 }

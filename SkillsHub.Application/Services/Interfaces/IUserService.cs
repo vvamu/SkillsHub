@@ -17,4 +17,6 @@ public interface IUserService
 
     public Task<IQueryable<ApplicationUser>> GetAllAsync();
 
+    public Task<IQueryable<StudentDTO>> GetAllStudentsAsync();
+
 }

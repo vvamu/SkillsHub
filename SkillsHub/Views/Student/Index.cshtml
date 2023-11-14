@@ -73,14 +73,18 @@
                                                 <th>Email</th>
                                                 <th>BirthDate</th>
                                                 <th>Age</th>
+                                                <th>Status</th>
                                                 <th>Groups</th>
                                                 <th>Teacher</th>
                                                 <!--<th>Student</th>-->
                                                 <th>Total Lessons</th>
                                                 <th>Month Lessons</th>
                                                 <th>Student`s Lessons</th>
+                                                <th>Payment</th>
                                                 <th>IsAdmin</th>
                                                 <th>SourceFindCompany</th>
+                                                <th>Date Register</th>
+                                                <th>External connections</th>
                                                 <th>IsDeleted</th>
                                                </tr>
                                             </thead>
@@ -106,14 +110,18 @@
                                                                 <td>@item.BirthDate</td>
                                                                 <td>@(DateTime.Today.Year - @item.BirthDate.Year)</td>
                                                                 <td><!--item.Groups--></td>
+                                                                <td>Learning</td>
                                                                <!-- <td>if(item.UserTeacher != null) {item.UserTeacher.Lessons;} else {<div>-</div>}</td>-->
                                                                 <td>@if(item.UserStudent != null) {foreach(var i in @item.UserStudent.Lessons) {<a asp-action="Item" asp-controller="Classes" asp-route-itemid="@i.Group.Id">@i.StartTime</a>}} else{<div>-</div>}</td>
                                                                 <td><!--item.StudentLessons.Count()--></td>
                                                                 <td><!--item.StudentLessons.Where(x=>x.StartTime.Month == DateTime.Today.Month).Count()--></td>
                                                                 <td><!--item.StudentLessons.Count()--></td>
                                                                 <td>@item.PasswordHash</td>
+                                                                <td>---</td>
                                                                 <td>@item.IsAdmin</td>
                                                                 <td>@item.SourceFindCompany</td>
+                                                                <td>@item.RegistrationDate</td>
+                                                                <td>---</td>
                                                                 <td>@item.IsDeleted</td>
                                                             </tr>
                                             }

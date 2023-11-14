@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Persistence;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace SkillsHub.Controllers;
 
@@ -48,5 +51,34 @@ public class CourcesController : Controller
     {
         var item = await _context.Lessons.FirstOrDefaultAsync(x=> x.Id == id);
         return View(item);
+    }
+
+    public async Task GetCourcesNames(int sport) //JSON
+    {
+        //ViewBag.CourcesNames = _courcesService.GetAllCourcesNames();
+        //ViewBag.EnglishLevels = _courcesService.GetAllEnglishLevels();
+        //ViewBag.LessonTypes = _courcesService.GetAllLessonType();
+        var arr = new String[] { "s", "f" };
+        //var result = JsonArray.Create(arr);
+        //return result;
+
+        //User user = await _userManager.FindByNameAsync(User.Identity.Name);
+        //var sports1 = db.Sports.ToList();
+
+
+        //var students = db.Students.FirstOrDefault(c => c.User == user && c.Sports.Id == sport);
+        //ViewBag.student = students;
+
+        ///*var mappedOptions = students.Select(o => new { exp = o.Experience.ToString(), aexp = o.AboutExpireance.ToString() });*/
+
+        //if (students == null)
+        //{
+        //    // Return the mapped options as a JSON response
+        //    return Ok(("null"));
+        //}
+        //else
+        //{
+        //    return Json(new { exp = students.Experience.ToString(), aexp = students.AboutExpireance });
+        //}
     }
 }

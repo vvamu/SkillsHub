@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SkillsHub.Application.DTO;
 using SkillsHub.Application.Services;
+using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
 
@@ -11,9 +12,12 @@ namespace SkillsHub.Controllers;
 public class AccountController : Controller
 {
     private readonly IUserService _userService;
-    public AccountController(IUserService userService)
+    private readonly ICourcesService _courcesService;
+
+    public AccountController(IUserService userService, ICourcesService courcesService)
     {
         _userService = userService;
+        _courcesService = courcesService;
     }
     [HttpGet]
     [Authorize]
@@ -26,6 +30,10 @@ public class AccountController : Controller
     [Authorize]
     public async Task<IActionResult> Item(Guid itemId)
     {
+        ViewBag.CourcesNames = _courcesService.GetAllCourcesNames();
+        ViewBag.EnglishLevels = _courcesService.GetAllEnglishLevels();
+        ViewBag.LessonTypes = _courcesService.GetAllLessonType();
+
         var currentUser = await _userService.GetCurrentUserAsync();
         if (itemId == Guid.Empty) itemId = currentUser.Id;
 

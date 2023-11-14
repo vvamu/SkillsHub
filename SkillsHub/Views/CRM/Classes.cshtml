@@ -2,12 +2,13 @@
 
 @model (EventDTO, EventCategoryDTO);
 
-<div id="main-wrapper">
-
+<div>
+    <link href="~/plugins/fullcalendar/css/fullcalendar.min.css" rel="stylesheet">
+    <link href="~/css/style.css" rel="stylesheet">
     <!--**********************************
         Content body start
     ***********************************-->
-    <div class="content-body">
+    <div >
 
         <div class="row page-titles mx-0">
             <div class="col p-md-0">
@@ -40,7 +41,6 @@
                                     <!-- checkbox -->
                                     <div class="checkbox m-t-40">
                                         <input id="drop-remove" type="checkbox">
-                                        <label for="drop-remove">Remove after drop</label>
                                     </div>
                                 </div>
                                 <div class="col-md-8">
@@ -120,12 +120,8 @@
         </div>
         <!-- #/ container -->
     </div>
-    <!--**********************************
-        Content body end
-    ***********************************-->
-
-
 </div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -144,7 +140,7 @@
     <script src="~/plugins/fullcalendar/js/fullcalendar.min.js"></script>
     <script src="~/js/plugins-init/fullcalendar-init.js"></script>
 
-<input type="hidden" value="@ViewBag.Events" id="sika"/>
+<input type="hidden" value="@ViewBag.Events" id="suka"/>
 
 
     <script>
@@ -152,7 +148,7 @@
         function CreateEvent() {
 
 
-            items = $("#sika").val();
+            items = $("#suka").val();
             console.log(items);
             console.log("SUKAAAAAAAA");
 

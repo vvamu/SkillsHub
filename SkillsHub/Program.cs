@@ -21,13 +21,15 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.Services.AddControllersWithViews();
+        builder.Services.AddControllersWithViews().
+            AddNewtonsoftJson(options =>
+            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
         var services = builder.Services;
 
 
         
         services.AddAutoMapper(typeof(MappingProfile).Assembly);
-
 
         #region Options pattern
         IConfiguration configuration = new ConfigurationBuilder()
@@ -96,6 +98,7 @@ public class Program
         builder.Services.AddTransient<IExternalService,ExternalService>();
         builder.Services.AddTransient<IIndexCRMService, IndexCRMService>();
         builder.Services.AddTransient<ICourcesService, CourcesService>();
+        builder.Services.AddTransient<IGroupService,GroupService>();
         #endregion
 
         services.AddControllers(options =>
@@ -104,7 +107,7 @@ public class Program
         });
 
 
-
+        builder.Services.AddCors();
         var app = builder.Build();
 
         if (!app.Environment.IsDevelopment())
@@ -113,7 +116,12 @@ public class Program
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
-
+        app.UseCors(opt =>
+        {
+            opt.AllowAnyMethod();
+            opt.AllowAnyHeader();
+            opt.AllowAnyOrigin();
+        });
         app.UseHttpsRedirection();
         app.UseStaticFiles();
 

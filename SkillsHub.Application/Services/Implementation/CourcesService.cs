@@ -38,6 +38,7 @@ public class CourcesService : ICourcesService
     public IQueryable<LessonActivityType> GetAllLessonActivityType() => _context.LessonActivityTypes; //Отработка Пробное Обычное
     public IQueryable<CourceName> GetAllCourcesNames() => _context.CourceNames; //"English for adults", "English for children", "English for organizations"
     public IQueryable<Cource> GetAllCources() => _context.Cources;
+    public IQueryable<EnglishLevel> GetAllEnglishLevels() => _context.EnglishLevels;
 
 
 
