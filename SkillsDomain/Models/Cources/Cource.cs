@@ -13,7 +13,7 @@ public class Cource : BaseModels.BaseEntity
     public CourceName Name { get; set; }
     public EnglishLevel? EnglishLevel { get; set; } 
 
-    public string Term { get; set; }
+    //public string Term { get; set; }
     public string SubscriptionType { get; set; } //Term , Termless
     public int MaxArrivedStudents { get; set; }
     public int MinimumAge { get; set; }

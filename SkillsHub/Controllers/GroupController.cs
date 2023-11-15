@@ -23,10 +23,16 @@ public class GroupController : Controller
         return View(_groupService.GetAll());
     }
 
+    [HttpPost]
     public void Create(Group group)
     {
         _groupService.CreateAsync(group);
 
+    }
+
+    public IActionResult GetCreateModal()
+    {
+        return PartialView("_Create");
     }
 
 }
