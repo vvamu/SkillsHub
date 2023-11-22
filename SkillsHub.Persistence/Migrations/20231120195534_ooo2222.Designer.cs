@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillsHub.Persistence;
 
@@ -11,9 +12,11 @@ using SkillsHub.Persistence;
 namespace SkillsHub.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231120195534_ooo2222")]
+    partial class ooo2222
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace SkillsHub.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("LessonTeacher", b =>
+                {
+                    b.Property<Guid>("LessonsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TeachersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("LessonsId", "TeachersId");
+
+                    b.HasIndex("TeachersId");
+
+                    b.ToTable("LessonTeacher");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
                 {
@@ -483,8 +501,9 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<Guid?>("LessonActivityTypeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("LessonTypeId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("LessonType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LinkToWebinar")
                         .IsRequired()
@@ -499,9 +518,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<Guid?>("StudentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("TeacherId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CourceId");
@@ -512,11 +528,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("LessonActivityTypeId");
 
-                    b.HasIndex("LessonTypeId");
-
                     b.HasIndex("StudentId");
-
-                    b.HasIndex("TeacherId");
 
                     b.ToTable("Lessons");
                 });
@@ -748,6 +760,21 @@ namespace SkillsHub.Persistence.Migrations
                     b.ToTable("DaySchedules");
                 });
 
+            modelBuilder.Entity("LessonTeacher", b =>
+                {
+                    b.HasOne("SkillsHub.Domain.Models.Lesson", null)
+                        .WithMany()
+                        .HasForeignKey("LessonsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SkillsHub.Domain.Models.Teacher", null)
+                        .WithMany()
+                        .HasForeignKey("TeachersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -881,29 +908,15 @@ namespace SkillsHub.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("LessonActivityTypeId");
 
-                    b.HasOne("SkillsHub.Domain.Models.LessonType", "LessonType")
-                        .WithMany()
-                        .HasForeignKey("LessonTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("SkillsHub.Domain.Models.Student", null)
                         .WithMany("Lessons")
                         .HasForeignKey("StudentId");
-
-                    b.HasOne("SkillsHub.Domain.Models.Teacher", "Teacher")
-                        .WithMany("Lessons")
-                        .HasForeignKey("TeacherId");
 
                     b.Navigation("Creator");
 
                     b.Navigation("Group");
 
                     b.Navigation("LessonActivityType");
-
-                    b.Navigation("LessonType");
-
-                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.LessonStudent", b =>
@@ -1022,8 +1035,6 @@ namespace SkillsHub.Persistence.Migrations
             modelBuilder.Entity("SkillsHub.Domain.Models.Teacher", b =>
                 {
                     b.Navigation("Groups");
-
-                    b.Navigation("Lessons");
 
                     b.Navigation("PossibleCources");
                 });

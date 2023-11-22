@@ -5,16 +5,28 @@ namespace SkillsHub.Domain.Models;
 
 public class Group : BaseEntity
 {
-    public string Name;
-    public List<LessonStudent> ArrivedStudents { get; set; }
+    public string Name { get; set; }
+    public List<LessonStudent>? ArrivedStudents { get; set; }
 
-    public string Term { get; set; }
+    public string? Term { get; set; }
+
     public LessonType LessonType { get; set; } //Offline , Online
-    public List<Lesson> Lessons { get; set; }
 
-    public Cource Cource { get; set; }
+    [NotMapped]
+    public Guid LessonTypeId { get; set; } 
+
+    [NotMapped]
+    public Guid CourceId { get; set; }
+    public CourceName CourceName { get; set; }
+    public List<Lesson>? Lessons { get; set; }
+
 
     [NotMapped]
     public double AverageAgeStudents { get; set; }
+
+    public Teacher? Teacher { get; set; }
+
+
+    public Guid TeacherId { get; set; }
 
 }

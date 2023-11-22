@@ -3,6 +3,7 @@ using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
+using SkillsHub.Helpers;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -30,26 +31,13 @@ public class StudentController : Controller
         var items = await _userPresentationService.GetAllStudentsAsync(parameters);
         return View(items);
     }
+
     [HttpGet]
     [Route("/Student/GetStudentListAsync")]
     public async Task<IActionResult> GetStudentListAsync()
     {
-
-        var parameters = new QueryStringParameters() { PageNumber = 1, PageSize = 100 };
         var items = await _userService.GetAllStudentsAsync();
-        string json = "";
-
-        try
-        {
-            JsonSerializerOptions options = new()
-            {
-                ReferenceHandler = ReferenceHandler.IgnoreCycles,
-                WriteIndented = true
-            };
-            json = JsonSerializer.Serialize(items, options);
-        }
-        catch(Exception ex) { }
-        return Json(json);
+        return Json(JsonSerializerToAjax.GetJsonByIQueriable(items));
     }
 
     public IActionResult Create()

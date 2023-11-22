@@ -20,6 +20,9 @@
                             <div class="card-body">
                                 <div class="form-validation">
                                     <form class="form-valide" method="post"  >
+
+                                         <!--DELETE-->
+                                        <!--
                                         <div class="form-group row">
                                             <label class="col-lg-4 col-form-label" for="val-username">Username <span class="text-danger">*</span>
                                             </label>
@@ -117,6 +120,19 @@
                                                 <input type="text" class="form-control" id="val-range" name="val-range" placeholder="4">
                                             </div>
                                         </div>
+
+                                        -->
+                                        <!--DELETE-->
+
+                                        <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-range">
+                                                Possibility to work<span class="text-danger">*</span>
+                                            </label>
+                                            <div class="col-lg-6">
+                                              <ul id="courcesNames" class ="list-group col"></ul>
+                                            </div>
+                                        </div>
+
                                         <div class="form-group row">
                                             <label class="col-lg-4 col-form-label"><a href="#">Terms &amp; Conditions</a>  <span class="text-danger">*</span>
                                             </label>
@@ -139,3 +155,57 @@
             </div>
             <!-- #/ container -->
         </div>
+
+
+<script src="~/plugins/common/common.min.js"></script>
+
+<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
+<script src="~/plugins/jquery/jquery.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+
+<script>
+    function getCourcesNamesList() {
+
+        var studentsList = $("#courcesNames");
+
+        $.ajax({
+            url: "/Cource/GetCourcesNamesAsync",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+                    data.forEach(function (item, i, arr) {
+                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
+
+                        var appendedLine = "<li class='list-group-item'>";
+                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        appendedLine += item.Name;
+                        appendedLine += "</li>"
+
+                        studentsList.append(appendedLine);
+                    })
+
+
+
+                }
+            }
+        });
+
+    }
+
+    $(document).ready(function () {
+        //getDataByAjax("/Student/GetStudentListAsync")
+        getCourcesNamesList();
+    });
+
+</script>

@@ -55,10 +55,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         //builder.Entity<Group>().HasMany(x => x.ArrivedStudents).WithOne(x => x.Group).OnDelete(DeleteBehavior.SetNull);
         builder.Entity<Lesson>().HasMany(x => x.ArrivedStudents).WithOne(x => x.Lesson).OnDelete(DeleteBehavior.SetNull);
 
+        
         builder.Entity<ApplicationUser>().HasOne(x => x.UserStudent).WithOne(x => x.ApplicationUser).HasForeignKey<Student>(x=>x.ApplicationUserId);
         builder.Entity<ApplicationUser>().HasOne(x => x.UserTeacher).WithOne(x => x.ApplicationUser).HasForeignKey<Teacher>(x => x.ApplicationUserId);
 
-
+        //builder.Entity<Teacher>().HasMany(x => x.Groups).WithOne(x => x.Teacher).OnDelete(DeleteBehavior.SetNull);
+        //builder.Entity<Teacher>().HasMany(x=>x.Groups).WithOne(x=>x.Teacher).OnDelete(DeleteBehavior.SetNull);
 
         base.OnModelCreating(builder);
     }

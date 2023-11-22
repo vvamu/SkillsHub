@@ -23,13 +23,38 @@ public class GroupController : Controller
         return View(_groupService.GetAll());
     }
 
-    [HttpPost]
-    public void Create(Group group)
+    public IActionResult Create()
     {
-        _groupService.CreateAsync(group);
-
+        return View();
     }
 
+    [HttpPost]
+    public async Task<IActionResult> Create(Group item, Guid[] itemValue)
+    {
+        /*
+        List<Guid> arrivedStudentsId = new List<Guid>();
+        for (int i = 0; i < itemValue.Length; i++)
+        {
+            if (itemValue[i])
+                arrivedStudentsId.Add(itemId[i]);
+        }
+        */
+
+        try
+        {
+            
+            //string selected = Request.Form["itemValue"];
+
+
+            var group = await _groupService.CreateAsync(item);
+            await _groupService.AddStudentsToGroupAsync(group.Id, itemValue.ToList());
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("", ex.Message); return View();
+        }
+        return RedirectToAction("Index");
+    }
     public IActionResult GetCreateModal()
     {
         return PartialView("_Create");

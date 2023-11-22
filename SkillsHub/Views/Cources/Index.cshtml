@@ -29,51 +29,6 @@
 	</div>
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col">
-				@{
-					<h2>Cources</h2>
-					if (Model.Item1 == null || Model.Item1.Count() == 0)
-					{
-							<div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
-								<div>List is empty</div>
-							</div>
-
-
-					}
-					else
-					{
-						foreach (var item in Model.Item1)
-						{
-								<div class="container-fluid">
-									<div class="row">
-										<div class="col-12">
-											<div class="card">
-												<div class="card-body">
-												<form id="lessonTypesForm">
-													<h3>@item.Name</h3>
-													<div style="display:flex">
-														<label>Teacher price by type  |  |  </label>
-														<label>    Student price by type</label>
-													</div>
-													<div style="display:flex">
-														<input type="hidden" asp-for="@item.Id" value="@item.Id">
-														<input type="hidden" asp-for="@item.Name" value="@item.Name">
-														<!--<input asp-for="item."/>-->
-														<button class="btn btn-primary" onclick="SaveCourcesNames()">Save</button>
-													</div>
-												</form>
-											    </div>
-											</div>
-										</div>
-									</div>
-								</div>
-						}
-					}
-				}
-				<div class="container-fluid">
-					<div class="row"><button class="btn btn-primary">Create</button></div>
-				</div>
-			</div>
 
 			<!--CourceName-->
 			<div class="col">
@@ -165,6 +120,15 @@
 
 															
 														</div>
+
+													<div style="display:flex;margin-top:20px">
+														<label>MinumumLessonsToPay</label>
+													</div>
+													<div style="display:flex;justify-content:space-between">
+														<input type="number"   asp-for="@item.MinumumLessonsToPay" ></input>
+														
+													</div>
+
 													<div style="display:flex;margin-top:20px">
 														<label>Teacher price Per Cource  BYN  |  </label>
 														<label>Student price Per Cource BYN</label>
@@ -174,13 +138,6 @@
 														<input value="@(Convert.ToDecimal(item.StudentPrice) * item.MinumumLessonsToPay)" disabled name="StudentPricePerCource"></input>
 													</div>
 
-													<div style="display:flex;margin-top:20px">
-														<label>MinumumLessonsToPay</label>
-													</div>
-													<div style="display:flex;justify-content:space-between">
-														<input type="number"   asp-for="@item.MinumumLessonsToPay" ></input>
-														
-													</div>
 													<div style="display:flex;margin-top:20px">
 														<label>LessonTimeInMinutes</label>
 													</div>

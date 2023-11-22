@@ -34,11 +34,12 @@
                     <div class="form-input-content">
                         <div class="card login-form mb-0">
                             <div class="card-body pt-5">
-                                <a class="text-center" href="index.html"> <h4>Новый пользователь</h4></a>
+                                <div class="text-center"> <h4>Новый пользователь</h4></div>
 
                                 <form class="mt-5 mb-5 login-input" method="post">
-                                    <div class="validation" asp-validation-summary="ModelOnly"></div>
-
+                                   
+                                        <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
+                                    
                                     <div class="form-group">
                                        <input type="text" asp-for="Login" class="form-control" placeholder="Логин*" required>
                                     </div>
@@ -93,19 +94,19 @@
                                     <input type="submit" asp-action="Create" asp-controller="Account" class="btn login-form__btn submit w-100" value="Создать"/>
                                 </form>
 
-                                <p class="mt-5 login-form__footer">
-                                    Уже есть аккаунт?
+                                
                                     <form>
                                 @{
                                             if (_signInManager.Context.User != null)
                                             {
-                                                <div>
-                                                    <input type="submit" asp-action="Users" asp-controller="Account" class="text-primary" value="Найти профиль --------"></input>
-                                                    .
+                                                <div>                                                    .
                                                 </div>
                                             }
                                             else
                                             {
+                                                <p class="mt-5 login-form__footer">
+                                                Уже есть аккаунт?
+                                            </p>
                                                 <div>
                                                     <input type="submit" asp-action="SignIn" asp-controller="Account" class="text-primary" value="Войти"></input>
                                                 </div>
@@ -115,7 +116,7 @@
 
                                 }
                                     </form>
-                                </p>
+                                
                             </div>
                         </div>
                     </div>
@@ -132,5 +133,7 @@
     <script src="~/js/settings.js"></script>
     <script src="~/js/gleek.js"></script>
     <script src="~/js/styleSwitcher.js"></script>
+
+
 </section>
 <!-- Section: Design Block -->

@@ -317,4 +317,39 @@ public class UserService : IUserService
         
         return mappingItems;
     }
+    public async Task<IQueryable<Teacher>> GetTeachersByLessonTypeAsync(Guid lessonTypeId)
+    {
+        var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x=>x.Id == lessonTypeId);
+        if (lessonType == null) throw new Exception("Lesson type not found");
+        return _context.Teachers.Include(x=>x.PossibleCources).Where(x => x.PossibleCources.Any(x => x.Id == lessonTypeId));
+    }
+
+    public async Task<Teacher> CreatePossibleCourcesNamesToTeacherAsync(Guid itemId, List<Guid> courcesId)
+    {
+        var teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == itemId) ?? throw new Exception("Teacher not found. Maybe teacher is created but cources were not add");
+        var courcesNamesList = new List<CourceName>();
+        foreach (var courceNameId in courcesId)
+        {
+            var dbItem = await _context.CourceNames.FirstOrDefaultAsync(x => x.Id == courceNameId) ?? throw new Exception("Cource`s name not found");
+            courcesNamesList.Add(dbItem);
+        }
+        teacher.PossibleCources = courcesNamesList;
+
+        _context.Update(teacher);
+        await _context.SaveChangesAsync();
+        return teacher;
+
+    }
+
+    public IQueryable<TeacherDTO> GetAllTeachers()
+    {
+        var items = _context.Teachers.Include(x => x.Lessons).OrderBy(on => on.Id);
+        var users = _context.Users.Include(x => x.UserTeacher).Where(x => x.UserTeacher != null).OrderBy(on => on.Id);
+
+        var mappingItems = _mapper.Map<List<TeacherDTO>>(items).AsQueryable();
+        mappingItems = _mapper.Map<List<TeacherDTO>>(users).AsQueryable();
+        
+        return mappingItems;
+
+    }
 }

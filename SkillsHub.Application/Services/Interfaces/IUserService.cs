@@ -19,4 +19,11 @@ public interface IUserService
 
     public Task<IQueryable<StudentDTO>> GetAllStudentsAsync();
 
+    public Task<IQueryable<Teacher>> GetTeachersByLessonTypeAsync(Guid lessonTypeId);
+
+    public Task<Teacher> CreatePossibleCourcesNamesToTeacherAsync(Guid itemId, List<Guid> courcesId);
+
+    public IQueryable<TeacherDTO> GetAllTeachers();
+
+
 }

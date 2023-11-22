@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SkillsHub.Application.Helpers;
 using SkillsHub.Persistence;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace SkillsHub.Controllers;
 
@@ -81,4 +83,46 @@ public class CourcesController : Controller
         //    return Json(new { exp = students.Experience.ToString(), aexp = students.AboutExpireance });
         //}
     }
+
+    [HttpGet]
+    [Route("/Cource/GetCourcesNamesAsync")]
+    public async Task<IActionResult> GetCourcesNamesAsync()
+    {
+
+        var items = await _context.CourceNames.ToListAsync();
+        string json = "";
+
+        try
+        {
+            JsonSerializerOptions options = new()
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                WriteIndented = true
+            };
+            json = JsonSerializer.Serialize(items, options);
+        }
+        catch (Exception ex) { }
+        return Json(json);
+    }
+
+	[HttpGet]
+	[Route("/Cource/GetLessonTypesAsync")]
+	public async Task<IActionResult> GetLessonTypesAsync()
+	{
+
+		var items = await _context.LessonTypes.ToListAsync();
+		string json = "";
+
+		try
+		{
+			JsonSerializerOptions options = new()
+			{
+				ReferenceHandler = ReferenceHandler.IgnoreCycles,
+				WriteIndented = true
+			};
+			json = JsonSerializer.Serialize(items, options);
+		}
+		catch (Exception ex) { }
+		return Json(json);
+	}
 }

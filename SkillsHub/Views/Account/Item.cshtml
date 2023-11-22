@@ -59,23 +59,24 @@
                         </div>
 
                         
-
+                        <form>
                         <div class="row mb-5">
                             <div class="col">
                                 <div class="card card-profile text-center">
                                     <span class="mb-1 text-primary"><i class="icon-people"></i></span>
                                     <h3 class="mb-0"></h3>
-                                    <p class="text-muted px-4">Create Teacher Account</p>
+                                        <input asp-action="Create" asp-controller="Teachers" asp-route-userId="@Model.Id" type="submit" class="text-muted px-4 btn btn-light" value="Create Teacher Account"></input>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="card card-profile text-center">
                                     <span class="mb-1 text-warning"><i class="icon-user-follow"></i></span>
                                     <h3 class="mb-0"></h3>
-                                    <p class="text-muted">Create Student Account</p>
+                                        <input asp-action="Create" asp-controller="Student" type="submit" class="text-muted btn btn-light" value="Create Student Account"></input>
                                 </div>
                             </div>
                         </div>
+                        </form>
 
                         <h3>Об аккаунте</h3>
                         <ul class="card-profile__info">
@@ -402,7 +403,7 @@
 
                                                                 @foreach (Group item in ViewBag.FreeGroups)
                                                                 {
-                                                                    <option value="@item.Name">@item.Name - @item.ArrivedStudents.Count() из @item.Cource.Name</option>
+                                                                    <option value="@item.Name">@item.Name - @item.ArrivedStudents.Count() из @item.CourceName.Name</option>
                                                                     // Групповое английский / Программирование
                                                                 
                                                                 }

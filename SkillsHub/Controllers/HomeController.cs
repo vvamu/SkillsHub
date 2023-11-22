@@ -30,7 +30,6 @@ namespace SkillsHub.Controllers
         {
             if(_signInManager.Context.User != null)
             {
-
                 return RedirectToAction("Index","CRM");
             }
             return View();

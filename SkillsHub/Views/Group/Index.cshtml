@@ -33,7 +33,9 @@
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="GetCreateModal()">
                                         Create new (Double click)
                                     </button>
-
+                        <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" asp-action="Create" asp-controller="Group">
+                            Create new
+                        </button>
                         <!--<a class="dropdown-item" asp-action="Create" asp-controller="Account"></a>-->
                                     
                                 </li>
@@ -124,7 +126,7 @@
                     @foreach(var item in Model)
                 {
                             <div class="media media-reply">
-                                <img class="mr-3 circle-rounded" src="images/avatar/2.jpg" width="50" height="50" alt="Generic placeholder image">
+                                <!--<img class="mr-3 circle-rounded" src="images/avatar/2.jpg" width="50" height="50" alt="Generic placeholder image">-->
                                 <div class="media-body">
                                     <div class="d-sm-flex justify-content-between mb-2">
                                         <h5 class="mb-sm-0">@item.Name - <small class="text-muted ml-3">about 3 days ago</small></h5>

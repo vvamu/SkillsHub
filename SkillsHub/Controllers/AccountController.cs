@@ -57,7 +57,7 @@ public class AccountController : Controller
         {
             //if (!ModelState.IsValid) { ModelState.AddModelError("", ModelState.Values.ToString()); return View(); }
             var user = await _userService.CreateUserAsync(userCreateModel);
-            if (userCreateModel.IsStudent) return RedirectToAction("Create", "Students");
+            if (userCreateModel.IsStudent) return RedirectToAction("Create", "Student");
             if (userCreateModel.IsTeacher) return RedirectToAction("Create", "Teachers");
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }

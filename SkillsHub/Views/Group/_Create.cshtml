@@ -34,9 +34,9 @@
                                                     <label class=" col-form-label" for="val-skill">
                                                         Online/Offline<span class="text-danger">*</span>
                                                     </label>
-                                                    <select name="Term" class="form-control" id="val-skill">
-                                                        <option value="Online" selected>Online</option>
-                                                        <option value="Offline">Offline</option>
+                                                    <select name="Term" asp-for="Term" class="form-control" id="val-skill">
+                                                        <option value="Online" >Online</option>
+                                                        <option value="Offline" selected>Offline</option>
                                                     </select>
                                                 </div>
 
@@ -65,7 +65,7 @@
 
                                                 <div class="form-group ">
                                                     <ul id="studentsList" class="list-group col"></ul>
-                                                    </div>
+                                                </div>
                                                 
                                                     <!--<div class="form-group ">
                                                     <div class="row">

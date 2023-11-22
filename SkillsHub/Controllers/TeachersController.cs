@@ -3,6 +3,7 @@ using SkillsHub.Application.DTO;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services;
 using SkillsHub.Application.Services.Interfaces;
+using SkillsHub.Helpers;
 using System.ComponentModel.DataAnnotations;
 
 namespace SkillsHub.Controllers;
@@ -22,21 +23,42 @@ public class TeachersController : Controller
         var teachers = _userPresentationService.GetAllTeachers(parameters);
         return View(teachers);
     }
+
+
+
     [HttpGet]
     public async Task<IActionResult> Create(Guid userId)
     {
         //var user = await _userService.GetCurrentUserAsync() ?? throw new Exception("User not found");
-        var user = await _userService.GetUserByIdAsync(userId);
-        var teacher = new TeacherDTO() { UserId = user.Id };
-        return View(teacher);
+        try
+        {
+
+        
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user == null) user = await _userService.GetCurrentUserAsync();
+            var teacher = new TeacherDTO() { UserId = user.Id };
+            return View(teacher);
+        }
+        catch (Exception ex) {
+            var a = HttpContext.Request.PathBase;
+            var user = await _userService.GetCurrentUserAsync();
+
+            if(user == null) return View("Index");
+            return View();
+            //HttpContext.Current.Request.Url.AbsolutePath
+        }
+        return View("Index");
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Guid userId,TeacherDTO item)
+    public async Task<IActionResult> Create(Guid userId,TeacherDTO item, Guid[] itemValue)
     {
         var teacher = await _userService.CreateTeacherAsync(userId,item);
+        await _userService.CreatePossibleCourcesNamesToTeacherAsync(teacher.Id, itemValue.ToList());
+
         if (teacher.ApplicationUser.UserStudent != null) return RedirectToAction("Create", "Student");
         if (await _userService.IsAdminAsync()) return RedirectToAction("Index","CRM");
+
         var userDb = await _userService.SignInAsync(item);
         if (userDb == null) return View(userDb);
         return RedirectToAction("Index", "CRM");
@@ -65,6 +87,22 @@ public class TeachersController : Controller
     public IActionResult Delete()
     {
         return RedirectToAction("Index");
+    }
+
+    [HttpGet]
+    [Route("/Teachers/GetTeachersByLessonTypeAsync")]
+    public async Task<IActionResult> GetTeachersByLessonTypeAsync(Guid lessonTypeId)
+    {
+        var items = await _userService.GetTeachersByLessonTypeAsync(lessonTypeId);
+        return Json(JsonSerializerToAjax.GetJsonByIQueriable(items));
+    }
+
+    [HttpGet]
+    [Route("/Teachers/GetTeachersAsync")]
+    public async Task<IActionResult> GetAllTeachers()
+    {
+        var items = _userService.GetAllTeachers();
+        return Json(JsonSerializerToAjax.GetJsonByIQueriable(items));
     }
 
 }

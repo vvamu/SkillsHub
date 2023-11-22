@@ -12,5 +12,6 @@ public interface IGroupService
 {
     public IQueryable<Group> GetAll();
     public Task<Group> CreateAsync(Group item);
+    public Task<Group> AddStudentsToGroupAsync(Guid itemId, List<Guid> studentsId);
 
 }
