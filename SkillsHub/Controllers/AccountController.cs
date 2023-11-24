@@ -28,14 +28,18 @@ public class AccountController : Controller
     }
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> Item(Guid itemId)
+    public async Task<IActionResult> Item(Guid itemId, Guid id)
     {
         ViewBag.CourcesNames = _courcesService.GetAllCourcesNames();
         ViewBag.EnglishLevels = _courcesService.GetAllEnglishLevels();
         ViewBag.LessonTypes = _courcesService.GetAllLessonType();
 
         var currentUser = await _userService.GetCurrentUserAsync();
-        if (itemId == Guid.Empty) itemId = currentUser.Id;
+        if (itemId == Guid.Empty)
+            itemId = id;
+        if(itemId == Guid.Empty)
+            itemId = currentUser.Id;
+
 
         ApplicationUser? user = await _userService.GetUserByIdAsync(itemId);
 

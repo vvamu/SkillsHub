@@ -136,7 +136,8 @@
                                         
                                         <div class="form-group row">
                                             <div class="col-lg-8 ml-auto">
-                                                <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Teachers">Submit</button>
+                                                <input type="hidden" asp-for="Id"  value="@Model.UserId"/>
+                                              <input type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Teachers" value="Submit"/>
                                             </div>
                                         </div>
                                     </form>

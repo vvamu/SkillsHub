@@ -88,7 +88,7 @@
                                                 </tr>
                                                 */
                                                 <tr>
-                                                            <td><a asp-action="Item" asp-controller="Teachers" asp-route-data="@item" style="font-weight:900;color:#7571f9">  @item.Login </a></td>
+                                                    <td><form><a asp-action="Item" asp-controller="Account" asp-route-id="@item.ApplicationUser.Id" style="font-weight:900;color:#7571f9">  @item.Login </a></form></td>
                                                     <td>@item.FirstName @item.LastName @item.Surname</td>
                                                     <td>@item.Sex</td>
                                                     <td>@item.Phone</td>

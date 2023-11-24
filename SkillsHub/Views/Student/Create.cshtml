@@ -37,7 +37,7 @@
                                         </label>
                                         <div class="col-lg-6">
                                             <input type="text" asp-for="ParentName" class="form-control" placeholder="Имя родителя" title="Введите имя родителя для связи">
-                                            <input type="text" asp-for="Id" hidden/>
+                                        <input type="text" asp-for="Id" hidden value="@Model.UserId" />
                                         </div>
                                     </div>
 
