@@ -79,7 +79,13 @@ public class CRMController: Controller
         var teachers = _userPresentationService.GetAllTeachers(parameters);
         return View(teachers);
     }
-
+    [HttpGet]
+    public IActionResult Students()
+    {
+        var parameters = new QueryStringParameters() { PageNumber = 1, PageSize = 100 };
+        var teachers = _userPresentationService.GetAllStudentsAsync(parameters).Result;
+        return View(teachers);
+    }
     public IActionResult Classes2()
     {
         var events = new List<Eventh>

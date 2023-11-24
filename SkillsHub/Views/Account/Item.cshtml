@@ -65,14 +65,14 @@
                                 <div class="card card-profile text-center">
                                     <span class="mb-1 text-primary"><i class="icon-people"></i></span>
                                     <h3 class="mb-0"></h3>
-                                        <input asp-action="Create" asp-controller="Teachers" asp-route-userId="@Model.Id" type="submit" class="text-muted px-4 btn btn-light" value="Create Teacher Account"></input>
+                                        <input asp-action="Create" asp-controller="Teachers" asp-route-id="@Model.Id" type="submit" class="text-muted px-4 btn btn-light" value="Create Teacher Account"/>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="card card-profile text-center">
                                     <span class="mb-1 text-warning"><i class="icon-user-follow"></i></span>
                                     <h3 class="mb-0"></h3>
-                                        <input asp-action="Create" asp-controller="Student" type="submit" class="text-muted btn btn-light" value="Create Student Account"></input>
+                                        <input asp-action="Create" asp-controller="Student" asp-route-id="@Model.Id" type="submit" class="text-muted btn btn-light" value="Create Student Account"/>
                                 </div>
                             </div>
                         </div>

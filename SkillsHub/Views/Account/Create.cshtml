@@ -97,7 +97,7 @@
                                 
                                     <form>
                                 @{
-                                            if (_signInManager.Context.User != null)
+                                            if (User.Identity.IsAuthenticated)
                                             {
                                                 <div>                                                    .
                                                 </div>

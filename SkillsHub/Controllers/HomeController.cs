@@ -28,7 +28,7 @@ namespace SkillsHub.Controllers
 
         public IActionResult Index()
         {
-            if(_signInManager.Context.User != null)
+            if(User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Index","CRM");
             }

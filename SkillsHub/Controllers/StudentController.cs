@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SkillsHub.Application.DTO;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services;
 using SkillsHub.Application.Services.Implementation;
@@ -25,6 +26,7 @@ public class StudentController : Controller
         _userService = userService;
 
     }
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var parameters = new QueryStringParameters() { PageNumber = 1, PageSize = 100 };
@@ -40,18 +42,47 @@ public class StudentController : Controller
         return Json(JsonSerializerToAjax.GetJsonByIQueriable(items));
     }
 
-    public IActionResult Create()
-    {
-        ViewBag.CourcesNames = _courcesService.GetAllCourcesNames();
-        return View();
-    }
+    [HttpGet]
     public IActionResult Edit()
     {
         return View();
     }
+    [HttpGet]
     public IActionResult Delete()
     {
         return RedirectToAction("Index");
     }
+    [HttpGet]
+    public async Task<IActionResult> Create(Guid id)
+    {
+        //var user = await _userService.GetCurrentUserAsync() ?? throw new Exception("User not found");
+        try
+        {
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null) user = await _userService.GetCurrentUserAsync();
+            var student = new StudentDTO() { Id = user.Id };
+            return View(student);
+        }
+        catch (Exception)
+        {
+            var a = HttpContext.Request.PathBase;
+            var user = await _userService.GetCurrentUserAsync();
 
+            if (user == null) return View("Index");
+            return View();
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(StudentDTO item, Guid[] itemValue)
+    {
+        var student = await _userService.CreateStudentAsync(item.Id, item);
+        await _userService.CreatePossibleCourcesNamesToStudentAsync(student.Id, itemValue.ToList());
+
+        if (await _userService.IsAdminAsync()) return RedirectToAction("Index", "CRM");
+
+        var userDb = await _userService.SignInAsync(item);
+        if (userDb == null) return View(userDb);
+        return RedirectToAction("Index", "CRM");
+    }
 }

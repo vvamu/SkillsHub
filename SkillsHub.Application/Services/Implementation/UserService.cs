@@ -74,25 +74,15 @@ public class UserService : IUserService
     {
         var dbUser = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
 
-        var userRegisterValidator = new StudentRegisterValidator();
-        var validationResult = await userRegisterValidator.ValidateAsync(item);
-        if (!validationResult.IsValid)
-        {
-            var errors = validationResult.Errors;
-            var errorsString = string.Concat(errors);
-            throw new Exception(errorsString);
-        }
-
         var student = _mapper.Map<Student>(item);
         student.ApplicationUser = dbUser;
         await _context.Students.AddAsync(student);
-        var db_item = await _context.Students.Where(x => x.ApplicationUser == dbUser).FirstOrDefaultAsync();
         var result = await _userManager.AddToRoleAsync(dbUser, "Student");
         await _context.SaveChangesAsync();
         if (!result.Succeeded) throw new Exception(result.Errors.ToString());
 
 
-        return db_item == null ? throw new CannotUnloadAppDomainException() : db_item;
+        return student == null ? throw new CannotUnloadAppDomainException() : student;
     }
 
     public async Task<ApplicationUser> CreateUserAsync(UserCreateDTO item)
@@ -243,7 +233,10 @@ public class UserService : IUserService
         await _signInManager.SignInAsync(user, true);
         return user;
     }
-
+    public async Task SignOutAsync()
+    {
+        await _signInManager.SignOutAsync();
+    }
 
     public async Task InitialCreateAsync()
     {
@@ -338,6 +331,22 @@ public class UserService : IUserService
         _context.Update(teacher);
         await _context.SaveChangesAsync();
         return teacher;
+
+    }
+    public async Task<Student> CreatePossibleCourcesNamesToStudentAsync(Guid itemId, List<Guid> courcesId)
+    {
+        var student = await _context.Students.FirstOrDefaultAsync(x => x.Id == itemId) ?? throw new Exception("Teacher not found. Maybe teacher is created but cources were not add");
+        var courcesNamesList = new List<CourceName>();
+        foreach (var courceNameId in courcesId)
+        {
+            var dbItem = await _context.CourceNames.FirstOrDefaultAsync(x => x.Id == courceNameId) ?? throw new Exception("Cource`s name not found");
+            courcesNamesList.Add(dbItem);
+        }
+        student.PossibleCources = courcesNamesList;
+
+        _context.Update(student);
+        await _context.SaveChangesAsync();
+        return student;
 
     }
 

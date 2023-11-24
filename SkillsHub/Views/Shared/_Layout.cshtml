@@ -66,7 +66,7 @@
 <body class="my-background">
     @{
         //if(Context.Request.Path.Value.Contains("/CRM") )
-        if(_signInManager.Context.User != null)
+        if(User.Identity.IsAuthenticated)
         {
             <meta name="theme-name" content="quixlab" />
             <link href="~/plugins/pg-calendar/css/pignose.calendar.min.css" rel="stylesheet">
@@ -142,7 +142,7 @@
                                         <!-- span@Model.FirstName</span>-->
                                         <span>Баланс: - $</span>
                                         <span> | </span>
-                                        <span>@_signInManager.Context.User.Identity.Name</span>
+                                        <span>@User.Identity.Name</span>
                                         <i class="fa fa-angle-down f-s-14" aria-hidden="true"></i>
                                     </a> 
                                 </li>

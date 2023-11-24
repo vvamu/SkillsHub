@@ -90,6 +90,14 @@ public class AccountController : Controller
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
 
     }
+    [HttpGet]
+    [AllowAnonymous]
+    public async new Task<IActionResult> SignOut()
+    {
+        await _userService.SignOutAsync();
+        
+        return RedirectToAction("Index", "Home");
 
-     
+    }
+
 }

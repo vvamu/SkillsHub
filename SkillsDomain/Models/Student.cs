@@ -16,6 +16,8 @@ public class Student : BaseEntity
     //public Dictionary<int,DateTime> Payment {  get; set; }
 
     //public List<Group>? Cources { get; set; }
+
+    public List<CourceName>? PossibleCources { get; set; }
     public List<Group>? Groups { get; set; }
     public List<Lesson> Lessons { get; set; }
 }
