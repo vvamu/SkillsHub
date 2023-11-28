@@ -29,7 +29,7 @@ public class GroupController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Group item, Guid[] itemValue)
+    public async Task<IActionResult> Create(Group item, Guid[] itemValue, Guid[] teacherValue)
     {
         /*
         List<Guid> arrivedStudentsId = new List<Guid>();
@@ -42,9 +42,9 @@ public class GroupController : Controller
 
         try
         {
-            
-            //string selected = Request.Form["itemValue"];
 
+            //string selected = Request.Form["itemValue"];
+            item.TeacherId = teacherValue[0];
 
             var group = await _groupService.CreateAsync(item);
             await _groupService.AddStudentsToGroupAsync(group.Id, itemValue.ToList());
