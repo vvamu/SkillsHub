@@ -27,14 +27,14 @@ public class TeachersController : Controller
 
 
     [HttpGet]
-    public async Task<IActionResult> Create(Guid userId)
+    public async Task<IActionResult> Create(Guid id)
     {
         //var user = await _userService.GetCurrentUserAsync() ?? throw new Exception("User not found");
         try
         {
 
         
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await _userService.GetUserByIdAsync(id);
             if (user == null) user = await _userService.GetCurrentUserAsync();
             var teacher = new TeacherDTO() { UserId = user.Id };
             return View(teacher);
@@ -51,13 +51,14 @@ public class TeachersController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Guid userId,TeacherDTO item, Guid[] itemValue)
+    public async Task<IActionResult> Create(TeacherDTO item, Guid[] itemValue)
     {
-        var teacher = await _userService.CreateTeacherAsync(userId,item);
+
+        var teacher = await _userService.CreateTeacherAsync(item.Id,item);
         await _userService.CreatePossibleCourcesNamesToTeacherAsync(teacher.Id, itemValue.ToList());
 
         if (teacher.ApplicationUser.UserStudent != null) return RedirectToAction("Create", "Student");
-        if (await _userService.IsAdminAsync()) return RedirectToAction("Index","CRM");
+        if (await _userService.IsAdminAsync()) return RedirectToAction("Index","Teacher");
 
         var userDb = await _userService.SignInAsync(item);
         if (userDb == null) return View(userDb);

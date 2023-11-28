@@ -1,7 +1,10 @@
-﻿@using SkillsHub.Domain.BaseModels;
+﻿@using Microsoft.AspNetCore.Identity
+@using SkillsHub.Domain.BaseModels;
 
 @model ApplicationUser
-    <!-- Custom Stylesheet -->
+@inject SignInManager<ApplicationUser> _roleManager; 
+
+<!-- Custom Stylesheet -->
 
 
     <!--
@@ -42,7 +45,13 @@
                                     
                             <div class="media-body">
                                 <h3 class="mb-0">@Model.FirstName @Model.LastName @Model.Surname - @Model.Sex</h3>
-                                <p class="text-muted mb-0">@Model.Login</p>
+                                <p class="text-muted mb-0">Login: @Model.Login</p>
+                                <div>Role: 
+                                    @{
+                                        var roles = await _roleManager.UserManager.GetRolesAsync(Model);
+                                        string result = string.Join(",", roles.ToArray());
+                                        <p>@result</p>
+                                    }</div>
                             </div>
                             <!--
                             <div class="dropdown">
@@ -65,14 +74,14 @@
                                 <div class="card card-profile text-center">
                                     <span class="mb-1 text-primary"><i class="icon-people"></i></span>
                                     <h3 class="mb-0"></h3>
-                                        <input asp-action="Create" asp-controller="Teachers" asp-route-id="@Model.Id" type="submit" class="text-muted px-4 btn btn-light" value="Create Teacher Account"/>
+                                        <input asp-action="Create" asp-controller="Teachers" asp-route-id="@Model.Id" type="submit" class="text-muted px-4 btn btn-light" value="Create Teacher Account" />
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="card card-profile text-center">
                                     <span class="mb-1 text-warning"><i class="icon-user-follow"></i></span>
                                     <h3 class="mb-0"></h3>
-                                        <input asp-action="Create" asp-controller="Student" asp-route-id="@Model.Id" type="submit" class="text-muted btn btn-light" value="Create Student Account"/>
+                                        <input asp-action="Create" asp-controller="Student" asp-route-id="@Model.Id" type="submit" class="text-muted btn btn-light" value="Create Student Account" />
                                 </div>
                             </div>
                         </div>
@@ -106,12 +115,19 @@
                 <div class="card">
                     <div class="card-body">
                         <h3>Статистика</h3>
+                        
+                        @if(Model.UserStudent != null)
+                        {
                         <div>
-                            Уроки ученика: 
+                            Уроки ученика:
                         </div>
-                        <div>
-                            Уроки преподавателя:
-                        </div>
+                        }
+                        @if (Model.UserTeacher != null)
+                        {
+                            <div>
+                                Уроки преподавателя:
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

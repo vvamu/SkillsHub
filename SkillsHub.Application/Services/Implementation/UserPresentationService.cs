@@ -27,14 +27,26 @@ public class UserPresentationService : IUserPresentationService
     //For teacher - by group
     public PagedList<TeacherDTO> GetAllTeachers(QueryStringParameters ownerParameters)
     {
-        var items = _context.Teachers.Include(x => x.Lessons).OrderBy(on => on.Id);
+        var items = _context.Teachers.Include(x => x.Lessons).Include(x=>x.ApplicationUser).OrderBy(on => on.Id);
         var users = _context.Users.Include(x=>x.UserTeacher).Where(x=>x.UserTeacher != null).OrderBy(on => on.Id);
+
+        var itemsArray = items.ToArray();
+        var usersArray = users.ToArray();
+
 
         var mappingItems = _mapper.Map<List<TeacherDTO>>(items).AsQueryable();
         mappingItems = _mapper.Map < List < TeacherDTO >>(users).AsQueryable();
 
+        var mappingItemsArray = mappingItems.ToArray();
 
-        var pageList = PagedList<TeacherDTO>.ToPagedList(mappingItems,
+        for(int i = 0; i < itemsArray.Length; i++)
+        {
+            mappingItemsArray[i].ApplicationUser = usersArray[i];
+
+        }
+        //mappingItems = mappingItems.Include(x => x.ApplicationUser).Include(x=>x.PossibleCources);
+
+        var pageList = PagedList<TeacherDTO>.ToPagedList(mappingItemsArray.AsQueryable(),
             ownerParameters.PageNumber,
             ownerParameters.PageSize);
         return pageList;
@@ -112,11 +124,21 @@ public class UserPresentationService : IUserPresentationService
         var users = _context.Users.Include(x => x.UserStudent).Where(x => x.UserStudent != null).OrderBy(on => on.Id);
         var mappingItems = _mapper.Map<List<StudentDTO>>(items).AsQueryable();
         mappingItems = _mapper.Map<List<StudentDTO>>(users).AsQueryable();
+        mappingItems = mappingItems.Include(x => x.ApplicationUser);
 
-        //mappingItems = _mapper.Map< IQueryable < StudentDTO >> (users).AsQueryable();
+        var itemsArray = items.ToArray();
+        var usersArray = users.ToArray();
+
+        var mappingItemsArray = mappingItems.ToArray();
+
+        for (int i = 0; i < itemsArray.Length; i++)
+        {
+            mappingItemsArray[i].ApplicationUser = usersArray[i];
+
+        }
 
 
-        var pageList = PagedList<StudentDTO>.ToPagedList(mappingItems,
+        var pageList = PagedList<StudentDTO>.ToPagedList(mappingItemsArray.AsQueryable(),
             ownerParameters.PageNumber,
             ownerParameters.PageSize);
         return pageList;
