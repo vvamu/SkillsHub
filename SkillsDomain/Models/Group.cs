@@ -6,7 +6,7 @@ namespace SkillsHub.Domain.Models;
 public class Group : BaseEntity
 {
     public string Name { get; set; }
-    public List<LessonStudent>? ArrivedStudents { get; set; }
+    public List<Student>? ArrivedStudents { get; set; }
 
     public string? Term { get; set; }
 

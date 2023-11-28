@@ -45,23 +45,23 @@
                                         Category <span class="text-danger">*</span>
                                     </label>
                                    
-                                    <select asp-for="LessonTypeId"  class="form-control" id="lessonTypes" onselect="getTeachersByLessonType()"></select>
+                                    <select asp-for="LessonTypeId"  class="form-control" id="lessonTypes"></select>
                                 </div>
 
-                                <div class="form-group ">
+                                @*<div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
                                         Teacher <span class="text-danger">*</span>
                                     </label>
 
                                     <select class="form-control" id="requiredTeachers"></select>
-                                </div>
+                                </div>*@
 
                                 <div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
                                         Teacher from All Teachers <span class="text-danger">*</span>
                                     </label>
 
-                                    <select class="form-control" id="allTeachers"></select>
+                                    <ul class="form-control" id="allTeachers"></ul>
                                 </div>
 
                                 <!--
@@ -201,10 +201,10 @@ console.log(data);
                 if (Array.isArray(data)) {
 
                     data.forEach(function (item, i, arr) {
-                        itemsUL.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
+                        itemsUL.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
 
                         var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='"+ item.Id+"'  /> ";
                         appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
                         appendedLine += "</li>"
 
@@ -238,10 +238,10 @@ console.log(data);
 
 
                     data.forEach(function (item, i, arr) {
-                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
+                        studentsList.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
 
                         var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='"+item.Id+"'  /> ";
                         appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
                         appendedLine += "</li>"
 
@@ -272,7 +272,7 @@ console.log(data);
 
                     data.forEach(function (item, i, arr) {
 
-                        var appendedLine = "<option class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>" + item.Name;
+                        var appendedLine = "<option class='list-group-item' name='courceId' asp-for='CourceId' value='"+item.Id+"'>" + item.Name;
                         //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
                         //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
                         appendedLine += "</option>"
@@ -303,9 +303,9 @@ console.log(data);
 
 
                     data.forEach(function (item, i, arr) {
-                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
+                        studentsList.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
 
-                        var appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='" + item.Id + "'>" + item.Name;
+                        var appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='"+item.Id+"'>" + item.Name;
                         //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
                         //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
                         appendedLine += "</option>"
@@ -333,9 +333,10 @@ console.log(data);
         console.log(strUser);
 
         $.ajax({
-            url: "/Teachers/GetTeachersByLessonTypeAsync?lessonTypeId=" + strUser,
+            url: "/Teachers/GetTeachersByLessonTypeAsync",
             type: "GET",
             dataType: "json",
+            data: strUser,
             success: function (data) {
                 data = JSON.parse(data);
                 if (Array.isArray(data)) {
@@ -346,9 +347,9 @@ console.log(data);
                     }
                     data.forEach(function (item, i, arr) {
 
-                        var appendedLine = "<option class='list-group-item' name='courceId' asp-for='TeacherId' value='" + item.Id + "'>" + item.FirstName + " " + item.LastName
-                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-                        //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        var appendedLine = "<li class='list-group-item' name='courceId' asp-for='TeacherId' value='"+ item.Id +"'>" + item.FirstName + " " + item.LastName
+                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
                         appendedLine += "</option>"
 
                         requiredTeachers.append(appendedLine);
@@ -367,11 +368,6 @@ console.log(data);
         var requiredTeachers = $("#allTeachers");
 
 
-        var e = $("#lessonTypes");
-        var strUser = e.options[e.selectedIndex].value;
-        console.log("strUser");
-        console.log(strUser);
-
         $.ajax({
             url: "/Teachers/GetTeachersAsync",
             type: "GET",
@@ -381,15 +377,16 @@ console.log(data);
                 if (Array.isArray(data)) {
 
                     if (data.length == 0) {
-                        var appendEmpty = "<option class='list-group-item' value='' >Teacher's list is empty</option>";
+                        var appendEmpty = "<li class='list-group-item' value='' >Teacher's list is empty</li>";
                         requiredTeachers.append(appendEmpty);
                     }
                     data.forEach(function (item, i, arr) {
 
-                        var appendedLine = "<option class='list-group-item' name='courceId' asp-for='TeacherId' value='" + item.Id + "'>" + item.FirstName + " " + item.LastName
-                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-                        //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += "</option>"
+                        var appendedLine = "<li class='list-group-item'>";
+                        appendedLine += "<input type='checkbox' name='teacherValue' style='margin-right:5px;' value='"+item.Id+"'  /> ";
+                        appendedLine += "<input type='checkbox' name='teacherValue' style='margin-right:5px;' value='"+item.UserId+"'  /> ";
+                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        appendedLine += "</li>"
 
                         requiredTeachers.append(appendedLine);
                     })
@@ -407,6 +404,8 @@ console.log(data);
         getStudentsList();
         getCourcesNamesList();
         getLessonTypesList();
+        //getTeachersByLessonType();
+        getTeachers();
     });
 
 </script>

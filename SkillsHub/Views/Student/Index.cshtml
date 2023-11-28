@@ -71,9 +71,7 @@
                                                 <!--<th>Student</th>-->
                                                 <th>Total Lessons</th>
                                                 <th>Month Lessons</th>
-                                                <th>Student`s Lessons</th>
                                                 <th>Payment</th>
-                                                <th>IsAdmin</th>
                                                 <th>SourceFindCompany</th>
                                                 <th>Date Register</th>
                                                 <th>External connections</th>
@@ -101,16 +99,12 @@
                                                                 <td>@item.Email</td>
                                                                 <td>@item.BirthDate</td>
                                                                 <td>@(DateTime.Today.Year - @item.BirthDate.Year)</td>
-                                                                <td><!--status--></td>
-                                                                <td>@if(item.UserStudent != null && item.UserStudent.Groups != null) {foreach(var a in @item.Groups) { <p>@a.Name</p> }} </td>
-                                                               <!-- <td>if(item.UserTeacher != null) {item.UserTeacher.Lessons;} else {<div>-</div>}</td>-->
-                                                                <td>@if(item.UserStudent != null) {foreach(var i in @item.UserStudent.Lessons) {<a asp-action="Item" asp-controller="Classes" asp-route-itemid="@i.Group.Id">@i.StartTime</a>}} else{<div>-</div>}</td>
-                                                                <td><!--item.StudentLessons.Count()--></td>
-                                                                <td><!--item.StudentLessons.Where(x=>x.StartTime.Month == DateTime.Today.Month).Count()--></td>
-                                                                <td><!--item.StudentLessons.Count()--></td>
-                                                                <td>@item.PasswordHash</td>
-                                                                <td>---</td>
-                                                                <td>@item.IsAdmin</td>
+                                                                <td>@if(item.Groups == null){ <p>Not studiet</p>  } else { <p>Studiet</p>}</td>
+                                                                <td>@if(item.Groups != null){ foreach(var a in @item.Groups) { <p>@a.Name</p> }} </td>
+                                                                <td>@if(item.StudentLessons != null) {foreach(var i in @item.StudentLessons) {<a asp-action="Item" asp-controller="Classes" asp-route-itemid="@i.Group.Id">@i.StartTime</a>}} else{<div> -- </div>}</td>
+                                                                <td>@if(item.StudentLessons != null){ <p>item.StudentLessons.Count()</p>}</td>
+                                                                <td>@if(item.StudentLessons != null){ <p>@item.StudentLessons.Where(x=>x.StartTime.Month == DateTime.Today.Month).Count()</p>}</td>
+                                                                <td>0 payed</td>
                                                                 <td>@item.SourceFindCompany</td>
                                                                 <td>@item.RegistrationDate</td>
                                                                 <td>---</td>
@@ -120,28 +114,26 @@
                                         }
                                         </tbody>
                                         <tfoot>
-                                            <tr>
-                                                <th>Login</th>
-                                                <th>Full Name</th>
-                                                <th>Sex</th>
-                                                <th>Phone</th>
-                                                <th>Email</th>
-                                                <th>BirthDate</th>
-                                                <th>Age</th>
-                                                <th>Status</th>
-                                                <th>Groups</th>
-                                                <th>Teacher</th>
-                                                <!--<th>Student</th>-->
-                                                <th>Total Lessons</th>
-                                                <th>Month Lessons</th>
-                                                <th>Student`s Lessons</th>
-                                                <th>Payment</th>
-                                                <th>IsAdmin</th>
-                                                <th>SourceFindCompany</th>
-                                                <th>Date Register</th>
-                                                <th>External connections</th>
-                                                <th>IsDeleted</th>
-                                               </tr>
+                                                <tr>
+                                                    <th>Login</th>
+                                                    <th>Full Name</th>
+                                                    <th>Sex</th>
+                                                    <th>Phone</th>
+                                                    <th>Email</th>
+                                                    <th>BirthDate</th>
+                                                    <th>Age</th>
+                                                    <th>Status</th>
+                                                    <th>Groups</th>
+                                                    <th>Teacher</th>
+                                                    <!--<th>Student</th>-->
+                                                    <th>Total Lessons</th>
+                                                    <th>Student`s Lessons</th>
+                                                    <th>Payment</th>
+                                                    <th>SourceFindCompany</th>
+                                                    <th>Date Register</th>
+                                                    <th>External connections</th>
+                                                    <th>IsDeleted</th>
+                                                </tr>
                                         </tfoot>
                                     </table>
                                 </div>

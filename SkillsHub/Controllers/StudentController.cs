@@ -24,7 +24,8 @@ public class StudentController : Controller
         _userPresentationService = userPresentationService;
         _courcesService = courcesService;
         _userService = userService;
-
+        var items = _userService.GetAllStudentsAsync().Result;
+        Reporter.ReportToXLS<StudentDTO>(items.ToArray());
     }
     [HttpGet]
     public async Task<IActionResult> Index()

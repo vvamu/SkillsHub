@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
-using SkillsHub.Helpers;
 
 namespace SkillsHub.Controllers;
 
@@ -20,6 +19,7 @@ public class GroupController : Controller
     public IActionResult Index()
     {
         ViewBag.CourceNames = _courcesService.GetAllCourcesNames();
+        //ViewBag.Students = 
         return View(_groupService.GetAll());
     }
 
@@ -29,10 +29,23 @@ public class GroupController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Group item, Guid[] itemValue)
+    public async Task<IActionResult> Create(Group item, Guid[] itemValue, Guid[] teacherValue)
     {
+        /*
+        List<Guid> arrivedStudentsId = new List<Guid>();
+        for (int i = 0; i < itemValue.Length; i++)
+        {
+            if (itemValue[i])
+                arrivedStudentsId.Add(itemId[i]);
+        }
+        */
+
         try
         {
+
+            //string selected = Request.Form["itemValue"];
+            item.TeacherId = teacherValue[0];
+
             var group = await _groupService.CreateAsync(item);
             await _groupService.AddStudentsToGroupAsync(group.Id, itemValue.ToList());
         }
@@ -42,31 +55,9 @@ public class GroupController : Controller
         }
         return RedirectToAction("Index");
     }
-
-    [HttpPost]
-    [Route("/Group/AddStudentsToGroupAsync")]
-    public async Task<IActionResult> AddStudentsToGroupAsync(Guid groupId, Guid[] studentsId)
+    public IActionResult GetCreateModal()
     {
-        //try { }
-        await _groupService.AddStudentsToGroupAsync(groupId, studentsId.ToList());
-        return Json("ok");
+        return PartialView("_Create");
     }
-
-    [HttpPost]
-    [Route("/Group/AddTeacherToGroupAsync")]
-    public async Task<IActionResult> AddTeacherToGroupAsync(Guid groupId, Guid teacherId)
-    {
-        await _groupService.AddTeacherToGroupAsync(groupId, teacherId);
-        return Json("ok");
-    }
-
-    [HttpGet]
-    [Route("/Group/Free")]
-    public IActionResult GetFree()
-    {
-        var items = _groupService.GetFree();
-        return Json(JsonSerializerToAjax.GetJsonByIQueriable(items));
-    }
-
 
 }

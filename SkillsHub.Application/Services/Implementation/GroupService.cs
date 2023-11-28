@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Application.Validators;
 using SkillsHub.Domain.Models;
@@ -29,36 +28,29 @@ public class GroupService: IGroupService
         }
         var cource = await _context.CourceNames.FirstOrDefaultAsync(x => x.Id == item.CourceId);
         var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x => x.Id == item.LessonTypeId);
+        item.LessonType = lessonType;
         if (_context.Groups.FirstOrDefault(x => x.Name == item.Name) != null) throw new Exception("Group with such name already exist");
         if (cource == null) throw new Exception("Cource not found");
         if (lessonType == null) throw new Exception("LessonType not found");
+        item.LessonType = lessonType;
+        item.CourceName = cource;
 
-        var groupDb = new Group() { Name = item.Name, CourceName = cource , LessonType = lessonType };
-        await _context.Groups.AddAsync(groupDb);
+        //var groupDb = new Group() { Name = item.Name, CourceName = cource , LessonType = lessonType };
+        await _context.Groups.AddAsync(item);
         await _context.SaveChangesAsync();
-        var groupResult = await _context.Groups.FirstOrDefaultAsync(x=>x.Name == item.Name) ?? throw new Exception("Group not created");
-
-
-        var result = await AddTeacherToGroupAsync(groupResult.Id, item.TeacherId);
-
-        return result;
+        return item;
 
     }
 
-    public async Task<Group> AddStudentsToGroupAsync(Guid groupId, List<Guid> studentsId)
+    public async Task<Group> AddStudentsToGroupAsync(Guid itemId, List<Guid> studentsId)
     {
-
-        var group = await _context.Groups.FirstOrDefaultAsync(x => x.Id == groupId);
-        if (studentsId.Count() != 1 && group == null) throw new Exception("Group not found. Maybe group is created but students were not add"); //Group classes
-
-        List <LessonStudent> studentsList = new List<LessonStudent>();
+        var group = await _context.Groups.FirstOrDefaultAsync(x => x.Id == itemId) ?? throw new Exception("Group not found. Maybe group is created but students were not add");
+        List<Student> studentsList = new List<Student>();
         foreach (var studentId in studentsId)
         {
             var dbItem = await _context.Students.FirstOrDefaultAsync(x => x.Id == studentId) ?? throw new Exception("Student not found");
-            studentsList.Add(new LessonStudent() { Student = dbItem });
+            studentsList.Add(dbItem);
         }
-        await _context.LessonStudents.AddRangeAsync(studentsList);
-        await _context.SaveChangesAsync();
         group.ArrivedStudents = studentsList;
         
         _context.Update(group);
@@ -67,22 +59,8 @@ public class GroupService: IGroupService
 
     }
 
-    public async Task<Group> AddTeacherToGroupAsync(Guid groupId, Guid teacherId)
-    {
-        var group = await _context.Groups.Include(x=>x.Teacher).FirstOrDefaultAsync(x => x.Id == groupId) ?? throw new Exception("Group not found. Maybe group is created but students were not add");
-        var teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == teacherId) ?? throw new Exception("Teacher not found in database");
-        //if (group.Teacher != null) throw new Exception("Group already have teacher");
-        group.Teacher = teacher;
-        teacher.Groups = new List<Group> { group };
-        _context.Update(group);
-        _context.Update(teacher);
-        await _context.SaveChangesAsync();
 
-        return group;
-
-    }
 
     public IQueryable<Group> GetAll() => _context.Groups.Include(x=>x.Lessons).Include(x=>x.ArrivedStudents).AsQueryable();
 
-    public IQueryable<Group> GetFree() => _context.Groups.Where(x=>x.Teacher == null).Include(x => x.Lessons).Include(x => x.ArrivedStudents).AsQueryable();
 }
