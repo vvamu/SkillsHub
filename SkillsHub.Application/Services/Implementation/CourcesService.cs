@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.DTO;
 using SkillsHub.Application.Services.Interfaces;
@@ -9,6 +11,7 @@ using SkillsHub.Persistence;
 
 namespace SkillsHub.Application.Services.Implementation;
 
+//For Admin Panel
 public class CourcesService : ICourcesService
 {
     private readonly ApplicationDbContext _context;
@@ -40,6 +43,21 @@ public class CourcesService : ICourcesService
     public IQueryable<Cource> GetAllCources() => _context.Cources;
     public IQueryable<EnglishLevel> GetAllEnglishLevels() => _context.EnglishLevels;
 
+    /*
+    public async Task<Group> AddTeacherToGroup(Guid userId, Guid groupIf) // == create Group
+    {
+        var group = _context
+    }
+    public async Task<Group> CreateCourceToUser(Guid userId,Group group) // == create Group
+    {
+        //var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        Student st;
+        var user = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == userId);
+        if(user == null)
+            st = await _context.Students.FirstOrDefaultAsync(x => x.Id == userId);
+
+    }
+    */
 
 
 
