@@ -35,23 +35,24 @@
                         @{
                             if(Model.Sex == "Woman")
                             {
-                                <img class="mr-3" src="~/images/womanIcon.jpg" width="80" height="80" alt="">
+                                        <img class="mr-3" src="~/images/womanIcon.jpg" width="80" height="80" alt="">
                             }
                             else
                             {
-                                <img class="mr-3" src="~/images/manIcon.jpg" width="80" height="80" alt="">
+                                        <img class="mr-3" src="~/images/manIcon.jpg" width="80" height="80" alt="">
                             }
                         }
                                     
                             <div class="media-body">
                                 <h3 class="mb-0">@Model.FirstName @Model.LastName @Model.Surname - @Model.Sex</h3>
                                 <p class="text-muted mb-0">Login: @Model.Login</p>
-                                <div>Role: 
+                                <p>Roles: 
                                     @{
                                         var roles = await _roleManager.UserManager.GetRolesAsync(Model);
                                         string result = string.Join(",", roles.ToArray());
-                                        <p>@result</p>
-                                    }</div>
+                                                <p>@result</p>
+                                    }
+                                </p>
                             </div>
                             <!--
                             <div class="dropdown">
@@ -67,25 +68,28 @@
                             -->
                         </div>
 
+                        @if(await _roleManager.UserManager.IsInRoleAsync(Model,"Admin"))
+                        {
+                            <form>
+                                <div class="row mb-5">
+                                    <div class="col">
+                                        <div class="card card-profile text-center">
+                                            <span class="mb-1 text-primary"><i class="icon-people"></i></span>
+                                            <h3 class="mb-0"></h3>
+                                            <input asp-action="Create" asp-controller="Teachers" asp-route-id="@Model.Id" type="submit" class="text-muted px-4 btn btn-light" value="Create Teacher Account" />
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="card card-profile text-center">
+                                            <span class="mb-1 text-warning"><i class="icon-user-follow"></i></span>
+                                            <h3 class="mb-0"></h3>
+                                            <input asp-action="Create" asp-controller="Student" asp-route-id="@Model.Id" type="submit" class="text-muted btn btn-light" value="Create Student Account" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        }
                         
-                        <form>
-                        <div class="row mb-5">
-                            <div class="col">
-                                <div class="card card-profile text-center">
-                                    <span class="mb-1 text-primary"><i class="icon-people"></i></span>
-                                    <h3 class="mb-0"></h3>
-                                        <input asp-action="Create" asp-controller="Teachers" asp-route-id="@Model.Id" type="submit" class="text-muted px-4 btn btn-light" value="Create Teacher Account" />
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="card card-profile text-center">
-                                    <span class="mb-1 text-warning"><i class="icon-user-follow"></i></span>
-                                    <h3 class="mb-0"></h3>
-                                        <input asp-action="Create" asp-controller="Student" asp-route-id="@Model.Id" type="submit" class="text-muted btn btn-light" value="Create Student Account" />
-                                </div>
-                            </div>
-                        </div>
-                        </form>
 
                         <h3>Об аккаунте</h3>
                         <ul class="card-profile__info">
@@ -112,24 +116,86 @@
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="card-body">
-                        <h3>Статистика</h3>
+                
                         
                         @if(Model.UserStudent != null)
                         {
+                            var visitedLessonsCount = 0;
+                            var preparedLessonsCount = 0;
+                            if (@Model.UserStudent.Lessons != null)
+                            {
+                                visitedLessonsCount += @Model.UserStudent.Lessons.Where(x => x.IsСompleted).Count();
+                                preparedLessonsCount += @Model.UserStudent.Lessons.Where(x => !x.IsСompleted).Count();
+                            }
+                            
+                            if (@Model.UserStudent.Groups != null)
+                                //foreach(var lesson in Model.UserStudent.Groups.)
+                                visitedLessonsCount += 0;
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>Статистика ученика</h3>
                         <div>
-                            Уроки ученика:
+                                Посещенные уроки ученика: @visitedLessonsCount
                         </div>
-                        }
-                        @if (Model.UserTeacher != null)
-                        {
-                            <div>
-                                Уроки преподавателя:
+                        <div>
+                                Ожидаемые уроки ученика: @preparedLessonsCount
+                        </div>
+                        <div>
+                                Посещено групп англ / индив англ / групп прогр:
+                        </div>
+                        <div>
+                                Ожидаемые групповых английский / индивидуальных английский / групповых программирование:
+                        </div>
+                        <div>
+                                Оплачено групповых английский / индивидуальных английский / групповых программирование:
+                        </div>
+                        <div>
+                                Итого к оплате:
+                        </div>
                             </div>
-                        }
-                    </div>
                 </div>
+                        }
+
+                    
+            
+
+            @if (Model.UserTeacher != null)
+            {
+                var visitedLessonsCount = 0;
+                var preparedLessonsCount = 0;
+                var resultSalary = 0;
+                if (@Model.UserTeacher.Lessons != null)
+                {
+                    visitedLessonsCount += @Model.UserTeacher.Lessons.Where(x => x.IsСompleted).Count();
+                    preparedLessonsCount += @Model.UserTeacher.Lessons.Where(x => !x.IsСompleted).Count();
+
+                }
+
+                if (@Model.UserTeacher.Groups != null)
+                    //foreach(var lesson in Model.UserStudent.Groups.)
+                    visitedLessonsCount += 0;
+
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Статистика учителя</h3>
+                <div>
+                    Проведенные уроки: @visitedLessonsCount
+                </div>
+                <div>
+                    Ожидаемые уроки учителя: @preparedLessonsCount
+                </div>
+                <div>
+                    Проведено групповых английский / индивидуальных английский / групповых программирование:
+                </div>
+                <div>
+                    Ожидаемые групповых английский / индивидуальных английский / групповых программирование:
+                </div>
+                <div>
+                    Текущая оплата за месяц: @resultSalary
+                </div>
+                </div>
+                </div>
+            }
             </div>
             <div class="col-lg-6 col-xl-8">
                 
@@ -165,49 +231,80 @@
 
                     <div class="card">
                         <div class="card-body">
-                        <h1>Ученик</h1>
-                        <div style="display:flex">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5>Баланс:</h5>
-                                         X занятий
-                                    </div>
-                                </div>
-                        </div>
-                        <br/>
+                            <h1>Учитель. Занятия</h1>
+                            <br/>
 
-                        
-                        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-                                <h3>Курсы</h3>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                                <h3>Текущие занятия</h3>
                                 <!-- Кнопка-триггер модального окна -->
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                                     Добавить
                                 </button>
-                        </div>
-
-                        <nav class="navbar navbar-expand-lg bg-light">
-                            <div class="container-fluid">
-                                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                                        <li class="nav-item">
-                                            <a class="nav-link active" aria-current="page" href="#">Все</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link active" aria-current="page" href="#">Текущие</a>
-                                        </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link active" aria-current="page" href="#">Прошедшие</a>
-                                                    </li>
-                                    </ul>
-                                </div>
                             </div>
-                        </nav>
 
+                            <nav class="navbar navbar-expand-lg bg-light">
+                                <div class="container-fluid">
+                                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" aria-current="page" href="#">Все</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link active" aria-current="page" href="#">Текущие</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link active" aria-current="page" href="#">Прошедшие</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </nav>
 
+                            @{
+                                if (Model.UserTeacher.Groups != null)
+                                {
+                                    foreach (var item in Model.UserTeacher.Groups)
+                                    {
+                                        var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
+                                        var countLessons = item.Lessons.Count();
+
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <div style="display:flex;justify-content:space-between">
+                                                            <h3>Курс - @item.CourceName,  Тип занятия: @item.LessonType</h3>
+                                                            <h5>Группа - @item.Name</h5>
+                                                            <div>
+                                                                <h5>@countEndedLessons из @countLessons занятий - 300 BYN</h5>
+                                                            </div>
+                                                        </div>
+                                                        <p>02.11 - 12.11 - Чт, Пт</p>
+                                                        <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
+                                                            @for (int i = 0; i < 5; i++)
+                                                    {
+                                                                <div>
+                                                                    <div>02.11</div>
+                                                                    <input type="checkbox" style="margin:10px" />
+                                                                </div>
+                                                    }
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                    }
+                                }
+                                else
+                                {
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h3>EMPTY - TRUE INFO</h3>
+                                                </div>
+                                            </div>
+                                }
+                            }
                         <div class="card">
                             <div class="card-body">
                                     <div style="display:flex;justify-content:space-between">
-                                        <h3>Курс - Speaking Club</h3>
+                                        <h3>Групповые занятия. Курс - Speaking Club</h3>
                                         <div>
                                             <h5>3 из 5 занятий - 300 BYN</h5>
                                         </div>
@@ -225,7 +322,28 @@
                             </div>
 
                         </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div style="display:flex;justify-content:space-between">
+                                        <h3>Индивидуальные занятия. Курс - Speaking Club</h3>
+                                        <div>
+                                            <h5>Ученик: Ахмед Абдулахтович - 10 лет</h5>
+                                            <h5>3 из 5 занятий - 300 BYN</h5>
+                                        </div>
+                                    </div>
+                                    <p>02.11 - 12.11 - Чт, Пт</p>
+                                    <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
+                                        @for (int i = 0; i < 2; i++)
+                                        {
+                                            <div>
+                                                <div>02.11</div>
+                                                <input type="checkbox" style="margin:10px" />
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
 
+                            </div>
 
                         @if(Model.UserTeacher.Lessons.Count() == 0)
                         {
@@ -354,8 +472,9 @@
 </div>
 
 
-<!-- Модальное окно -->
+<!-- Модальное окно для добавления группы учителю  -->
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    
     <div class="modal-dialog">
         <div class="modal-content">
 
@@ -364,6 +483,7 @@
                 <h1 class="modal-title fs-5" id="staticBackdropLabel">Записать на курс</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
+            <form class="mt-1 mb-5 login-input" method="post">
             <div class="modal-body">
                 <div class="login-form-bg h-100">
                     <div class="container h-100">
@@ -372,8 +492,17 @@
                                 <div class="form-input-content">
                                     <div class=" login-form mb-0">
                                         <div >
-                                            <form class="mt-1 mb-5 login-input" method="post">
+                                            
                                                 <div class="validation" asp-validation-summary="ModelOnly"></div>
+                                                @if (Model.UserTeacher != null)
+                                                {
+                                                    <input type="hidden" name="teacherId" value="@Model.UserTeacher.Id" />
+                                                }
+                                                @if(Model.UserStudent != null)
+                                                {
+                                                    <input type="hidden" name="userId" value="@Model.UserTeacher.Id" />
+                                                }
+
                                                 <!--
                                                 <div class="form-group">
                                                     <input type="text" class="form-control" placeholder="Name*" required>
@@ -405,29 +534,7 @@
                                                         </div>
                                                 </div>
 
-                                                <div class="form-group ">
-                                                    <label class=" col-form-label" for="val-skill">
-                                                        Группа<span class="text-danger">*</span>
-
-                                                    </label>
-                                                    <div class="" id="englishLevels">
-                                                        <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="lessonTypesSelect" name="val-skill">
-
-                                                            <option value="">Выберете одно</option>
-                                                            @if (ViewBag.FreeGroups != null)
-                                                            {
-
-                                                                @foreach (Group item in ViewBag.FreeGroups)
-                                                                {
-                                                                    <option value="@item.Name">@item.Name - @item.ArrivedStudents.Count() из @item.CourceName.Name</option>
-                                                                    // Групповое английский / Программирование
-                                                                
-                                                                }
-                                                            }
-
-                                                        </select>
-                                                    </div>
-                                                </div>
+                                                
 
                                                 <div class="form-group">
                                                     <label class=" col-form-label" for="val-skill">
@@ -482,17 +589,47 @@
                                                             </select>
                                                         </div>
                                                     </div>
+
+                                                    <div class="form-group ">
+                                                        <label class=" col-form-label" for="val-skill">
+                                                            Группа (Только для группового курса) - сделать поиск по выбранному направлению и типу занятий и чтобы группа была неактивна!!<span class="text-danger">*</span>
+
+                                                        </label>
+                                                        <div class="">
+                                                            <select name="groupId" class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="groupsFreeList" name="val-skill">
+
+                                                                <option value="">Выберете одно</option>
+                                                                @*   @if (ViewBag.FreeGroups != null)
+                                                                {
+
+                                                                @foreach (Group item in ViewBag.FreeGroups)
+                                                                {
+                                                                <option value="@item.Name">@item.Name - @item.ArrivedStudents.Count() из @item.CourceName.Name</option>
+                                                                // Групповое английский / Программирование
+
+                                                                }
+                                                                } *@
+
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="form-group ">
+                                                        <label class=" col-form-label" for="val-skill">
+                                                            Ученик (Только для индивидуальных занятий)<span class="text-danger">*</span>
+
+                                                        </label>
+                                                        <div class="">
+                                                            <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="studentSelect" name="val-skill">
+
+                                                                <option value="">Выберете одного</option>
+
+                                                            </select>
+                                                        </div>
+                                                    </div>
                                                     
                                                 </div>
-
-
-
-                                                <div class="form-group row">
-                                                    <div class="col-lg-8 ml-auto">
-                                                        <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Teachers">Записать</button>
-                                                    </div>
-                                                </div>
-                                            </form>
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -503,26 +640,131 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                <button type="button" class="btn btn-primary">Понял</button>
+                    <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Cources" asp-route-id="@Model.Id">Записать</button>
+                <!---->
             </div>
+            </form>
         </div>
     </div>
+    
 </div>
 
-<style>
+
+
+<script src="~/plugins/common/common.min.js"></script>
+
+<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
+<script src="~/plugins/jquery/jquery.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<script>
+
 
     $("#lessonTypesSelect").on("change", funtion() {
             console.log(($"lessonTypesSelect"))
         });
 
 
+    function getStudentsList() {
+        var studentsList = $("#studentSelect");
+        $.ajax({
+                url: "/Student/GetStudentListAsync",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    data = JSON.parse(data);
+                    if (Array.isArray(data)) {
+
+                        data.forEach(function (item, i, arr) {
+
+                        var appendedLine = "<option class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>";
+                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        appendedLine += "</option>"
+
+                            studentsList.append(appendedLine);
+                        })
+                    }
+                }
+            });
+    }
+
+    function getFreeGroupsList() {
+        var studentsList = $("#groupsFreeList");
+        $.ajax({
+            url: "/Group/Free",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+                    data.forEach(function (item, i, arr) {
+
+                        var appendedLine = "<option class='list-group-item' name='groupId' asp-for='CourceId' value='" + item.Id + "'>";
+                        appendedLine += item.Name;
+                        appendedLine += "</option>"
+
+                        studentsList.append(appendedLine);
+                    })
+                }
+            }
+        });
+    }
+
+    function getCourcesList() {
+        var studentsList = $("#courcesList");
+        $.ajax({
+            url: "/Group/Free",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+                    data.forEach(function (item, i, arr) {
+
+                        var appendedLine = "<option class='list-group-item' asp-for='CourceId' value='" + item.Id + "'>";
+                        appendedLine += item.Name;
+                        appendedLine += "</option>"
+
+                        studentsList.append(appendedLine);
+                    })
+                }
+            }
+        });
+    }
+
+    function SaveLessonTypes() {
+        //Serialize the form datas.
+        var valdata = $("#lessonTypesForm").serialize();
+        console.log(valdata);
+        //to get alert popup
+        $.ajax({
+            url: "/Cources/SaveLessonTypes",
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            data: valdata
+        });
+    }
+
+    
+
     const myModal = document.getElementById('myModal')
     const myInput = document.getElementById('myInput')
 
     myModal.addEventListener('shown.bs.modal', () => {
       myInput.focus()
+        getStudentsList();
     })
-</style>
+</script>
 
    
 
