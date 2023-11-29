@@ -364,8 +364,12 @@ public class UserService : IUserService
 
     public IQueryable<TeacherDTO> GetAllTeachers()
     {
-        var items = _context.Teachers.Include(x => x.Lessons).OrderBy(on => on.Id);
-        var users = _context.Users.Include(x => x.UserTeacher).Where(x => x.UserTeacher != null).OrderBy(on => on.Id);
+        var items = _context.Teachers.OrderBy(on => on.Id);
+        var users = _context.Users.Include(x => x.UserTeacher).ThenInclude(x => x.Lessons)
+            .Include(x => x.UserTeacher).ThenInclude(x => x.Groups)
+            .Include(x => x.UserTeacher).ThenInclude(x => x.PossibleCources)
+            .Include(x => x.UserTeacher).ThenInclude(x => x.Lessons)
+            .Where(x => x.UserTeacher != null).OrderBy(on => on.Id);
 
         var mappingItems = _mapper.Map<List<TeacherDTO>>(items).AsQueryable();
         mappingItems = _mapper.Map<List<TeacherDTO>>(users).AsQueryable();

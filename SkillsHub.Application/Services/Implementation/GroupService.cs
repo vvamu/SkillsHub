@@ -62,5 +62,13 @@ public class GroupService: IGroupService
 
 
     public IQueryable<Group> GetAll() => _context.Groups.Include(x=>x.Lessons).Include(x=>x.ArrivedStudents).AsQueryable();
+    public async Task<Group> GetAsync(Guid id)
+    {
+        var groups = await _context.Groups
+            .Include(x => x.Lessons).Include(x => x.CourceName).Include(x=>x.LessonType)
+            .Include(x => x.ArrivedStudents).ThenInclude(x=>x.ApplicationUser)
+            .Include(x=>x.Teacher).ThenInclude(x=>x.ApplicationUser).ToListAsync();
+        return groups.Find(x=>x.Id == id);
+    }
 
 }

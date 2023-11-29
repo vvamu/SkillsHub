@@ -22,6 +22,11 @@ public class GroupController : Controller
         //ViewBag.Students = 
         return View(_groupService.GetAll());
     }
+    public async Task<IActionResult> Item(Guid id)
+    {
+        var group = await _groupService.GetAsync(id);
+        return View(group);
+    }
 
     public IActionResult Create()
     {

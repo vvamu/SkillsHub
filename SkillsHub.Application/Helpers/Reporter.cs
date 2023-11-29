@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Spire.Xls;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Spire.Xls;
+using DataTable = System.Data.DataTable;
 
 namespace SkillsHub.Application.Helpers
 {
@@ -12,29 +13,36 @@ namespace SkillsHub.Application.Helpers
     {
         public static void ReportToXLS<T>(T[] entities)
         {
-            var workbook = new Workbook();
-            var worksheet = workbook.Worksheets[0];
-
-
-            DataTable dataTable = new DataTable(typeof(T).Name);
-
-            foreach(var prop in typeof(T).GetProperties())
+            try
             {
-                dataTable.Columns.Add(prop.Name);
-            }
-            foreach (var (entity, i) in entities.Select((value, i) => (value, i)))
-            {
-                var row = dataTable.NewRow();
+                var options = new JsonSerializerSettings()
+                {
+                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                     NullValueHandling = NullValueHandling.Ignore,
+                     
+                };
+                var jsonEntities = JsonConvert.SerializeObject(entities, options);
+                var dt = (DataTable)JsonConvert.DeserializeObject(jsonEntities, typeof(DataTable));
 
-                foreach (var prop in typeof(T).GetProperties())
-                { 
-                    var value = prop.GetValue(entity, null);
-                    row[i] = value ?? "-";
-                }
-            }
+                var workbook = new Workbook();
+                var worksheet = workbook.Worksheets[0];
 
-            worksheet.InsertDataTable(dataTable, true, 1, 1);
-            workbook.SaveToFile($"report{typeof(T).Name}.xlsx");
+                worksheet.Name = typeof(T).Name;
+
+                //var rowcount = 1;
+                //foreach (DataRow row in dt.Rows)
+                //{
+                //    for (int i = 1; i <= dt.Columns.Count; i++)
+                //    {
+                //        worksheet.SetCellValue(rowcount, i, row[i].ToString());
+                //    }
+                //}
+
+                worksheet.InsertDataTable(dt, true, 1, 1);
+                workbook.SaveToFile($"report{typeof(T).Name}.xlsx");
+            }
+            catch { }
+
         }
     }
 }
