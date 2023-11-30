@@ -74,12 +74,13 @@ public class GroupController : Controller
                     date.AddDays(7);
                 }
                 var addingDays = LessonMath.Mod((int)date.DayOfWeek, (int)schedules[scCount].DayName);
+                var virtualDate = date.AddDays(addingDays);
                 var lesson = new Lesson()
                 {
                     Creator = await _userManager.GetUserAsync(User),
                     Group = group,
-                    StartTime = date.AddDays(addingDays) + schedules[scCount].WorkingStartTime,
-                    EndTime = date.AddDays(addingDays) + schedules[scCount].WorkingEndTime,
+                    StartTime = virtualDate + schedules[scCount].WorkingStartTime,
+                    EndTime = virtualDate + schedules[scCount].WorkingEndTime,
                 };
             }
 
