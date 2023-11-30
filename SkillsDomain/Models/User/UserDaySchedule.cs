@@ -9,8 +9,8 @@ namespace SkillsHub.Domain.Models;
 
 public class UserDaySchedule : BaseEntity
 {
-    public string DayName { get; set; }
-    public ApplicationUser User { get; set; }
+    public DayOfWeek DayName { get; set; }
+    public Group Group { get; set; }
     public DateTime WorkingStartTime { get; set; }
     public DateTime WorkingEndTime { get; set; }
 

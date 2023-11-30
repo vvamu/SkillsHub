@@ -51,7 +51,7 @@ public class GroupService: IGroupService
             var dbItem = await _context.Students.FirstOrDefaultAsync(x => x.Id == studentId) ?? throw new Exception("Student not found");
             studentsList.Add(dbItem);
         }
-        group.ArrivedStudents = studentsList;
+        group.GroupStudents = studentsList;
         
         _context.Update(group);
         await _context.SaveChangesAsync();
@@ -61,12 +61,13 @@ public class GroupService: IGroupService
 
 
 
-    public IQueryable<Group> GetAll() => _context.Groups.Include(x=>x.Lessons).Include(x=>x.ArrivedStudents).AsQueryable();
+    public IQueryable<Group> GetAll() => _context.Groups.Include(x=>x.Lessons).Include(x=>x.GroupStudents).AsQueryable();
     public async Task<Group> GetAsync(Guid id)
     {
         var groups = await _context.Groups
             .Include(x => x.Lessons).Include(x => x.CourceName).Include(x=>x.LessonType)
-            .Include(x => x.ArrivedStudents).ThenInclude(x=>x.ApplicationUser)
+            .Include(x => x.GroupStudents).ThenInclude(x=>x.ApplicationUser)
+            .Include(x=>x.DaySchedules)
             .Include(x=>x.Teacher).ThenInclude(x=>x.ApplicationUser).ToListAsync();
         return groups.Find(x=>x.Id == id);
     }

@@ -6,7 +6,7 @@ namespace SkillsHub.Domain.Models;
 public class Group : BaseEntity
 {
     public string Name { get; set; }
-    public List<Student>? ArrivedStudents { get; set; }
+    public List<Student>? GroupStudents { get; set; }
 
     public string? Term { get; set; }
 
@@ -19,6 +19,7 @@ public class Group : BaseEntity
     public Guid CourceId { get; set; }
     public CourceName CourceName { get; set; }
     public List<Lesson>? Lessons { get; set; }
+    public List<UserDaySchedule>? DaySchedules { get; set;}
 
 
     [NotMapped]

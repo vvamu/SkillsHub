@@ -82,7 +82,7 @@
                                         Students in group <span class="text-danger">*</span>
                                     </label>
                                     <div class="col-lg-6">
-                                        <p class="col-lg-4 col-form-label">@foreach(var st in Group.ArrivedStudents) 
+                                        <p class="col-lg-4 col-form-label">@foreach(var st in Group.GroupStudents) 
                                             { <a asp-action="Item" asp-controller="Account" asp-route-itemId="@st.Id" style="font-weight:900;color:#7571f9">@st.ApplicationUser.FirstName + @st.ApplicationUser.Surname</a>}</p>
                                     </div>
                                 </div>

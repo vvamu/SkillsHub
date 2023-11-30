@@ -299,7 +299,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("NameId");
 
-                    b.ToTable("Cources");
+                    b.ToTable("Cources", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.CourceName", b =>
@@ -336,7 +336,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("CourceNames");
+                    b.ToTable("CourceNames", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.EmailMessage", b =>
@@ -369,7 +369,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmailMessages");
+                    b.ToTable("EmailMessages", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.EnglishLevel", b =>
@@ -390,7 +390,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EnglishLevels");
+                    b.ToTable("EnglishLevels", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.ExternalConnection", b =>
@@ -417,7 +417,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("ExternalConnections");
+                    b.ToTable("ExternalConnections", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Group", b =>
@@ -458,7 +458,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Groups", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Lesson", b =>
@@ -523,7 +523,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Lessons");
+                    b.ToTable("Lessons", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.LessonActivityType", b =>
@@ -547,7 +547,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LessonActivityTypes");
+                    b.ToTable("LessonActivityTypes", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.LessonStudent", b =>
@@ -583,7 +583,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("LessonStudents");
+                    b.ToTable("LessonStudents", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.LessonTask", b =>
@@ -607,7 +607,7 @@ namespace SkillsHub.Persistence.Migrations
                     b.HasIndex("LessonId")
                         .IsUnique();
 
-                    b.ToTable("LessonTasks");
+                    b.ToTable("LessonTasks", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.LessonType", b =>
@@ -637,7 +637,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LessonTypes");
+                    b.ToTable("LessonTypes", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.ScheduleDay", b =>
@@ -663,7 +663,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("CourceId");
 
-                    b.ToTable("ScheduleDays");
+                    b.ToTable("ScheduleDays", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Student", b =>
@@ -701,7 +701,7 @@ namespace SkillsHub.Persistence.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Teacher", b =>
@@ -721,7 +721,7 @@ namespace SkillsHub.Persistence.Migrations
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
-                    b.ToTable("Teachers");
+                    b.ToTable("Teachers", (string)null);
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.UserDaySchedule", b =>
@@ -750,7 +750,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DaySchedules");
+                    b.ToTable("DaySchedules", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
