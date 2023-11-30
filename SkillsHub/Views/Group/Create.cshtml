@@ -87,6 +87,17 @@
                                 <div class="form-group ">
                                     <ul id="courcesList" class="list-group col"></ul>
                                 </div>
+                                <div id="schedule_d" class="form-group rowы">
+                                    <div id="insert">
+                                        <h4>Schedule</h4>
+                                        <label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>
+                                        <label>Enter start time</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." />
+                                        <label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />
+                                        <button class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">Add new schedule day</button>
+                                </div>
+
                                                 <div class="form-group row">
                                                     <div class="col-lg-8 ml-auto">
                                         <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" value="Создать"/>
@@ -183,8 +194,16 @@ console.log(data);
             }
         });
     }
-
-
+    function CreateScheduleDay() {
+        let schedule = $("#schedule_d")[0];
+        var div = document.createElement('div');
+        div.innerHTML = '<div id="insert"><h4>Schedule</h4><label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select><label>Enter start time</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." /><label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." /><button class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button></div>'
+        schedule.appendChild(div);
+    }
+    function RemoveScheduleDay(btn){
+        let parent = btn.parentElement;
+        parent.remove();
+    }
 
     function addItemsToListByResponse(idName, passedUrl) {
         var itemsUL = $("#idName");

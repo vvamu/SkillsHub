@@ -71,10 +71,18 @@
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label">
-                                        Avg age students <span class="text-danger">*</span>
+                                        Schedule <span class="text-danger">*</span>
                                     </label>
                                     <div class="col-lg-6">
-                                        <p class="col-lg-4 col-form-label">@Group.AverageAgeStudents</p>
+                                        <p class="col-lg-4 col-form-label">@foreach(var ds in Group.DaySchedules) { <div>@ds.DayName: @ds.WorkingStartTime-@ds.WorkingEndTime</div> } </p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">
+                                         <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-lg-6">
+                                        <p class="col-lg-4 col-form-label">@Group</p>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -83,7 +91,7 @@
                                     </label>
                                     <div class="col-lg-6">
                                         <p class="col-lg-4 col-form-label">@foreach(var st in Group.GroupStudents) 
-                                            { <a asp-action="Item" asp-controller="Account" asp-route-itemId="@st.Id" style="font-weight:900;color:#7571f9">@st.ApplicationUser.FirstName + @st.ApplicationUser.Surname</a>}</p>
+                                            { <a asp-action="Item" asp-controller="Account" asp-route-itemId="@st.Id" style="font-weight:900;color:#7571f9">@st.ApplicationUser.FirstName @st.ApplicationUser.Surname</a>}</p>
                                     </div>
                                 </div>
                             </form>

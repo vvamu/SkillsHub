@@ -11,7 +11,7 @@ public class UserDaySchedule : BaseEntity
 {
     public DayOfWeek DayName { get; set; }
     public Group Group { get; set; }
-    public DateTime WorkingStartTime { get; set; }
-    public DateTime WorkingEndTime { get; set; }
+    public TimeSpan WorkingStartTime { get; set; }
+    public TimeSpan WorkingEndTime { get; set; }
 
 }

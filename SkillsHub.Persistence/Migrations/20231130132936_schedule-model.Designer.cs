@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillsHub.Persistence;
 
@@ -11,9 +12,11 @@ using SkillsHub.Persistence;
 namespace SkillsHub.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231130132936_schedule-model")]
+    partial class schedulemodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -747,11 +750,11 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<TimeSpan>("WorkingEndTime")
-                        .HasColumnType("time");
+                    b.Property<DateTime>("WorkingEndTime")
+                        .HasColumnType("datetime2");
 
-                    b.Property<TimeSpan>("WorkingStartTime")
-                        .HasColumnType("time");
+                    b.Property<DateTime>("WorkingStartTime")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

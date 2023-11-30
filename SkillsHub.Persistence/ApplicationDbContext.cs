@@ -61,7 +61,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         //builder.Entity<Teacher>().HasMany(x => x.Groups).WithOne(x => x.Teacher).OnDelete(DeleteBehavior.SetNull);
         //builder.Entity<Teacher>().HasMany(x=>x.Groups).WithOne(x=>x.Teacher).OnDelete(DeleteBehavior.SetNull);
 
-        builder.Entity<Student>().HasMany(x => x.Groups).WithMany(x => x.ArrivedStudents);
+        builder.Entity<Student>().HasMany(x => x.Groups).WithMany(x => x.GroupStudents);
 
 
         base.OnModelCreating(builder);
