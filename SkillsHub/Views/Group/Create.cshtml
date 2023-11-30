@@ -8,21 +8,24 @@
 
 
             
-<div class="login-form-bg h-100">
-    <div class="container h-100">
-        <div class="row justify-content-center h-100">
-            <div class="col-xl-6">
-                <div class="form-input-content">
-                    <div class="card login-form mb-0">
-                        <div class="card-body pt-5">
-                            <div class="text-center"> <h4>Create new group</h4></div>
+
+                    
                             <form class="mt-1 mb-5 login-input" method="post">
-                                                
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+
+                             <h2>Create new group</h2>
+
                                 <div class="validation" asp-validation-summary="ModelOnly"></div>
 
                                 <div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
-                                        Name<span class="text-danger">*</span>
+                                <h4>Name<span class="text-danger">*</span></h4>
                                     </label>
                                     <input asp-for="Name" type="text" class="form-control" placeholder="For example - Morning group*" required />
                                     <div class="validate"></div>
@@ -32,21 +35,22 @@
 
                                 </div>
 
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <h4>Category <span class="text-danger">*</span></h4>
+                            </label>
+
+                            <select asp-for="LessonTypeId" class="form-control" id="lessonTypes"></select>
+                        </div>
 
                                 <div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
-                                        Cource name <span class="text-danger">*</span>
+                                <h4>Cource name <span class="text-danger">*</span></h4>
                                     </label>
                                     <select asp-for="CourceId" class="form-control" id="courcesNames"></select>
                                 </div>
 
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                        Category <span class="text-danger">*</span>
-                                    </label>
-                                   
-                                    <select asp-for="LessonTypeId"  class="form-control" id="lessonTypes"></select>
-                                </div>
+                                
 
                                 @*<div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
@@ -58,7 +62,7 @@
 
                                 <div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
-                                        Teacher from All Teachers <span class="text-danger">*</span>
+                                <h4>Teacher from All Teachers <span class="text-danger">*</span></h4>
                                     </label>
 
                                     <ul class="form-control" id="allTeachers"></ul>
@@ -79,7 +83,7 @@
 
                                 <div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
-                                        Students<span class="text-danger">*</span>
+                                <h4>Students<span class="text-danger">*</span></h4>
                                     </label>
                                     <ul id="studentsList" class="list-group col"></ul>
                                 </div>
@@ -87,31 +91,43 @@
                                 <div class="form-group ">
                                     <ul id="courcesList" class="list-group col"></ul>
                                 </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div style="display:flex;justify-content:space-between">
+                            <h3>Schedule</h3>
+                            <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>
+                        </div>
+                                
+                                
                                 <div id="schedule_d" class="form-group rowы">
+                                    <!--
                                     <div id="insert">
-                                        <h4>Schedule</h4>
                                         <label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>
                                         <label>Enter start time</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." />
                                         <label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />
                                         <button class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>
                                     </div>
-                                    <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">Add new schedule day</button>
+                            -->
+                                    
                                 </div>
 
-                                                <div class="form-group row">
-                                                    <div class="col-lg-8 ml-auto">
-                                        <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" value="Создать"/>
+                                                
+                                        <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" value="Create new group"/>
                                
-                                                </div>
-                                                </div>
-                                            </form>
+                                               
+                            </div>
                         </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-</div>
+                                            </form>
+
+               
 
 <!-- AJAX
 
@@ -197,7 +213,12 @@ console.log(data);
     function CreateScheduleDay() {
         let schedule = $("#schedule_d")[0];
         var div = document.createElement('div');
-        div.innerHTML = '<div id="insert"><h4>Schedule</h4><label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select><label>Enter start time</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." /><label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." /><button class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button></div>'
+        var elementValue = '<div><div id="insert" class="card-body">'
+        elementValue += '<label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select><label>Enter start time</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." /><label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />'
+        elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>'
+        elementValue += '</div></div>';
+        elementValue += '<hr/>'
+        div.innerHTML = elementValue;
         schedule.appendChild(div);
     }
     function RemoveScheduleDay(btn){
@@ -364,6 +385,7 @@ console.log(data);
                         var appendEmpty = "<option class='list-group-item' value='' >Teacher's list to cource is empty</option>";
                         requiredTeachers.append(appendEmpty);
                     }
+                    else { 
                     data.forEach(function (item, i, arr) {
 
                         var appendedLine = "<li class='list-group-item' name='courceId' asp-for='TeacherId' value='"+ item.Id +"'>" + item.FirstName + " " + item.LastName
@@ -373,6 +395,7 @@ console.log(data);
 
                         requiredTeachers.append(appendedLine);
                     })
+                    }
 
 
 
@@ -402,8 +425,7 @@ console.log(data);
                     data.forEach(function (item, i, arr) {
 
                         var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='teacherValue' style='margin-right:5px;' value='"+item.Id+"'  /> ";
-                        appendedLine += "<input type='checkbox' name='teacherValue' style='margin-right:5px;' value='"+item.UserId+"'  /> ";
+                        appendedLine += "<input type='checkbox' name='teacherValue' style='margin-right:5px;' value='"+item.Id+"'  /> ";            
                         appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
                         appendedLine += "</li>"
 
@@ -425,6 +447,7 @@ console.log(data);
         getLessonTypesList();
         //getTeachersByLessonType();
         getTeachers();
+        CreateScheduleDay();
     });
 
 </script>
