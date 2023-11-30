@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SkillsHub.Controllers
 {
-    public class ClassesController : Controller
+    public class LessonController : Controller
     {
         // GET: ClassesController
         public ActionResult Index()
