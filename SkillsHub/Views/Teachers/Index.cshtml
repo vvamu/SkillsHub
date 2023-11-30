@@ -65,6 +65,7 @@
                                             <th>Email</th>
                                             <th>BirthDate</th>
                                             <th>Age</th>
+                                            <th>Groups</th>
                                             <th>Total Lessons</th>
                                             <th>Month Lessons</th>
                                             <th>Calculated salary</th>
@@ -78,15 +79,6 @@
 
                                             foreach (var item in Model)
                                             {
-                                            /* <tr>
-                                                <td>Tiger Nixon</td>
-                                                <td>System Architect</td>
-                                                <td>Edinburgh</td>
-                                                <td>61</td>
-                                                <td>2011/04/25</td>
-                                                <td>$320,800</td>
-                                                </tr>
-                                                */
                                                 <tr>
                                                     <td><form><a asp-action="Item" asp-controller="Account" asp-route-id="@item.ApplicationUser.Id" style="font-weight:900;color:#7571f9">  @item.Login </a></form></td>
                                                     <td>@item.FirstName @item.LastName @item.Surname</td>
@@ -94,9 +86,11 @@
                                                     <td>@item.Phone</td>
                                                     <td>@item.Email</td>
                                                     <td>@item.BirthDate</td>
-                                                    <td>Age</td>
-                                                    <td>@{if (@item.TotalLessons == null) { <div>0</div> } else { @item.TotalLessons.Count }}</td>
-                                                    <td>Month Lessons</td>
+                                                    <td>(@DateTime.Now.AddYears(-item.BirthDate.Year)).Year</td>
+                                                    <td>@if(item.UserTeacher == null && item.UserTeacher.Groups == null) {<div>-</div>} else { foreach(var gr in item.UserTeacher.Groups) 
+                                                        { <form><a asp-action="Item" asp-controller="Group" asp-route-id="@gr.Id" style="font-weight:900;color:#7571f9">  @gr.Name </a></form> } }</td>
+                                                    <td>@{if (item.TotalLessons == null) { <div>0</div> } else { @item.TotalLessons.Count }}</td>
+                                                    <td>@{if (item.TotalLessons == null) { <div>0</div> } else { @item.TotalLessons.Where(x=>x.StartTime.Month == DateTime.Now.AddMonths(-1).Month)}}</td>
                                                     <td>@item.CalculatedSalary</td>
                                                     <td>@item.IsAdmin</td>
                                                     <td>@item.SourceFindCompany</td>
@@ -107,19 +101,20 @@
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <th>Login</th>
-                                            <th>Full Name</th>
-                                            <th>Sex</th>
-                                            <th>Phone</th>
-                                            <th>Email</th>
-                                            <th>BirthDate</th>
-                                            <th>Age</th>
-                                            <th>Total Lessons</th>
-                                            <th>Month Lessons</th>
-                                            <th>Calculated salary</th>
-                                            <th>IsAdmin</th>
-                                            <th>SourceFindCompany</th>
-                                            <th>IsDeleted</th>
+                                                    <th>Login</th>
+                                                    <th>Full Name</th>
+                                                    <th>Sex</th>
+                                                    <th>Phone</th>
+                                                    <th>Email</th>
+                                                    <th>BirthDate</th>
+                                                    <th>Age</th>
+                                                    <th>Groups</th>
+                                                    <th>Total Lessons</th>
+                                                    <th>Month Lessons</th>
+                                                    <th>Calculated salary</th>
+                                                    <th>IsAdmin</th>
+                                                    <th>SourceFindCompany</th>
+                                                    <th>IsDeleted</th>
                                         </tr>
                                     </tfoot>
                                 </table>
