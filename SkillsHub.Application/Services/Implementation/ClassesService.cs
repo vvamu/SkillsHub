@@ -45,15 +45,14 @@ public class ClassesService
         if (item == null) throw new ArgumentException();
         return item;
     }
-    public async Task<Lesson> CreateAsync(LessonDTO item)
+    public async Task<Lesson> CreateAsync(Lesson item)
     {
-        var item_db = _mapper.Map<Lesson>(item);
-        await _context.Lessons.AddAsync(item_db);
+        await _context.Lessons.AddAsync(item);
         await _context.SaveChangesAsync();
         //var result =await  _context.Lessons.Where(x=>x.StartTime  == item.StartTime).Where(x=>x.Teachers == item.Teacher).FirstOrDefaultAsync();
         //var result = await _context.Lessons.Where(x=>x)
 
-        return item_db == null ? throw new ApplicationException() : item_db;
+        return item == null ? throw new ApplicationException() : item;
     }
     public async Task<Lesson> DeleteAsync(int id)
     {

@@ -11,16 +11,16 @@ public class Lesson : BaseEntity
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
 
-    public LessonType LessonType { get; set; } //Group, Individual
+    public LessonType? LessonType { get; set; } //Group, Individual
     public string? Location { get; set; } //Online Offline
 
 
     public LessonActivityType? LessonActivityType { get; set; } //Отработка Пробное
 
     public LessonTask? LessonTask { get; set; }
-    public string LinkToWebinar { get; set; }
-    public ApplicationUser Creator { get; set; }
-    public bool IsСompleted { get; set; }
+    public string? LinkToWebinar { get; set; }
+    public ApplicationUser? Creator { get; set; }
+    public bool IsСompleted { get; set; } = false;
 
 
 

@@ -17,7 +17,6 @@ public class MappingProfile : Profile
         CreateMap<ApplicationUser, TeacherDTO>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         CreateMap<Student, StudentDTO>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         CreateMap<ApplicationUser, StudentDTO>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
     }
 
 }

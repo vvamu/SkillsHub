@@ -20,6 +20,7 @@ public class Group : BaseEntity
     public CourceName CourceName { get; set; }
     public List<Lesson>? Lessons { get; set; }
     public List<UserDaySchedule>? DaySchedules { get; set;}
+    public int LessonsCount { get; set; }
 
 
     [NotMapped]

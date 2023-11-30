@@ -8,8 +8,8 @@ public class StudentDTO : ApplicationUser
     public Guid UserId { get; set; }
     public ApplicationUser ApplicationUser { get; set; }
 
-    public List<LessonDTO> StudentLessons { get; set; }
-    public List<LessonDTO> TeacherLessons { get; set; }
+    public List<Lesson> StudentLessons { get; set; }
+    public List<Lesson> TeacherLessons { get; set; }
 
     public string? ParentPhone { get; set; }
     public string? ParentName { get; set; }
