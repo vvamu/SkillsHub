@@ -63,4 +63,12 @@ public class GroupService: IGroupService
 
     public IQueryable<Group> GetAll() => _context.Groups.Include(x=>x.Lessons).Include(x=>x.ArrivedStudents).AsQueryable();
 
+    public async Task<Group> AddTeacherToGroupAsync(Guid groupId, Guid teacherId)
+    {
+        var group = await _context.Groups.FirstOrDefaultAsync(x => x.Id == groupId) ?? throw new Exception("Group not found. Maybe group is created but students were not add");
+        group.TeacherId = teacherId;
+        _context.Update(group);
+        await _context.SaveChangesAsync();
+        return group;
+    }
 }
