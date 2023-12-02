@@ -41,6 +41,31 @@ public class GroupService: IGroupService
         return item;
 
     }
+    public async Task<Group> EditAsync(Group item)
+    {
+        if (item == null) throw new Exception("Not correct data for group");
+        var userRegisterValidator = new GroupValidator();
+        var validationResult = await userRegisterValidator.ValidateAsync(item);
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors;
+            var errorsString = string.Concat(errors);
+            throw new Exception(errorsString);
+        }
+        var cource = await _context.CourceNames.FirstOrDefaultAsync(x => x.Id == item.CourceId);
+        var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x => x.Id == item.LessonTypeId);
+        item.LessonType = lessonType;
+        if (_context.Groups.FirstOrDefault(x => x.Name == item.Name) != null) throw new Exception("Group with such name already exist");
+        if (cource == null) throw new Exception("Cource not found");
+        if (lessonType == null) throw new Exception("LessonType not found");
+        item.LessonType = lessonType;
+        item.CourceName = cource;
+
+        //var groupDb = new Group() { Name = item.Name, CourceName = cource , LessonType = lessonType };
+        _context.Groups.Update(item);
+        await _context.SaveChangesAsync();
+        return item;
+    }
 
     public async Task<Group> AddStudentsToGroupAsync(Guid itemId, List<Guid> studentsId)
     {

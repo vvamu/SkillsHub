@@ -1,139 +1,224 @@
-﻿@* @using Microsoft.AspNetCore.Identity
-@using SkillsHub.Domain.BaseModels
+﻿@using SkillsHub.Application.DTO;
+@using SkillsHub.Domain.Models;
+
+@model Lesson;
+
+
+<!-- Модальное окно -->
+
+
+<form class="mt-1 mb-5 login-input" method="post">
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+
+                        <h2>Create new group</h2>
+
+                        <div class="validation" asp-validation-summary="ModelOnly"></div>
+
+                        <div class="form-group ">
+                                <h4>Lesson type<span class="text-danger">*</span></h4>
+                            <select id="lessonTypes" asp-for="LessonType" type="text" class="form-control" placeholder="For example - Morning group*" required />
+                                <h4>Lesson task<span class="text-danger">*</span></h4>
+                            <input type="text" asp-for="LessonTask.Task" placeholder="Enter.."/>                       
+                                <h4>Lesson activity type<span class="text-danger">*</span></h4>
+                            <input type="text" asp-for="LessonActivityType.Name" placeholder="Enter.."/>                       
+
+
+                        <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" value="Create new group" />
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 
 
+<script src="~/plugins/common/common.min.js"></script>
 
-@{
-    ViewData["Title"] = "Create";
-}
+<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
+<script src="~/plugins/jquery/jquery.min.js"></script>
 
-<!-- Section: Design Block -->
-<section class=" text-center ">
-        <link href="~/css/style.css" rel="stylesheet">
 
-  <style>
-    .rounded-t-5 {
-      border-top-left-radius: 0.5rem;
-      border-top-right-radius: 0.5rem;
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+
+    function getDataByAjaxTemplate(passedUrl) {
+
+        $.ajax({
+            url: passedUrl,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+                }
+            }
+        });
     }
-
-    .rounded-bl-lg-5 {
-        border-bottom-left-radius: 0.5rem;
-      }
     
-    .my-background {
-        background-color:#F3F3F9 !important;
+
+    function getCourcesNamesList() {
+
+        var studentsList = $("#courcesNames");
+
+        $.ajax({
+            url: "/Cource/GetCourcesNamesAsync",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+
+                    data.forEach(function (item, i, arr) {
+
+                        var appendedLine = "<option class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>" + item.Name;
+                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        appendedLine += "</option>"
+
+                        studentsList.append(appendedLine);
+                    })
+
+                }
+            }
+        });
+
     }
-  </style>
-<div class="login-form-bg h-100">
-        <div class="container h-100">
-            <div class="row justify-content-center h-100">
-                <div class="col-xl-6">
-                    <div class="form-input-content">
-                        <div class="card login-form mb-0">
-                            <div class="card-body pt-5">
-                                <a class="text-center" href="index.html"> <h4>Добавить пользователю абонемент на занятия / Записать на курс</h4></a>
 
-                                <form class="mt-5 mb-5 login-input" method="post">
-                                    <div class="validation" asp-validation-summary="ModelOnly"></div>
+    function getLessonTypesList() {
 
+        var studentsList = $("#lessonTypes");
 
-                                    <div class="dropdown">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Выберите курс
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#">Action</a></li>
-                                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                                            <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                        </ul>
-                                    </div>
+        $.ajax({
+            url: "/Cource/GetLessonTypesAsync",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
 
 
+                    data.forEach(function (item, i, arr) {
+                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
 
-                                    <!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
-                                    <div class="form-group">
-                                        <input type="text" asp-for="Login" class="form-control" placeholder="Логин*" required>
-                                    </div>
+                        var appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='" + item.Id + "'>" + item.Name;
+                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        appendedLine += "</option>"
+
+                        studentsList.append(appendedLine);
+                    })
 
 
 
 
-                                    <input type="submit" asp-action="Create" asp-controller="Account" class="btn login-form__btn submit w-100" value="Создать"/>
-                                </form>
+                }
+            }
+        });
 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    }
 
-    <div class="login-form-bg h-100">
-        <div class="container h-100">
-            <div class="row justify-content-center h-100">
-                <div class="col-xl-6">
-                    <div class="form-input-content">
-                        <div class="card login-form mb-0">
-                            <div class="card-body pt-5">
-                                <a class="text-center" href="index.html"> <h4>Создать курс</h4></a>
+    function getTeachersByLessonType() {
 
-                                <form class="mt-5 mb-5 login-input" method="post">
-                                    <div class="validation" asp-validation-summary="ModelOnly"></div>
+        var requiredTeachers = $("#requiredTeachers");
 
 
-                                    <div class="col-lg-12">
-                                        <div class="card">
-                                            <div class="card-body" style="display:flex;align-items:flex-start;grid-gap:20px;">
-                                                <h6 class="card-title">Тип абонемента </h6>
-                                                <br />
-                                                <div class="basic-form">
-                                                    <div class="form-group">
-                                                        <div class="form-check mb-3">
-                                                            <label class="form-check-label">
-                                                                <input type="radio" asp-for=IsStudent class="form-check-input" />Бессрочный (с количеством занятий)
-                                                            </label>
-                                                        </div>
-                                                        <div class="form-check mb-3">
-                                                            <label class="form-check-label">
-                                                                <input type="radio" asp-for=IsTeacher class="form-check-input" />Количество занятий
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+        var e = $("#lessonTypes");
+        var strUser = e.options[e.selectedIndex].value;
+        console.log("strUser");
+        console.log(strUser);
 
-                                    <!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
-                                    <div class="form-group">
-                                        <input type="text" asp-for="Login" class="form-control" placeholder="Логин*" required>
-                                    </div>
+        $.ajax({
+            url: "/Teachers/GetTeachersByLessonTypeAsync",
+            type: "GET",
+            dataType: "json",
+            data: strUser,
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+                    if (data.length == 0) {
+                        var appendEmpty = "<option class='list-group-item' value='' >Teacher's list to cource is empty</option>";
+                        requiredTeachers.append(appendEmpty);
+                    }
+                    else {
+                        data.forEach(function (item, i, arr) {
+
+                            var appendedLine = "<li class='list-group-item' name='courceId' asp-for='TeacherId' value='" + item.Id + "'>" + item.FirstName + " " + item.LastName
+                            appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                            appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                            appendedLine += "</option>"
+
+                            requiredTeachers.append(appendedLine);
+                        })
+                    }
 
 
 
 
-                                    <input type="submit" asp-action="Create" asp-controller="Account" class="btn login-form__btn submit w-100" value="Создать" />
-                                </form>
+                }
+            }
+        });
+    }
 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    function getTeachers() {
 
-        <!--**********************************
-        Scripts
-    ***********************************-->
-    <script src="~/plugins/common/common.min.js"></script>
-    <script src="~/js/custom.min.js"></script>
-    <script src="~/js/settings.js"></script>
-    <script src="~/js/gleek.js"></script>
-    <script src="~/js/styleSwitcher.js"></script>
-</section>
-<!-- Section: Design Block -->
- *@
+        var requiredTeachers = $("#allTeachers");
+
+
+        $.ajax({
+            url: "/Teachers/GetTeachersAsync",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+                    if (data.length == 0) {
+                        var appendEmpty = "<li class='list-group-item' value='' >Teacher's list is empty</li>";
+                        requiredTeachers.append(appendEmpty);
+                    }
+                    data.forEach(function (item, i, arr) {
+
+                        var appendedLine = "<li class='list-group-item'>";
+                        appendedLine += "<input type='checkbox' name='teacherValue' style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        appendedLine += "</li>"
+
+                        requiredTeachers.append(appendedLine);
+                    })
+
+
+
+
+                }
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        //getDataByAjax("/Student/GetStudentListAsync")
+        getStudentsList();
+        getCourcesNamesList();
+        getLessonTypesList();
+        //getTeachersByLessonType();
+        getTeachers();
+        CreateScheduleDay();
+    });
+
+</script>
