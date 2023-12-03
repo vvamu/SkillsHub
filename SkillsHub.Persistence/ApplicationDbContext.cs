@@ -39,6 +39,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
     public DbSet<LessonTask> LessonTasks { get; set; }
     public DbSet<EmailMessage> EmailMessages { get; set; }
     public DbSet<ScheduleDay> ScheduleDays { get; set; }
+    public DbSet<FinanceElement> Finances { get; set; }
 
     
 

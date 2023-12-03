@@ -125,32 +125,5 @@ public class CourcesController : Controller
 		catch (Exception ex) { }
 		return Json(json);
 	}
-    [HttpGet]
-    public async Task<IActionResult> Index(Guid id)
-    {
-        var items = await _context.Lessons.Where(x=>x.Group.Id == id).ToListAsync();
-
-        return View();
-    }
-    [HttpGet]
-    public async Task<IActionResult> Create(Guid id)
-    {
-        var group = await _context.Groups.FindAsync(id);
-        var item = new Lesson() { Group = group };
-        return View(item);
-    }
-    [HttpPost]
-    public async Task<IActionResult> Create(Lesson lesson)
-    {
-        await _context.Lessons.AddAsync(lesson);
-        await _context.SaveChangesAsync();
-        return View(lesson);
-    }
-    [HttpPut]
-    public async Task<IActionResult> Edit(Lesson lesson)
-    {
-        _context.Lessons.Update(lesson);
-        await _context.SaveChangesAsync();
-        return View(lesson);
-    }
+	
 }
