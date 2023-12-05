@@ -1,0 +1,123 @@
+﻿@using SkillsHub.Domain.Models;
+@model FinanceElement;
+
+
+<!-- Модальное окно -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Create new group</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div class="login-form-bg h-100">
+                    <div class="container h-100">
+                        <div class="row justify-content-center h-100">
+                            <div>
+                                <div class="form-input-content">
+                                    <div class=" login-form mb-0">
+                                        <div>
+                                            
+                                                <div class="form-group row">
+                                                    <div class="col-lg-8 ml-auto">
+
+                                                        <div class="flex-box">
+                                                            <form class="mt-1 mb-5 login-input" method="post" id="formId">
+                                                                <div class="form-group">
+                                                                    <label>Create Folder</label>
+                                                                    <label>Name</label><input asp-for="Name" type="text" />
+
+                                                                    <button type="button" class="btn btn-primary" onclick="CreateGroup()">Create</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
+<script src="~/plugins/jquery/jquery.min.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+
+    function getFolders() {
+
+        var folders = $("#folders");
+
+
+        $.ajax({
+            url: "/Lesson/GetFolders",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+                    if (data.length == 0) {
+                        var appendEmpty = "<li class='list-group-item' value='' >0 Finances elements</li>";
+                        folders.append(appendEmpty);
+                    }
+                    folders.append("<option class='list-group-item' asp-for='ParentId' value='" + null + "'>" + None + "</option>")
+                    data.forEach(function (item, i, arr) {
+                        folders.append("<input type='hidden' name='parentId'  value='" + item.Id + "'/>");
+
+                        var appendedLine = "<option class='list-group-item' asp-for='ParentId' value='" + item.Id + "'>" + item.Name;
+                        appendedLine += "</option>"
+
+                        folders.append(appendedLine);
+                    })
+
+                }
+            }
+        });
+
+    function CreateGroup() {
+        var form = $("#formId");
+        var data = form.serialize();
+        console.log(data);
+
+        var url = form.attr('/Finances/Create');
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: form.serialize(),
+            success: function (data) {
+
+                // Ajax call completed successfully
+                alert("Form Submited Successfully");
+            },
+            error: function (data) {
+
+                // Some error in ajax call
+                alert("some Error");
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+        aaa();
+    });
+
+</script>

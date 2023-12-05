@@ -1,83 +1,55 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SkillsHub.Application.Helpers;
+using SkillsHub.Persistence;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
-namespace SkillsHub.Controllers
+namespace SkillsHub.Controllers;
+
+public class LessonController : Controller
 {
-    public class LessonController : Controller
+    private readonly ApplicationDbContext _context;
+
+    public LessonController(ApplicationDbContext context)
     {
-        // GET: ClassesController
-        public ActionResult Index()
-        {
-            return View();
-        }
+        _context = context;
+    }
+    [HttpGet]
+    public async Task<IActionResult> Index()
+    {
+        var lessons = await _context.Lessons.ToListAsync();
+        return View(lessons);
+    }
 
-        // GET: ClassesController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
+    [HttpGet]
+    public async Task<IActionResult> IndexByGroup(Guid id)
+    {
+        var items = await _context.Lessons.Where(x => x.Group.Id == id).ToListAsync();
 
-        // GET: ClassesController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: ClassesController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: ClassesController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: ClassesController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: ClassesController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: ClassesController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        return View();
+    }
+    [HttpGet]
+    public async Task<IActionResult> Create(Guid id)
+    {
+        var group = await _context.Groups.FindAsync(id);
+        var item = new Lesson() { Group = group };
+        return View(item);
+    }
+    [HttpPost]
+    public async Task<IActionResult> Create(Lesson lesson)
+    {
+        await _context.Lessons.AddAsync(lesson);
+        await _context.SaveChangesAsync();
+        return View(lesson);
+    }
+    [HttpPut]
+    public async Task<IActionResult> Edit(Lesson lesson)
+    {
+        _context.Lessons.Update(lesson);
+        await _context.SaveChangesAsync();
+        return View(lesson);
     }
 }

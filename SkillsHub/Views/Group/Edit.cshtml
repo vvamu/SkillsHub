@@ -10,7 +10,7 @@
             
 
                     
-                            <form class="mt-1 mb-5 login-input" method="post">
+                            <form class="mt-1 mb-5 login-input" method="put">
 
 
     <div class="container-fluid">
@@ -19,7 +19,7 @@
                 <div class="card">
                     <div class="card-body">
 
-                             <h2>Create new group</h2>
+                             <h2>Edit @Model.Name - group</h2>
 
                                 <div class="validation" asp-validation-summary="ModelOnly"></div>
 
@@ -27,23 +27,18 @@
                                     <label class=" col-form-label" for="val-skill">
                                 <h4>Name<span class="text-danger">*</span></h4>
                                     </label>
-                                    <input asp-for="Name" type="text" class="form-control" placeholder="For example - Morning group*" required />
+                                    <input asp-for="Name" type="text" class="form-control" placeholder="For example - Morning group*" required value="@Model.Name"/>
                                     <div class="validate"></div>
                                     <div class="invalid-feedback">
                                         Please choose a username.
                                     </div>
 
                                 </div>
-                        <h4>Lessons count (creating automaticaly) <span class="text-danger">*</span></h4>
 
-                        <input class="form-group" asp-for="LessonsCount" />
                         <div class="form-group ">
                             <label class=" col-form-label" for="val-skill">
                                 <h4>Category <span class="text-danger">*</span></h4>
                             </label>
-
-                            
-                        
 
                             <select asp-for="LessonTypeId" class="form-control" id="lessonTypes"></select>
                         </div>
@@ -120,10 +115,10 @@
                             -->
                                     
                                 </div>
+                                    <input hidden value="@Model.Id" asp-for="@Model.Id"/>
 
-                                                
-                                        <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" value="Create new group"/>
-                               
+                        <button type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100">Create new group</button>
+                                        <button class="button btn-red" href="javascript:history.go(-1)">Cancel</button>
                                                
                             </div>
                         </div>
