@@ -50,9 +50,8 @@
                                     @{
                                         var roles = await _roleManager.UserManager.GetRolesAsync(Model);
                                         string result = string.Join(",", roles.ToArray());
-                                                <p>@result</p>
-                                    }
-                                </p>
+                                                @result
+                                    }</p>
                             </div>
                             <!--
                             <div class="dropdown">
