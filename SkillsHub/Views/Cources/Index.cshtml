@@ -143,6 +143,7 @@
 													</div>
 													<div style="display:flex;justify-content:space-between">
 														<input type="number" asp-for="@item.LessonTimeInMinutes"></input>
+														<input type="submit" asp-route-courceId="@item.Id" asp-action="CreateCourceName" asp-controller="Cources" formmethod="post" value="Edit +++">
 														<button class="btn btn-primary" type="button" onclick="SaveLessonType()">Save</button>
 													</div>
 													</form>
@@ -155,7 +156,7 @@
 					}
 				}
 				<div class="container-fluid">
-					<div class="row"><button class="btn btn-primary">Create</button></div>
+					<div class="row"><input type="submit" asp-action="Create" asp-controller="Cource" class="btn btn-primary">Create</input></div>
 				</div>
 				
 			</div>

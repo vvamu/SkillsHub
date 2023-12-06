@@ -125,5 +125,25 @@ public class CourcesController : Controller
 		catch (Exception ex) { }
 		return Json(json);
 	}
-	
-}
+
+
+	[HttpGet]
+	public async Task<IActionResult> CreateCourceName(Guid courceId)
+	{
+        var courceDb = _context.CourceNames.FirstOrDefault(x => x.Id == courceId) ?? new CourceName();
+		return View("CreateCourceName", courceDb);
+        /*		if (courceDb != null) 
+        else
+            return View()
+		_context.Update(item);
+		await _context.SaveChangesAsync();
+        */
+	}
+    [HttpGet]
+    public async Task<IActionResult> CreateLessonType(Guid lessontypeId)
+    {
+        var courceDb = _context.LessonTypes.FirstOrDefault(x => x.Id == lessontypeId) ?? new LessonType();
+        return View("CreateCourceName", courceDb);
+    }
+
+	}

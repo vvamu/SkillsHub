@@ -125,11 +125,28 @@
 
                     @foreach(var item in Model)
                 {
-                            <div class="media media-reply">
+                    <div class="card" style="margin:20px">
+                    <div class="card-body">
+                            <div >
                                 <!--<img class="mr-3 circle-rounded" src="images/avatar/2.jpg" width="50" height="50" alt="Generic placeholder image">-->
-                                <div class="media-body">
-                                    <div class="d-sm-flex justify-content-between mb-2">
-                                        <h5 class="mb-sm-0"><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">@item.Name</a> - <small class="text-muted ml-3">about 3 days ago</small></h5>
+                                <div >
+                                    <div class="d-sm-flex justify-content-between mb-2" style="display:flex" >
+                                        <h5 class="mb-sm-0"><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">@item.Name</a>
+                                        
+                                        <small class="text-muted ml-3">
+                                                @{
+                                                    if (@item.Lessons.FirstOrDefault(x => x.EndTime.Date.Day < @DateTime.Now.Day) != null)
+                                                    {
+                                                        var lessonLastDay = item.Lessons.FirstOrDefault(x => x.EndTime.Date.Day < @DateTime.Now.Day).EndTime;
+                                                        <span> last lesson: @lessonLastDay.Date</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span></span>
+                                                    }
+                                                 }
+                                        </small>
+                                        </h5>
                                         <div class="media-reply__link">
                                             <button class="btn btn-transparent p-0 mr-3">Lessons @item.Lessons.Count</button>
                                             <button class="btn btn-transparent p-0 mr-3"><i class="fa fa-thumbs-down"></i></button>
@@ -142,9 +159,13 @@
                                     <p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.</p>
                                 </div>
                             </div>
+                        </div>
+                    </div>
                             
                 }
+                <!--
                 <form method="get"><a asp-action="Create" asp-controller="Courses"> CReate</a></form>
+                -->
             }
         }
 
