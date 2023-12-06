@@ -9,11 +9,11 @@ using System.Text.Json.Serialization;
 
 namespace SkillsHub.Controllers;
 
-public class LessonController : Controller
+public class LessonsController : Controller
 {
     private readonly ApplicationDbContext _context;
 
-    public LessonController(ApplicationDbContext context)
+    public LessonsController(ApplicationDbContext context)
     {
         _context = context;
     }

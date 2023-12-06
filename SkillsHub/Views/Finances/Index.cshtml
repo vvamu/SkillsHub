@@ -22,19 +22,39 @@
 						{
 							if(elem.ParentId == null)
 							{
-								<span>@elem.Name</span>
-								<span>это папка</span>
-							}
-							else
-							{
-								<span>@elem.Name</span>
-								<span>@elem.Budget</span>
+								<div style="background-color:lightcyan">
+									<span>@elem.Name</span>
+									<span>это папка</span>
+								</div>
+								<br />
+								<div style="display:flex">
+								@foreach(var item in Model.Where(x=>x.ParentId == elem.Id))
+								{
+									<div style="background-color:wheat" class="col-3">
+										<span>@item.Name</span>
+										<span>@item.Budget</span>
 
-								<div class="flex">
-									<input type="number">
-									<button >Change budget</button>
+										<div class="flex">
+											<button>Change budget</button>
+										</div>
+									</div>
+									<br />
+								}
 								</div>
 							}
+							/*else
+							{
+								<div style="background-color:blue">
+									<span>@elem.Name</span>
+									<span>@elem.Budget</span>
+
+									<div class="flex">
+										<input type="number">
+										<button >Change budget</button>
+									</div>
+								</div>
+								<br />
+							}*/
 						}
 					}
 					<button type = "button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="GetCreateFolderModal()">

@@ -9,7 +9,6 @@ namespace SkillsHub.Domain.Models;
 
 public class LessonTask : BaseEntity
 {
-    public Guid LessonId { get; set; }
-    public Lesson Lesson { get; set; }
+
     public string Task { get; set; }
 }
