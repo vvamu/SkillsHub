@@ -36,7 +36,15 @@ namespace SkillsHub.Controllers
 			await _context.SaveChangesAsync();
 			return View("Index");
 		}
-		public IActionResult GetCreateElementModal()
+        [HttpDelete]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+			var elem = await _context.Finances.FindAsync(id);
+            _context.Finances.Remove(elem);
+            await _context.SaveChangesAsync();
+            return View("Index");
+        }
+        public IActionResult GetCreateElementModal()
 		{
 			return PartialView("_CreateElement");
 		}

@@ -5,6 +5,7 @@ using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
+using SkillsHub.Helpers;
 using SkillsHub.Persistence;
 
 namespace SkillsHub.Controllers;
@@ -166,6 +167,11 @@ public class GroupController : Controller
     public IActionResult GetCreateModal()
     {
         return PartialView("_Create");
+    }
+    public async Task<IActionResult> GetAllGroups()
+    {
+        var items = _groupService.GetAll();
+        return Json(JsonSerializerToAjax.GetJsonByIQueriable(items));
     }
 
 }

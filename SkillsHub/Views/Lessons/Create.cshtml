@@ -33,12 +33,12 @@
                             <option selected>Offline</option>       
                          </select>
                             <h4>Groups<span class="text-danger">*</span></h4>
-                         <select id="allTeachers" asp-for="GroupId" class="form-control" required />
+                            <select id="allGroups" asp-for="GroupId" class="form-control" required />
                          дата и время добавить надо
                             <h4>Link to vebinar<span class="text-danger">*</span></h4>
                          <input type="text" placeholder="Link"/>
                             <h4>Is lesson completed<span class="text-danger">*</span></h4>
-                            <checkbox>как отправить чекбокс asp-for не работает</checkbox>
+                            <input type="checkbox" asp-for="IsСompleted"/>
 
                          <button type="submit" asp-action="Create" asp-controller="Lessons" class="btn login-form__btn submit w-100" >Create</button>
 
@@ -114,13 +114,48 @@
                         requiredTeachers.append(appendEmpty);
                     }
                     data.forEach(function (item, i, arr) {
+                        requiredTeachers.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
 
-                        var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='teacherValue' style='margin-right:5px;' value='" + item.Id + "'  /> ";
-                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += "</li>"
+                        var appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='" + item.Id + "'>" + item.Id;
+
+                        appendedLine += "</option>"
 
                         requiredTeachers.append(appendedLine);
+                    })
+
+
+
+
+                }
+            }
+        });
+    }
+
+    function getGroups() {
+
+        var groups = $("#allGroups");
+
+
+        $.ajax({
+            url: "/Group/GetAllGroups",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+                    if (data.length == 0) {
+                        var appendEmpty = "<li class='list-group-item' value='' >Teacher's list is empty</li>";
+                        groups.append(appendEmpty);
+                    }
+                    data.forEach(function (item, i, arr) {
+                        groups.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
+
+                        var appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='" + item.Id + "'>" + item.Name;
+
+                        appendedLine += "</option>"
+
+                        groups.append(appendedLine);
                     })
 
 
@@ -135,6 +170,7 @@
 
         getLessonTypesList();
         getTeachers();
+        getGroups();
     });
 
 </script>
