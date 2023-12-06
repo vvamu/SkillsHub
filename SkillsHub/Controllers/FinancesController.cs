@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
+using SkillsHub.Helpers;
 using SkillsHub.Persistence;
 
 namespace SkillsHub.Controllers
@@ -25,8 +26,8 @@ namespace SkillsHub.Controllers
 		[HttpGet]
 		public async Task<IActionResult> GetFolders()
 		{
-			var finances = _context.Finances.Where(x=>x.ParentId == null).ToList();
-			return Json(finances);
+			var finances = _context.Finances.Where(x => x.Budget == null).AsQueryable();
+			return Json(JsonSerializerToAjax.GetJsonByIQueriable(finances));
 		}
 		[HttpPost]
 		public async Task<IActionResult> Create(FinanceElement element)
@@ -35,7 +36,15 @@ namespace SkillsHub.Controllers
 			await _context.SaveChangesAsync();
 			return View("Index");
 		}
-		public IActionResult GetCreateElementModal()
+        [HttpDelete]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+			var elem = await _context.Finances.FindAsync(id);
+            _context.Finances.Remove(elem);
+            await _context.SaveChangesAsync();
+            return View("Index");
+        }
+        public IActionResult GetCreateElementModal()
 		{
 			return PartialView("_CreateElement");
 		}

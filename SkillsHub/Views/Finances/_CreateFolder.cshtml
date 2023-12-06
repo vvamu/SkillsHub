@@ -25,12 +25,13 @@
                                                     <div class="col-lg-8 ml-auto">
 
                                                         <div class="flex-box">
-                                                            <form class="mt-1 mb-5 login-input" method="post" id="formId">
+                                                            <form class="mt-1 mb-5 login-input" method="post" id="formId1">
                                                                 <div class="form-group">
                                                                     <label>Create Folder</label>
+                                                                    <hr/>
                                                                     <label>Name</label><input asp-for="Name" type="text" />
 
-                                                                    <button type="button" class="btn btn-primary" onclick="CreateGroup()">Create</button>
+                                                                    <button type="submit" asp-action="Create" asp-controller="Finances" class="btn btn-primary">Create</button>
                                                                 </div>
                                                             </form>
                                                         </div>
@@ -52,7 +53,7 @@
     </div>
 </div>
 
-<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
+
 <script src="~/plugins/jquery/jquery.min.js"></script>
 
 
@@ -91,9 +92,10 @@
                 }
             }
         });
+        }
 
     function CreateGroup() {
-        var form = $("#formId");
+        var form = $("#formId1");
         var data = form.serialize();
         console.log(data);
 
@@ -117,7 +119,7 @@
 
 
     $(document).ready(function () {
-        aaa();
+        getFolders();
     });
 
 </script>

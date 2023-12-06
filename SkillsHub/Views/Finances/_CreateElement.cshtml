@@ -25,7 +25,7 @@
                                                     <div class="col-lg-8 ml-auto">
 
                                                         <div class="flex-box">
-                                                            <form class="mt-1 mb-5 login-input" method="post" id="formId">
+                                                            <form class="mt-1 mb-5 login-input" method="post" id="formId2">
                                                             <div class="form-group">
 
                                                                 <label>Create Finance element</label>
@@ -33,11 +33,11 @@
                                                                 <label>Budget</label><input asp-for="Budget" type="number" />
                                                                 <label>Folder</label><select asp-for="ParentId" id="folders"></select>
 
-                                                                <button type="button" class="btn btn-primary" onclick="CreateGroup()">Create</button>
+                                                                <button type="submit" asp-action="Create" asp-controller="Finances" class="btn btn-primary">Create</button>
                                                             </div>
                                                             </form>
                                                         </div>
-
+                                                        
                                                     </div>
                                                 </div>
                                         </div>
@@ -58,8 +58,6 @@
 <script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
 <script src="~/plugins/jquery/jquery.min.js"></script>
 
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
@@ -68,9 +66,8 @@
 
         var folders = $("#folders");
 
-
         $.ajax({
-            url: "/Lesson/GetFolders",
+            url: "/Finances/GetFolders",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -78,10 +75,11 @@
                 if (Array.isArray(data)) {
 
                     if (data.length == 0) {
+                       
                         var appendEmpty = "<li class='list-group-item' value='' >0 Finances elements</li>";
                         folders.append(appendEmpty);
                     }
-                    folders.append("<option class='list-group-item' asp-for='ParentId' value='" + null + "'>" + None + "</option>")
+                    //folders.append("<option class='list-group-item' selected>" + None + "</option>")
                     data.forEach(function (item, i, arr) {
                         folders.append("<input type='hidden' name='parentId'  value='" + item.Id + "'/>");
 
@@ -94,9 +92,10 @@
                 }
             }
         });
-
+    }
+    
     function CreateGroup() {
-        var form = $("#formId");
+        var form = $("#formId2");
         var data = form.serialize();
         console.log(data);
 
@@ -120,7 +119,7 @@
 
 
     $(document).ready(function () {
-        aaa();
+            getFolders();
     });
 
 </script>

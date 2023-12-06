@@ -22,19 +22,42 @@
 						{
 							if(elem.ParentId == null)
 							{
-								<span>@elem.Name</span>
-								<span>это папка</span>
-							}
-							else
-							{
-								<span>@elem.Name</span>
-								<span>@elem.Budget</span>
+								<div style="background-color:lightcyan">
+									<span>@elem.Name</span>
+									<span>это папка</span>
+									<div>
+										<button asp-route-id="@elem.Id" asp-action="Delete" asp-controller="Finances" class="btn-red text-white">Delete</button>
+									</div>
+								</div>
+								<br />
+								<div class="row">
+								@foreach(var item in Model.Where(x=>x.ParentId == elem.Id))
+								{
+									<div style="background-color:wheat" class="col-3">
+										<span>@item.Name</span>
+										<span>@item.Budget</span>
 
-								<div class="flex">
-									<input type="number">
-									<button >Change budget</button>
+										<div>
+											<button asp-route-id="@item.Id" asp-action="Delete" asp-controller="Finances" class="btn-red text-white">Delete</button>
+										</div>
+									</div>
+									<br />
+								}
 								</div>
 							}
+							/*else
+							{
+								<div style="background-color:blue">
+									<span>@elem.Name</span>
+									<span>@elem.Budget</span>
+
+									<div class="flex">
+										<input type="number">
+										<button >Change budget</button>
+									</div>
+								</div>
+								<br />
+							}*/
 						}
 					}
 					<button type = "button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="GetCreateFolderModal()">

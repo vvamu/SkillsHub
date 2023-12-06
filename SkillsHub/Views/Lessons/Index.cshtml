@@ -12,11 +12,13 @@
             <span>@item?.LessonType?.Name</span>
             <span>@item?.StartTime</span>
             <span>@item?.EndTime</span>
-            <span>@if (item.ArrivedStudents == null) { } else{ @foreach(var i in item?.ArrivedStudents) { <p>i.Student.ApplicationUser.Surname</p> } }</span>
+            <span>@if (item?.ArrivedStudents == null) { } else{ @foreach(var i in item?.ArrivedStudents) { <p>i.Student.ApplicationUser.Surname</p> } }</span>
         </div>
     }
     }
    
 }
+<form>
 
-<a class="dropdown-item" asp-action="Create" asp-controller="Lessons">Create new</a>
+    <button type="submit" asp-action="Create" asp-controller="Lessons">Create new</button>
+</form>
