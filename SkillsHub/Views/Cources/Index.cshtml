@@ -43,16 +43,61 @@
 					}
 					else
 					{
+						<!--NAVBAR - Search, Filter, Sort-->
+						<div class="container-fluid">
+									<div class="row">
+										<div class="col-12">
+											<div class="card">
+
+						<nav class="navbar navbar-expand-lg bg-light">
+							<div class="container-fluid">
+
+								<div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:20px">
+									<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+										
+										<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px; margin-right:5%">
+											<p style="white-space:nowrap">Activity type:</p>
+											<select class="form-control" id="val-skill" name="val-skill">
+												<option value="">Active</option>
+												<option value="">Not Active (Deleted)</option>
+											</select>
+										</li>
+										<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+											<p style="white-space:nowrap">Order by:</p>
+											<select class="form-control" id="val-skill" name="val-skill">
+												<option value="">Name</option>
+												<option value="">Date created</option>
+											</select>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</nav>
+									</div>
+								</div>
+							</div>
+						</div>
+
 						foreach (var item in Model.Item2)
 						{
-								<div class="container-fluid">
+
+							<div class="container-fluid" style="margin-bottom:-2%">
 									<div class="row">
 										<div class="col-12">
 											<div class="card">
 												<div class="card-body">
 													<form id="courcesNamesForm">
+													<div style="display:flex">
+													<label>Name       |  </label>
+														<span>  Date created: XXX</span>
+													</div>
+													
 													<div style="display:flex;justify-content:space-between">
+														<div>
 														<h4><input type="text" asp-for="@item.Name" value="@item.Name" /></h4>
+														
+														</div>
 														<button class="btn btn-danger">☓</button>
 													</div>
 													<div style="display:flex">
@@ -96,16 +141,55 @@
 					}
 					else
 					{
+						<!--NAVBAR - Search, Filter, Sort-->
+						<div class="container-fluid">
+									<div class="row">
+										<div class="col-12">
+											<div class="card">
+
+						<nav class="navbar navbar-expand-lg bg-light">
+							<div class="container-fluid">
+
+								<div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:20px">
+									<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+										
+										<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+											<p style="white-space:nowrap">Activity type:</p>
+											<select class="form-control" id="val-skill" name="val-skill">
+												<option value="">Active</option>
+												<option value="">Not Active (Deleted)</option>
+											</select>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</nav>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
 						foreach (var item in Model.Item3)
 						{
-								<div class="container-fluid">
+							var itemName = item.Id;
+							var formId = "lessonTypeForm" + itemName;
+
+							<div class="container-fluid" >
 									<div class="row">
 										<div class="col-12">
 											<div class="card">
 												<div class="card-body">
-													<form id="lessonTypeForm">
+												<form id="@formId">
+
+													<div style="display:flex">
+													<label>Name       |  </label>
+														<span>  Date created: XXX</span>
+													</div>
+
 													<div style="display:flex;justify-content:space-between">
-														<h3><input type="text" asp-for="@item.Name" value="@item.Name" /></h3>
+														<h3><input type="text" asp-for="@item.Name"/></h3>
 														<!--<button class="btn btn-danger">☓</button>-->
 													</div>
 														
@@ -143,8 +227,8 @@
 													</div>
 													<div style="display:flex;justify-content:space-between">
 														<input type="number" asp-for="@item.LessonTimeInMinutes"></input>
-														
-														<button class="btn btn-primary" type="button" onclick="SaveLessonType()">Save</button>
+
+														<button class="btn btn-primary" type="button" onclick="SaveLessonType('@item.Id')">Save</button>
 													</div>
 													</form>
 												</div>
@@ -178,9 +262,10 @@
 
 
 	<script>
-		function SaveLessonType() {
+		function SaveLessonType(itemId) {
 			//Serialize the form datas.
-			var valdata = $("#lessonTypeForm").serialize();
+			console.log(itemId);
+			var valdata = $("#lessonTypeForm" + itemId).serialize();
 			console.log(valdata);
 			//to get alert popup
 			$.ajax({

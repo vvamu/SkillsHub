@@ -27,6 +27,9 @@ public class Lesson : BaseEntity
     public bool IsСompleted { get; set; } = false;
 
 
+    //When lesson "Completed" - From LessonType
+    public decimal TeacherPrice { get; set; }
+    public decimal StudentPrice {  get; set; }
 
 }
 

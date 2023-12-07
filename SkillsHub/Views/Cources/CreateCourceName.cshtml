@@ -31,9 +31,6 @@
 									<label>MaximumAge</label>
 								</div>
 								<div style="display:flex">
-									<input type="hidden" asp-for="Id" value="Id">
-									<input type="hidden" asp-for="Name" value="Name">
-
 									<input type="number"  asp-for="MinimumAge"></input>
 									<input type="number" asp-for="MaximumAge"></input>
 
@@ -41,7 +38,7 @@
 								</div>
 
 							
-									<button style="margin-top:15px; position:center" type="submit" asp-action="Create" asp-controller="CourceName" class="btn btn-primary" >Save</button>
+									<button style="margin-top:15px; position:center" type="submit" asp-action="CreateCourceName" asp-controller="Cources" class="btn btn-primary" >Save</button>
 									
 							</form>
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Implementation;
+using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Persistence;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -13,9 +14,9 @@ namespace SkillsHub.Controllers;
 public class CourcesController : Controller
 {
     private readonly ApplicationDbContext _context;
-	private readonly CourcesService _courcesService;
+	private readonly ICourcesService _courcesService;
 
-	public CourcesController(ApplicationDbContext context, CourcesService courcesService)
+	public CourcesController(ApplicationDbContext context, ICourcesService courcesService)
     {
         _context = context;
         _courcesService = courcesService;
@@ -32,6 +33,7 @@ public class CourcesController : Controller
     [HttpPost]
     public async Task SaveLessonType(LessonType item)
     {
+        if (item.Id == Guid.Empty) return;
         _context.Update(item);
         await _context.SaveChangesAsync();
         
@@ -156,7 +158,11 @@ public class CourcesController : Controller
         {
 			await _courcesService.CreateCourceName(item);
 		}
-       catch(Exception ex) { }
+       catch(Exception ex) 
+        {
+			ModelState.AddModelError("", ex.Message);
+			return View("CreateCourceName"); 
+        }
         return RedirectToAction("Index"); 
 
 		//var courceDb = _context.CourceNames.FirstOrDefault(x => x.Id == courceId) ?? new CourceName();
