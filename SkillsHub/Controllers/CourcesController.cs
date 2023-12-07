@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Helpers;
+using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Persistence;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -12,11 +13,14 @@ namespace SkillsHub.Controllers;
 public class CourcesController : Controller
 {
     private readonly ApplicationDbContext _context;
+	private readonly CourcesService _courcesService;
 
-    public CourcesController(ApplicationDbContext context)
+	public CourcesController(ApplicationDbContext context, CourcesService courcesService)
     {
         _context = context;
-    }
+        _courcesService = courcesService;
+
+	}
     public IActionResult Index()
     {
         var cources = _context.Cources.AsQueryable();
@@ -128,10 +132,10 @@ public class CourcesController : Controller
 
 
 	[HttpGet]
-	public async Task<IActionResult> CreateCourceName(Guid courceId)
+	public async Task<IActionResult> CreateCourceName()
 	{
-        var courceDb = _context.CourceNames.FirstOrDefault(x => x.Id == courceId) ?? new CourceName();
-		return View("CreateCourceName", courceDb);
+        //var courceDb = _context.CourceNames.FirstOrDefault(x => x.Id == courceId) ?? new CourceName();
+		return View("CreateCourceName");
         /*		if (courceDb != null) 
         else
             return View()
@@ -140,10 +144,42 @@ public class CourcesController : Controller
         */
 	}
     [HttpGet]
-    public async Task<IActionResult> CreateLessonType(Guid lessontypeId)
+    public async Task<IActionResult> CreateLessonType()
     {
-        var courceDb = _context.LessonTypes.FirstOrDefault(x => x.Id == lessontypeId) ?? new LessonType();
-        return View("CreateCourceName", courceDb);
+        return View("CreateCourceName");
     }
 
+	[HttpPost]
+	public async Task<IActionResult> CreateCourceName(CourceName  item)
+	{
+        try
+        {
+			await _courcesService.CreateCourceName(item);
+		}
+       catch(Exception ex) { }
+        return RedirectToAction("Index"); 
+
+		//var courceDb = _context.CourceNames.FirstOrDefault(x => x.Id == courceId) ?? new CourceName();
+		/*		if (courceDb != null) 
+        else
+            return View()
+		_context.Update(item);
+		await _context.SaveChangesAsync();
+        */
 	}
+	[HttpPost]
+	public async Task<IActionResult> CreateLessonType(LessonType item)
+	{
+		try
+		{
+			await _courcesService.CreateLessonType(item);
+		}
+		catch (Exception ex) { }
+		return RedirectToAction("Index");
+
+
+	}
+
+
+
+}
