@@ -148,7 +148,7 @@ public class CourcesController : Controller
     [HttpGet]
     public async Task<IActionResult> CreateLessonType()
     {
-        return View("CreateCourceName");
+        return View("CreateLessonType");
     }
 
 	[HttpPost]
@@ -179,6 +179,7 @@ public class CourcesController : Controller
 		try
 		{
 			await _courcesService.CreateLessonType(item);
+            
 		}
 		catch (Exception ex) { }
 		return RedirectToAction("Index");
@@ -186,6 +187,25 @@ public class CourcesController : Controller
 
 	}
 
+    public IActionResult DeleteCourceName(Guid courceNameId)
+    {
+        var courceName = _context.CourceNames.FirstOrDefault(c => c.Id == courceNameId);
+        if (courceName == null) { return RedirectToAction("Index"); }
+        //_context.CourceNames.Remove(courceName);
+        courceName.IsDeleted = true;
+        _context.CourceNames.Update(courceName);
+        _context.SaveChanges();
+        return RedirectToAction("Index");
+    }
+
+	public IActionResult DeleteLessonType(Guid lessonTypeId)
+	{
+		var courceName = _context.LessonTypes.FirstOrDefault(c => c.Id == lessonTypeId);
+		if (courceName == null) { return RedirectToAction("Index"); }
+		_context.LessonTypes.Update(courceName);
+		_context.SaveChanges();
+		return RedirectToAction("Index");
+	}
 
 
 }

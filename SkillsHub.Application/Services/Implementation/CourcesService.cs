@@ -73,7 +73,8 @@ public class CourcesService : ICourcesService
 			throw new Exception(errorsString);
 		}
 
-		if (_context.Groups.FirstOrDefault(x => x.Name == item.Name) != null) throw new Exception("Lesson type with such name already exist");
+		if (_context.LessonTypes.FirstOrDefault(x => x.Name == item.Name) != null) throw new Exception("Lesson type with such name already exist");
+        item.DateCreated = DateTime.Now;
         await _context.LessonTypes.AddAsync(item);
         await _context.SaveChangesAsync();
         return item;
@@ -92,7 +93,13 @@ public class CourcesService : ICourcesService
 			throw new Exception(errorsString);
 		}
 
-		if (_context.Groups.FirstOrDefault(x => x.Name == item.Name) != null) throw new Exception("Cource name type with such name already exist");
+        if (_context.CourceNames.FirstOrDefault(x => x.Name == item.Name) != null)
+        {
+            var it = _context.CourceNames.FirstOrDefault(x => x.Name == item.Name);
+
+			throw new Exception("Cource name type with such name already exist");
+        }
+		item.DateCreated = DateTime.Now;
 		await _context.CourceNames.AddAsync(item);
 		await _context.SaveChangesAsync();
 		return item;

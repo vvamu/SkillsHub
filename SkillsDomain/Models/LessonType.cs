@@ -19,7 +19,7 @@ public class LessonType : BaseEntity
 	//[NotMapped]
 	//public decimal StudentPricePerCource => StudentPrice * MinumumLessonsToPay;
 	public decimal TeacherPrice { get; set; }
-	public DateOnly DateCreated;
+	public DateTime DateCreated;
 
 
 	//[NotMapped]
