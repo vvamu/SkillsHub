@@ -1,4 +1,4 @@
-﻿@model LessonType;
+﻿@model LessonType?;
 @{
 	ViewData["Title"] = "Create";
 }
@@ -26,8 +26,8 @@
 								</div>
 								<div style="display:flex">
 
-									<input value="@Convert.ToDecimal(this)" asp-for="TeacherPrice"></input>
-									<input value="@Convert.ToDecimal(this)" asp-for="StudentPrice"></input>
+									<input type="number" asp-for="TeacherPrice"></input>
+									<input type="number" asp-for="StudentPrice"></input>
 
 
 								</div>
@@ -44,7 +44,7 @@
 								</div>
 								<div style="display:flex;justify-content:space-between">
 									<input type="number" asp-for="LessonTimeInMinutes"></input>
-									<button type="submit" asp-action="Create" asp-controller="LessonType" class="btn btn-primary" >Save</button>
+									<button type="submit" asp-action="CreateLessonType" asp-controller="Cources" class="btn btn-primary" >Save</button>
 								</div>
 
 							</form>

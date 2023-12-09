@@ -14,6 +14,6 @@ public class CourceName : BaseModels.BaseEntity
     public int MinimumAge { get; set; }
     public int MaximumAge { get; set; }
 
-    public DateTime DateCreated;
+	public DateTime DateCreated { get; set; }
 }
 

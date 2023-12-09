@@ -164,14 +164,6 @@ public class CourcesController : Controller
 			return View("CreateCourceName"); 
         }
         return RedirectToAction("Index"); 
-
-		//var courceDb = _context.CourceNames.FirstOrDefault(x => x.Id == courceId) ?? new CourceName();
-		/*		if (courceDb != null) 
-        else
-            return View()
-		_context.Update(item);
-		await _context.SaveChangesAsync();
-        */
 	}
 	[HttpPost]
 	public async Task<IActionResult> CreateLessonType(LessonType item)
@@ -181,15 +173,19 @@ public class CourcesController : Controller
 			await _courcesService.CreateLessonType(item);
             
 		}
-		catch (Exception ex) { }
+		catch (Exception ex)
+		{
+			ModelState.AddModelError("", ex.Message);
+			return View("CreateLessonType");
+		}
 		return RedirectToAction("Index");
 
 
 	}
 
-    public IActionResult DeleteCourceName(Guid courceNameId)
+    public IActionResult DeleteCourceName(CourceName item)
     {
-        var courceName = _context.CourceNames.FirstOrDefault(c => c.Id == courceNameId);
+        var courceName = _context.CourceNames.FirstOrDefault(c => c.Id == item.Id);
         if (courceName == null) { return RedirectToAction("Index"); }
         //_context.CourceNames.Remove(courceName);
         courceName.IsDeleted = true;
@@ -198,10 +194,11 @@ public class CourcesController : Controller
         return RedirectToAction("Index");
     }
 
-	public IActionResult DeleteLessonType(Guid lessonTypeId)
+	public IActionResult DeleteLessonType(LessonType item)
 	{
-		var courceName = _context.LessonTypes.FirstOrDefault(c => c.Id == lessonTypeId);
+		var courceName = _context.LessonTypes.FirstOrDefault(c => c.Id == item.Id);
 		if (courceName == null) { return RedirectToAction("Index"); }
+		courceName.IsDeleted = true;
 		_context.LessonTypes.Update(courceName);
 		_context.SaveChanges();
 		return RedirectToAction("Index");
