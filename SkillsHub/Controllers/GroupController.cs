@@ -30,7 +30,7 @@ public class GroupController : Controller
     {
         ViewBag.CourceNames = _courcesService.GetAllCourcesNames();
         //ViewBag.Students = 
-        var groups = _context.Groups.ToList();
+        var groups = _context.Groups.AsQueryable();
 
         return View(groups);
     }
