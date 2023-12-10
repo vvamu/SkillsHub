@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Application.Validators;
+using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
 using SkillsHub.Persistence;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace SkillsHub.Application.Services.Implementation;
 
@@ -85,8 +87,26 @@ public class GroupService: IGroupService
     }
 
 
+    public IQueryable<Group> GetAllByFilter(string? filterStr, Guid? filterCourseId)
+    {
+        var groups = _context.Groups
+            .Include(x => x.Lessons).Include(x => x.CourceName).Include(x => x.LessonType)
+            .Include(x => x.GroupStudents).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.DaySchedules)
+            .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser).AsQueryable();
 
-    public IQueryable<Group> GetAll() => _context.Groups.Include(x=>x.Lessons).Include(x=>x.GroupStudents).AsQueryable();
+        if(filterCourseId != Guid.Empty)groups = groups.Where(x => x.CourceId == filterCourseId);
+        if(!string.IsNullOrEmpty(filterStr)) groups = groups.Where(x => x.Name.Contains(filterStr));
+        //сортировка по времени создания
+        return groups;
+    }
+    
+
+    public IQueryable<Group> GetAll() => _context.Groups
+            .Include(x => x.Lessons).Include(x => x.CourceName).Include(x => x.LessonType)
+            .Include(x => x.GroupStudents).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.DaySchedules)
+            .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser).AsQueryable();
     public async Task<Group> GetAsync(Guid id)
     {
         var groups = await _context.Groups
@@ -105,4 +125,5 @@ public class GroupService: IGroupService
         await _context.SaveChangesAsync();
         return group;
     }
+   
 }

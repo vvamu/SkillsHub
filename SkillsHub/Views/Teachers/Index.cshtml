@@ -87,7 +87,7 @@
                                                     <td>@item.Email</td>
                                                     <td>@item.BirthDate</td>
                                                     <td>(@DateTime.Now.AddYears(-item.BirthDate.Year)).Year</td>
-                                                    <td>@if(item.UserTeacher == null && item.UserTeacher.Groups == null) {<div>-</div>} else { foreach(var gr in item.UserTeacher.Groups) 
+                                                    <td>@if(item.UserTeacher == null || item.UserTeacher.Groups == null) {<div>-</div>} else { foreach(var gr in item.UserTeacher.Groups) 
                                                         { <form><a asp-action="Item" asp-controller="Group" asp-route-id="@gr.Id" style="font-weight:900;color:#7571f9">  @gr.Name </a></form> } }</td>
                                                     <td>@{if (item.TotalLessons == null) { <div>0</div> } else { @item.TotalLessons.Count }}</td>
                                                     <td>@{if (item.TotalLessons == null) { <div>0</div> } else { @item.TotalLessons.Where(x=>x.StartTime.Month == DateTime.Now.AddMonths(-1).Month)}}</td>

@@ -23,7 +23,12 @@ public class TeachersController : Controller
         var teachers = _userPresentationService.GetAllTeachers(parameters);
         return View(teachers);
     }
-
+    public async Task<IActionResult> IndexFilter(Guid? categoryId)
+    {
+        var parameters = new QueryStringParameters() { PageNumber = 1, PageSize = 100 };
+        var teachers = _userPresentationService.GetAllTeachers(parameters);
+        return View(teachers);
+    }
 
 
     [HttpGet]

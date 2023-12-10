@@ -60,7 +60,7 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
                                 </div>
-                                <input type="search" class="form-control" placeholder="Search Dashboard" aria-label="Search Dashboard">
+                                <input type="search" onchange="changeCourseName() id="search" class="form-control" placeholder="Search Dashboard" aria-label="Search Dashboard">
                                 <div class="drop-down   d-md-none">
                                     <form action="#">
                                         <input type="text" class="form-control" placeholder="Search">
@@ -71,8 +71,8 @@
                         <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
                             <p>Category:</p>
 
-                            <select class="form-control" id="val-skill" name="val-skill">
-                            <option value="" selected>Все</option>
+                            <select class="form-control" id="val-skill" name="val-skill" onchange="changeCourseName()">
+                                <option value="" selected >Все</option>
                             @if(ViewBag.CourceNames != null)
                                 {
                                     @foreach (CourceName item in ViewBag.CourceNames)
@@ -156,7 +156,27 @@
 
 
 <script>
+    function changeCourseName() {
 
+        var value1 = document.getElementById('search').value;
+        var select = document.getElementById('val-skill');
+        var value2 = select.options[select.selectedIndex].value;
+        
+
+        $.ajax({
+            url: "/Group/IndexByFilters",
+            type: "GET",
+            dataType: "json",
+            data: { 'filterStr': value1, 'filterCourseId': value2 },
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+                    console.log(data)
+
+                }
+            }
+        });
+    }
     function GetCreateModal()
     {
         $("#partialZone").load("/Group/GetCreateModal");

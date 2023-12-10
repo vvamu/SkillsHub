@@ -31,6 +31,12 @@ public class GroupController : Controller
         //ViewBag.Students = 
         return View(_groupService.GetAll());
     }
+    public IActionResult IndexByFilters(string? filterStr, Guid? filterCourseId)
+    {
+        ViewBag.CourceNames = _courcesService.GetAllCourcesNames();
+        //ViewBag.Students = 
+        return View(_groupService.GetAllByFilter(filterStr, filterCourseId));
+    }
     public async Task<IActionResult> Item(Guid id)
     {
         var group = await _groupService.GetAsync(id);

@@ -28,7 +28,11 @@ public class UserPresentationService : IUserPresentationService
     public PagedList<TeacherDTO> GetAllTeachers(QueryStringParameters ownerParameters)
     {
         var items = _context.Teachers.Include(x => x.Lessons).Include(x=>x.ApplicationUser).OrderBy(on => on.Id);
-        var users = _context.Users.Include(x=>x.UserTeacher).Where(x=>x.UserTeacher != null).OrderBy(on => on.Id);
+        var users = _context.Users
+            .Include(x=>x.UserTeacher).ThenInclude(x=>x.Groups)
+            .Include(x=>x.UserTeacher).ThenInclude(x=>x.PossibleCources)
+            .Include(x=>x.UserTeacher).ThenInclude(x=>x.Lessons)
+            .Where(x=>x.UserTeacher != null).OrderBy(on => on.Id);
 
         var itemsArray = items.ToArray();
         var usersArray = users.ToArray();
