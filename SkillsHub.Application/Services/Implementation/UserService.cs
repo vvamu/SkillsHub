@@ -37,25 +37,51 @@ public class UserService : IUserService
 
     public async Task<ApplicationUser> GetUserByIdAsync(Guid id)
     {
-        return await _context.Users.Include(x=>x.UserStudent).ThenInclude(x=>x.Lessons).Include(x=>x.UserTeacher).ThenInclude(x => x.Lessons).
-            FirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("User not found");
+        ApplicationUser user;
+        try { 
+        user = await _context.Users.Include(x => x.UserStudent).ThenInclude(x => x.Lessons).Include(x => x.UserTeacher).ThenInclude(x => x.Lessons).
+            FirstOrDefaultAsync(x => x.Id == id);
+        }
+        catch (Exception ex)
+        {
+            try
+            {
+                user = await _context.Users.Include(x => x.UserStudent).ThenInclude(x => x.Lessons).FirstOrDefaultAsync(x => x.Id == id);
+            }
+            catch(Exception ex2)
+            {
+                try
+                {
+
+                
+                user = await _context.Users.Include(x => x.UserTeacher).ThenInclude(x => x.Lessons).FirstOrDefaultAsync(x => x.Id == id);
+                }
+                catch
+                {
+                    user = await _context.Users.FirstOrDefaultAsync(x=> x.Id == id);
+                }
+            }
+            
+        }
+        return user ?? throw new Exception("User not found");
     }
 
     #endregion
     #region Create 
-    public async Task<Teacher> CreateTeacherAsync(Guid userId, TeacherDTO item)
+    public async Task<Teacher> CreateTeacherAsync(Guid userId, Teacher item)
     {
         var dbUser = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
 
         var userRegisterValidator = new TeacherRegisterValidator();
-        var validationResult = await userRegisterValidator.ValidateAsync(item);
+
+        var userRegister = _mapper.Map<TeacherDTO>(item);
+        var validationResult = await userRegisterValidator.ValidateAsync(userRegister);
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors;
             var errorsString = string.Concat(errors);
             throw new Exception(errorsString);
         }
-
 
         var teacher = _mapper.Map<Teacher>(item);
         var str = "";
@@ -73,7 +99,7 @@ public class UserService : IUserService
         return teacherInDb == null ? throw new Exception("Error with save teacher in database") : teacherInDb;
 
     }
-    public async Task<Student> CreateStudentAsync(Guid userId, StudentDTO item)
+    public async Task<Student> CreateStudentAsync(Guid userId, Student item)
     {
         var dbUser = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
 
@@ -107,12 +133,14 @@ public class UserService : IUserService
         {
             var errors = validationResult.Errors;
             var errorsString = string.Concat(errors);
-            throw new Exception(errorsString);
+            //throw new Exception(errorsString);
         }
 
-        if (_context.Users.Any(x => x.Email == user.Email) && user.Email != null) throw new Exception("User with such email alredy exists");
-        if (_context.Users.Any(x => x.Login == user.Login)) throw new Exception("User with such login alredy exists");
-        if (_context.Users.Any(x => x.Phone == user.Phone)) throw new Exception("User with such phone alredy exists");
+        /*
+        if (_context.Users.FirstOrDefault(x => x.Email == user.Email) != null || user.Email == null) throw new Exception("User with such email alredy exists");
+        if (_context.Users.FirstOrDefault(x => x.Login == user.Login) != null) throw new Exception("User with such login alredy exists");
+        if (_context.Users.FirstOrDefault(x => x.Phone == user.Phone) != null) throw new Exception("User with such phone alredy exists");
+        */
 
         string hashedPassword = HashProvider.ComputeHash(user.Password.Trim());
         user.OwnHashedPassword = hashedPassword;
@@ -316,7 +344,7 @@ public class UserService : IUserService
         var mappingItems = _mapper.Map<List<StudentDTO>>(items).AsQueryable();
         mappingItems = _mapper.Map<List<StudentDTO>>(users).AsQueryable();
 
-        //mappingItems = _mapper.Map< IQueryable < StudentDTO >> (users).AsQueryable();
+        //mappingItems = _mapper.Map< IQueryable < Student >> (users).AsQueryable();
 
 
         
@@ -333,14 +361,17 @@ public class UserService : IUserService
     {
         var teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == itemId) ?? throw new Exception("Teacher not found. Maybe teacher is created but cources were not add");
         var courcesNamesList = new List<CourceName>();
+        teacher.PossibleCources = new List<CourceName>();
         foreach (var courceNameId in courcesId)
         {
             var dbItem = await _context.CourceNames.FirstOrDefaultAsync(x => x.Id == courceNameId) ?? throw new Exception("Cource`s name not found");
             courcesNamesList.Add(dbItem);
+            teacher.PossibleCources.Add(dbItem);
         }
-        teacher.PossibleCources = courcesNamesList;
+        //teacher.PossibleCources = courcesNamesList;
 
-        _context.Update(teacher);
+       // _context.Update(teacher);
+        _context.Teachers.Update(teacher);
         await _context.SaveChangesAsync();
         return teacher;
 
@@ -354,7 +385,7 @@ public class UserService : IUserService
             var dbItem = await _context.CourceNames.FirstOrDefaultAsync(x => x.Id == courceNameId) ?? throw new Exception("Cource`s name not found");
             courcesNamesList.Add(dbItem);
         }
-        student.PossibleCources = courcesNamesList;
+        student.PossibleCources = courcesNamesList.AsQueryable();
 
         _context.Update(student);
         await _context.SaveChangesAsync();

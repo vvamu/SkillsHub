@@ -19,5 +19,8 @@ public class EmailMessage : BaseEntity
     [EmailAddress]
     public string? Email { get; set; } = "-";
 
+    public DateTime DateCreated { get; set; }
+
+
 
 }

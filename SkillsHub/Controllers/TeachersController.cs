@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.DTO;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Helpers;
+using SkillsHub.Persistence;
 using System.ComponentModel.DataAnnotations;
 
 namespace SkillsHub.Controllers;
@@ -12,10 +14,13 @@ public class TeachersController : Controller
 {
     IUserService _userService;
     IUserPresentationService _userPresentationService;
-    public TeachersController(IUserService userService, IUserPresentationService userPresentationService)
+    private readonly ApplicationDbContext _context;
+
+    public TeachersController(IUserService userService, IUserPresentationService userPresentationService,ApplicationDbContext context)
     {
         _userService = userService;
         _userPresentationService = userPresentationService;
+        _context = context;
     }
     public async Task<IActionResult> Index()
     {
@@ -36,7 +41,7 @@ public class TeachersController : Controller
         
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null) user = await _userService.GetCurrentUserAsync();
-            var teacher = new TeacherDTO() { UserId = user.Id };
+            var teacher = new Teacher() { ApplicationUserId = user.Id };
             return View(teacher);
         }
         catch (Exception ex) {
@@ -51,18 +56,40 @@ public class TeachersController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(TeacherDTO item, Guid[] itemValue)
+    public async Task<IActionResult> Create(Teacher item, Guid[] itemValue)
     {
+        var teacher = _context.Teachers.Include(x=>x.ApplicationUser).FirstOrDefault(x => x.ApplicationUser.Id == item.ApplicationUserId);
+        var teacherId = teacher.Id;
+        if(teacherId == Guid.Empty)
+        {
+            var teacher2 = await _userService.CreateTeacherAsync(item.ApplicationUserId, item);
+            teacherId = teacher2.Id;
+        }
 
-        var teacher = await _userService.CreateTeacherAsync(item.Id,item);
-        await _userService.CreatePossibleCourcesNamesToTeacherAsync(teacher.Id, itemValue.ToList());
+        await _userService.CreatePossibleCourcesNamesToTeacherAsync(teacherId, itemValue.ToList());
 
-        if (teacher.ApplicationUser.UserStudent != null) return RedirectToAction("Create", "Student");
-        if (await _userService.IsAdminAsync()) return RedirectToAction("Index","Teacher");
+        if (teacher.ApplicationUser.UserStudent != null) return RedirectToAction("Create", "Student"); //if user first time create account
 
-        var userDb = await _userService.SignInAsync(item);
-        if (userDb == null) return View(userDb);
-        return RedirectToAction("Index", "CRM");
+        var user = await _userService.GetUserByIdAsync(item.ApplicationUserId);
+        if (!User.Identity.IsAuthenticated)
+        {
+            var userDb = await _userService.SignInAsync(user);
+        }  
+        if (await _userService.IsAdminAsync())
+        {
+            //return RedirectToAction("Index", "Teachers"); //if admin create
+
+            //return Redirect(Request.Headers["Referer"].ToString());
+        }//if admin create
+        var te = _context.Teachers.Include(x => x.ApplicationUser).FirstOrDefault(x => x.ApplicationUser.Id == item.ApplicationUserId);
+
+
+        return RedirectToAction("Item","Account",(user.Id,user.Id));
+            //View("Item","Account");
+
+
+        //if (userDb == null) return View(userDb);
+        //return RedirectToAction("Index", "CRM");
     }
 
     [HttpGet]

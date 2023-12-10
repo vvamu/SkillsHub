@@ -19,7 +19,7 @@
                 <div class="card">
                     <div class="card-body">
 
-                             <h2>Edit @Model.Name - group</h2>
+                             <h2>EDIT GROUP - @Model.Name</h2>
 
                                 <div class="validation" asp-validation-summary="ModelOnly"></div>
 
@@ -117,7 +117,7 @@
                                 </div>
                                     <input hidden value="@Model.Id" asp-for="@Model.Id"/>
 
-                        <button type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100">Create new group</button>
+                        <button type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100">Save changes</button>
                                         <button class="button btn-red" href="javascript:history.go(-1)">Cancel</button>
                                                
                             </div>

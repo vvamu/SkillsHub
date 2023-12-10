@@ -120,10 +120,12 @@ public class UserPresentationService : IUserPresentationService
     }
     public async Task<PagedList<StudentDTO>> GetAllStudentsAsync(QueryStringParameters ownerParameters)
     {
-        var items = _context.Students.Include(x => x.Lessons).OrderBy(on => on.Id);
+        var items = _context.Students.Include(x => x.Lessons).Include(x=>x.ApplicationUser).OrderBy(on => on.Id);
         var users = _context.Users.Include(x => x.UserStudent).Where(x => x.UserStudent != null).OrderBy(on => on.Id);
+
         var mappingItems = _mapper.Map<List<StudentDTO>>(items).AsQueryable();
         mappingItems = _mapper.Map<List<StudentDTO>>(users).AsQueryable();
+
         mappingItems = mappingItems.Include(x => x.ApplicationUser);
 
         var itemsArray = items.ToArray();

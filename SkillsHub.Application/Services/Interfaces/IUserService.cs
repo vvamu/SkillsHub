@@ -7,8 +7,8 @@ namespace SkillsHub.Application.Services.Interfaces;
 public interface IUserService
 {
     public Task InitialCreateAsync();
-    public Task<Teacher> CreateTeacherAsync(Guid userId, TeacherDTO item);
-    public Task<Student> CreateStudentAsync(Guid userId, StudentDTO item);
+    public Task<Teacher> CreateTeacherAsync(Guid userId, Teacher item);
+    public Task<Student> CreateStudentAsync(Guid userId, Student item);
     public Task<ApplicationUser> CreateUserAsync(UserCreateDTO user);
     public Task<ApplicationUser?> GetCurrentUserAsync();
     public Task<ApplicationUser> SignInAsync(UserLoginDTO item);

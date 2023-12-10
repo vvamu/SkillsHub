@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillsHub.Persistence;
 
@@ -11,9 +12,11 @@ using SkillsHub.Persistence;
 namespace SkillsHub.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231210095850_dsffd2")]
+    partial class dsffd2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,9 +292,6 @@ namespace SkillsHub.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid?>("EnglishLevelId")
                         .HasColumnType("uniqueidentifier");
 
@@ -374,9 +374,6 @@ namespace SkillsHub.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
@@ -402,9 +399,6 @@ namespace SkillsHub.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -428,9 +422,6 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.Property<Guid?>("ApplicationUserId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -459,9 +450,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<decimal?>("Budget")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -487,9 +475,6 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.Property<Guid>("CourceNameId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -532,9 +517,6 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.Property<Guid?>("CreatorId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
@@ -605,9 +587,6 @@ namespace SkillsHub.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -631,9 +610,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -665,9 +641,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -723,9 +696,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<Guid?>("CourceId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
 
@@ -754,9 +724,6 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.Property<int>("CountPayedLessons")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("EnglishLevel")
                         .HasColumnType("nvarchar(max)");
@@ -793,9 +760,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<Guid>("ApplicationUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -815,9 +779,6 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.Property<Guid?>("ApplicationUserId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("DayName")
                         .HasColumnType("int");
@@ -848,9 +809,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("DayName")
                         .IsRequired()

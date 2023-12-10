@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.DTO;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
+using SkillsHub.Domain.BaseModels;
 using SkillsHub.Helpers;
+using SkillsHub.Persistence;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -17,22 +20,25 @@ public class StudentController : Controller
     private readonly IUserPresentationService _userPresentationService;
     private readonly ICourcesService _courcesService;
     private readonly IUserService _userService;
+    private readonly ApplicationDbContext _context;
 
     public StudentController(IUserPresentationService userPresentationService, ICourcesService courcesService,
-        IUserService userService)
+        IUserService userService,ApplicationDbContext context)
     {
         _userPresentationService = userPresentationService;
         _courcesService = courcesService;
         _userService = userService;
+        _context = context;
         //var items = _userService.GetAllStudentsAsync().Result;
-        //Reporter.ReportToXLS<StudentDTO>(items.ToArray());
+        //Reporter.ReportToXLS<Student>(items.ToArray());
     }
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var parameters = new QueryStringParameters() { PageNumber = 1, PageSize = 100 };
-        var items = await _userPresentationService.GetAllStudentsAsync(parameters);
-        return View(items);
+        var users = _context.ApplicationUsers.Include(x=>x.UserStudent).Where(x => x.UserStudent != null);
+        var students = _context.Students.AsQueryable();
+
+        return View((users,students));
     }
 
     [HttpGet]
@@ -56,12 +62,12 @@ public class StudentController : Controller
     [HttpGet]
     public async Task<IActionResult> Create(Guid id)
     {
-        //var user = await _userService.GetCurrentUserAsync() ?? throw new Exception("User not found");
         try
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null) user = await _userService.GetCurrentUserAsync();
-            var student = new StudentDTO() { Id = user.Id };
+            var user = await _userService.GetUserByIdAsync(id) ?? await _userService.GetCurrentUserAsync();            
+            var student = _context.Students.Include(x=>x.ApplicationUser).FirstOrDefault(x=>x.ApplicationUser.Id == user.Id) ?? new Student();
+            student.ApplicationUserId = user.Id;
+
             return View(student);
         }
         catch (Exception)
@@ -75,14 +81,22 @@ public class StudentController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(StudentDTO item, Guid[] itemValue)
+    public async Task<IActionResult> Create(Student item, Guid[] itemValue)
     {
-        var student = await _userService.CreateStudentAsync(item.Id, item);
+        var student = _context.Students.Include(x => x.ApplicationUser).FirstOrDefault(x => x.ApplicationUser.Id == item.ApplicationUserId);
+        if(student == null)
+        student = await _userService.CreateStudentAsync(item.Id, item);
+        else
+        {
+            _context.Students.Update(student);
+
+        }
         await _userService.CreatePossibleCourcesNamesToStudentAsync(student.Id, itemValue.ToList());
 
         if (await _userService.IsAdminAsync()) return RedirectToAction("Index", "CRM");
+        var user = student.ApplicationUser;
 
-        var userDb = await _userService.SignInAsync(item);
+        var userDb = await _userService.SignInAsync(user);
         if (userDb == null) return View(userDb);
         return RedirectToAction("Index", "CRM");
     }

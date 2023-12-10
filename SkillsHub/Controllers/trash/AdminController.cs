@@ -33,7 +33,7 @@ public class AdminController : Controller
     //}
 
     //[HttpPost]
-    //public IActionResult CreateStudent(StudentDTO user)
+    //public IActionResult CreateStudent(Student user)
     //{
     //    return View();
     //}
