@@ -51,6 +51,7 @@ public class Program
         options =>
         {
             options.UseSqlServer(connectionString);
+            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         });
 
         #endregion
@@ -80,6 +81,8 @@ public class Program
                 builderPolicy.RequireAssertion(x => x.User.HasClaim(ClaimTypes.Role, "Teacher") ||
                                                x.User.HasClaim(ClaimTypes.Role, "Admin"));
             });
+
+            
         });
 
         #endregion
@@ -109,6 +112,7 @@ public class Program
 
         builder.Services.AddCors();
         var app = builder.Build();
+        //app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         if (!app.Environment.IsDevelopment())
         {

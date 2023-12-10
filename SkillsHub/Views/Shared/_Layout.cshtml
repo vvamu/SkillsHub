@@ -90,18 +90,32 @@
 
             <div id="main-wrapper">
 
-
+            <!--
                 <div class="nav-header">
                     <div class="brand-logo">
                         <a asp-controller="CRM" asp-action="Index" style="display:-webkit-box;grid-gap:10px">
                             <h4 style="color:indigo; padding-left:5px;padding-top:2px">SKILLSHUB</h4>
-                            <!--
+                            
                             <b class="logo-abbr"><img src="/images/skillslLogo.png" alt="">hello </b>
                             <span class="logo-compact"><img src="/images/skillslLogo.png" alt="">little</span>
                             <span class="brand-title">
-                                <a asp-controller="CRM" asp-action="Index" > <img class="me-3" src="" alt="" />SKILLSHUB</a>
+                                <a asp-controller="CRM" asp-action="Index" > <img class="me-3" src="" alt="" />SK</a>
                             </span>
-                            -->
+                            
+                        </a>
+                    </div>
+                </div>
+                -->
+
+                <div class="nav-header">
+                    <div class="brand-logo">
+                        <a asp-controller="CRM" asp-action="Index">
+                            <b class="logo-abbr"><img src="~/images/logo.svg" alt=""> </b>
+                            <span class="logo-compact"><img src="~/images/logo.svg" alt=""></span>
+                            <span class="brand-title">
+                                <!--<img src="~/images/skillslLogo-white.png" alt="">-->
+                                <h3 style="color:whitesmoke">SKILLSHUB</h3>
+                            </span>
                         </a>
                     </div>
                 </div>
@@ -146,6 +160,8 @@
                                         <i class="fa fa-angle-down f-s-14" aria-hidden="true"></i>
                                     </a> 
                                 </li>
+                                <a asp-action="Item" asp-controller="Account"><i class="icon-user"></i> <span>Profile</span></a>
+                                <a asp-action="SignOut" asp-controller="Account"><i class="icon-key"></i> <span>Logout</span></a>
 
                                 <li class="icons dropdown" >
                                     <div class="user-img c-pointer position-relative"   data-toggle="dropdown">
@@ -243,7 +259,10 @@
                     @RenderBody()
                 </main>
 
-
+                    <script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
+                    <script src="~/plugins/jquery/jquery.min.js"></script>
+                    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+                    <script src="~/js/custom.min.js"></script>
                     
                 <script src="~/plugins/common/common.min.js"></script>
                 <script src="~/js/custom.min.js"></script>

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.DTO;
 using SkillsHub.Application.Services.Interfaces;
+using SkillsHub.Application.Validators;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
 using SkillsHub.Persistence;
@@ -60,9 +61,52 @@ public class CourcesService : ICourcesService
     */
 
 
+    public async Task<LessonType> CreateLessonType(LessonType item)
+    {
+		if (item == null) throw new Exception("Not correct data for group");
+		var userRegisterValidator = new LessonTypeValidator();
+		var validationResult = await userRegisterValidator.ValidateAsync(item);
+		if (!validationResult.IsValid)
+		{
+			var errors = validationResult.Errors;
+			var errorsString = string.Concat(errors);
+			throw new Exception(errorsString);
+		}
 
-    #region Init - LessonTypes
-    public void LessonTypesInit()
+		if (_context.LessonTypes.FirstOrDefault(x => x.Name == item.Name) != null) throw new Exception("Lesson type with such name already exist");
+        item.DateCreated = DateTime.Now;
+        await _context.LessonTypes.AddAsync(item);
+        await _context.SaveChangesAsync();
+        return item;
+	}
+
+
+	public async Task<CourceName> CreateCourceName(CourceName item)
+	{
+		if (item == null) throw new Exception("Not correct data for group");
+		var userRegisterValidator = new CourceNameValidator();
+		var validationResult = await userRegisterValidator.ValidateAsync(item);
+		if (!validationResult.IsValid)
+		{
+			var errors = validationResult.Errors;
+			var errorsString = string.Concat(errors);
+			throw new Exception(errorsString);
+		}
+
+        if (_context.CourceNames.FirstOrDefault(x => x.Name == item.Name) != null)
+        {
+            var it = _context.CourceNames.FirstOrDefault(x => x.Name == item.Name);
+
+			throw new Exception("Cource name type with such name already exist");
+        }
+		item.DateCreated = DateTime.Now;
+		await _context.CourceNames.AddAsync(item);
+		await _context.SaveChangesAsync();
+		return item;
+	}
+
+	#region Init - LessonTypes
+	public void LessonTypesInit()
     {
         if (_context.LessonTypes.FirstOrDefault(x => x.Name == "Group English") != null) return;
 

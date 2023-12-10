@@ -149,7 +149,7 @@ public class GroupController : Controller
             var daySchedules = _context.DaySchedules.Where(x => x.Group.Id == item.Id);
             _context.RemoveRange(prevLessons);
             var prevStudents = _context.Students.Where(x => x.Groups.Select(x=>x.Id).Contains(item.Id));
-            prevStudents.ToList().ForEach(x=>x.Groups.Remove(item));
+            prevStudents.ToList().ForEach(x=>x.Groups.ToList().Remove(item));
 
             item.Lessons = lessons;
             item.DaySchedules = schedules;

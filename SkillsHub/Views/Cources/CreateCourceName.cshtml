@@ -1,0 +1,144 @@
+﻿@model CourceName;
+@{
+	ViewData["Title"] = "Create";
+}
+
+<div class="container-fluid">
+	<div class="row">
+
+		<!--CourceName-->
+		<div class="col">
+<div class="login-form-bg h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100">
+                <div class="col-xl-6">
+                    <div class="form-input-content">
+                        <div class="card login-form mb-0">
+                            <div class="card-body pt-5">
+                                <div class="text-center"> <h4>Create Course Name</h4></div>
+
+                                <form class="mt-5 mb-5 login-input" method="post">
+                                   
+                                        <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
+                                    
+                                    <div class="form-group">
+                                       <input type="text" asp-for="Name" class="form-control" placeholder="Name(English Group Offline)*" required>
+                                    </div>
+
+
+								<div style="display:flex">
+									<label>MinimumAge  |  </label>
+									<label>MaximumAge</label>
+								</div>
+								<div style="display:flex">
+									<input type="number"  asp-for="MinimumAge"></input>
+									<input type="number" asp-for="MaximumAge"></input>
+
+
+								</div>
+
+							
+									<button style="margin-top:15px; position:center" type="submit" asp-action="CreateCourceName" asp-controller="Cources" class="btn btn-primary" >Save</button>
+									
+							</form>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+	<script src="~/plugins/common/common.min.js"></script>
+
+<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
+<script src="~/plugins/jquery/jquery.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+
+	<script>
+		function SaveLessonType() {
+			//Serialize the form datas.
+			var valdata = $("#lessonTypeForm").serialize();
+			console.log(valdata);
+			//to get alert popup
+			$.ajax({
+				url: "/Cources/SaveLessonType",
+				type: "POST",
+				dataType: 'json',
+				contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+				data: valdata
+			});
+			alert("Saved");
+			//$("<div>Saved</div>").insertAfter($("#lessonTypeForm"));
+			
+		}
+		function SaveCourcesNames() {
+			//Serialize the form datas.
+			var valdata = $("#courcesNamesForm").serialize();
+			console.log(valdata);
+			//to get alert popup
+			$.ajax({
+				url: "/Cources/SaveCourcesNames",
+				type: "POST",
+				dataType: 'json',
+				contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+				data: valdata
+			});
+		}
+
+		function SaveLessonTypes() {
+			//Serialize the form datas.
+			var valdata = $("#lessonTypesForm").serialize();
+			console.log(valdata);
+			//to get alert popup
+			$.ajax({
+				url: "/Cources/SaveLessonTypes",
+				type: "POST",
+				dataType: 'json',
+				contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+				data: valdata
+			});
+		}
+
+
+		const exampleModal = document.getElementById('exampleModal')
+		exampleModal.addEventListener('show.bs.modal', event => {
+			// Кнопка, которая активировала модальное окно
+			const button = event.relatedTarget
+			// Извлекает информацию из атрибутов data-bs-*
+			const recipient = button.getAttribute('data-bs-whatever')
+			// При необходимости вы можете инициировать запрос AJAX здесь,
+			// а затем выполнить обновление в обратном вызове.
+			//
+			// Обновляет содержимое модального окна.
+			const modalTitle = exampleModal.querySelector('.modal-title')
+			const modalBodyInput = exampleModal.querySelector('.modal-body input')
+
+			modalTitle.textContent = `New message to ${recipient}`
+			modalBodyInput.value = recipient
+		})
+
+	</script>
+	<script src="~/plugins/common/common.min.js"></script>
+	<script src="~/js/custom.min.js"></script>
+	<script src="~/js/settings.js"></script>
+	<script src="~/js/gleek.js"></script>
+	<script src="~/js/styleSwitcher.js"></script>
+	</>
+

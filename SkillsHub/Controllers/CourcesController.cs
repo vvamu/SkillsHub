@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Helpers;
+using SkillsHub.Application.Services.Implementation;
+using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Persistence;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -12,11 +14,14 @@ namespace SkillsHub.Controllers;
 public class CourcesController : Controller
 {
     private readonly ApplicationDbContext _context;
+	private readonly ICourcesService _courcesService;
 
-    public CourcesController(ApplicationDbContext context)
+	public CourcesController(ApplicationDbContext context, ICourcesService courcesService)
     {
         _context = context;
-    }
+        _courcesService = courcesService;
+
+	}
     public IActionResult Index()
     {
         var cources = _context.Cources.AsQueryable();
@@ -28,6 +33,7 @@ public class CourcesController : Controller
     [HttpPost]
     public async Task SaveLessonType(LessonType item)
     {
+        if (item.Id == Guid.Empty) return;
         _context.Update(item);
         await _context.SaveChangesAsync();
         
@@ -125,5 +131,78 @@ public class CourcesController : Controller
 		catch (Exception ex) { }
 		return Json(json);
 	}
-	
+
+
+	[HttpGet]
+	public async Task<IActionResult> CreateCourceName()
+	{
+        //var courceDb = _context.CourceNames.FirstOrDefault(x => x.Id == courceId) ?? new CourceName();
+		return View("CreateCourceName");
+        /*		if (courceDb != null) 
+        else
+            return View()
+		_context.Update(item);
+		await _context.SaveChangesAsync();
+        */
+	}
+    [HttpGet]
+    public async Task<IActionResult> CreateLessonType()
+    {
+        return View("CreateLessonType");
+    }
+
+	[HttpPost]
+	public async Task<IActionResult> CreateCourceName(CourceName  item)
+	{
+        try
+        {
+			await _courcesService.CreateCourceName(item);
+		}
+       catch(Exception ex) 
+        {
+			ModelState.AddModelError("", ex.Message);
+			return View("CreateCourceName"); 
+        }
+        return RedirectToAction("Index"); 
+	}
+	[HttpPost]
+	public async Task<IActionResult> CreateLessonType(LessonType item)
+	{
+		try
+		{
+			await _courcesService.CreateLessonType(item);
+            
+		}
+		catch (Exception ex)
+		{
+			ModelState.AddModelError("", ex.Message);
+			return View("CreateLessonType");
+		}
+		return RedirectToAction("Index");
+
+
+	}
+
+    public IActionResult DeleteCourceName(CourceName item)
+    {
+        var courceName = _context.CourceNames.FirstOrDefault(c => c.Id == item.Id);
+        if (courceName == null) { return RedirectToAction("Index"); }
+        //_context.CourceNames.Remove(courceName);
+        courceName.IsDeleted = true;
+        _context.CourceNames.Update(courceName);
+        _context.SaveChanges();
+        return RedirectToAction("Index");
+    }
+
+	public IActionResult DeleteLessonType(LessonType item)
+	{
+		var courceName = _context.LessonTypes.FirstOrDefault(c => c.Id == item.Id);
+		if (courceName == null) { return RedirectToAction("Index"); }
+		courceName.IsDeleted = true;
+		_context.LessonTypes.Update(courceName);
+		_context.SaveChanges();
+		return RedirectToAction("Index");
+	}
+
+
 }

@@ -18,4 +18,8 @@ public interface ICourcesService
     public IQueryable<Cource> GetAllCources();
 
     public IQueryable<EnglishLevel> GetAllEnglishLevels();
+
+
+    public Task<CourceName> CreateCourceName(CourceName item);
+	public Task<LessonType> CreateLessonType(LessonType item);
 }

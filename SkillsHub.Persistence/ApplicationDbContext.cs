@@ -41,6 +41,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
     public DbSet<ScheduleDay> ScheduleDays { get; set; }
     public DbSet<FinanceElement> Finances { get; set; }
 
+    public DbSet<WorkingDay> WorkingDays { get; set; }
+
     
 
     protected override void OnModelCreating(ModelBuilder builder)

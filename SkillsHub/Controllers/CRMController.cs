@@ -37,7 +37,7 @@ public class CRMController: Controller
 
     public async Task<IActionResult> Index()
     {
-        await _courcesService.InitCources();
+        //await _courcesService.InitCources();
 
         var user = await _userService.GetCurrentUserAsync();
         if (user.ExternalConnections != null) ViewBag.NotificationsStatus = "On - " + user.ExternalConnections.Count; else ViewBag.NotificationsStatus = "Off";

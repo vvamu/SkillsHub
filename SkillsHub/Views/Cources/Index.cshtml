@@ -43,17 +43,67 @@
 					}
 					else
 					{
-						foreach (var item in Model.Item2)
+						<!--NAVBAR - Search, Filter, Sort-->
+						<div class="container-fluid">
+									<div class="row">
+										<div class="col-12">
+											<div class="card">
+
+						<nav class="navbar navbar-expand-lg bg-light">
+							<div class="container-fluid">
+
+								<div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:20px">
+									<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+										
+										<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px; margin-right:5%">
+											<p style="white-space:nowrap">Activity type:</p>
+											<select class="form-control" id="val-skill" name="val-skill">
+												<option value="">Active</option>
+												<option value="">Not Active (Deleted)</option>
+											</select>
+										</li>
+										<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+											<p style="white-space:nowrap">Order by:</p>
+											<select class="form-control" id="val-skill" name="val-skill">
+												<option value="">Name</option>
+												<option value="">Date created</option>
+											</select>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</nav>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						foreach (var item in Model.Item2.Where(x=>x.IsDeleted == false))
 						{
-								<div class="container-fluid">
+							var courceNameId = item.Id;
+							var formId = "coureName" + courceNameId;
+
+							<div class="container-fluid" style="margin-bottom:-5%">
 									<div class="row">
 										<div class="col-12">
 											<div class="card">
 												<div class="card-body">
-													<form id="courcesNamesForm">
+												<form id="@formId">
 													<div style="display:flex;justify-content:space-between">
-														<h4>@item.Name</h4>
-														<button class="btn btn-danger">☓</button>
+													<div>
+													<label>Name       |  </label>
+														<span>  Date created: @item.DateCreated</span>
+														</div>
+														<a class="btn btn-danger" type="submit" asp-action="DeleteCourceName" asp-controller="Cources" value="@item.Id"><div>X</div></a>
+													</div>
+													
+													<div style="display:flex">
+														<div>
+														<h4><input type="text" asp-for="@item.Name" value="@item.Name" /></h4>
+														
+														</div>
+														
 													</div>
 													<div style="display:flex">
 													</div>
@@ -63,12 +113,12 @@
 													</div>
 														<div style="display:flex">
 															<input type="hidden" asp-for="@item.Id" value="@item.Id">
-															<input type="hidden" asp-for="@item.Name" value="@item.Name">
 															<br/>
 															<input type="number" asp-for="@item.MinimumAge" value="@item.MinimumAge"/>
 															<input type="number" asp-for="@item.MaximumAge" value="@item.MaximumAge" />
 															<br/>
-															<button class="btn btn-primary" onclick="SaveCourcesNames()">Save</button>
+															<button class="btn btn-primary" onclick="SaveCourcesNames(@courceNameId)">Save</button>
+														    <!--<form><a class="btn btn-primary" type="submit" asp-route-courceId="item.Id" asp-action="CreateCourceName" asp-controller="Cources">Edit</a></form>-->
 														</div>
 													</form>
 												</div>
@@ -80,7 +130,9 @@
 					}
 				}
 				<div class="container-fluid">
-				<div class="row"><button class="btn btn-primary">Create</button></div>
+					<div class="row">													
+					<form><a class="btn btn-primary" type="submit" asp-action="CreateCourceName" asp-controller="Cources">Create</a></form>
+					</div>
 				</div>
 			</div>
 			<div class="col">
@@ -94,16 +146,77 @@
 					}
 					else
 					{
-						foreach (var item in Model.Item3)
+						<!--NAVBAR - Search, Filter, Sort-->
+						<div class="container-fluid">
+									<div class="row">
+										<div class="col-12">
+											<div class="card">
+
+						<nav class="navbar navbar-expand-lg bg-light">
+							<div class="container-fluid">
+
+								<div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:40px">
+									<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+
+														<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px;margin-right:5%">
+															<p style="white-space:nowrap">Activity type:</p>
+															<select class="form-control" id="val-skill" name="val-skill" onchange="ChangeActiveStatusLessonTypes()">
+																<option value="">Active</option>
+																<option value="">Not Active (Deleted)</option>
+															</select>
+														</li>
+
+														<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px;margin-right:5%">
+															<p style="white-space:nowrap">Classes type:</p>
+															<select class="form-control" id="val-skill" name="val-skill">
+																<option value="">Offline</option>
+																<option value="">Online</option>
+															</select>
+														</li>
+
+														<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px;margin-right:5%">
+															<p style="white-space:nowrap">User type:</p>
+															<select class="form-control" id="val-skill" name="val-skill">
+																<option value="">Group</option>
+																<option value="">Individual</option>
+															</select>
+														</li>
+									</ul>
+								</div>
+							</div>
+						</nav>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+						foreach (var item in Model.Item3.Where(x => x.IsDeleted == false))
 						{
-								<div class="container-fluid">
+							var itemName = item.Id;
+							var formId = "lessonTypeForm" + itemName;
+
+							<div class="container-fluid" style="margin-bottom:-3%">
 									<div class="row">
 										<div class="col-12">
 											<div class="card">
 												<div class="card-body">
-													<form id="lessonTypeForm">
+												<form id="@formId">
+
 													<div style="display:flex;justify-content:space-between">
-													<h3>@item.Name</h3>
+													<div>
+													<label>Name       |  </label>
+														<span>  Date created: @item.DateCreated</span>
+													</div>
+														
+														<form>
+															<input type="hidden" asp-for="@item.Id" value="@item.Id"/>
+														<button class="btn btn-danger" type="submit" asp-action="DeleteLessonType" asp-controller="Cources" value="@item.Id"><div>X</div></button></form>
+													</div>
+
+													<div style="display:flex;justify-content:space-between">
+														<h3><input type="text" asp-for="@item.Name"/></h3>
 														<!--<button class="btn btn-danger">☓</button>-->
 													</div>
 														
@@ -113,10 +226,8 @@
 														</div>
 														<div style="display:flex">
 															<input type="hidden" asp-for="@item.Id" value="@item.Id">
-															<input type="hidden" asp-for="@item.Name" value="@item.Name">
-
 															<input value="@Convert.ToDecimal(item.TeacherPrice)" asp-for="@item.TeacherPrice"></input>
-															<input value="@Convert.ToDecimal(item.StudentPrice)" asp-for="@item.StudentPrice"></input>
+														<input value="@Convert.ToDecimal(item.StudentPrice)"  asp-for="@item.StudentPrice"></input>
 
 															
 														</div>
@@ -125,7 +236,7 @@
 														<label>MinumumLessonsToPay</label>
 													</div>
 													<div style="display:flex;justify-content:space-between">
-														<input type="number"   asp-for="@item.MinumumLessonsToPay" ></input>
+														<input type="number" asp-for="@item.MinumumLessonsToPay" />
 														
 													</div>
 
@@ -143,7 +254,8 @@
 													</div>
 													<div style="display:flex;justify-content:space-between">
 														<input type="number" asp-for="@item.LessonTimeInMinutes"></input>
-														<button class="btn btn-primary" type="button" onclick="SaveLessonType()">Save</button>
+
+														<button class="btn btn-primary" type="button" onclick="SaveLessonType('@item.Id')">Save</button>
 													</div>
 													</form>
 												</div>
@@ -155,7 +267,7 @@
 					}
 				}
 				<div class="container-fluid">
-					<div class="row"><button class="btn btn-primary">Create</button></div>
+					<div class="row"><form><a class="btn btn-primary" type="submit" asp-action="CreateLessonType" asp-controller="Cources">Create</a></form></div>
 				</div>
 				
 			</div>
@@ -177,9 +289,10 @@
 
 
 	<script>
-		function SaveLessonType() {
+		function SaveLessonType(itemId) {
 			//Serialize the form datas.
-			var valdata = $("#lessonTypeForm").serialize();
+			console.log(itemId);
+			var valdata = $("#lessonTypeForm" + itemId).serialize();
 			console.log(valdata);
 			//to get alert popup
 			$.ajax({
@@ -193,9 +306,9 @@
 			//$("<div>Saved</div>").insertAfter($("#lessonTypeForm"));
 			
 		}
-		function SaveCourcesNames() {
+		function SaveCourcesNames(itemId) {
 			//Serialize the form datas.
-			var valdata = $("#courcesNamesForm").serialize();
+			var valdata = $("#coureName" + itemId).serialize();
 			console.log(valdata);
 			//to get alert popup
 			$.ajax({
