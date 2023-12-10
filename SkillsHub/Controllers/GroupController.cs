@@ -18,6 +18,7 @@ public class GroupController : Controller
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
 
+
     public GroupController(IGroupService groupService,ICourcesService courcesService, ApplicationDbContext context, UserManager<ApplicationUser> userManager)
     {
         _groupService = groupService;
@@ -29,13 +30,16 @@ public class GroupController : Controller
     {
         ViewBag.CourceNames = _courcesService.GetAllCourcesNames();
         //ViewBag.Students = 
-        return View(_groupService.GetAll());
+        var groups = _context.Groups.ToList();
+
+        return View(groups);
     }
     public IActionResult IndexByFilters(string? filterStr, Guid? filterCourseId)
     {
         ViewBag.CourceNames = _courcesService.GetAllCourcesNames();
         //ViewBag.Students = 
-        return View(_groupService.GetAllByFilter(filterStr, filterCourseId));
+        //return View(_groupService.GetAllByFilter(filterStr, filterCourseId));
+        return View();
     }
     public async Task<IActionResult> Item(Guid id)
     {
