@@ -5,6 +5,7 @@ using SkillsHub.Application.Services;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
+using SkillsHub.Persistence;
 
 namespace SkillsHub.Controllers;
 
@@ -14,10 +15,11 @@ public class AccountController : Controller
     private readonly IUserService _userService;
     private readonly ICourcesService _courcesService;
 
-    public AccountController(IUserService userService, ICourcesService courcesService)
+    public AccountController(IUserService userService, ICourcesService courcesService,ApplicationDbContext context)
     {
         _userService = userService;
         _courcesService = courcesService;
+
     }
     [HttpGet]
     [Authorize]
@@ -61,8 +63,8 @@ public class AccountController : Controller
         {
             //if (!ModelState.IsValid) { ModelState.AddModelError("", ModelState.Values.ToString()); return View(); }
             var user = await _userService.CreateUserAsync(userCreateModel);
-            if (userCreateModel.IsStudent) return RedirectToAction("Create", "Student");
-            if (userCreateModel.IsTeacher) return RedirectToAction("Create", "Teachers");
+            if (userCreateModel.IsStudent) return RedirectToAction("Create", "Student",new {id = user.Id});
+            if (userCreateModel.IsTeacher) return RedirectToAction("Create", "Teachers", new { id = user.Id });
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
 

@@ -378,18 +378,21 @@ public class UserService : IUserService
     }
     public async Task<Student> CreatePossibleCourcesNamesToStudentAsync(Guid itemId, List<Guid> courcesId)
     {
-        var student = await _context.Students.FirstOrDefaultAsync(x => x.Id == itemId) ?? throw new Exception("Teacher not found. Maybe teacher is created but cources were not add");
+        var student = await _context.Students.AsNoTracking().FirstOrDefaultAsync(x => x.Id == itemId) ?? throw new Exception("Teacher not found. Maybe teacher is created but cources were not add");
         var courcesNamesList = new List<CourceName>();
         foreach (var courceNameId in courcesId)
         {
-            var dbItem = await _context.CourceNames.FirstOrDefaultAsync(x => x.Id == courceNameId) ?? throw new Exception("Cource`s name not found");
+            var dbItem = await _context.CourceNames.AsNoTracking().FirstOrDefaultAsync(x => x.Id == courceNameId) ?? throw new Exception("Cource`s name not found");         
             courcesNamesList.Add(dbItem);
         }
-        student.PossibleCources = courcesNamesList.AsQueryable();
+        var newStudent = _mapper.Map<Student>(student);
+        newStudent.PossibleCources = courcesNamesList;
 
-        _context.Update(student);
+        //student.PossibleCources = courcesNamesList;
+        
+        _context.Students.Update(newStudent);
         await _context.SaveChangesAsync();
-        return student;
+        return newStudent;
 
     }
 

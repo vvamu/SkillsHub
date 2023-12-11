@@ -39,14 +39,15 @@ public class TeachersController : Controller
     [HttpGet]
     public async Task<IActionResult> Create(Guid id)
     {
-        //var user = await _userService.GetCurrentUserAsync() ?? throw new Exception("User not found");
+        //При создании пользователя в данный метод мы передаем ИД пользователя и дальше его используем
+        //При редактировании мы так же должны использовать данное ИД для ИД пользователя.
         try
         {
-
-        
             var user = await _userService.GetUserByIdAsync(id);
-            if (user == null) user = await _userService.GetCurrentUserAsync();
-            var teacher = new Teacher() { ApplicationUserId = user.Id };
+            if (user == null) throw new Exception("We can't create Teacher without User. User not found."); //if (user == null) user = await _userService.GetCurrentUserAsync();
+
+            var teacher = _context.Teachers.Include(x=>x.ApplicationUser).FirstOrDefault(x=>x.ApplicationUser.Id==id) ?? new Teacher();
+            teacher.ApplicationUserId = id;
             return View(teacher);
         }
         catch (Exception ex) {
@@ -55,9 +56,8 @@ public class TeachersController : Controller
 
             if(user == null) return View("Index");
             return View();
-            //HttpContext.Current.Request.Url.AbsolutePath
+
         }
-        return View("Index");
     }
 
     [HttpPost]

@@ -36,7 +36,7 @@ public class ClassesService
         if (user == null) throw new MissingMemberException();
         var classes = await _context.Students.Include(x => x.Lessons).Select(x => x.Lessons).SingleAsync();
 
-        return classes;
+        return classes.AsQueryable();
     }
 
     public async Task<Lesson> GetAsync(int id)

@@ -19,11 +19,11 @@ public class Student : BaseEntity
     public int CountPayedLessons { get; set; }
     //public Dictionary<int,DateTime> Payment {  get; set; }
 
-    public IQueryable<CourceName>? PossibleCources { get; set; }
-    public IQueryable<Group>? Groups { get; set; }
-    public IQueryable<Lesson>? Lessons { get; set; }
+    public List<CourceName>? PossibleCources { get; set; }
+    public List<Group>? Groups { get; set; }
+    public List<Lesson>? Lessons { get; set; }
 
-    public IQueryable<WorkingDay>? WorkingDays {get;set;}
+    public List<WorkingDay>? WorkingDays {get;set;}
 
 
 }

@@ -6,6 +6,7 @@ using SkillsHub.Application.Services;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
+using SkillsHub.Domain.Models;
 using SkillsHub.Helpers;
 using SkillsHub.Persistence;
 using System.ComponentModel.DataAnnotations;
@@ -64,8 +65,9 @@ public class StudentController : Controller
     {
         try
         {
-            var user = await _userService.GetUserByIdAsync(id) ?? await _userService.GetCurrentUserAsync();            
-            var student = _context.Students.Include(x=>x.ApplicationUser).FirstOrDefault(x=>x.ApplicationUser.Id == user.Id) ?? new Student();
+            var user = await _userService.GetUserByIdAsync(id) ?? await _userService.GetCurrentUserAsync();  
+            
+            var student = _context.Students.Include(x=>x.ApplicationUser).AsNoTracking().FirstOrDefault(x=>x.ApplicationUser.Id == user.Id) ?? new Student();
             student.ApplicationUserId = user.Id;
 
             return View(student);
@@ -83,15 +85,22 @@ public class StudentController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(Student item, Guid[] itemValue)
     {
-        var student = _context.Students.Include(x => x.ApplicationUser).FirstOrDefault(x => x.ApplicationUser.Id == item.ApplicationUserId);
+        var student = _context.Students.AsNoTracking().FirstOrDefault(x => x.Id == item.Id);
         if(student == null)
-        student = await _userService.CreateStudentAsync(item.Id, item);
+        student = await _userService.CreateStudentAsync(item.ApplicationUserId, item);
+
         else
         {
-            _context.Students.Update(student);
+            _context.Students.Update(item);
+            _context.SaveChanges();
 
         }
-        await _userService.CreatePossibleCourcesNamesToStudentAsync(student.Id, itemValue.ToList());
+
+        var student2 = await _userService.CreatePossibleCourcesNamesToStudentAsync(student.Id, itemValue.ToList());
+        //student.PossibleCources = student2.PossibleCources;
+        //_context.Students.Update(student);
+        //await _context.SaveChangesAsync();
+
 
         if (await _userService.IsAdminAsync()) return RedirectToAction("Index", "CRM");
         var user = student.ApplicationUser;

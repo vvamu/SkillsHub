@@ -21,9 +21,11 @@
                                 <div class="form-validation">
                                     <form class="form-valide" method="post"  >
                                 @if (Model != null)
-                                //{
-                                  //  <input type="hidden" asp-for="ApplicationUserId" value="@Model.ApplicationUserId" />
-                                //}
+                                {
+                                    <input type="hidden" asp-for="ApplicationUserId" value="@Model.ApplicationUserId" />
+                                    <input type="hidden" asp-for="Id" value="@Model.Id" />
+
+                                }
 
                                 @if (Model.PossibleCources != null)
                                 {
