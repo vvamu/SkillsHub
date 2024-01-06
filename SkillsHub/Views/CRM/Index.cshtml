@@ -1,7 +1,6 @@
 ﻿@using SkillsHub.Domain.BaseModels;
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 
-@model SkillsHub.Application.PageViewModel.IndexCRMViewModel
 
 
 <div>
@@ -25,15 +24,15 @@
                             }
 
                             <div class="d-inline-block">
-                                <h2 class="text-white">@Model.TotalUsers <span style="font-size:small">@newUserString</span> </h2>
+                                <h2 class="text-white">@ViewBag.TotalUsers <span style="font-size:small">@newUserString</span> </h2>
                             </div>
                             <span class="float-right display-5 opacity-5">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><path d="M219.3 .5c3.1-.6 6.3-.6 9.4 0l200 40C439.9 42.7 448 52.6 448 64s-8.1 21.3-19.3 23.5L352 102.9V160c0 70.7-57.3 128-128 128s-128-57.3-128-128V102.9L48 93.3v65.1l15.7 78.4c.9 4.7-.3 9.6-3.3 13.3s-7.6 5.9-12.4 5.9H16c-4.8 0-9.3-2.1-12.4-5.9s-4.3-8.6-3.3-13.3L16 158.4V86.6C6.5 83.3 0 74.3 0 64C0 52.6 8.1 42.7 19.3 40.5l200-40zM111.9 327.7c10.5-3.4 21.8 .4 29.4 8.5l71 75.5c6.3 6.7 17 6.7 23.3 0l71-75.5c7.6-8.1 18.9-11.9 29.4-8.5C401 348.6 448 409.4 448 481.3c0 17-13.8 30.7-30.7 30.7H30.7C13.8 512 0 498.2 0 481.3c0-71.9 47-132.7 111.9-153.6z" /></svg>
                             </span>
                             
-                            <br /><span>Teachers: @Model.TotalTeachers </span><br />
-                            <span>Students: @Model.TotalStudents</span>
+                            <br /><span><strong>Teachers:</strong> @ViewBag.TotalTeachers | <strong>Activive teachers:</strong> @ViewBag.ActiveTotalTeachers  </span><br />
+                            <span>Students: @ViewBag.TotalStudents Activive students: @ViewBag.ActiveTotalStudents</span>
                         </div>
                     </div>
                 </div>
@@ -72,7 +71,7 @@
                         <div class="card-body">
                             <h3 class="card-title text-white">Lessons</h3>
                             <div class="d-inline-block">
-                                <h2 class="text-white">@Model.CountClasses - </h2>
+                                <h2 class="text-white">@ViewBag.CountClasses - </h2>
                             </div>
                             <span class="float-right display-5 opacity-5">
 
@@ -95,7 +94,7 @@
                                     newCourcesString += "+" + newUsers + " by month";
                             }
                             <div class="d-inline-block">
-                                <h2 class="text-white">@_context.CourceNames.Count() <span style="font-size:small">-</span></h2>
+                                <h2 class="text-white">@_context.CourseNames.Count() <span style="font-size:small">-</span></h2>
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
                             </span>
@@ -130,7 +129,7 @@
                         <div class="card-body">
                             <h3 class="card-title text-white">Mails</h3>
                             <div class="d-inline-block">
-                                <h2 class="text-white">@Model.CountMails</h2>
+                                <h2 class="text-white">@ViewBag.CountMails</h2>
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
                             </span>
@@ -158,11 +157,13 @@
                 <div class="col-lg-3 col-sm-6">
                     <div class="card gradient-4">
                         <div class="card-body">
-                            <h3 class="card-title text-white">Mails</h3>
+                            <h3 class="card-title text-white">Telegram Mails</h3>
                             <div class="d-inline-block">
-                                <h2 class="text-white">ПОЛУЧАТЬ УВЕДОМЛЕНИЯ ТЕЛЕГРАМ</h2>
+                                <h2 class="text-white">Off</h2>
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
+                            <br /><span>By Year: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year).Count() </span><br />
+                            <span>By Month: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year && x.EndTime.Month == DateTime.Now.Month).Count()</span>
                         </div>
                     </div>
                 </div>
@@ -183,9 +184,22 @@
                 <div class="col-lg-3 col-sm-6">
                     <div class="card gradient-4">
                         <div class="card-body">
-                            <h3 class="card-title text-white">Задолженности</h3>
+                            <h3 class="card-title text-white">Users with Задолженности</h3>
                             <div class="d-inline-block">
-                                <h2 class="text-white">100$ - Список должников</h2>
+                                <h2 class="text-white">100$</h2>
+                            </div>
+                            <br /><span>All: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year).Count() </span><br />
+                            <span>By Month: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year && x.EndTime.Month == DateTime.Now.Month).Count()</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6">
+                    <div class="card gradient-4">
+                        <div class="card-body">
+                            <h3 class="card-title text-white">Total sum to Teachers</h3>
+                            <div class="d-inline-block">
+                                <h2 class="text-white">100$</h2>
+                                (Продажи, зп)
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
                         </div>
@@ -194,9 +208,21 @@
                 <div class="col-lg-3 col-sm-6">
                     <div class="card gradient-4">
                         <div class="card-body">
-                            <h3 class="card-title text-white">Общая прибыль</h3>
+                            <h3 class="card-title text-white">Total sum to Students</h3>
                             <div class="d-inline-block">
-                                <h2 class="text-white">100$ - Открыть подробнее</h2>
+                                <h2 class="text-white">100$</h2>
+                                (Продажи, зп)
+                            </div>
+                            <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6">
+                    <div class="card gradient-4">
+                        <div class="card-body">
+                            <h3 class="card-title text-white">Total revenue</h3>
+                            <div class="d-inline-block">
+                                <h2 class="text-white">100$</h2>
                                 (Продажи, зп)
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>

@@ -1,131 +1,165 @@
 ﻿@using SkillsHub.Application.DTO;
 
 @model Student
-<div class="content-body">
 
-            <div class="row page-titles mx-0">
-                <div class="col p-md-0">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
-                    </ol>
-                </div>
-            </div>
-            <!-- row -->
 
-            <div class="container-fluid">
-                <div class="row justify-content-center">
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="form-validation">
-                                    <form class="form-valide" method="post"  >
+
+<div class="row page-titles mx-0">
+    <div class="col p-md-0">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                @if (@Model != null && Model.ApplicationUserId!= null)
+                {
+                    <form><a asp-action="Item" asp-controller="Account" asp-route-id="@Model.ApplicationUserId">Account</a></form>
+
+                }
+            </li>
+            <li class="breadcrumb-item active"><a href="javascript:void(0)">Student edit</a></li>
+        </ol>
+    </div>
+</div>
+<!-- row -->
+<form class="mt-1 mb-5 login-input" method="post">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-lg-4 col-form-label" for="val-range">
+                                <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
+
                                 @if (Model != null)
                                 {
+                                    var options = new System.Text.Json.JsonSerializerOptions
+                                    {
+                                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                                    };
+
                                     <input type="hidden" asp-for="ApplicationUserId" value="@Model.ApplicationUserId" />
                                     <input type="hidden" asp-for="Id" value="@Model.Id" />
+                                    
 
-                                }
-
-                                @if (Model.PossibleCources != null)
-                                {
-                                    @foreach (var item in Model.PossibleCources)
+                                    try
                                     {
-                                        <p>@item.Name</p>
-                                    }
 
+                                        <input type="hidden" id="studentPossibleCources" value="@System.Text.Json.JsonSerializer.Serialize(@ViewBag.PossibleCourses, options)" />
+
+                                    }
+                                    catch (Exception ex) { }
+                                }
+                                @if (Model!= null && Model.Id != Guid.Empty)
+                                {
+                                    <h2>Edit student</h2>
                                 }
 
+                                else
+                                {
+                                    <h2>Create student</h2> 
+                                }
+                                @if(Model!= null && Model.ApplicationUser != null)
+                                {
+                                    <span>@Model.ApplicationUser.Login</span>
+                                }
+                            </label>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label" for="val-suggestions">
+                                    Тип ученика<span class="text-danger">*</span>
+                                </label>
 
-                                    <div class="form-group row">
-                                        <label class="col-lg-4 col-form-label" for="val-suggestions">
-                                            Записать <span class="text-danger">*</span>
-                                        </label>
+                                <div class="col-lg-6">
+                                    <select id="userType">
+                                        <option>Ребенок</option>
+                                        <option>Взрослый</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="childTypeUser">
 
-                                        <div class="col-lg-6">
-                                            <select>
-                                            <option onclick="addParentInfo(this.value)">Ребенок</option>
-                                        </select>
-                                        </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label" for="val-suggestions">
+                                        Parent phone <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-lg-6">
+                                        <input type="text" asp-for="ParentPhone" class="form-control" placeholder="Телефон родителя" pattern="(\+\d{4,}|\d{4,})" title="Введите корректный номер телефона">
                                     </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label" for="val-suggestions">
+                                        Parent name <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-lg-6">
+                                        <input type="text" asp-for="ParentName" class="form-control" placeholder="Имя родителя" title="Введите имя родителя для связи">
 
-                                    <div class="form-group row">
-                                        <label class="col-lg-4 col-form-label" for="val-suggestions">
-                                            Suggestions <span class="text-danger">*</span>
-                                        </label>
-                                        <div class="col-lg-6">
-                                            <input type="text" asp-for="ParentPhone" class="form-control" placeholder="Телефон родителя" pattern="(\+\d{4,}|\d{4,})" title="Введите корректный номер телефона">
-                                        </div>
                                     </div>
-                                    <div class="form-group row">
-                                        <label class="col-lg-4 col-form-label" for="val-suggestions">
-                                            Suggestions <span class="text-danger">*</span>
-                                        </label>
-                                        <div class="col-lg-6">
-                                            <input type="text" asp-for="ParentName" class="form-control" placeholder="Имя родителя" title="Введите имя родителя для связи">
-                                       
-                                        </div>
-                                    </div>
+                                </div>
 
-                                <!--
-                                        <div class="form-group row">
-                                            <label class="col-lg-4 col-form-label" for="val-suggestions">Suggestions <span class="text-danger">*</span>
-                                            </label>
-                                            <div class="col-lg-6">
-                                                <textarea class="form-control" id="val-suggestions" name="val-suggestions" rows="5" placeholder="What would you like to see?"></textarea>
-                                            </div>
-                                        </div>
-                                -->
-                                        <div class="form-group row">
-                                            <label class="col-lg-4 col-form-label" for="val-skill">Направление обучения<span class="text-danger">*</span>
-                                            </label>
-                                            <div class="col-lg-6">
-                                        <div class="col-lg-6">
-                                            <ul id="courcesNames" class="list-group col"></ul>
-                                        </div>
+                            </div>
 
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-4 col-form-label" for="val-skill">
-                                                Уровень владения английским<span class="text-danger">*</span>
-                                            </label>
-                                            <div class="col-lg-6">
-                                                <select asp-for="EnglishLevel" class="form-control" id="val-skill" name="val-skill">
-
-                                                    <option value="css">Начальный - A1  (знание слов)</option> 
-                                                    <option value="css">Элементарный - A2 (чтение)</option>
-                                                    <option value="css">Средний - B1  (общение)</option>
-                                                    <option value="css">Выше среднего - B2 (свободное общение, грамматика)</option>
-                                                    <option value="css">Продвинутый - С1 (спонтанное общение, письмо, чтение на любую тему) </option>
-                                                    <option value="css">Средний - С2 (спонтанное общение, письмо, чтение на любую узкую тему как медицина, юриспруденция)</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <!--
-                                        <div class="form-group row">
-                                            <label class="col-lg-4 col-form-label"><a href="#">Terms &amp; Conditions</a>  <span class="text-danger">*</span>
-                                            </label>
-                                            <div class="col-lg-8">
-                                                <label class="css-control css-control-primary css-checkbox" for="val-terms">
-                                                    <input type="checkbox" class="css-control-input" id="val-terms" name="val-terms" value="1"> <span class="css-control-indicator"></span> I agree to the terms</label>
-                                            </div>
-                                        </div>
-                                         -->
-                                        <div class="form-group row">
-                                            <div class="col-lg-8 ml-auto">
-                                                <input type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Student" value="Submit"/>
-                                            </div>
-                                        </div>
-                                    </form>
+                            <div class="container-fluid">
+                                <label>
+                                    Possibility to work<span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-6">
+                                    <ul id="courcesNames" class="list-group col"></ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- #/ container -->
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div>
+                            <div>
+                                <h2>Schedule</h2>
+                                <hr />
+                                <div class="container-fluid">
+                                    <label>
+                                        Working days<span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-lg-6">
+                                        <ul class="list-group col">
+                                            @foreach (var day in Enum.GetNames<DayOfWeek>())
+                                            {
+
+
+                                                <li class="list-group-item">
+                                                    @if (Model != null && Model.WorkingDays != null && Model.WorkingDays.Contains(day))
+                                                    {
+                                                        <input name="workingDay" style='margin-right:5px;' type="checkbox" value="@day" checked />
+
+                                                        @day
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <input name="workingDay" style='margin-right:5px;' type="checkbox" value="@day" />
+
+                                                        @day
+                                                    }
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div><!-- <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>-->
+                        </div>
+                        <div id="schedule_d" class="form-group row"></div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Student" value="Submit" /> </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+    </div>
+</form>
+
+
 
 <script src="~/plugins/common/common.min.js"></script>
 
@@ -140,15 +174,37 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
-<script>
-    function addParentInfo(value) {
 
-        console.log(value)
-    
-    }
+<script>
     function getCourcesNamesList() {
 
         var studentsList = $("#courcesNames");
+
+        console.log("ok")
+
+        let model;
+        let studentSelectedOptions;
+
+        var studentPossibleCources;
+        var courseIds;
+        if ($("#studentPossibleCources") != null && $("#studentPossibleCources").val() != undefined) {
+
+            studentPossibleCources = JSON.parse($("#studentPossibleCources").val());
+            console.log("studentPossibleCources");
+            console.log(studentPossibleCources);
+
+            if (Array.isArray(studentPossibleCources)) { // Check if studentPossibleCources is an array
+        courseIds = studentPossibleCources.map(function (course) {
+            return course.CourseNameId;
+        });
+    } else {
+        console.log("studentPossibleCources is not an array.");
+    }
+
+        }
+        console.log(courseIds)
+
+
 
         $.ajax({
             url: "/Cource/GetCourcesNamesAsync",
@@ -158,30 +214,44 @@
                 data = JSON.parse(data);
                 if (Array.isArray(data)) {
 
-
                     data.forEach(function (item, i, arr) {
-
                         studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
 
                         var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+
+
+                        if (courseIds != undefined && courseIds.includes(item.Id))
+                            appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "' checked  /> ";
+                        else
+                            appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+
                         appendedLine += item.Name;
                         appendedLine += "</li>"
 
+                        console.log(appendedLine);
+
                         studentsList.append(appendedLine);
                     })
-
-
-
-
                 }
             }
         });
 
     }
 
-    $(document).ready(function () {
+    
 
+    $(document).ready(function () {
+        $('#userType').change(function () {
+            if ($(this).val() === 'Взрослый') {
+                console.log("dded");
+                $('#childTypeUser').hide(); // Скрыть блок childTypeUser
+            } else {
+                $('#childTypeUser').show(); // Показать блок childTypeUser
+            }
+        });
+    });
+
+    $(document).ready(function () {
         getCourcesNamesList();
     });
 

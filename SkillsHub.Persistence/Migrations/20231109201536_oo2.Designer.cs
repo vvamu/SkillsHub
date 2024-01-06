@@ -327,7 +327,7 @@ namespace SkillsHub.Persistence.Migrations
                     b.ToTable("Cources");
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.CourceName", b =>
+            modelBuilder.Entity("SkillsHub.Domain.Models.CourseName", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -345,7 +345,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CourceNames");
+                    b.ToTable("CourseNames");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.EmailMessage", b =>
@@ -817,7 +817,7 @@ namespace SkillsHub.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("EnglishLevelId");
 
-                    b.HasOne("SkillsHub.Domain.Models.CourceName", "Name")
+                    b.HasOne("SkillsHub.Domain.Models.CourseName", "Name")
                         .WithMany()
                         .HasForeignKey("NameId")
                         .OnDelete(DeleteBehavior.Cascade)

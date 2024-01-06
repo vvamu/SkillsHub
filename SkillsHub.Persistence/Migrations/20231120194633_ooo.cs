@@ -20,7 +20,7 @@ namespace SkillsHub.Persistence.Migrations
 
             migrationBuilder.AddColumn<Guid>(
                 name: "TeacherId",
-                table: "CourceNames",
+                table: "CourseNames",
                 type: "uniqueidentifier",
                 nullable: true);
 
@@ -31,12 +31,12 @@ namespace SkillsHub.Persistence.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourceNames_TeacherId",
-                table: "CourceNames",
+                table: "CourseNames",
                 column: "TeacherId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_CourceNames_Teachers_TeacherId",
-                table: "CourceNames",
+                table: "CourseNames",
                 column: "TeacherId",
                 principalTable: "Teachers",
                 principalColumn: "Id");
@@ -55,7 +55,7 @@ namespace SkillsHub.Persistence.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_CourceNames_Teachers_TeacherId",
-                table: "CourceNames");
+                table: "CourseNames");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Groups_Teachers_TeacherId",
@@ -67,7 +67,7 @@ namespace SkillsHub.Persistence.Migrations
 
             migrationBuilder.DropIndex(
                 name: "IX_CourceNames_TeacherId",
-                table: "CourceNames");
+                table: "CourseNames");
 
             migrationBuilder.DropColumn(
                 name: "TeacherId",
@@ -75,7 +75,7 @@ namespace SkillsHub.Persistence.Migrations
 
             migrationBuilder.DropColumn(
                 name: "TeacherId",
-                table: "CourceNames");
+                table: "CourseNames");
         }
     }
 }

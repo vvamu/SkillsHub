@@ -22,6 +22,9 @@ public class StudentDTO : ApplicationUser
 
     public List<Group>? Groups { get; set; }
 
-    public IQueryable<Cource> Cources { get; set; }
+
+    public List<CourseName>? PossibleCources { get; set; }
+    public List<WorkingDay>? WorkingDays { get; set; }
+
 
 }

@@ -1,0 +1,173 @@
+﻿@using SkillsHub.Application.Helpers;
+@using SkillsHub.Application.DTO;
+@using SkillsHub.Domain.BaseModels
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
+
+@model IQueryable<RequestLesson>?
+    <!-- Custom Stylesheet -->
+    <link href="/plugins/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+
+<div>
+    <div>
+
+        <div class="row page-titles mx-0">
+            <div class="col p-md-0">
+                <ol class="breadcrumb" style="display:flex;align-items:center">
+                    <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                    <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
+                    <li>
+
+
+
+                        <form>
+                    <li>
+
+                        <!-- Кнопка-триггер модального окна -->
+                        <!--
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="GetCreateModal()">
+                                        Create new (Double click)
+                                    </button>
+                        -->
+                        
+                        <!--<a class="dropdown-item" asp-action="Create" asp-controller="Account"></a>-->
+
+                    </li>
+                    </form>
+
+
+
+                    </li>
+
+                </ol>
+            </div>
+        </div>
+        <!--ITEMS-->
+        @{
+            if (Model == null || Model.Count() == 0)
+            {
+
+                <div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
+                    <h3>Request list is empty</h3>
+                </div>
+
+            }
+
+            else
+            {
+
+                @foreach (var item in Model.Where(x => x.IsDeleted == false).OrderByDescending(x => x.DateCreated))
+                {
+                    <div>
+                        <div class="col">
+                            <div class="card" style="margin:20px">
+                                <div class="card-body">
+                                    <div>
+                                        <!--<img class="mr-3 circle-rounded" src="images/avatar/2.jpg" width="50" height="50" alt="Generic placeholder image">-->
+                                        <div>
+                                            <div class="d-sm-flex justify-content-between mb-2" style="display:flex">
+                                                <h3 class="mb-sm-0">
+                                                
+                                                    <a asp-action="Item" asp-controller="Group" asp-route-id="@item.LessonBefore.Group.Id">@item.LessonBefore.Group.Name</a>
+                                                    
+                                                    <small class="text-muted ml-4">
+                                                        - <strong>@item.DateCreated</strong> by <strong><a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.User.Id">@item.User.Login </a></strong>
+                                                    </small>
+                                                </h3>
+                                            </div>
+                                                <div style="display:flex;justify-content:space-between">
+
+                                                        <div class="card" style="margin:20px">
+                                                            <div class="card-body">
+                                                                <div>
+                                                                <h4>Before</h4>
+                                                                    <div style="display:flex; justify-content:space-between">
+                                                                        <div style="display:flex; grid-gap:5%">
+
+                                                                            <input type="time" name="startTime" asp-for="@item.LessonBefore.StartTime" /> -
+                                                                            <input type="time" name="endTime" asp-for="@item.LessonBefore.EndTime" />
+                                                                        </div>
+                                                                        
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="card" style="margin:20px">
+                                                            <div class="card-body">
+                                                                <div>
+                                                                    <h4>After</h4>
+                                                                    <div style="display:flex; justify-content:space-between">
+                                                                        
+                                                                    <div>@item.RequestMessage</div>
+                                           
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                <div class="card" style="margin:20px">
+                                                    <div class="card-body">
+                                                        <div>
+                                                            @{
+                                                                <form>
+                                                                    <input type="hidden" name="answer" value="1" />
+                                                                    <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Apply request" class="btn btn-primary" />
+                                                                </form>
+                                                                <form>
+                                                                    <input type="hidden" name="answer" value="-1" />
+                                                                    <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Reject request" class="btn btn-danger" />
+                                                                </form>
+
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+
+
+
+                }
+                <!--
+                <form method="get"><a asp-action="Create" asp-controller="Cources"> CReate</a></form>
+                -->
+            }
+        }
+
+        <!-- #/ container -->
+    </div>
+
+</div>
+<div id="partialZone"></div>
+
+
+<script>
+
+    function SendRequestToChangeLesson(itemId) {
+        //Serialize the form datas.
+        var valdata = $("#coureName" + itemId).serialize();
+        console.log(valdata);
+        //to get alert popup
+        $.ajax({
+            url: "/Cources/SaveCourcesNames",
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            data: valdata
+        });
+        alert("Saved")
+    }
+</script>
+    
+
+

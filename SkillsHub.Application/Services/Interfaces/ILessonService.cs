@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SkillsHub.Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,8 @@ namespace SkillsHub.Application.Services.Interfaces;
 
 public interface ILessonService
 {
+    public IQueryable<Lesson> GetAll();
+    public IQueryable<Lesson> GetAllByFilter(string? filterStr, Guid? filterCourseId);
+    public Task<Lesson> GetAsync(Guid id);
 
 }

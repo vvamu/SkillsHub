@@ -20,7 +20,7 @@ public class ClassesService
         _userManager = userManager;
         _mapper = mapper;
     }
-
+    /*
     public async Task<List<Lesson>> GetClassesByTeacherAsync(Guid id)
     {
         var user = await _context.Teachers.FindAsync(id);
@@ -34,7 +34,7 @@ public class ClassesService
     {
         var user = await _context.Students.FindAsync(id);
         if (user == null) throw new MissingMemberException();
-        var classes = await _context.Students.Include(x => x.Lessons).Select(x => x.Lessons).SingleAsync();
+        var classes = _context.Students.Include(x => x.Lessons).Select(x => x.Lessons);
 
         return classes.AsQueryable();
     }
@@ -62,5 +62,5 @@ public class ClassesService
         await _context.SaveChangesAsync();
         return item;
     }
-
+    */
 }

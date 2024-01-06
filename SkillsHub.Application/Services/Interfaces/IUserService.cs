@@ -1,4 +1,5 @@
-﻿using SkillsHub.Application.DTO;
+﻿using Microsoft.AspNetCore.Mvc;
+using SkillsHub.Application.DTO;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
 
@@ -7,27 +8,32 @@ namespace SkillsHub.Application.Services.Interfaces;
 public interface IUserService
 {
     public Task InitialCreateAsync();
-    public Task<Teacher> CreateTeacherAsync(Guid userId, Teacher item);
-    public Task<Student> CreateStudentAsync(Guid userId, Student item);
-    public Task<ApplicationUser> CreateUserAsync(UserCreateDTO user);
     public Task<ApplicationUser?> GetCurrentUserAsync();
+    public Task<UserCreateDTO> GetUserCreateDTOByIdAsync(Guid id);
+    public Task<ApplicationUser> GetUserByIdAsync(Guid id);
+    public Task<IQueryable<ApplicationUser>> GetAllAsync();
+
+    public Task<IQueryable<Student>> GetAllStudentsAsync();
+    public IQueryable<Teacher> GetAllTeachers();
+
+
     public Task<ApplicationUser> SignInAsync(UserLoginDTO item);
     public Task<ApplicationUser> SignInAsync(ApplicationUser item);
     public Task SignOutAsync();
-    public Task<ApplicationUser> GetUserByIdAsync(Guid id);
-    public Task<bool> IsAdminAsync();
-
-    public Task<IQueryable<ApplicationUser>> GetAllAsync();
-
-    public Task<IQueryable<StudentDTO>> GetAllStudentsAsync();
-
-    public Task<IQueryable<Teacher>> GetTeachersByLessonTypeAsync(Guid lessonTypeId);
-
-    public Task<Teacher> CreatePossibleCourcesNamesToTeacherAsync(Guid itemId, List<Guid> courcesId);
-    public Task<Student> CreatePossibleCourcesNamesToStudentAsync(Guid itemId, List<Guid> courcesId);
 
 
-    public IQueryable<TeacherDTO> GetAllTeachers();
+    public Task<Teacher> CreateTeacherAsync(ApplicationUser user, Teacher item);
+    public Task<Student> CreateStudentAsync(ApplicationUser user, Student item);
+    public Task<ApplicationUser> CreateUserAsync(UserCreateDTO user);
+    public Task<Teacher> UpdateTeacherWithCourcesNames(Teacher item, List<Guid> courcesId);
+    public Task<Student> UpdateStudentWithCourcesNames(Student item, List<Guid> courcesId);
 
+
+    
+    public Task<ApplicationUser> HardDeleteAsync(ApplicationUser item);
+    public Task<ApplicationUser> SoftDeleteAsync(ApplicationUser item);
+    public Task<ApplicationUser> Restore(ApplicationUser item);
+
+    public Task<IQueryable<NotificationMessage>> GetCurrentUserNotifications();
 
 }

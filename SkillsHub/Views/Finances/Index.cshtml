@@ -15,50 +15,103 @@
 		<div class="row">
 			<div class="col">
 				
-				@{
-					if(Model != null)
+				@if(Model != null)
 					{
-						foreach(var elem in Model)
-						{
-							if(elem.ParentId == null)
-							{
-								<div style="background-color:lightcyan">
-									<span>@elem.Name</span>
-									<span>это папка</span>
-									<div>
-										<button asp-route-id="@elem.Id" asp-action="Delete" asp-controller="Finances" class="btn-red text-white">Delete</button>
-									</div>
-								</div>
-								<br />
-								<div class="row">
-								@foreach(var item in Model.Where(x=>x.ParentId == elem.Id))
-								{
-									<div style="background-color:wheat" class="col-3">
-										<span>@item.Name</span>
-										<span>@item.Budget</span>
+						
+					   var elementWithFolder = Model.Where(x => x.ParentId != null);
+						var elementWithoutFolder = Model.Where(x => x.ParentId != null);
 
-										<div>
-											<button asp-route-id="@item.Id" asp-action="Delete" asp-controller="Finances" class="btn-red text-white">Delete</button>
+
+
+						foreach (var elem in elementWithFolder)
+						{
+						var itemsInFolder = Model.Where(x => x.ParentId == elem.Id);
+
+												<div class="col lessonInGroup">
+                                <form method="post">
+                                    <div class="card" style="margin:1%">
+                                        <div class="card-body">
+
+										
+											<div style="display:flex;justify-content:space-between;">
+											<h3>Folder <input type="text" value="@elem.Name" /> - Sum: @itemsInFolder.Sum(x => x.Budget) BYN</h3>
+												<div>
+													<button asp-route-id="@elem.Id" asp-action="DeleteFolder" asp-controller="Finances" class="btn btn-danger">X</button>
+												</div>
+											</div>
+											
+											<div class="row">
+
+
+											@foreach (var item in itemsInFolder)
+												{
+												if (itemsInFolder.ToList().IndexOf(item) == 0)
+													{
+														<h5 style="display:flex;margin-left:2%">Name element | Sum in BYN</h5>
+
+													}
+
+												<div style="background-color:cornsilk; display:flex;justify-content:space-between;margin-bottom:1%" class="form-group">
+													<span>
+														@(itemsInFolder.ToList().IndexOf(item) + 1) -
+														<input type="text" value="@item.Name"  /> 
+														<input type="number" value="@Convert.ToDouble(item.Budget)" /> BYN
+														<input  type="date"/>
+														</span>
+															<div>
+															<button asp-route-id="@item.Id" asp-action="DeleteElement" asp-controller="Finances" class="btn-danger btn btn-sm">X</button>
+															</div>
+													</div>
+												
+												}
+											</div>
 										</div>
 									</div>
-									<br />
-								}
-								</div>
-							}
-							/*else
-							{
-								<div style="background-color:blue">
-									<span>@elem.Name</span>
-									<span>@elem.Budget</span>
-
-									<div class="flex">
-										<input type="number">
-										<button >Change budget</button>
-									</div>
-								</div>
-								<br />
-							}*/
+								</form>
+							</div>
 						}
+
+
+						<div class="col lessonInGroup">
+                                <form method="post">
+                                    <div class="card" style="margin:1%">
+                                        <div class="card-body">
+
+										
+											<div style="display:flex;justify-content:space-between;">
+													<h3>Without folder - Sum: @elementWithoutFolder.Sum(x => x.Budget) </h3>
+												<div>
+													<button  onclick="CreateElement()"  asp-controller="Finances" class="btn btn-primary">+</button>
+												</div>
+											</div>
+
+											@foreach (var item in elementWithoutFolder)
+											{
+
+												if (elementWithFolder.ToList().IndexOf(item) == 0)
+												{
+													<h5 style="display:flex;margin-left:2%">Name element | Sum in BYN</h5>
+
+												}
+
+												<div style="background-color:cornsilk; display:flex;justify-content:space-between;margin-bottom:1%" class="form-group">
+													<span>
+														@(elementWithFolder.ToList().IndexOf(item) + 1) -
+														<input type="text" value="@item.Name" />
+														<input type="number" value="@Convert.ToDouble(item.Budget)" /> BYN
+														<input type="date" />
+													</span>
+													<div>
+														<button asp-route-id="@item.Id" asp-action="Delete" asp-controller="Finances" class="btn-danger btn btn-sm">X</button>
+													</div>
+												</div>
+
+											}
+								</div>
+							</div>
+						</form>
+					</div>
+						
 					}
 					<button type = "button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="GetCreateFolderModal()">
 						Create Folder
@@ -66,7 +119,7 @@
 					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="GetCreateElementModal()">
 						Create Element
 					</button>
-				}
+				
 				<!--Html.RenderPartialAsync("_Create");-->
 				<div id="partialZoneElement"></div>
 				<div id="partialZoneFolder"></div>
@@ -75,6 +128,7 @@
 	</div>
 </div>
 	<script src="~/plugins/common/common.min.js"></script>
+	
 
 	<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
 	<script src="~/plugins/jquery/jquery.min.js"></script>
@@ -96,6 +150,16 @@
 	}
 	function GetCreateFolderModal() {
 		$("#partialZoneElement").load("/Finances/GetCreateFolderModal");
+	}
+
+
+	function DeleteFolder(elemId)
+	{
+		alert("Are you sure?");
+	}
+
+	function DeleteElement(elemId) {
+
 	}
 
 	</script>

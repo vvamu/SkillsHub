@@ -12,7 +12,7 @@ namespace SkillsHub.Persistence.Migrations
         {
             migrationBuilder.AlterColumn<string>(
                 name: "Description",
-                table: "CourceNames",
+                table: "CourseNames",
                 type: "nvarchar(max)",
                 nullable: true,
                 oldClrType: typeof(string),
@@ -24,7 +24,7 @@ namespace SkillsHub.Persistence.Migrations
         {
             migrationBuilder.AlterColumn<string>(
                 name: "Description",
-                table: "CourceNames",
+                table: "CourseNames",
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "",

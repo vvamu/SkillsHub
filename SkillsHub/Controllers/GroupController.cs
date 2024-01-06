@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
@@ -7,6 +8,8 @@ using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
 using SkillsHub.Helpers;
 using SkillsHub.Persistence;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SkillsHub.Controllers;
 
@@ -17,26 +20,34 @@ public class GroupController : Controller
     private readonly ICourcesService _courcesService;
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IUserService _userService;
+    private readonly ILessonService _lessonService;
 
-
-    public GroupController(IGroupService groupService,ICourcesService courcesService, ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public GroupController(IGroupService groupService,ICourcesService courcesService, ApplicationDbContext context, 
+        UserManager<ApplicationUser> userManager, IUserService userService, ILessonService lessonService)
     {
         _groupService = groupService;
         _courcesService = courcesService;
         _context = context;
         _userManager = userManager;
+        _userService = userService;
+        _lessonService = lessonService;
+
+
     }
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        ViewBag.CourceNames = _courcesService.GetAllCourcesNames();
-        //ViewBag.Students = 
-        var groups = _context.Groups.AsQueryable();
+        
+        ViewBag.CourseNames = _courcesService.GetAllCourcesNames();
+        ViewBag.Students = await _userService.GetAllStudentsAsync();
+        ViewBag.Teachers =  _userService.GetAllTeachers();
+        var groups = await _groupService.GetAll().Where(x=>x.IsDeleted ==false).ToListAsync();
 
         return View(groups);
     }
     public IActionResult IndexByFilters(string? filterStr, Guid? filterCourseId)
     {
-        ViewBag.CourceNames = _courcesService.GetAllCourcesNames();
+        ViewBag.CourseNames = _courcesService.GetAllCourcesNames();
         //ViewBag.Students = 
         //return View(_groupService.GetAllByFilter(filterStr, filterCourseId));
         return View();
@@ -44,6 +55,10 @@ public class GroupController : Controller
     public async Task<IActionResult> Item(Guid id)
     {
         var group = await _groupService.GetAsync(id);
+        ViewBag.Students = await _userService.GetAllStudentsAsync();
+        ViewBag.Teachers = _userService.GetAllTeachers();
+        
+
         return View(group);
     }
 
@@ -52,85 +67,89 @@ public class GroupController : Controller
         return View();
     }
 
+
+
     [HttpPost]
-    public async Task<IActionResult> Create(Group item, Guid[] itemValue, Guid[] teacherValue, string[] dayName, TimeSpan[] startTime, int[] duration)
+    public async Task<IActionResult> Create(Group item, Guid[] studentId, string[] dayName, TimeSpan[] startTime) //del teacherValue and duration
     {
+        Group group = new Group();
         try
         {
-            item.TeacherId = teacherValue[0];
+            
+            group =  await _groupService.CreateAsync(item); 
 
-            var schedules = new List<UserDaySchedule>();
-            for (int i = 0; i < dayName.Count(); i++)
-            {
-                var scheduleDay = new UserDaySchedule()
-                {
-                    DayName = Enum.Parse<DayOfWeek>(dayName[i]),
-                    WorkingStartTime = startTime[i],
-                    WorkingEndTime = startTime[i] + TimeSpan.FromMinutes(duration[i]),
-                };
-                schedules.Add(scheduleDay);
-            }
+            await _groupService.CreateScheduleDaysToGroup(group, dayName, startTime, studentId);
+            await _groupService.CreateLessonsBySchedule(group.DaySchedules, item.DateStart, item.LessonsCount, item);
 
-            var lessons = new List<Lesson>();
-            var date = DateTime.Now.Date;
-            for (int lesCount = 0, scCount = 0; lesCount < item.LessonsCount; lesCount++, scCount++)
-            {
-                if (scCount == schedules.Count)
-                {
-                    scCount = 0;
-                    date = date.AddDays(7);
-                }
-                var addingDays = LessonMath.Mod((int)date.DayOfWeek, (int)schedules[scCount].DayName);
-                var virtualDate = date.AddDays(addingDays);
-                var lesson = new Lesson()
-                {
-                    Creator = await _userManager.GetUserAsync(User),
-                    StartTime = virtualDate + schedules[scCount].WorkingStartTime,
-                    EndTime = virtualDate + schedules[scCount].WorkingEndTime,
-                };
-                lessons.Add(lesson);
-            }
-
-            item.Lessons = lessons;
-            item.DaySchedules = schedules;
-            var group = await _groupService.CreateAsync(item);
-            await _groupService.AddStudentsToGroupAsync(group.Id, itemValue.ToList());
-
+            await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
+            
             await _context.SaveChangesAsync();
+
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message); return View();
+            ModelState.AddModelError("", ex.Message); RedirectToAction("Index");
         }
-        return RedirectToAction("Index");
+        return RedirectToAction("Item", new { id = group.Id });
+
     }
+    [HttpGet]
     public async Task<IActionResult> Edit(Guid id)
     {
         var group = await _groupService.GetAsync(id);
+        try
+        {
+            if (group != null && group.GroupStudents != null)
+            {
+                ViewBag.studentsByGroup = group.GroupStudents.ToArray();
+            }
+            ViewBag.teachers = _context.Teachers.Include(x => x.ApplicationUser).ToList();
+
+
+        }
+        catch (Exception ex) { }
         return View(group);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Edit(Group item, Guid[] itemValue, Guid[] teacherValue, string[] dayName, TimeSpan[] startTime, int[] duration)
+    [HttpPost]
+    public async Task<IActionResult> Edit(Group item, Guid[] studentId, string[] dayName, TimeSpan[] startTime)
     {
         try
         {
-            item.TeacherId = teacherValue[0];
+            //need
+            var group = await _groupService.GetAsync(item.Id);
+            if (item.LessonTypeId == Guid.Empty) item.LessonTypeId = group.LessonTypeId;
+            if(item.CourseNameId == Guid.Empty) item.CourseNameId = group.CourseNameId;
+            _context.Groups.Update(item);
 
-            var schedules = new List<UserDaySchedule>();
-            for (int i = 0; i < dayName.Count(); i++)
+            //await _groupService.CreateScheduleDaysToGroup(item, dayName, startTime, studentId);
+            if(studentId.Length > 0)
             {
-                var scheduleDay = new UserDaySchedule()
-                {
-                    DayName = Enum.Parse<DayOfWeek>(dayName[i]),
-                    WorkingStartTime = startTime[i],
-                    WorkingEndTime = startTime[i] + TimeSpan.FromMinutes(duration[i]),
-                };
-                schedules.Add(scheduleDay);
-            }
+                await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
+                //await _groupService.UpdateStudentsInGroup2()
 
-            var lessons = new List<Lesson>();
+            }
+            await _context.SaveChangesAsync();
+            
+            var dateStart = item.DateStart;
+            var lessonsCount = item.LessonsCount;
+
+            if (group.Lessons != null && group.Lessons.Count !=  0)
+            {
+                dateStart = group.Lessons.OrderByDescending(x=>x.EndTime).FirstOrDefault().EndTime.AddDays(1); //Where(x=>x.EndTime <  DateTime.Now)
+                lessonsCount = item.LessonsCount - group.Lessons.Count();//.Where(x => x.EndTime < DateTime.Now).Count();
+            }
+            var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, lessonsCount, item);
+            //await _groupService.SaveLessonsBySchedule(group, studentId.ToList(), lessons);
+
+
+
+
+            /*
+
+            //var lessons = new List<Lesson>();
             var date = DateTime.Now.Date;
+
             for (int lesCount = 0, scCount = 0; lesCount < item.LessonsCount; lesCount++, scCount++)
             {
                 if (scCount == schedules.Count)
@@ -140,39 +159,58 @@ public class GroupController : Controller
                 }
                 var addingDays = LessonMath.Mod((int)date.DayOfWeek, (int)schedules[scCount].DayName);
                 var virtualDate = date.AddDays(addingDays);
+
                 var lesson = new Lesson()
                 {
                     Creator = await _userManager.GetUserAsync(User),
-                    StartTime = virtualDate + schedules[scCount].WorkingStartTime,
-                    EndTime = virtualDate + schedules[scCount].WorkingEndTime,
+                    StartTime = virtualDate + schedules[scCount].WorkingStartTime ?? DateTime.Now,
+                    EndTime = virtualDate + schedules[scCount].WorkingEndTime ?? DateTime.Now,
+                    //ArrivedStudents = lessonStudents,
+                    //Teacher = _context.Gr
+                    // ArrivedStudents = _context.Students.Include(x=>x.Groups).Where(x=>x.Groups.Select(x=>x))
+                    //ArrivedStudents = _context.Groups.Include(x => x.GroupStudents).SelectMany(x => x.GroupStudents);
                 };
                 lessons.Add(lesson);
             }
-            var prevLessons = _context.Lessons.Where(x => x.Group.Id == item.Id);
+            var prevLessons = _context.Lessons.Include(x=>x.Group).Where(x => x.Group.Id == item.Id);
             _context.RemoveRange(prevLessons);
-            var daySchedules = _context.DaySchedules.Where(x => x.Group.Id == item.Id);
-            _context.RemoveRange(prevLessons);
+
+            var daySchedules = _context.DaySchedules.Include(x=>x.Group).Where(x => x.Group.Id == item.Id);
+            _context.RemoveRange(daySchedules);
+
             var prevStudents = _context.Students.Where(x => x.Groups.Select(x=>x.Id).Contains(item.Id));
             prevStudents.ToList().ForEach(x=>x.Groups.ToList().Remove(item));
 
             item.Lessons = lessons;
             item.DaySchedules = schedules;
+
             var group = await _groupService.EditAsync(item);
-            await _groupService.AddStudentsToGroupAsync(group.Id, itemValue.ToList());
 
             await _context.SaveChangesAsync();
+            */
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message); return View();
+            ModelState.AddModelError("", ex.Message); return RedirectToAction("Index");
         }
-        return RedirectToAction("Index");
+        return RedirectToAction("Item" , new {id = item.Id});
     }
     [HttpDelete]
     public async Task<IActionResult> Delete(Guid id)
     {
         var group = await _groupService.GetAsync(id);
-        return View(group);
+
+        int a = 10;
+        int b = 20;
+        (a, b) = (b, a);
+
+        int c = b - a;
+        group.IsDeleted = true;
+
+        _context.Groups.Update(group);
+       await  _context.SaveChangesAsync();
+
+        return RedirectToAction("Index");
     }
     public IActionResult GetCreateModal()
     {
@@ -182,6 +220,28 @@ public class GroupController : Controller
     {
         var items = _groupService.GetAll();
         return Json(JsonSerializerToAjax.GetJsonByIQueriable(items));
+    }
+
+
+    public async Task<List<Group>> GetGoodGroupsToStudent(Guid itemId)
+    {
+        var student = await _context.Students.Include(x => x.WorkingDays).FirstOrDefaultAsync(x=>x.Id== itemId) ?? throw new Exception("Student not found");
+        //var goodDaysOfWeeksByStudent = student.WorkingDays.Contains(x=>x.);
+        List<Group> goodGroups = new List<Group>();
+
+        foreach(var group in _context.Groups.Include(x => x.DaySchedules).Where(x=>x.IsDeleted == false))
+        {
+            var schedulesDays = group.DaySchedules.Select(x=>x.DayName);
+
+            /*
+            foreach(var goodDay in goodDaysOfWeeksByStudent)
+            {
+                if (schedulesDays.Contains(goodDay))
+                    goodGroups.Add(group);
+            }
+            */
+        }
+        return goodGroups;
     }
 
 }

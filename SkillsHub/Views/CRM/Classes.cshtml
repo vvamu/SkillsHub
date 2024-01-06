@@ -134,7 +134,7 @@
     <script src="~/js/styleSwitcher.js"></script>
 
 
- $(document).ready(function () {
+
     <script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
     <script src="~/plugins/moment/moment.min.js"></script>
     <script src="~/plugins/fullcalendar/js/fullcalendar.min.js"></script>
@@ -152,22 +152,22 @@
             console.log(items);
             console.log("SUKAAAAAAAA");
 
-        var formData = $("#createEventForm").serialize();    
-        $.ajax({
-            url: "/CRM/CreateNewEvent",
-            type: "POST",
-            data: formData,
-            success: function (response) {
-                alert(response);
-            },
-            error: function (request, status, error) {
-                alert(request.responseText);
-            }
-        });
+            var formData = $("#createEventForm").serialize();    
+            $.ajax({
+                url: "/CRM/CreateNewEvent",
+                type: "POST",
+                data: formData,
+                success: function (response) {
+                    alert(response);
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
         }
 
 
 
     </script>
-    }
+    
 

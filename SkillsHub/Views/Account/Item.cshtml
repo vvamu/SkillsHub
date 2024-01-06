@@ -3,6 +3,8 @@
 
 @model ApplicationUser
 @inject SignInManager<ApplicationUser> _roleManager; 
+@inject UserManager<ApplicationUser> _userManager;
+
 
 <!-- Custom Stylesheet -->
 
@@ -46,13 +48,19 @@
                             <div class="media-body">
                                 <h3 class="mb-0">@Model.FirstName @Model.LastName @Model.Surname - @Model.Sex</h3>
                                 <p class="text-muted mb-0">Login: @Model.Login</p>
-                                <p>Roles: 
+                                <p class="text-muted mb-0">Status: @if (Model.IsDeleted == true) { <span>Deleted</span>} else {<span>Active</span>}</p>
+                                <p class="mb-0">
+                                    Roles: 
                                     @{
                                         var roles = await _roleManager.UserManager.GetRolesAsync(Model);
                                         string result = string.Join(",", roles.ToArray());
                                                 @result
-                                    }</p>
+                                    }
+                                </p>
+                               
                             </div>
+                            
+
                             <!--
                             <div class="dropdown">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -67,25 +75,28 @@
                             -->
                         </div>
 
-                        
+                        @if(User.IsInRole("Admin"))
+                        {
                             <form>
                                 <div class="row mb-5">
                                     <div class="col">
                                         <div class="card card-profile text-center">
                                             <span class="mb-1 text-primary"><i class="icon-people"></i></span>
                                             <h3 class="mb-0"></h3>
-                                            <input asp-action="Create" asp-controller="Teachers" asp-route-id="@Model.Id" type="submit" class="text-muted px-4 btn btn-light" value="Create Teacher Account" />
+                                            <input asp-action="Create" asp-controller="Teachers" asp-route-id="@Model.Id" type="submit" class="text-muted px-4 btn btn-light" value="Teacher Account" />
                                         </div>
                                     </div>
                                     <div class="col">
                                         <div class="card card-profile text-center">
                                             <span class="mb-1 text-warning"><i class="icon-user-follow"></i></span>
                                             <h3 class="mb-0"></h3>
-                                            <input asp-action="Create" asp-controller="Student" asp-route-id="@Model.Id" type="submit" class="text-muted btn btn-light" value="Create Student Account" />
+                                            <input asp-action="Create" asp-controller="Student" asp-route-id="@Model.Id" type="submit" class="text-muted btn btn-light" value="Student Account" />
                                         </div>
                                     </div>
                                 </div>
                             </form>
+                        }
+                        
                         
                         
 
@@ -96,6 +107,29 @@
                             <li class="mb-1"><strong class="text-dark mr-4">Мобильный</strong> <span>@Model.Phone</span></li>
                             <li><strong class="text-dark mr-4">Почта</strong> <span>@Model.Email</span></li>
                             <li><strong class="text-dark mr-4">Дата добавления</strong> <span>@Model.RegistrationDate</span></li>
+                            <hr/>
+
+                                @if(User.Identity.Name == Model.UserName)
+                                {
+                                     <li><strong class="text-dark mr-4"><a asp-action="Create" style="color:cornflowerblue" asp-controller="Account" asp-route-id="@Model.Id">Edit</a></strong></li>
+                                }
+
+                                @if(Model.IsDeleted == false)
+                            {
+                                <li><strong class="text-dark mr-4"><a asp-action="SoftDelete" style="color:orange" asp-controller="Account" asp-route-id="@Model.Id">Soft delete</a></strong></li>
+
+                            }
+                            else
+                            {
+                                <li><strong class="text-dark mr-4"><a asp-action="Restore" style="color:green" asp-controller="Account" asp-route-id="@Model.Id">Restore</a></strong></li>
+
+                            }
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li><strong class="text-dark mr-4"><a asp-action="HardDelete" style="color:orangered" asp-controller="Account" asp-route-id="@Model.Id">Hard delete</a></strong></li>
+
+                                }
+                   
                         </ul>
 
                             <div class="mt-5 mt-xl-6">
@@ -113,129 +147,240 @@
 
                     </div>
                 </div>
-                
-                
-                        
-                        @if(Model.UserStudent != null)
-                        {
+
+
+
+                @if (User.IsInRole("Admin") || Model.UserStudent != null)
+                {
+                            var student = Model.UserStudent ?? new Student();
+
                             var visitedLessonsCount = 0;
                             var preparedLessonsCount = 0;
-                            if (@Model.UserStudent.Lessons != null)
+
+                            
+                            if (student.Lessons != null)
                             {
-                                visitedLessonsCount += @Model.UserStudent.Lessons.Where(x => x.IsСompleted).Count();
-                                preparedLessonsCount += @Model.UserStudent.Lessons.Where(x => !x.IsСompleted).Count();
+                                visitedLessonsCount += student.Lessons.Select(x=>x.Lesson).Where(x => x.IsСompleted).Count();
+                        preparedLessonsCount += student.Lessons.Select(x => x.Lesson).Where(x => !x.IsСompleted).Count();
                             }
                             
-                            if (@Model.UserStudent.Groups != null)
-                                //foreach(var lesson in Model.UserStudent.Groups.)
-                                visitedLessonsCount += 0;
-                    <div class="card">
-                        <div class="card-body">
-                            <h3>Статистика ученика</h3>
+                            
+                                
 
-                            <div style="display:flex; justify-content:space-between">
-                                Желаемые направления работы: @{
-                                    if (Model.UserStudent.PossibleCources != null)
-                                    {
-                                        var res = String.Join(',', Model.UserStudent.PossibleCources.Select(x => x.Name));
-                                        <p>@res</p>
-                                        foreach (var item in Model.UserStudent.PossibleCources)
+                            <div class="card">
+                                <div class="card-body">
+                                <div>
+                                    @{
+                                    <form style="display:flex; justify-content:space-between">
+                                            <input type="hidden" asp-for="@student.Id" value="@student.Id" />
+                                            <input type="hidden" asp-for="@student.ApplicationUserId" value="@Model.Id" />
+                                        @if (!(await _userManager.IsInRoleAsync(Model, "Student")) || Model.UserStudent == null)
                                         {
-                                            <p>@item.Name</p>
+                                    
+                                            <h3 style="color:dimgray">Статистика ученика - UnActive</h3>
                                         }
+                                        else
+                                        {
+                                                <h3>Статистика ученика - Active</h3>
+                                        }
+                                        @if(student.Id == Guid.Empty)
+                                        {
+                                            student.Id = Model.Id;
+                                        }
+                                        <input class="btn btn-primary" type="submit" value="change" asp-route-id="@student.Id" asp-action="Activate" asp-route-userId="@Model.Id" asp-controller="Student" />
+
+                                        </form>
+
                                     }
-                                    else
-                                    {
-                                        <p>EMPTY</p>
-                                    }
+                                
+                                </div>
+                            <div style="display:flex; justify-content:space-between">
+                                <b>Working schedule: </b>
+                                @if (student.WorkingDays != null)
+                                {
+                                    <ol style="padding-left:0.2%">
+
+                                        @foreach (var item in student.WorkingDays.Split("-"))
+                                        {
+                                            <li>@item.ToString()</li>
+                                        }
+                                    </ol>
                                 }
+                                <b></b>
+                                <b></b>
 
 
-                                <span><form><a style="height:3px;width:3px" class="btn btn-primary" asp-action="Create" asp-controller="Student" asp-route-id="@Model.Id">+</a></form></span>
+
                             </div>
+                                    <div style="display:flex; justify-content:space-between">
+                              
+                                        <b>Направления работы:</b> @{
+                                            if (student.PossibleCources != null)
+                                            {
+                                       
+                                                <ol>
+                                            @foreach (var item in student.PossibleCources.Select(x=>x.CourseName.Name))
+                                                {
+                                                    <li>@item</li>
+                                                }
+                                                </ol>
+                                            }
+                                            else
+                                            {
+                                                <p>EMPTY</p>
+                                            }
+                                        }
+                                <b></b>
+                                <hr />
+                                        <!------------------------CHANGEEEEE------------------------------->
 
-                        <div>
-                                Посещенные уроки ученика: @visitedLessonsCount
-                        </div>
-                        <div>
-                                Ожидаемые уроки ученика: @preparedLessonsCount
-                        </div>
-                        <div>
-                                Посещено групп англ / индив англ / групп прогр:
-                        </div>
-                        <div>
-                                Ожидаемые групповых английский / индивидуальных английский / групповых программирование:
-                        </div>
-                        <div>
-                                Оплачено групповых английский / индивидуальных английский / групповых программирование:
-                        </div>
-                        <div>
-                                Итого к оплате:
-                        </div>
-                            </div>
-                </div>
+                                    </div>
+
+                           
+                                        @if (student.ParentName != null && student.ParentName != "")
+                                        {
+                                                <div>
+                                                    <b>Родитель: </b> @student.ParentName : @if(student.ParentPhone != null) {@student.ParentPhone}
+                                                </div>
+                                        }
+                                        <div>
+                                                Посещенные уроки ученика: @visitedLessonsCount
+                                        </div>
+                                        <div>
+                                                Ожидаемые уроки ученика: @preparedLessonsCount
+                                        </div>
+                                        <div>
+                                                Посещено групп англ / индив англ / групп прогр:
+                                        </div>
+                                        <div>
+                                                Ожидаемые групповых английский / индивидуальных английский / групповых программирование:
+                                        </div>
+                                        <div>
+                                                Оплачено групповых английский / индивидуальных английский / групповых программирование:
+                                        </div>
+                                        <div>
+                                                Итого к оплате:
+                                        </div>
+                                    </div>
+                                </div>
                         }
+                        
 
                     
             
+                @if(User.IsInRole("Admin") || Model.UserTeacher != null){
+                    var teacher = Model.UserTeacher ?? new Teacher();
+                    
+                    
+                        var lessonsTeacherCount = 0;
+                        var preparedTeacherCount = 0;
+                        var resultSalary = 0;
+                        /*
+                        @if (teacher.Lessons != null)
+                        {
+                            lessonsTeacherCount += @Model.UserTeacher.Lessons.Where(x => x.IsСompleted).Count();
+                            preparedTeacherCount += @Model.UserTeacher.Lessons.Where(x => !x.IsСompleted).Count();
 
-            @if (Model.UserTeacher != null)
-            {
-                var visitedLessonsCount = 0;
-                var preparedLessonsCount = 0;
-                var resultSalary = 0;
-                if (@Model.UserTeacher.Lessons != null)
-                {
-                    visitedLessonsCount += @Model.UserTeacher.Lessons.Where(x => x.IsСompleted).Count();
-                    preparedLessonsCount += @Model.UserTeacher.Lessons.Where(x => !x.IsСompleted).Count();
 
-                }
+                        }*/
 
-                if (@Model.UserTeacher.Groups != null)
-                    //foreach(var lesson in Model.UserStudent.Groups.)
-                    visitedLessonsCount += 0;
+                        //if (teacher.Groups != null)
+                            //foreach(var lesson in Model.UserStudent.Groups.)
+                            //visitedLessonsCount += 0;
 
-                <div class="card">
-                    <div class="card-body">
-                        <h3>Статистика учителя</h3>
-                <div style="display:flex; justify-content:space-between">
-                     Направления работы: @{
-                     if(Model.UserTeacher.PossibleCources!=null)
-                      {
-                         var res = String.Join(',', Model.UserTeacher.PossibleCources.Select(x=>x.Name)); 
-                                        <p>@res</p>
-                                        foreach(var item in Model.UserTeacher.PossibleCources)
-                                        {
-                                            <p>@item.Name</p>
-                                        }
-                       }
-                                    else
-                                    {
-                                        <p>EMPTY</p>
+                        <div class="card">
+                            <div class="card-body">
+
+
+                                <div >
+                                    @{
+                                        <form style="display:flex; justify-content:space-between">
+                                            <input type="hidden" asp-for="@teacher.Id" value="@teacher.Id" />
+                                            <input type="hidden" asp-for="@teacher.ApplicationUserId" value="@Model.Id" />
+                                        @if (!(await _userManager.IsInRoleAsync(Model, "Teacher")) || Model.UserTeacher == null)
+                                            {
+
+                                            <h3 style="color:dimgray">Статистика учителя - UnActive</h3>
+                                            }
+                                            else
+                                            {
+                                            <h3>Статистика учителя - Active</h3>
+                                            }
+                                            <input class="btn btn-primary" type="submit" value="change" asp-action="Activate" asp-controller="Teachers" asp-route-id="@teacher.Id" asp-route-userId="@Model.Id" />
+
+                                        </form>
+
                                     }
-                      }
-                      
 
-                      <span ><form><a style="height:3px;width:3px" class="btn btn-primary" asp-action="Create" asp-controller="Teachers" asp-route-id="@Model.Id">+</a></form></span>
-                </div>
-                <div>
-                    Проведенные уроки: @visitedLessonsCount
-                </div>
-                <div>
-                    Ожидаемые уроки учителя: @preparedLessonsCount
-                </div>
-                <div>
-                    Проведено групповых английский / индивидуальных английский / групповых программирование:
-                </div>
-                <div>
-                    Ожидаемые групповых английский / индивидуальных английский / групповых программирование:
-                </div>
-                <div>
-                    Текущая оплата за месяц: @resultSalary
-                </div>
-                </div>
-                </div>
-            }
+                                </div>
+
+
+                                <div style="display:flex; justify-content:space-between">
+                                    <b>Working schedule: </b> 
+                                    @if (teacher.WorkingDays != null)
+                                    {
+                                        <ol style="padding-left:0.2%">
+
+                                            @foreach (var item in teacher.WorkingDays.Split("-"))
+                                        {
+                                            <li>@item.ToString()</li>
+                                        }
+                                        </ol>
+                                    }
+                                    <b></b>
+                                    <b></b>
+                                       
+                                       
+                                  
+                                </div>
+                                <div style="display:flex; justify-content:space-between">
+                                
+                                    <b>Направления работы:</b> @{
+                                        if (teacher.PossibleCources != null)
+                                        {
+                                            var res = String.Join(',', Model.UserTeacher.PossibleCources.Select(x => x.CourseName));
+
+                                            <ol>
+                                                @foreach (var item in Model.UserTeacher.PossibleCources.Select(x=>x.CourseName))
+                                                {
+                                                    <li>@item.Name</li>
+                                                }
+                                            </ol>
+                                        }
+                                        else
+                                        {
+                                            <p>EMPTY</p>
+                                        }
+                                    }
+
+                                    <b></b>
+                                    <b></b>
+                                    
+
+                                </div>
+                                <hr />
+                                <div>
+                                    Проведенные уроки: @lessonsTeacherCount
+                                </div>
+                                <div>
+                                    Ожидаемые уроки учителя: @preparedTeacherCount
+                                </div>
+                                <!--
+                                <div>
+                                    Проведено групповых английский / индивидуальных английский / групповых программирование: 
+                                </div>
+                                <div>
+                                    Ожидаемые групповых английский / индивидуальных английский / групповых программирование:
+                                </div>
+                                -->
+                                <div>
+                                    Текущая оплата за месяц: @resultSalary
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+            
             </div>
             <div class="col-lg-6 col-xl-8">
                 
@@ -249,16 +394,25 @@
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                                 <li class="nav-item">
-                                    <a class="nav-link active" aria-current="page" href="#">Ученик</a>
+                                    <a class="nav-link active" aria-current="page" href="#"><strong>All</strong></a>
+                                </li>
+                                @if(Model.UserTeacher != null)
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link active" aria-current="page" href="#">Teacher</a>
+                                    </li>
+                                }
+                                @if(Model.UserStudent != null)
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link active" aria-current="page" href="#">Student</a>
+                                    </li>
+                                }
+                                <li class="nav-item">
+                                    <a class="nav-link active" aria-current="page" href="#">Payment</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link active" aria-current="page" href="#">Учитель</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link active" aria-current="page" href="#">Абонементы</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link active" aria-current="page" href="#">Расписание</a>
+                                    <a class="nav-link active" aria-current="page" href="#">Own Schedule</a>
                                 </li>
                             </ul>
                         </div>
@@ -271,29 +425,31 @@
 
                     <div class="card">
                         <div class="card-body">
-                            <h1>Учитель. Занятия</h1>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                                <h1>Teacher groups</h1>
+                                <!--
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                    +
+                                </button>
+                                -->
+                            </div>
+
                             <br/>
 
-                            <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-                                <h3>Текущие занятия</h3>
-                                <!-- Кнопка-триггер модального окна -->
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                                    Добавить
-                                </button>
-                            </div>
+                            
 
                             <nav class="navbar navbar-expand-lg bg-light">
                                 <div class="container-fluid">
                                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                                             <li class="nav-item">
-                                                <a class="nav-link active" aria-current="page" href="#">Все</a>
+                                                <a class="nav-link active" aria-current="page" href="#"><strong>All</strong></a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link active" aria-current="page" href="#">Текущие</a>
+                                                <a class="nav-link" aria-current="page" href="#">Current</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link active" aria-current="page" href="#">Прошедшие</a>
+                                                <a class="nav-link" aria-current="page" href="#">Last</a>
                                             </li>
                                         </ul>
                                     </div>
@@ -308,10 +464,11 @@
                                         var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
                                         var countLessons = item.Lessons.Count();
 
+
                                                 <div class="card">
                                                     <div class="card-body">
                                                         <div style="display:flex;justify-content:space-between">
-                                                            <h3>Курс - @item.CourceName,  Тип занятия: @item.LessonType</h3>
+                                                            <h3>Курс - @item.CourseName,  Тип занятия: @item.LessonType</h3>
                                                             <h5>Группа - @item.Name</h5>
                                                             <div>
                                                                 <h5>@countEndedLessons из @countLessons занятий - 300 BYN</h5>
@@ -319,6 +476,7 @@
                                                         </div>
                                                         <p>02.11 - 12.11 - Чт, Пт</p>
                                                         <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
+
                                                             @for (int i = 0; i < 5; i++)
                                                     {
                                                                 <div>
@@ -336,11 +494,113 @@
                                 {
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <h3>EMPTY - TRUE INFO</h3>
+                                            <h3>Groups list is empty</h3>
                                                 </div>
                                             </div>
                                 }
-                            }
+                             }
+                        </div>
+                    </div>
+                    } 
+
+            
+            @if( Model.UserStudent != null)
+            {
+                    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                        <h1>Student groups</h1>
+                        <!--
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                            +
+                        </button>
+                        -->
+                    </div>
+                    
+                            <nav class="navbar navbar-expand-lg bg-light">
+                                <div class="container-fluid">
+                                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                            <li class="nav-item">
+                                        <a class="nav-link active" aria-current="page" href="#"><strong>All</strong></a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link " aria-current="page" href="#">Current</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link " aria-current="page" href="#">Last</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </nav>
+                            
+                          
+                                @if (Model.UserStudent.Groups != null)
+                                {
+                                    foreach (var item in Model.UserTeacher.Groups)
+                                    {
+                                        var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
+                                        var countLessons = item.Lessons.Count();
+
+
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <div style="display:flex;justify-content:space-between">
+                                                            <h3>Курс - @item.CourseName,  Тип занятия: @item.LessonType</h3>
+                                                            <h5>Группа - @item.Name</h5>
+                                                            <div>
+                                                                <h5>@countEndedLessons из @countLessons занятий - 300 BYN</h5>
+                                                            </div>
+                                                        </div>
+                                                        <p>02.11 - 12.11 - Чт, Пт</p>
+                                                        <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
+
+                                                            @for (int i = 0; i < 5; i++)
+                                                    {
+                                                                <div>
+                                                                    <div>02.11</div>
+                                                                    <input type="checkbox" style="margin:10px" />
+                                                                </div>
+                                                    }
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                    }
+                                }
+                                else
+                                {
+                                            <div class="card">
+                                                <div class="card-body">
+                                            <h3>Groups list is empty</h3>
+                                                </div>
+                                            </div>
+                                }
+                    }
+                    <!--
+                        <div class="card">
+                                <div class="card-body">
+                                    <div class="media media-reply">
+                                        <img class="mr-3 circle-rounded" src="images/avatar/2.jpg" width="50" height="50" alt="Generic placeholder image">
+                                        <div class="media-body">
+                                            <div class="d-sm-flex justify-content-between mb-2">
+                                                <h5 class="mb-sm-0">Milan Gbah <small class="text-muted ml-3">about 3 days ago</small></h5>
+                                                <div class="media-reply__link">
+                                                    <button class="btn btn-transparent p-0 mr-3"><i class="fa fa-thumbs-up"></i></button>
+                                                    <button class="btn btn-transparent p-0 mr-3"><i class="fa fa-thumbs-down"></i></button>
+                                                    <button class="btn btn-transparent text-dark font-weight-bold p-0 ml-2">Reply</button>
+                                                </div>
+                                            </div>
+
+                                            <p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.</p>
+                        </div>
+                        </div>
+                        </div>
+                        </div>
+                    -->
+
+                    <!--BEAUTIFUL CARDS -->
+                    
+
                         <div class="card">
                             <div class="card-body">
                                     <div style="display:flex;justify-content:space-between">
@@ -360,20 +620,20 @@
                                         }
                                     </div>
                             </div>
-
+                            <!--
                         </div>
                             <div class="card">
                                 <div class="card-body">
                                     <div style="display:flex;justify-content:space-between">
                                         <h3>Индивидуальные занятия. Курс - Speaking Club</h3>
                                         <div>
-                                            <h5>Ученик: Ахмед Абдулахтович - 10 лет</h5>
+                                            <h5>Ученик: Бичун Надежда - 10 лет</h5>
                                             <h5>3 из 5 занятий - 300 BYN</h5>
                                         </div>
                                     </div>
                                     <p>02.11 - 12.11 - Чт, Пт</p>
                                     <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
-                                        @for (int i = 0; i < 2; i++)
+                                        for (int i = 0; i < 2; i++)
                                         {
                                             <div>
                                                 <div>02.11</div>
@@ -384,53 +644,9 @@
                                 </div>
 
                             </div>
-
-                        @if(Model.UserTeacher.Lessons.Count() == 0)
-                        {
-                            <div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
-                                <h3>Lesson list is empty</h3>
-                            </div>
-                        }
-                        @foreach (var lesson in Model.UserTeacher.Lessons.OrderBy(x => x.EndTime))
-                        {
-                                    <div><a asp-action="Item" asp-controller="Lessons" asp-route-lessonId="@lesson.Id"></a>@lesson.StartTime - @lesson.EndTime</div>
-                        }
-                        </div>
-                    </div>
-                    } 
-
-            @if (Model.UserStudent != null)
-            {
-                    <h1>Student Lessons</h1>
-                    <div class="card">
-                            <div class="card-body">
-                                <div class="media media-reply">
-                                    <img class="mr-3 circle-rounded" src="images/avatar/2.jpg" width="50" height="50" alt="Generic placeholder image">
-                                    <div class="media-body">
-                                        <div class="d-sm-flex justify-content-between mb-2">
-                                            <h5 class="mb-sm-0">Milan Gbah <small class="text-muted ml-3">about 3 days ago</small></h5>
-                                            <div class="media-reply__link">
-                                                <button class="btn btn-transparent p-0 mr-3"><i class="fa fa-thumbs-up"></i></button>
-                                                <button class="btn btn-transparent p-0 mr-3"><i class="fa fa-thumbs-down"></i></button>
-                                                <button class="btn btn-transparent text-dark font-weight-bold p-0 ml-2">Reply</button>
-                                            </div>
-                                        </div>
-
-                                        <p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.</p>
-                    </div>
-                    </div>
-                    </div>
-                    </div>
-
-                    @if (Model.UserStudent.Lessons != null)
-                    {
-                        foreach (var lesson in Model.UserStudent.Lessons.OrderBy(x => x.EndTime))
-                        {
-                                            <div>@lesson.StartTime - @lesson.EndTime</div>
-                        }
-                    }
-            }
-            </div>
+                    -->
+                    
+                    
 
 
                 <!--
@@ -555,7 +771,7 @@
 
                                                 <div class="form-group ">
                                                         <label class=" col-form-label" for="val-skill">
-                                                            Групповое/Индивидуальное<span class="text-danger">*</span>
+                                                            Lesson type<span class="text-danger">*</span>
                                                             
                                                         </label>
                                                         <div class="" id="englishLevels">
@@ -568,10 +784,10 @@
                                                                     @foreach (LessonType item in ViewBag.LessonTypes)
                                                                         {
                                                                             <option value="@item.Name">@item.Name</option> // Групповое английский / Программирование
-                                                                        <p>Description rfrfregr rweffsd </p>
+                                                                            <p></p>
                                                                         
-                                                                }
-                                                                  }
+                                                                        }
+                                                            }
 
                                                             </select>
                                                         </div>
@@ -581,15 +797,15 @@
 
                                                 <div class="form-group">
                                                     <label class=" col-form-label" for="val-skill">
-                                                        Тип курса<span class="text-danger">*</span>
+                                                        Course type<span class="text-danger">*</span>
                                                     </label>
                                                     <div class="">
                                                         <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="val-skill" name="val-skill">
 
-                                                            <option value="">Выберете одно</option>
+                                                            <option value="">Choose one</option>
                                                             @if (ViewBag.CourcesNames != null) //English for Organizations
                                                             {
-                                                                @foreach (CourceName item in ViewBag.CourcesNames)
+                                                                @foreach (CourseName item in ViewBag.CourcesNames)
                                                                 {
                                                                     <option value="@item.Name">@item.Name</option>
                                                                 }
@@ -600,12 +816,12 @@
                                                     </div>
                                                     <div class="form-group ">
                                                         <label class=" col-form-label" for="val-skill">
-                                                            Уровень английского<span class="text-danger">*</span>
+                                                            English level<span class="text-danger">*</span>
                                                         </label>
                                                         <div class="" id="englishLevels">
                                                             <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="val-skill" name="val-skill">
 
-                                                                <option value="">Выберете одно (для программирования -)</option>
+                                                                <option value="">Choose one</option>
                                                                 @if (ViewBag.EnglishLevels != null)
                                                                 {
                                                                     @foreach (EnglishLevel item in ViewBag.EnglishLevels) //A1
@@ -636,19 +852,20 @@
 
                                                     <div class="form-group ">
                                                         <label class=" col-form-label" for="val-skill">
-                                                            Группа (Только для группового курса) - сделать поиск по выбранному направлению и типу занятий и чтобы группа была неактивна!!<span class="text-danger">*</span>
+                                                            Group (Only for group lesson type) - сделать поиск по выбранному направлению и типу занятий и чтобы группа была неактивна!!<span class="text-danger">*</span>
 
                                                         </label>
                                                         <div class="">
                                                             <select name="groupId" class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="groupsFreeList" name="val-skill">
 
-                                                                <option value="">Выберете одно</option>
+                                                                <option value="">Choоse one</option>
+                                                                <option value=""><a asp-action="Create" asp-controller="Group">Create new</a></option>
                                                                 @*   @if (ViewBag.FreeGroups != null)
                                                                 {
 
                                                                 @foreach (Group item in ViewBag.FreeGroups)
                                                                 {
-                                                                <option value="@item.Name">@item.Name - @item.ArrivedStudents.Count() из @item.CourceName.Name</option>
+                                                                <option value="@item.Name">@item.Name - @item.ArrivedStudents.Count() из @item.CourseName.Name</option>
                                                                 // Групповое английский / Программирование
 
                                                                 }
@@ -660,13 +877,13 @@
                                                     
                                                     <div class="form-group ">
                                                         <label class=" col-form-label" for="val-skill">
-                                                            Ученик (Только для индивидуальных занятий)<span class="text-danger">*</span>
+                                                            Student (Only for individual type)<span class="text-danger">*</span>
 
                                                         </label>
                                                         <div class="">
-                                                            <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="studentSelect" name="val-skill">
+                                                            <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="studentSelect" >
 
-                                                                <option value="">Выберете одного</option>
+                                                                <option value="">Choose one</option>
 
                                                             </select>
                                                         </div>
@@ -727,7 +944,7 @@
 
                         data.forEach(function (item, i, arr) {
 
-                        var appendedLine = "<option class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>";
+                        var appendedLine = "<option class='list-group-item' name="studentForIndividual" asp-for='CourceId' value='" + item.Id + "'>";
                         appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
                         appendedLine += "</option>"
 
@@ -758,6 +975,8 @@
 
                         studentsList.append(appendedLine);
                     })
+                    
+
                 }
             }
         });

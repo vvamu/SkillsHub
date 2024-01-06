@@ -15,7 +15,7 @@ public class LessonTypeValidator : AbstractValidator<LessonType>
 		RuleFor(x => x.TeacherPrice).GreaterThan(0).WithMessage("Minimum TeacherPrice is 1");
 		RuleFor(x => x.StudentPrice).GreaterThan(0).WithMessage("Minimum StudentPrice is 1");
 
-		//RuleFor(x => x.CourceId && x.CourceName).NotEmpty().WithMessage("Cource is required");
+		//RuleFor(x => x.CourceId && x.CourseName).NotEmpty().WithMessage("Cource is required");
 		//RuleFor(x => x.LessonType).NotEmpty().WithMessage("LessonType is required");
 	}
 }

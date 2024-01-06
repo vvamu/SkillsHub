@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
 using EmailProvider.Interfaces;
 using EmailProvider.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SkillsHub.Application.Services;
+using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
+using SkillsHub.Helpers;
 using SkillsHub.Models;
+using SkillsHub.Persistence;
 using System.Diagnostics;
 using System.Text;
 using static Viber.Bot.NetCore.Models.ViberResponse;
@@ -18,12 +22,15 @@ namespace SkillsHub.Controllers
         private readonly IMailService _mailService;
         private readonly IExternalService _externalService;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IUserService _userService;
 
-        public HomeController(IMailService mailService, IExternalService externalService, SignInManager<ApplicationUser> signInManager)
+        public HomeController(IMailService mailService, IExternalService externalService, 
+            SignInManager<ApplicationUser> signInManager, IUserService userService, ApplicationDbContext context)
         {
             _mailService = mailService;
             _externalService = externalService;
             _signInManager = signInManager;
+            _userService = userService;
         }
 
         public IActionResult Index()
@@ -99,5 +106,7 @@ await _mailer.SendMessage();
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        
     }
 }

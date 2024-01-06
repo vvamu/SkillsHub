@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailProvider", "EmailProvi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkillsHub.Persistence", "SkillsHub.Persistence\SkillsHub.Persistence.csproj", "{4ADBB1FF-25B7-4904-ACA4-BA9B38641BD4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkillsHub.Tests", "SkillsHub.Tests\SkillsHub.Tests.csproj", "{34E6D0C9-EBC3-4A54-A4C3-1F7B2D836C14}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{4ADBB1FF-25B7-4904-ACA4-BA9B38641BD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4ADBB1FF-25B7-4904-ACA4-BA9B38641BD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4ADBB1FF-25B7-4904-ACA4-BA9B38641BD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34E6D0C9-EBC3-4A54-A4C3-1F7B2D836C14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34E6D0C9-EBC3-4A54-A4C3-1F7B2D836C14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34E6D0C9-EBC3-4A54-A4C3-1F7B2D836C14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34E6D0C9-EBC3-4A54-A4C3-1F7B2D836C14}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +68,7 @@ Global
 		{F349143D-FE7E-460E-A9E1-4A42A44BDA06} = {5783AAEF-3D12-474E-8609-6A707EE637E6}
 		{01590921-9A80-4F5A-B866-21902643D006} = {5783AAEF-3D12-474E-8609-6A707EE637E6}
 		{4ADBB1FF-25B7-4904-ACA4-BA9B38641BD4} = {3A74A853-593C-47D1-8DBF-834D7EC05E17}
+		{34E6D0C9-EBC3-4A54-A4C3-1F7B2D836C14} = {72681BE3-D910-494B-936E-7CA2A7B16A7E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C5515DD-E024-4A4A-95AA-1142918E67D2}

@@ -1,0 +1,245 @@
+﻿@model IQueryable<Lesson>
+
+
+<!-- NAVBAR - Search, Filter, Sort -->
+<nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:20px">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                
+                <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                    <p>Cource:</p>
+                    <select class="form-control" id="courcesNames" onchange="getStudents()">
+                        <option value="" selected>Все</option>
+                    </select>
+                </li>
+                <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                    <p>Group:</p>
+                    <select class="form-control" id="courcesNames" onchange="getStudents()">
+                        <option value="" selected>Все</option>
+                    </select>
+                </li>
+                <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                    <p style="white-space:nowrap">Order by:</p>
+                    <select class="form-control" id="sort-select">
+                        <option value="" selected>Date created</option>
+                        <option value="">Count groups</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<!--
+    if (Model != null || Model.Count() >= 0)
+    
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Students</h4>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered zero-configuration">
+                                    <thead>
+                                        <tr>
+                                            <th>Login</th>
+                                            <th>Full Name</th>
+                                            <th>Sex</th>
+                                            <th>Phone</th>
+                                            <th>Email</th>
+                                            <th>BirthDate</th>
+                                            <th>Age</th>
+                                            <th>Status</th>
+                                            <th>Groups</th>
+                                            <th>Teacher</th>
+                                            <!--<th>Student</th>-->
+                                            <th>Total Lessons</th>
+                                            <th>Month Lessons</th>
+                                            <th>Payment</th>
+                                            <th>Date Register</th>
+                                            <th>External connections</th>
+                                            <th>IsDeleted</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody"></tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Login</th>
+                                            <th>Full Name</th>
+                                            <th>Sex</th>
+                                            <th>Phone</th>
+                                            <th>Email</th>
+                                            <th>BirthDate</th>
+                                            <th>Age</th>
+                                            <th>Status</th>
+                                            <th>Groups</th>
+                                            <th>Teacher</th>
+                                            <!--<th>Student</th>-->
+                                            <th>Total Lessons</th>
+                                            <th>Student`s Lessons</th>
+                                            <th>Payment</th>
+                                            <th>Date Register</th>
+                                            <th>External connections</th>
+                                            <th>IsDeleted</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+-->
+
+@{
+    if(Model!= null)
+    {
+         foreach(var item in Model)
+    {
+            <div class="form-group">
+                <span>@item?.LinkToWebinar</span>
+                <span>@item?.Location</span>
+                <span>@item?.LessonTask?.Task</span>
+                <span>@item?.LessonType?.Name</span>
+                <span>@item?.StartTime</span>
+                <span>@item?.EndTime</span>
+                <span>@if (item?.ArrivedStudents == null) { } else{ @foreach(var i in item?.ArrivedStudents) { <p>i.Student.ApplicationUser.Surname</p> } }</span>
+            </div>
+    }
+    }
+   
+}
+<form>
+
+    <button type="submit" asp-action="Create" asp-controller="Lessons">Create new</button>
+</form>
+
+
+    <script src="/plugins/common/common.min.js"></script>
+    <script src="/js/custom.min.js"></script>
+    <script src="/js/settings.js"></script>
+    <script src="/js/gleek.js"></script>
+    <script src="/js/styleSwitcher.js"></script>
+
+    <script src="/plugins/tables/js/jquery.dataTables.min.js"></script>
+    <script src="/plugins/tables/js/datatable/dataTables.bootstrap4.min.js"></script>
+    <script src="/plugins/tables/js/datatable-init/datatable-basic.min.js"></script>
+
+
+<script>
+
+    function getFilters() { 
+        
+        var filters = {}
+        var orders = {}
+        try {
+            const category = document.getElementById("courcesNames").value;
+            const parentName = document.getElementById("searchParentName").value;
+            const minDate = document.getElementById("searchMinDate").value;
+            const minDate = document.getElementById("searchMaxDate").value;
+
+            filters = {
+                ParentName: parentName,
+                PossibleCourse: category,
+                MinDateCreated: minDate,
+                //GroupId = groupId
+            };
+
+            orders = {
+
+            }
+
+
+        }
+        catch (ex) { console.log("err"); }
+
+
+        var data = {
+            filters: filters,
+            orders: orders
+        };
+        return data;
+    
+    }
+
+    function getStudents() {
+
+        
+        var data = getFilters();
+
+        var tableBody = $("#tableBody");
+
+        $.ajax({
+            url: "/Lessons/GetAllAsync",
+            type: "GET",
+            dataType: "json",
+            //data: JSON.stringify(data),
+            contentType: "application/json",
+
+            success: function (data) {
+
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+                    var tableUsers = document.getElementById("tableBody");
+                    tableUsers.innerHTML = ""
+                    if (data.length === 0) {
+                        var row = "<div style='display:flex;flex;grid-gap:20px;justify-content:center '>"
+                        row += "<h3>Student`s list is empty</h3></div>"
+                        tableBody.append(row);
+
+
+                    }
+                    else {
+
+                        data.forEach(function (item, i, arr) {
+                            var student = item;
+
+                            tableBody.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
+
+                            var row = '<tr>' +
+                                '<td><a href="/Account/Item/' + student.ApplicationUser.Id + '" style="font-weight:900;color:#7571f9">' + student.ApplicationUser.Login + '</a></td>' +
+                                '<td>' + student.ApplicationUser.FirstName + ' ' + student.ApplicationUser.LastName + ' ' + student.ApplicationUser.Surname + '</td>' +
+                                '<td>' + student.ApplicationUser.Sex + '</td>' +
+                                '<td>' + student.ApplicationUser.Phone + '</td>' +
+                                '<td>' + student.ApplicationUser.Email + '</td>' +
+                                '<td>' + student.ApplicationUser.BirthDate + '</td>' +
+                                '<td>' + (new Date().getFullYear() - new Date(student.ApplicationUser.BirthDate).getFullYear()) + '</td>' +
+                                '<td>' + (student.Groups == null ? 'Not Studiet' : 'Studiet') + '</td>';
+
+                            if (student.Groups != null) {
+                                row += '<td>';
+                                student.Groups.forEach(function (group) {
+                                    row += '<p>' + group.Name + '</p>';
+                                });
+                                row += '</td>';
+                            } else {
+                                row += '<td></td>';
+                            }
+
+                            row += '<td>' + (student.Lessons == null ? '0' : student.Lessons.length) + '</td>' +
+                                '<td>' + (student.Lessons == null ? '0' : student.Lessons.length) + '</td>' +
+                                '<td>' + (student.Lessons == null ? '0' : student.Lessons.filter(function (lesson) {
+                                    return new Date(lesson.StartTime).getMonth() == new Date().getMonth();
+                                }).length) + '</td>' +
+                                '<td>0 payed</td>' +
+                                '<td>' + student.DateCreated + '</td>' +
+                                '<td>---</td>' +
+                                '<td>' + student.IsDeleted + '</td>' +
+                                '</tr>';
+
+                            tableBody.append(row);
+                        })
+                    }
+                }
+            }
+        });
+
+    }
+</script>

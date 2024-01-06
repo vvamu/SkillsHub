@@ -15,8 +15,10 @@ public interface IGroupService
     public Task<Group> GetAsync(Guid id);
     public Task<Group> EditAsync(Group item);
     public Task<Group> CreateAsync(Group item);
-    public Task<Group> AddStudentsToGroupAsync(Guid groupId, List<Guid> studentsId);
-    public Task<Group> AddTeacherToGroupAsync(Guid groupId, Guid teacherId);
+    public Task<Group> CreateScheduleDaysToGroup(Group item, string[] dayName, TimeSpan[] startTime, Guid[] studentIds);
+    public Task<List<Lesson>> CreateLessonsBySchedule(List<WorkingDay> schedules, DateTime startDate, int countLessons,Group group);
+
+    public Task<Group> UpdateStudentsInGroup(Group item, List<Guid> studentIds);
 
 
 

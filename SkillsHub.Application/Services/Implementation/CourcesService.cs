@@ -8,6 +8,7 @@ using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Application.Validators;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
+using SkillsHub.Domain.Models.NotInUse;
 using SkillsHub.Persistence;
 
 namespace SkillsHub.Application.Services.Implementation;
@@ -40,9 +41,8 @@ public class CourcesService : ICourcesService
     }
     public IQueryable<LessonType> GetAllLessonType() => _context.LessonTypes; //Offline / Online
     public IQueryable<LessonActivityType> GetAllLessonActivityType() => _context.LessonActivityTypes; //Отработка Пробное Обычное
-    public IQueryable<CourceName> GetAllCourcesNames() => _context.CourceNames; //"English for adults", "English for children", "English for organizations"
-    public IQueryable<Cource> GetAllCources() => _context.Cources;
-    public IQueryable<EnglishLevel> GetAllEnglishLevels() => _context.EnglishLevels;
+    public IQueryable<CourseName> GetAllCourcesNames() => _context.CourseNames; //"English for adults", "English for children", "English for organizations"
+    //public IQueryable<EnglishLevel> GetAllEnglishLevels() => _context.EnglishLevels;
 
     /*
     public async Task<Group> AddTeacherToGroup(Guid userId, Guid groupIf) // == create Group
@@ -81,7 +81,7 @@ public class CourcesService : ICourcesService
 	}
 
 
-	public async Task<CourceName> CreateCourceName(CourceName item)
+	public async Task<CourseName> CreateCourceName(CourseName item)
 	{
 		if (item == null) throw new Exception("Not correct data for group");
 		var userRegisterValidator = new CourceNameValidator();
@@ -93,14 +93,14 @@ public class CourcesService : ICourcesService
 			throw new Exception(errorsString);
 		}
 
-        if (_context.CourceNames.FirstOrDefault(x => x.Name == item.Name) != null)
+        if (_context.CourseNames.FirstOrDefault(x => x.Name == item.Name) != null)
         {
-            var it = _context.CourceNames.FirstOrDefault(x => x.Name == item.Name);
+            var it = _context.CourseNames.FirstOrDefault(x => x.Name == item.Name);
 
 			throw new Exception("Cource name type with such name already exist");
         }
 		item.DateCreated = DateTime.Now;
-		await _context.CourceNames.AddAsync(item);
+		await _context.CourseNames.AddAsync(item);
 		await _context.SaveChangesAsync();
 		return item;
 	}
@@ -129,34 +129,34 @@ public class CourcesService : ICourcesService
     public void EnglishLevelsInit()
     {
         var englishLevels = new List<string>() { "A1.1", "A1.2", "A2", "B1", "B2", "C1", "C2" };
-        if (_context.EnglishLevels.FirstOrDefault(x => x.Name == englishLevels[0]) != null) return;
+        //if (_context.EnglishLevels.FirstOrDefault(x => x.Name == englishLevels[0]) != null) return;
 
         foreach(var item in englishLevels)
         {
-            _context.EnglishLevels.Add(new EnglishLevel() { Name = item });
+           // _context.EnglishLevels.Add(new EnglishLevel() { Name = item });
         }
         _context.SaveChanges();
 
     }
     public void CourceNamesInit()
     {
-		var courseNames = new List<CourceName>()
+		var courseNames = new List<CourseName>()
         {
-	        new CourceName() { Name = "English for adults", MinimumAge = 16, MaximumAge = 100 },
-	        new CourceName() { Name = "English for children", MinimumAge = 4, MaximumAge = 16 },
-	        new CourceName() { Name = "English for organizations", MinimumAge = 16, MaximumAge = 100 },
-	        new CourceName() { Name = "English express", MinimumAge = 16, MaximumAge = 100 },
-	        new CourceName() { Name = "Speaking club", MinimumAge = 16, MaximumAge = 100 },
-	        new CourceName() { Name = "Programming Scratch", MinimumAge = 6, MaximumAge = 14 },
-	        new CourceName() { Name = "Programming Python", MinimumAge = 10, MaximumAge = 14 },
-	        new CourceName() { Name = "Programming Java", MinimumAge = 12, MaximumAge = 16 }
+	        new CourseName() { Name = "English for adults", MinimumAge = 16, MaximumAge = 100 },
+	        new CourseName() { Name = "English for children", MinimumAge = 4, MaximumAge = 16 },
+	        new CourseName() { Name = "English for organizations", MinimumAge = 16, MaximumAge = 100 },
+	        new CourseName() { Name = "English express", MinimumAge = 16, MaximumAge = 100 },
+	        new CourseName() { Name = "Speaking club", MinimumAge = 16, MaximumAge = 100 },
+	        new CourseName() { Name = "Programming Scratch", MinimumAge = 6, MaximumAge = 14 },
+	        new CourseName() { Name = "Programming Python", MinimumAge = 10, MaximumAge = 14 },
+	        new CourseName() { Name = "Programming Java", MinimumAge = 12, MaximumAge = 16 }
         };
 
 		foreach (var courseName in courseNames)
 		{
-            if (_context.CourceNames.FirstOrDefault(x => x.Name == courseName.Name) != null) return;
+            if (_context.CourseNames.FirstOrDefault(x => x.Name == courseName.Name) != null) return;
 			
-			_context.CourceNames.Add(courseName);
+			_context.CourseNames.Add(courseName);
 			
 		}
 
@@ -166,13 +166,16 @@ public class CourcesService : ICourcesService
     #endregion
 
     #region Adult Children Cources Init Not in use
+
     public void AdultCourcesInit()
     {
-        var adult = _context.CourceNames.FirstOrDefault(x => x.Name == "English for adults");
-        if (_context.Cources.Include(x=>x.Name).FirstOrDefault(x => x.Name == adult) != null) return;
+        var adult = _context.CourseNames.FirstOrDefault(x => x.Name == "English for adults");
+        //if (_context.Cources.Include(x=>x.Name).FirstOrDefault(x => x.Name == adult) != null) return;
 
+        /*
         foreach (var englishLevel in _context.EnglishLevels)
         {
+            /*
             var item = new Cource()
             {
                 SubscriptionType = "Term",
@@ -188,7 +191,8 @@ public class CourcesService : ICourcesService
             _context.Cources.Add(item);
             //item.LessonType = "Offline";
             _context.Cources.Add(item);
-        }
+            */
+        //}
 
         _context.SaveChanges();
     }

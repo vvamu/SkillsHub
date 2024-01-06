@@ -3,12 +3,14 @@ using EmailProvider.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.DTO;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Helpers;
 using SkillsHub.Models;
+using SkillsHub.Persistence;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
@@ -21,17 +23,15 @@ public class CRMController: Controller
 {
     private readonly IMailService _mailService;
     private readonly IUserService _userService;
-    private readonly IUserPresentationService _userPresentationService;
-    private readonly IIndexCRMService _crmService;
+    private readonly ApplicationDbContext _context;
     private readonly ICourcesService _courcesService;
 
     public  CRMController(IMailService mailService, IUserService userService,
-    IUserPresentationService userPresentationService, IIndexCRMService crmService, ICourcesService courcesService)
+     ApplicationDbContext context, ICourcesService courcesService)
     {
         _mailService = mailService;
         _userService = userService;
-        _userPresentationService = userPresentationService;
-        _crmService = crmService;
+        _context = context;
         _courcesService = courcesService;
     }
 
@@ -41,10 +41,27 @@ public class CRMController: Controller
 
         var user = await _userService.GetCurrentUserAsync();
         if (user.ExternalConnections != null) ViewBag.NotificationsStatus = "On - " + user.ExternalConnections.Count; else ViewBag.NotificationsStatus = "Off";
-        if (await _userService.IsAdminAsync()) return View(await _crmService.IndexAdmin());
+        if (User.IsInRole("Admin"))
+
+        {
+            ViewBag.TotalTeachers = _context.Teachers.Count();
+            ViewBag.TotalStudents = _context.Students.Count();
+            ViewBag.ActiveTotalTeachers = _context.Teachers.Where(x=>x.IsDeleted == false).Count();
+            ViewBag.ActiveTotalStudents = _context.Students.Where(x => x.IsDeleted == false).Count();
+            ViewBag.TotalUsers = _context.Users.Count();
+            ViewBag.CountClasses = //_context.Teachers.Include(x => x.Lessons).Count();
+            ViewBag.CountMails = _context.EmailMessages.Count();
+
+            return View();
+        }
+        else
+        {
+            return RedirectToAction("Item", "Account", new { itemId = user.Id });
+        }
 
         return View(user);
     }
+
 
     public IActionResult Classes()
     {
@@ -70,21 +87,6 @@ public class CRMController: Controller
 
 
         return View();
-    }
-
-    [HttpGet]
-    public IActionResult Teachers() 
-    {
-        var parameters = new QueryStringParameters() { PageNumber = 1, PageSize = 100 } ;
-        var teachers = _userPresentationService.GetAllTeachers(parameters);
-        return View(teachers);
-    }
-    [HttpGet]
-    public IActionResult Students()
-    {
-        var parameters = new QueryStringParameters() { PageNumber = 1, PageSize = 100 };
-        var teachers = _userPresentationService.GetAllStudentsAsync(parameters).Result;
-        return View(teachers);
     }
     public IActionResult Classes2()
     {

@@ -12,6 +12,7 @@ using SkillsHub.Application.DTO;
 using SkillsHub.Application.Validators;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Interfaces;
+using Azure.Core;
 
 namespace SkillsHub.Application.Services.Implementation;
 
@@ -36,42 +37,93 @@ public class UserService : IUserService
     #region Get
 
     public async Task<ApplicationUser> GetUserByIdAsync(Guid id)
-    {
-        ApplicationUser user;
-        try { 
-        user = await _context.Users.Include(x => x.UserStudent).ThenInclude(x => x.Lessons).Include(x => x.UserTeacher).ThenInclude(x => x.Lessons).
-            FirstOrDefaultAsync(x => x.Id == id);
-        }
-        catch (Exception ex)
-        {
-            try
-            {
-                user = await _context.Users.Include(x => x.UserStudent).ThenInclude(x => x.Lessons).FirstOrDefaultAsync(x => x.Id == id);
-            }
-            catch(Exception ex2)
-            {
-                try
-                {
-
-                
-                user = await _context.Users.Include(x => x.UserTeacher).ThenInclude(x => x.Lessons).FirstOrDefaultAsync(x => x.Id == id);
-                }
-                catch
-                {
-                    user = await _context.Users.FirstOrDefaultAsync(x=> x.Id == id);
-                }
-            }
+    {        
+        var user = await _context.Users
             
-        }
-        return user ?? throw new Exception("User not found");
+            .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
+            .Include(x=>x.UserTeacher.PossibleCources).ThenInclude(x=>x.CourseName)
+            .Include(x=>x.UserTeacher).ThenInclude(x=>x.Groups)//.ThenInclude(x=>x.GroupStudents)//.ThenInclude(x=>x.Student)
+            .Include(x=>x.UserStudent)
+            .Include(x=>x.UserStudent).ThenInclude(x=>x.Groups)//.ThenInclude(x=>x.Student)
+            .Include(x => x.UserStudent).ThenInclude(x => x.Groups)//.ThenInclude(x => x.Group)//.ThenInclude(x=>x.GroupStudents).ThenInclude(x => x.Student)
+            .Include(x=>x.UserStudent)
+            .Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
+            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.CourseName)
+
+            .FirstOrDefaultAsync(x => x.Id == id);
+        return user;
     }
+
+    public async Task<UserCreateDTO> GetUserCreateDTOByIdAsync(Guid id)
+    {
+        var user = await _context.Users.Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
+            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.CourseName)
+            .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
+            .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.CourseName)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (user == null) return null;
+        var userCreateDTO = _mapper.Map<UserCreateDTO>(user);
+        if (user.UserTeacher != null) userCreateDTO.IsTeacher = true;
+        if (user.UserStudent != null) userCreateDTO.IsStudent = true;
+
+        return userCreateDTO;
+    }
+    public async Task<IQueryable<Student>> GetAllStudentsAsync()
+    {
+        var items = _context.Students
+            .Include(x => x.ApplicationUser).ThenInclude(x => x.UserTeacher)
+            .Include(x => x.Lessons).ThenInclude(x=>x.Lesson)
+            .Include(x => x.PossibleCources)
+            //.Include(x => x.WorkingDays)
+            .Include(x => x.Groups).ThenInclude(x=>x.Group).ThenInclude(x=>x.Lessons)
+            .OrderBy(on => on.Id);
+
+        return items;
+    }
+
+
+    public IQueryable<Teacher> GetAllTeachers()
+    {
+        var items = _context.Teachers//.Include(x => x.Lessons)
+            .Include(x => x.ApplicationUser)
+            .Include(x => x.PossibleCources)
+            //.Include(x => x.WorkingDays)
+            .Include(x => x.Groups).OrderBy(on => on.Id);
+
+        return items;
+
+    }
+    public async Task<IQueryable<ApplicationUser>> GetAllAsync()
+    {
+        return _context.Users
+            .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
+            .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.CourseName)
+            .Include(x => x.UserTeacher).ThenInclude(x => x.Groups)
+            .Include(x => x.UserStudent)
+            .Include(x => x.UserStudent).ThenInclude(x => x.Groups)
+            .Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
+            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.CourseName)
+            .OrderBy(x => x.Id);
+    }
+
+    public async Task<ApplicationUser?> GetCurrentUserAsync()
+    {
+        var userName = _signInManager.Context.User.Identity.Name;
+        if (userName == null) throw new Exception();
+        var dbUser = await _userManager.FindByNameAsync(userName);
+        
+        return await GetUserByIdAsync(dbUser.Id);
+
+    }
+
+
 
     #endregion
     #region Create 
-    public async Task<Teacher> CreateTeacherAsync(Guid userId, Teacher item)
+    public async Task<Teacher> CreateTeacherAsync(ApplicationUser user, Teacher item)
     {
-        var dbUser = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
-
+        //var dbUser = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
+        var dbUser = user;
         var userRegisterValidator = new TeacherRegisterValidator();
 
         var userRegister = _mapper.Map<TeacherDTO>(item);
@@ -83,25 +135,29 @@ public class UserService : IUserService
             throw new Exception(errorsString);
         }
 
-        var teacher = _mapper.Map<Teacher>(item);
-        var str = "";
-        teacher.ApplicationUser = dbUser;
+        item.ApplicationUser = dbUser;
+        dbUser.UserTeacher = item;
 
-        await _context.Teachers.AddAsync(teacher);
-        await _context.SaveChangesAsync();
+        _context.Entry(item.ApplicationUser).State = EntityState.Unchanged;
+        _context.Entry(dbUser.UserTeacher).State = EntityState.Unchanged;
+
+
+        _context.ApplicationUsers.Update(dbUser);
+        await _context.Teachers.AddAsync(item);
 
         var result = await _userManager.AddToRoleAsync(dbUser, "Teacher");
         await _context.SaveChangesAsync();
-        if (!result.Succeeded) throw new Exception(result.Errors.ToString());
-        var teacherInDb = await _context.Teachers.Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.ApplicationUser.Id == userId);
+        //if (!result.Succeeded) throw new Exception(result.Errors.ToString());
+        var teacherInDb = await _context.Teachers.Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.ApplicationUser.Id == user.Id);
 
 
         return teacherInDb == null ? throw new Exception("Error with save teacher in database") : teacherInDb;
 
     }
-    public async Task<Student> CreateStudentAsync(Guid userId, Student item)
+    public async Task<Student> CreateStudentAsync(ApplicationUser user, Student item)
     {
-        var dbUser = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
+        //var dbUser = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
+        var dbUser = user;
 
         var userRegisterValidator = new StudentRegisterValidator();
         var validationResult = await userRegisterValidator.ValidateAsync(item);
@@ -114,15 +170,21 @@ public class UserService : IUserService
 
         var student = _mapper.Map<Student>(item);
         student.ApplicationUser = dbUser;
+        dbUser.UserStudent = item;
+
+
+        _context.Entry(student.ApplicationUser).State = EntityState.Unchanged;
+        _context.Entry(dbUser.UserStudent).State = EntityState.Unchanged;
+
+        _context.ApplicationUsers.Update(dbUser);
         await _context.Students.AddAsync(student);
         var result = await _userManager.AddToRoleAsync(dbUser, "Student");
         await _context.SaveChangesAsync();
-        if (!result.Succeeded) throw new Exception(result.Errors.ToString());
+        //if (!result.Succeeded) throw new Exception(result.Errors.ToString());
 
 
         return student == null ? throw new CannotUnloadAppDomainException() : student;
     }
-
     public async Task<ApplicationUser> CreateUserAsync(UserCreateDTO item)
     {
         var user = _mapper.Map<ApplicationUser>(item);
@@ -133,26 +195,28 @@ public class UserService : IUserService
         {
             var errors = validationResult.Errors;
             var errorsString = string.Concat(errors);
-            //throw new Exception(errorsString);
+            throw new Exception(errorsString);
         }
 
-        /*
-        if (_context.Users.FirstOrDefault(x => x.Email == user.Email) != null || user.Email == null) throw new Exception("User with such email alredy exists");
+        //if (item.EnglishLevelId != Guid.Empty) item.EnglishLevel = await _context.EnglishLevels.FirstOrDefaultAsync(x => x.Id == item.EnglishLevelId);
+        
+         if (_context.Users.FirstOrDefault(x => x.Email == user.Email) != null || user.Email == null) throw new Exception("User with such email alredy exists");
         if (_context.Users.FirstOrDefault(x => x.Login == user.Login) != null) throw new Exception("User with such login alredy exists");
         if (_context.Users.FirstOrDefault(x => x.Phone == user.Phone) != null) throw new Exception("User with such phone alredy exists");
-        */
+        
 
         string hashedPassword = HashProvider.ComputeHash(user.Password.Trim());
         user.OwnHashedPassword = hashedPassword;
         var result = await _userManager.CreateAsync(user);
 
         if (!result.Succeeded) throw new Exception(string.Concat(result.Errors.Select(x=>x.Description)));
-        if (item.IsStudent == true) user.UserStudent = new Student() { ApplicationUser = user };
-        if (item.IsTeacher == true) user.UserTeacher = new Teacher() { ApplicationUser = user };
+
         await _context.SaveChangesAsync();
 
-        _context.Update(user);
+        _context.ApplicationUsers.Update(user);
         await _context.SaveChangesAsync();
+        if (item.IsStudent == true) user.UserStudent = new Student() { ApplicationUser = user, IsDeleted = true };
+        if (item.IsTeacher == true) user.UserTeacher = new Teacher() { ApplicationUser = user, IsDeleted = true };
 
         return user;
 
@@ -174,7 +238,7 @@ public class UserService : IUserService
             throw new Exception(errorsString);
         }
 
-        _context.Update(item);
+        _context.Teachers.Update(item);
         await _context.SaveChangesAsync();
 
         return item == null ? throw new CannotUnloadAppDomainException() : item;
@@ -204,8 +268,6 @@ public class UserService : IUserService
         var student = _mapper.Map<Student>(dbItem);
         return student;
     }
-
-
     private async Task<ApplicationUser> DeleteUserAsync(Guid id)
     {
         var dbItem = await _context.Users.FirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("User not found");
@@ -261,7 +323,7 @@ public class UserService : IUserService
         {
             var errors = validationResult.Errors;
             var errorsString = string.Concat(errors);
-            throw new Exception(errorsString);
+            //throw new Exception(errorsString);
         }
 
         ApplicationUser? user = await _context.Users.Where(x => x.Login == item.Login).FirstOrDefaultAsync()
@@ -315,100 +377,197 @@ public class UserService : IUserService
 
 
 
-    public async Task<ApplicationUser?> GetCurrentUserAsync()
+    #endregion
+
+    public async Task<Teacher> UpdateTeacherWithCourcesNames(Teacher item, List<Guid> courcesId)
     {
-        var userName = _signInManager.Context.User.Identity.Name;
-        if (userName == null) throw new Exception();
-        var dbUser = await _userManager.FindByNameAsync(userName);
-        return dbUser;
+        
+        //VAR 2
+
+        // Загрузите все существующие связи CourceNameTeacher для данного учителя
+        var existingCourceNames = _context.CourseNameTeachers
+            .Where(ct => ct.TeacherId == item.Id)
+            .ToList();
+
+        // Удалите все существующие связи
+        _context.CourseNameTeachers.RemoveRange(existingCourceNames);
+        _context.SaveChanges();
+
+        // Создайте новые связи с новыми курсами
+        foreach (var courceName in courcesId)
+        {
+            var courceNameTeacher = new CourseNameTeacher
+            {
+                TeacherId = item.Id,
+                CourseNameId = courceName
+            };
+
+            _context.CourseNameTeachers.Add(courceNameTeacher);
+        }
+
+        await _context.SaveChangesAsync();
+        return item;
+    }
+
+
+	public async Task<Student> UpdateStudentWithCourcesNames(Student item, List<Guid> courcesId)
+    {//VAR 2
+
+        // Загрузите все существующие связи CourceNameTeacher для данного учителя
+        var existingCourceNames = _context.CourseNameStudents
+            .Where(ct => ct.StudentId == item.Id)
+            .ToList();
+
+        // Удалите все существующие связи
+        _context.CourseNameStudents.RemoveRange(existingCourceNames);
+        _context.SaveChanges();
+
+        // Создайте новые связи с новыми курсами
+        foreach (var courceName in courcesId)
+        {
+            var courceNameTeacher = new CourseNameStudent
+            {
+                StudentId = item.Id,
+                CourseNameId = courceName
+            };
+
+            _context.CourseNameStudents.Add(courceNameTeacher);
+        }
+
+        await _context.SaveChangesAsync();
+        return item;
 
     }
-    public async Task<bool> IsAdminAsync()
+
+    #region Delete
+
+    public async Task<ApplicationUser> HardDeleteAsync(ApplicationUser item)
     {
-        var user = await GetCurrentUserAsync();
-        return await _userManager.IsInRoleAsync(user, "Admin");
+        await SoftDeleteAsync(item);
+
+        _context.Users.Remove(item);
+        await _context.SaveChangesAsync();
+        return item;
     }
 
-    public async Task<IQueryable<ApplicationUser>> GetAllAsync()
+    public async Task<ApplicationUser> SoftDeleteAsync(ApplicationUser item)
     {
-        return _context.Users.OrderBy(x => x.Id);
+        var roles = _context.UserRoles.Where(x => x.UserId == item.Id);
+        _context.UserRoles.RemoveRange(roles);
+        var teacher = item.UserTeacher;
+        var student = item.UserStudent;
+
+        if (teacher != null)
+        {
+            teacher.IsDeleted = true;
+            var groups = _context.Groups.Include(x => x.Teacher).
+                Where(x => x.Teacher.Id == teacher.Id);
+
+            foreach (var group in groups)
+            {
+                group.Teacher = null;
+                _context.Groups.Update(group);
+            }
+
+            foreach (var cource in teacher.PossibleCources)
+            {
+                //teacher.PossibleCources
+            }
+
+
+            var scheduleTeacher = teacher.WorkingDays;
+            if (scheduleTeacher != null)
+            {
+                //_context.WorkingDays.RemoveRange(scheduleTeacher);
+            }
+
+
+
+        }
+        if (student != null)
+        {
+
+
+            var groupIdsWithStudent = _context.Groups;
+
+
+            foreach (var group in _context.Groups.Include(x => x.GroupStudents))
+            {
+                var groupStudents = group.GroupStudents;
+                if (groupStudents != null && groupStudents.FirstOrDefault(x => x.Student == student) != null)
+                {
+                    _context.GroupStudents.Remove(groupStudents.FirstOrDefault(x => x.Student == student));
+                    //group.GroupStudents.Remove(student);
+                }
+            }
+
+
+
+            var schedulteStudent = student.WorkingDays;
+            if (schedulteStudent != null)
+            {
+                //_context.WorkingDays.RemoveRange(schedulteStudent);
+            }
+
+        }
+
+        var lessons = _context.Lessons.Include(x => x.Creator).
+            Where(x => x.Creator.Id == item.Id);
+        foreach (var lesson in lessons)
+        {
+            lesson.Creator = null;
+            _context.Lessons.Update(lesson);
+        }
+        /*
+        if(item.EnglishLevel != null)
+        {
+            item.EnglishLevel = null;
+            try
+            {
+                //var a = await _context.EnglishLevels.FirstOrDefaultAsync(x => x.Users.Contains(item));
+                //a.Users.Remove(item);
+                //_context.EnglishLevels.Update(a);
+            }
+        catch (Exception ex) { }
+            
+        }*/
+
+        item.IsDeleted = true;
+        _context.ApplicationUsers.Update(item);
+        await _context.SaveChangesAsync();
+        return item;
+    }
+
+    public async Task<ApplicationUser> Restore(ApplicationUser item)
+    {
+        item.IsDeleted = false;
+        _context.ApplicationUsers.Update(item);
+        await _context.SaveChangesAsync();
+        return item;
     }
 
     #endregion
 
 
-    public async Task<IQueryable<StudentDTO>> GetAllStudentsAsync()
+
+    public async Task<IQueryable<NotificationMessage>> GetCurrentUserNotifications()
     {
-        var items = _context.Students.Include(x => x.Lessons).OrderBy(on => on.Id);
-        var users = _context.Users.Include(x => x.UserStudent).Where(x => x.UserStudent != null).OrderBy(on => on.Id);
-        var mappingItems = _mapper.Map<List<StudentDTO>>(items).AsQueryable();
-        mappingItems = _mapper.Map<List<StudentDTO>>(users).AsQueryable();
+        var user = await GetCurrentUserAsync();
+        List<NotificationMessage> userNotification = new List<NotificationMessage>();
 
-        //mappingItems = _mapper.Map< IQueryable < Student >> (users).AsQueryable();
+        var notifications = _context.NotificationMessages
+            .Include(x => x.Users)
+            .Where(x => x.Users.Select(x => x.Id).Contains(user.Id)).OrderByDescending(x=>x.DateCreated);
 
-
-        
-        return mappingItems;
-    }
-    public async Task<IQueryable<Teacher>> GetTeachersByLessonTypeAsync(Guid lessonTypeId)
-    {
-        var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x=>x.Id == lessonTypeId);
-        if (lessonType == null) throw new Exception("Lesson type not found");
-        return _context.Teachers.Include(x=>x.PossibleCources).Where(x => x.PossibleCources.Any(x => x.Id == lessonTypeId));
+        return notifications.AsQueryable();
     }
 
-    public async Task<Teacher> CreatePossibleCourcesNamesToTeacherAsync(Guid itemId, List<Guid> courcesId)
-    {
-        var teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == itemId) ?? throw new Exception("Teacher not found. Maybe teacher is created but cources were not add");
-        var courcesNamesList = new List<CourceName>();
-        teacher.PossibleCources = new List<CourceName>();
-        foreach (var courceNameId in courcesId)
-        {
-            var dbItem = await _context.CourceNames.FirstOrDefaultAsync(x => x.Id == courceNameId) ?? throw new Exception("Cource`s name not found");
-            courcesNamesList.Add(dbItem);
-            teacher.PossibleCources.Add(dbItem);
-        }
-        //teacher.PossibleCources = courcesNamesList;
 
-       // _context.Update(teacher);
-        _context.Teachers.Update(teacher);
-        await _context.SaveChangesAsync();
-        return teacher;
+    //public Task<Lesson> ChangeLessonTime()
+    //public Task<Lesson> ApproveChangeLessonTime()
+    //public Task<Group> ApproveAddTeacherToGroup()
+    //public Task<Group> ApproveAddStudentToGroup()
 
-    }
-    public async Task<Student> CreatePossibleCourcesNamesToStudentAsync(Guid itemId, List<Guid> courcesId)
-    {
-        var student = await _context.Students.AsNoTracking().FirstOrDefaultAsync(x => x.Id == itemId) ?? throw new Exception("Teacher not found. Maybe teacher is created but cources were not add");
-        var courcesNamesList = new List<CourceName>();
-        foreach (var courceNameId in courcesId)
-        {
-            var dbItem = await _context.CourceNames.AsNoTracking().FirstOrDefaultAsync(x => x.Id == courceNameId) ?? throw new Exception("Cource`s name not found");         
-            courcesNamesList.Add(dbItem);
-        }
-        var newStudent = _mapper.Map<Student>(student);
-        newStudent.PossibleCources = courcesNamesList;
+    //Add notification to Admin
 
-        //student.PossibleCources = courcesNamesList;
-        
-        _context.Students.Update(newStudent);
-        await _context.SaveChangesAsync();
-        return newStudent;
-
-    }
-
-    public IQueryable<TeacherDTO> GetAllTeachers()
-    {
-        var items = _context.Teachers.OrderBy(on => on.Id);
-        var users = _context.Users.Include(x => x.UserTeacher).ThenInclude(x => x.Lessons)
-            .Include(x => x.UserTeacher).ThenInclude(x => x.Groups)
-            .Include(x => x.UserTeacher).ThenInclude(x => x.PossibleCources)
-            .Include(x => x.UserTeacher).ThenInclude(x => x.Lessons)
-            .Where(x => x.UserTeacher != null).OrderBy(on => on.Id);
-
-        var mappingItems = _mapper.Map<List<TeacherDTO>>(items).AsQueryable();
-        mappingItems = _mapper.Map<List<TeacherDTO>>(users).AsQueryable();
-        
-        return mappingItems;
-
-    }
 }

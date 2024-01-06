@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillsHub.Domain.Models;
+using SkillsHub.Domain.Models.NotInUse;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +15,10 @@ public interface ICourcesService
 
     public IQueryable<LessonType> GetAllLessonType(); //Offline / Online
     public IQueryable<LessonActivityType> GetAllLessonActivityType(); //Отработка Пробное Обычное
-    public IQueryable<CourceName> GetAllCourcesNames(); //"English for adults", "English for children", "English for organizations"
-    public IQueryable<Cource> GetAllCources();
-
-    public IQueryable<EnglishLevel> GetAllEnglishLevels();
+    public IQueryable<CourseName> GetAllCourcesNames(); //"English for adults", "English for children", "English for organizations"
+    //public IQueryable<EnglishLevel> GetAllEnglishLevels();
 
 
-    public Task<CourceName> CreateCourceName(CourceName item);
+    public Task<CourseName> CreateCourceName(CourseName item);
 	public Task<LessonType> CreateLessonType(LessonType item);
 }

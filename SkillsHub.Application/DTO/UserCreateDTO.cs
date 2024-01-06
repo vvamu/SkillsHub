@@ -6,6 +6,7 @@ namespace SkillsHub.Application.DTO;
 
 public class UserCreateDTO
 {
+    public Guid Id { get; set; }
     public string Login { get; set; } //unique
     public string FirstName { get; set; }
     public string LastName { get; set; }
@@ -26,4 +27,13 @@ public class UserCreateDTO
 
     public List<Group> Groups { get; set; }
 
+    public string? EnglishLevel { get; set; }
+
+    public Guid EnglishLevelId {  get; set; }
+    public bool EnglishLevelConfirmed { get; set; } = false;
+
+    public bool IsVerified { get; set; } = false;
+
 }
+
+

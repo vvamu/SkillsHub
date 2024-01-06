@@ -1,4 +1,4 @@
-﻿@model (IQueryable<Cource>,IQueryable<CourceName>,IQueryable<LessonType>);
+﻿@model (IQueryable<Object>,IQueryable<CourseName>,IQueryable<LessonType>);
 @{
 	ViewData["Title"] = "Create";
 }
@@ -30,7 +30,7 @@
 	<div class="container-fluid">
 		<div class="row">
 
-			<!--CourceName-->
+			<!--CourseName-->
 			<div class="col">
 				<h2>Cource`s names</h2>
 				@{
@@ -89,15 +89,18 @@
 										<div class="col-12">
 											<div class="card">
 												<div class="card-body">
-												<form id="@formId">
+												
 													<div style="display:flex;justify-content:space-between">
 													<div>
 													<label>Name       |  </label>
 														<span>  Date created: @item.DateCreated</span>
 														</div>
-														<a class="btn btn-danger" type="submit" asp-action="DeleteCourceName" asp-controller="Cources" value="@item.Id"><div>X</div></a>
+														<form>
+														<input type="hidden" asp-for="@item.Id" value="@item.Id" />
+														<button class="btn btn-danger" type="submit" asp-action="DeleteCourceName" asp-controller="Cources" ><div>X</div></button>
+													</form>
 													</div>
-													
+												<form id="@formId">
 													<div style="display:flex">
 														<div>
 														<h4><input type="text" asp-for="@item.Name" value="@item.Name" /></h4>
@@ -117,7 +120,7 @@
 															<input type="number" asp-for="@item.MinimumAge" value="@item.MinimumAge"/>
 															<input type="number" asp-for="@item.MaximumAge" value="@item.MaximumAge" />
 															<br/>
-															<button class="btn btn-primary" onclick="SaveCourcesNames(@courceNameId)">Save</button>
+															<button class="btn btn-primary" type="button"  onclick="SaveCourcesNames('@courceNameId')">Save</button>
 														    <!--<form><a class="btn btn-primary" type="submit" asp-route-courceId="item.Id" asp-action="CreateCourceName" asp-controller="Cources">Edit</a></form>-->
 														</div>
 													</form>
@@ -202,21 +205,26 @@
 										<div class="col-12">
 											<div class="card">
 												<div class="card-body">
-												<form id="@formId">
+												
 
 													<div style="display:flex;justify-content:space-between">
 													<div>
 													<label>Name       |  </label>
 														<span>  Date created: @item.DateCreated</span>
 													</div>
-														
+
 														<form>
-															<input type="hidden" asp-for="@item.Id" value="@item.Id"/>
-														<button class="btn btn-danger" type="submit" asp-action="DeleteLessonType" asp-controller="Cources" value="@item.Id"><div>X</div></button></form>
+															<input type="hidden" asp-for="@item.Id" value="@item.Id" />
+															
+														<button class="btn btn-danger" type="submit" asp-action="DeleteLessonType" asp-controller="Cources" value="@item.Id"><div>X</div></button>
+														</form>
 													</div>
 
+
+
+												<form id="@formId">
 													<div style="display:flex;justify-content:space-between">
-														<h3><input type="text" asp-for="@item.Name"/></h3>
+														<h3><input type="text"  asp-for="@item.Name"/></h3>
 														<!--<button class="btn btn-danger">☓</button>-->
 													</div>
 														
@@ -227,7 +235,7 @@
 														<div style="display:flex">
 															<input type="hidden" asp-for="@item.Id" value="@item.Id">
 															<input value="@Convert.ToDecimal(item.TeacherPrice)" asp-for="@item.TeacherPrice"></input>
-														<input value="@Convert.ToDecimal(item.StudentPrice)"  asp-for="@item.StudentPrice"></input>
+														    <input value="@Convert.ToDecimal(item.StudentPrice)"  asp-for="@item.StudentPrice"></input>
 
 															
 														</div>
@@ -269,31 +277,29 @@
 				<div class="container-fluid">
 					<div class="row"><form><a class="btn btn-primary" type="submit" asp-action="CreateLessonType" asp-controller="Cources">Create</a></form></div>
 				</div>
-				
+
+
+
 			</div>
 		</div>
 	</div>
 
-	<script src="~/plugins/common/common.min.js"></script>
-
-<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
-<script src="~/plugins/jquery/jquery.min.js"></script>
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
 
 	<script>
+
 		function SaveLessonType(itemId) {
 			//Serialize the form datas.
-			console.log(itemId);
+			
 			var valdata = $("#lessonTypeForm" + itemId).serialize();
-			console.log(valdata);
+			var data = JSON.stringify($("#lessonTypeForm" + itemId).serializeArray()); //  <-----------
+			
+			console.log(valdata)
+
+			console.log("----")
+			console.log(data);
+
 			//to get alert popup
 			$.ajax({
 				url: "/Cources/SaveLessonType",
@@ -318,21 +324,10 @@
 				contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
 				data: valdata
 			});
+			alert("Saved")
 		}
 
-		function SaveLessonTypes() {
-			//Serialize the form datas.
-			var valdata = $("#lessonTypesForm").serialize();
-			console.log(valdata);
-			//to get alert popup
-			$.ajax({
-				url: "/Cources/SaveLessonTypes",
-				type: "POST",
-				dataType: 'json',
-				contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-				data: valdata
-			});
-		}
+
 
 
 		const exampleModal = document.getElementById('exampleModal')
@@ -351,6 +346,9 @@
 			modalTitle.textContent = `New message to ${recipient}`
 			modalBodyInput.value = recipient
 		})
+
+		
+
 
 	</script>
 	<script src="~/plugins/common/common.min.js"></script>

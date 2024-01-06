@@ -10,7 +10,10 @@ public class Teacher : BaseEntity
 
     [NotMapped]
     public decimal CalculatedSalary { get; set; }
-    public List<CourceName>? PossibleCources { get; set; }
     public List<Group>? Groups { get; set; }
-    public List<Lesson>? Lessons { get; set; }
+    public string? WorkingDays { get; set; }
+
+    public List<CourseNameTeacher>? PossibleCources { get; set; }
+
+
 }

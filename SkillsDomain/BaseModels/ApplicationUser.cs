@@ -15,6 +15,8 @@ public class ApplicationUser : IdentityUser<Guid>
     public string Surname { get; set; } = "Default Surname";
     public string Sex { get; set; } = "Male";
 
+
+
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     public DateTime BirthDate { get; set; }
@@ -32,9 +34,12 @@ public class ApplicationUser : IdentityUser<Guid>
     public bool IsAdmin { get; set; } = false;
     public virtual Teacher? UserTeacher { get; set; }
     public virtual Student? UserStudent { get; set; }
-    public List<UserDaySchedule>  WorkingSchedule { get; set; }
-
     public bool IsVerified { get; set; } = false;
+
+    //public string? EnglishLevel { get; set; }
+
+
+   // public Guid EnglishLevelId { get; set; }
 
 
 }

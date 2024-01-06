@@ -305,7 +305,7 @@ namespace SkillsHub.Persistence.Migrations
                     b.ToTable("Cources");
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.CourceName", b =>
+            modelBuilder.Entity("SkillsHub.Domain.Models.CourseName", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -334,7 +334,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("CourceNames");
+                    b.ToTable("CourseNames");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.EmailMessage", b =>
@@ -424,7 +424,7 @@ namespace SkillsHub.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CourceNameId")
+                    b.Property<Guid>("CourseNameId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDeleted")
@@ -448,7 +448,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourceNameId");
+                    b.HasIndex("CourseNameId");
 
                     b.HasIndex("LessonTypeId1");
 
@@ -808,7 +808,7 @@ namespace SkillsHub.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("EnglishLevelId");
 
-                    b.HasOne("SkillsHub.Domain.Models.CourceName", "Name")
+                    b.HasOne("SkillsHub.Domain.Models.CourseName", "Name")
                         .WithMany()
                         .HasForeignKey("NameId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -819,7 +819,7 @@ namespace SkillsHub.Persistence.Migrations
                     b.Navigation("Name");
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.CourceName", b =>
+            modelBuilder.Entity("SkillsHub.Domain.Models.CourseName", b =>
                 {
                     b.HasOne("SkillsHub.Domain.Models.Teacher", null)
                         .WithMany("PossibleCources")
@@ -835,9 +835,9 @@ namespace SkillsHub.Persistence.Migrations
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Group", b =>
                 {
-                    b.HasOne("SkillsHub.Domain.Models.CourceName", "CourceName")
+                    b.HasOne("SkillsHub.Domain.Models.CourseName", "CourseName")
                         .WithMany()
-                        .HasForeignKey("CourceNameId")
+                        .HasForeignKey("CourseNameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -857,7 +857,7 @@ namespace SkillsHub.Persistence.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
-                    b.Navigation("CourceName");
+                    b.Navigation("CourseName");
 
                     b.Navigation("LessonType");
 

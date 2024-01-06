@@ -10,7 +10,7 @@ public class GroupValidator : AbstractValidator<Group>
     public GroupValidator()
     {
         RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required");
-        //RuleFor(x => x.CourceId && x.CourceName).NotEmpty().WithMessage("Cource is required");
+        //RuleFor(x => x.CourceId && x.CourseName).NotEmpty().WithMessage("Cource is required");
         //RuleFor(x => x.LessonType).NotEmpty().WithMessage("LessonType is required");
     }
 }

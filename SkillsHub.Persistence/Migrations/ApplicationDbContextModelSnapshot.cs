@@ -22,21 +22,6 @@ namespace SkillsHub.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GroupStudent", b =>
-                {
-                    b.Property<Guid>("GroupStudentsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("GroupsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("GroupStudentsId", "GroupsId");
-
-                    b.HasIndex("GroupsId");
-
-                    b.ToTable("GroupStudent");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
                 {
                     b.Property<Guid>("Id")
@@ -226,6 +211,9 @@ namespace SkillsHub.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<Guid?>("NotificationMessageId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("OwnHashedPassword")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -280,47 +268,12 @@ namespace SkillsHub.Persistence.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("NotificationMessageId");
+
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.Cource", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("EnglishLevelId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("MaxArrivedStudents")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MinimumAge")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("NameId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("SubscriptionType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EnglishLevelId");
-
-                    b.HasIndex("NameId");
-
-                    b.ToTable("Cources");
-                });
-
-            modelBuilder.Entity("SkillsHub.Domain.Models.CourceName", b =>
+            modelBuilder.Entity("SkillsHub.Domain.Models.CourseName", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -345,19 +298,39 @@ namespace SkillsHub.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("StudentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("TeacherId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
+
+                    b.ToTable("CourseNames");
+                });
+
+            modelBuilder.Entity("SkillsHub.Domain.Models.CourseNameStudent", b =>
+                {
+                    b.Property<Guid>("CourseNameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CourseNameId", "StudentId");
 
                     b.HasIndex("StudentId");
 
+                    b.ToTable("CourseNameStudents");
+                });
+
+            modelBuilder.Entity("SkillsHub.Domain.Models.CourseNameTeacher", b =>
+                {
+                    b.Property<Guid>("CourseNameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CourseNameId", "TeacherId");
+
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("CourceNames");
+                    b.ToTable("CourseNameTeachers");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.EmailMessage", b =>
@@ -394,30 +367,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EmailMessages");
-                });
-
-            modelBuilder.Entity("SkillsHub.Domain.Models.EnglishLevel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EnglishLevels");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.ExternalConnection", b =>
@@ -459,6 +408,9 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<decimal?>("Budget")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
@@ -485,16 +437,19 @@ namespace SkillsHub.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CourceNameId")
+                    b.Property<Guid>("CourseNameId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DateStart")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("LessonTypeId1")
+                    b.Property<Guid>("LessonTypeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("LessonsCount")
@@ -512,22 +467,46 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourceNameId");
+                    b.HasIndex("CourseNameId");
 
-                    b.HasIndex("LessonTypeId1");
+                    b.HasIndex("LessonTypeId");
 
                     b.HasIndex("TeacherId");
 
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.Lesson", b =>
+            modelBuilder.Entity("SkillsHub.Domain.Models.GroupStudent", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CourceId")
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("GroupStudents");
+                });
+
+            modelBuilder.Entity("SkillsHub.Domain.Models.Lesson", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("CreatorId")
@@ -566,9 +545,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("StudentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<decimal>("StudentPrice")
                         .HasColumnType("decimal(18,2)");
 
@@ -578,9 +554,10 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<decimal>("TeacherPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Topic")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("CourceId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
 
@@ -592,38 +569,9 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasIndex("LessonTypeId");
 
-                    b.HasIndex("StudentId");
-
                     b.HasIndex("TeacherId");
 
                     b.ToTable("Lessons");
-                });
-
-            modelBuilder.Entity("SkillsHub.Domain.Models.LessonActivityType", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("StudentPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TeacherPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("LessonActivityTypes");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.LessonStudent", b =>
@@ -660,27 +608,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.ToTable("LessonStudents");
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.LessonTask", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Task")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("LessonTasks");
-                });
-
             modelBuilder.Entity("SkillsHub.Domain.Models.LessonType", b =>
                 {
                     b.Property<Guid>("Id")
@@ -714,33 +641,112 @@ namespace SkillsHub.Persistence.Migrations
                     b.ToTable("LessonTypes");
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.ScheduleDay", b =>
+            modelBuilder.Entity("SkillsHub.Domain.Models.NotInUse.LessonActivityType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CourceId")
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("StudentPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TeacherPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LessonActivityTypes");
+                });
+
+            modelBuilder.Entity("SkillsHub.Domain.Models.NotInUse.LessonTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("DayName")
+                    b.Property<string>("Task")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LessonTasks");
+                });
+
+            modelBuilder.Entity("SkillsHub.Domain.Models.NotificationMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("SenderId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CourceId");
+                    b.HasIndex("SenderId");
 
-                    b.ToTable("ScheduleDays");
+                    b.ToTable("NotificationMessages");
+                });
+
+            modelBuilder.Entity("SkillsHub.Domain.Models.RequestLesson", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AnswerStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("LessonBeforeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RequestMessage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LessonBeforeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RequestLessons");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Student", b =>
@@ -758,22 +764,16 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("EnglishLevel")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("EnglishLevelConfirmed")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("IsRecorded")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ParentName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ParentPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WorkingDays")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -799,48 +799,15 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("WorkingDays")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId")
                         .IsUnique();
 
                     b.ToTable("Teachers");
-                });
-
-            modelBuilder.Entity("SkillsHub.Domain.Models.UserDaySchedule", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DayName")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<TimeSpan>("WorkingEndTime")
-                        .HasColumnType("time");
-
-                    b.Property<TimeSpan>("WorkingStartTime")
-                        .HasColumnType("time");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("DaySchedules");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.WorkingDay", b =>
@@ -852,42 +819,26 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("DayName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("DayName")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime?>("EndWorkingDate")
-                        .HasColumnType("datetime2");
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("StartWorkingDate")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeSpan?>("WorkingEndTime")
+                        .HasColumnType("time");
 
-                    b.Property<Guid?>("StudentId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<TimeSpan?>("WorkingStartTime")
+                        .HasColumnType("time");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("GroupId");
 
-                    b.ToTable("WorkingDays");
-                });
-
-            modelBuilder.Entity("GroupStudent", b =>
-                {
-                    b.HasOne("SkillsHub.Domain.Models.Student", null)
-                        .WithMany()
-                        .HasForeignKey("GroupStudentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SkillsHub.Domain.Models.Group", null)
-                        .WithMany()
-                        .HasForeignKey("GroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("WorkingDay");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -941,32 +892,49 @@ namespace SkillsHub.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.Cource", b =>
+            modelBuilder.Entity("SkillsHub.Domain.BaseModels.ApplicationUser", b =>
                 {
-                    b.HasOne("SkillsHub.Domain.Models.EnglishLevel", "EnglishLevel")
-                        .WithMany()
-                        .HasForeignKey("EnglishLevelId");
+                    b.HasOne("SkillsHub.Domain.Models.NotificationMessage", null)
+                        .WithMany("Users")
+                        .HasForeignKey("NotificationMessageId");
+                });
 
-                    b.HasOne("SkillsHub.Domain.Models.CourceName", "Name")
-                        .WithMany()
-                        .HasForeignKey("NameId")
+            modelBuilder.Entity("SkillsHub.Domain.Models.CourseNameStudent", b =>
+                {
+                    b.HasOne("SkillsHub.Domain.Models.CourseName", "CourseName")
+                        .WithMany("Students")
+                        .HasForeignKey("CourseNameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("EnglishLevel");
+                    b.HasOne("SkillsHub.Domain.Models.Student", "Student")
+                        .WithMany("PossibleCources")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Name");
+                    b.Navigation("CourseName");
+
+                    b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.CourceName", b =>
+            modelBuilder.Entity("SkillsHub.Domain.Models.CourseNameTeacher", b =>
                 {
-                    b.HasOne("SkillsHub.Domain.Models.Student", null)
-                        .WithMany("PossibleCources")
-                        .HasForeignKey("StudentId");
+                    b.HasOne("SkillsHub.Domain.Models.CourseName", "CourseName")
+                        .WithMany("Teachers")
+                        .HasForeignKey("CourseNameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("SkillsHub.Domain.Models.Teacher", null)
+                    b.HasOne("SkillsHub.Domain.Models.Teacher", "Teacher")
                         .WithMany("PossibleCources")
-                        .HasForeignKey("TeacherId");
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CourseName");
+
+                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.ExternalConnection", b =>
@@ -987,37 +955,52 @@ namespace SkillsHub.Persistence.Migrations
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Group", b =>
                 {
-                    b.HasOne("SkillsHub.Domain.Models.CourceName", "CourceName")
+                    b.HasOne("SkillsHub.Domain.Models.CourseName", "CourseName")
                         .WithMany()
-                        .HasForeignKey("CourceNameId")
+                        .HasForeignKey("CourseNameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SkillsHub.Domain.Models.LessonType", "LessonType")
                         .WithMany()
-                        .HasForeignKey("LessonTypeId1")
+                        .HasForeignKey("LessonTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SkillsHub.Domain.Models.Teacher", "Teacher")
                         .WithMany("Groups")
                         .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
-                    b.Navigation("CourceName");
+                    b.Navigation("CourseName");
 
                     b.Navigation("LessonType");
 
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("SkillsHub.Domain.Models.GroupStudent", b =>
+                {
+                    b.HasOne("SkillsHub.Domain.Models.Group", "Group")
+                        .WithMany("GroupStudents")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SkillsHub.Domain.Models.Student", "Student")
+                        .WithMany("Groups")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("SkillsHub.Domain.Models.Lesson", b =>
                 {
-                    b.HasOne("SkillsHub.Domain.Models.Cource", null)
-                        .WithMany("Lessons")
-                        .HasForeignKey("CourceId");
-
                     b.HasOne("SkillsHub.Domain.BaseModels.ApplicationUser", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorId");
@@ -1026,11 +1009,11 @@ namespace SkillsHub.Persistence.Migrations
                         .WithMany("Lessons")
                         .HasForeignKey("GroupId");
 
-                    b.HasOne("SkillsHub.Domain.Models.LessonActivityType", "LessonActivityType")
+                    b.HasOne("SkillsHub.Domain.Models.NotInUse.LessonActivityType", "LessonActivityType")
                         .WithMany()
                         .HasForeignKey("LessonActivityTypeId");
 
-                    b.HasOne("SkillsHub.Domain.Models.LessonTask", "LessonTask")
+                    b.HasOne("SkillsHub.Domain.Models.NotInUse.LessonTask", "LessonTask")
                         .WithMany()
                         .HasForeignKey("LessonTaskId");
 
@@ -1038,12 +1021,8 @@ namespace SkillsHub.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("LessonTypeId");
 
-                    b.HasOne("SkillsHub.Domain.Models.Student", null)
-                        .WithMany("Lessons")
-                        .HasForeignKey("StudentId");
-
                     b.HasOne("SkillsHub.Domain.Models.Teacher", "Teacher")
-                        .WithMany("Lessons")
+                        .WithMany()
                         .HasForeignKey("TeacherId");
 
                     b.Navigation("Creator");
@@ -1064,11 +1043,11 @@ namespace SkillsHub.Persistence.Migrations
                     b.HasOne("SkillsHub.Domain.Models.Lesson", "Lesson")
                         .WithMany("ArrivedStudents")
                         .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SkillsHub.Domain.Models.Student", "Student")
-                        .WithMany()
+                        .WithMany("Lessons")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1078,11 +1057,28 @@ namespace SkillsHub.Persistence.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.ScheduleDay", b =>
+            modelBuilder.Entity("SkillsHub.Domain.Models.NotificationMessage", b =>
                 {
-                    b.HasOne("SkillsHub.Domain.Models.Cource", null)
-                        .WithMany("ScheduleDays")
-                        .HasForeignKey("CourceId");
+                    b.HasOne("SkillsHub.Domain.BaseModels.ApplicationUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("SkillsHub.Domain.Models.RequestLesson", b =>
+                {
+                    b.HasOne("SkillsHub.Domain.Models.Lesson", "LessonBefore")
+                        .WithMany()
+                        .HasForeignKey("LessonBeforeId");
+
+                    b.HasOne("SkillsHub.Domain.BaseModels.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("LessonBefore");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Student", b =>
@@ -1107,26 +1103,14 @@ namespace SkillsHub.Persistence.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.UserDaySchedule", b =>
+            modelBuilder.Entity("SkillsHub.Domain.Models.WorkingDay", b =>
                 {
-                    b.HasOne("SkillsHub.Domain.BaseModels.ApplicationUser", null)
-                        .WithMany("WorkingSchedule")
-                        .HasForeignKey("ApplicationUserId");
-
                     b.HasOne("SkillsHub.Domain.Models.Group", "Group")
                         .WithMany("DaySchedules")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Group");
-                });
-
-            modelBuilder.Entity("SkillsHub.Domain.Models.WorkingDay", b =>
-                {
-                    b.HasOne("SkillsHub.Domain.Models.Student", null)
-                        .WithMany("WorkingDays")
-                        .HasForeignKey("StudentId");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.BaseModels.ApplicationUser", b =>
@@ -1136,20 +1120,20 @@ namespace SkillsHub.Persistence.Migrations
                     b.Navigation("UserStudent");
 
                     b.Navigation("UserTeacher");
-
-                    b.Navigation("WorkingSchedule");
                 });
 
-            modelBuilder.Entity("SkillsHub.Domain.Models.Cource", b =>
+            modelBuilder.Entity("SkillsHub.Domain.Models.CourseName", b =>
                 {
-                    b.Navigation("Lessons");
+                    b.Navigation("Students");
 
-                    b.Navigation("ScheduleDays");
+                    b.Navigation("Teachers");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Group", b =>
                 {
                     b.Navigation("DaySchedules");
+
+                    b.Navigation("GroupStudents");
 
                     b.Navigation("Lessons");
                 });
@@ -1159,20 +1143,23 @@ namespace SkillsHub.Persistence.Migrations
                     b.Navigation("ArrivedStudents");
                 });
 
+            modelBuilder.Entity("SkillsHub.Domain.Models.NotificationMessage", b =>
+                {
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("SkillsHub.Domain.Models.Student", b =>
                 {
+                    b.Navigation("Groups");
+
                     b.Navigation("Lessons");
 
                     b.Navigation("PossibleCources");
-
-                    b.Navigation("WorkingDays");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Teacher", b =>
                 {
                     b.Navigation("Groups");
-
-                    b.Navigation("Lessons");
 
                     b.Navigation("PossibleCources");
                 });

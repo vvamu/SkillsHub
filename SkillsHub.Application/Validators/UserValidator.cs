@@ -9,7 +9,7 @@ public class UserValidator : AbstractValidator<ApplicationUser>
     public UserValidator()
     {
         RuleFor(x => x.Email)
-        //.NotEmpty().WithMessage("Email is required.")
+        .NotEmpty().WithMessage("Email is required.")
         .EmailAddress().WithMessage("Invalid email format.");
         RuleFor(x => x.Login).NotEmpty().WithMessage("Login is required.");
         RuleFor(x => x.Phone).NotEmpty().WithMessage("Phone is required.");

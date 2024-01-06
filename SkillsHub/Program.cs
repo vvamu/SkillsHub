@@ -4,6 +4,7 @@ using EmailProvider;
 using EmailProvider.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Options;
 using SkillsHub.Application.Services.Implementation;
@@ -24,6 +25,17 @@ public class Program
         builder.Services.AddControllersWithViews().
             AddNewtonsoftJson(options =>
             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+
+
+        //FOR SESSION
+        builder.Services.AddDistributedMemoryCache();
+        builder.Services.AddSession(options => {
+            options.IdleTimeout = TimeSpan.FromMinutes(30);
+        });
+
+        
+
 
         var services = builder.Services;
 
@@ -52,7 +64,9 @@ public class Program
         {
             options.UseSqlServer(connectionString);
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-        });
+            options.EnableSensitiveDataLogging();
+        },
+        ServiceLifetime.Transient);
 
         #endregion
 
@@ -97,11 +111,13 @@ public class Program
 
         builder.Services.AddTransient<EmailProvider.Interfaces.IMailService, MailService>();
         builder.Services.AddTransient<IUserService,UserService>();
-        builder.Services.AddTransient<IUserPresentationService, UserPresentationService>();
         builder.Services.AddTransient<IExternalService,ExternalService>();
-        builder.Services.AddTransient<IIndexCRMService, IndexCRMService>();
         builder.Services.AddTransient<ICourcesService, CourcesService>();
         builder.Services.AddTransient<IGroupService,GroupService>();
+        builder.Services.AddTransient<IRequestService, RequestService>();
+        builder.Services.AddTransient<INotificationService,NotificationService>();
+        builder.Services.AddScoped<ILessonService, LessonService>();
+
         #endregion
 
         services.AddControllers(options =>
@@ -112,6 +128,10 @@ public class Program
 
         builder.Services.AddCors();
         var app = builder.Build();
+        //FOR SESSION
+        // use this before .UseEndpoints or .MapControllerRoute
+        app.UseSession();
+
         //app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         if (!app.Environment.IsDevelopment())

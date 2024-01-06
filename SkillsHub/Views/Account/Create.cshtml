@@ -2,6 +2,8 @@
 @using SkillsHub.Domain.BaseModels
 
 @inject SignInManager<ApplicationUser> _signInManager;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
+
 
 @model SkillsHub.Application.DTO.UserCreateDTO;
 
@@ -34,7 +36,18 @@
                     <div class="form-input-content">
                         <div class="card login-form mb-0">
                             <div class="card-body pt-5">
-                                <div class="text-center"> <h4>Новый пользователь</h4></div>
+
+                                <div class="text-center"> <h4
+                                @if(Model !=null)
+                                    {
+                                        <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
+                                        <b>Edit user</b>
+                                    }
+                                    else
+                                    {
+                                         <b>Create new user</b>
+                                    }
+                                    </h4></div>
 
                                 <form class="mt-5 mb-5 login-input" method="post">
                                    
@@ -53,6 +66,7 @@
                                        <input type="text" asp-for="Surname" class="form-control" placeholder="Отчество*" required>
                                     </div>
                                     <div class="form-group">
+                                        <label>Phone</label>
                                         <input type="text" asp-for="Phone" class="form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
                                     </div>
                                     <div class="form-group">
@@ -66,32 +80,89 @@
                                     <div class="form-group">
                                         <input type="date" asp-for="BirthDate" class="form-control" placeholder="День рождения*" required>
                                     </div>
+
+                                    <!--
+                                    <div class="form-group row">
+                                            <label class="col-lg-4 col-form-label" for="val-skill">
+                                                Уровень владения английским<span class="text-danger">*</span>
+                                            </label>
+                                            <div class="col-lg-6">
+                                        <select asp-for="EnglishLevel" class="form-control" id="val-skill" name="val-skill">
+                                            {
+                                                string selectedEnglishLevel = "";
+                                                if (Model != null && Model.EnglishLevel != null)
+                                                    selectedEnglishLevel = Model.EnglishLevel;
+
+                                                var items = _context.EnglishLevels.ToList();
+
+
+                                                foreach(var item in items)
+                                                {
+                                                    if(item.Name == selectedEnglishLevel)
+                                                    {
+                                                       <option selected>item.Description - item.Name</option>
+                                                    }
+                                                    else
+                                                    {
+                                                       <option>item.Description - item.Name</option>
+                                                    }
+
+                                                }
+
+                                            }
+                                               
+                                                </select>
+                                            </div>
+                                        </div>
+                                        -->
+
                                     <div class="form-group">
                                         <input type="password" asp-for="Password" class="form-control" placeholder="Пароль" required>
                                     </div>
-                                    <div class="col-lg-12">
-                                        <div class="card">
-                                            <div class="card-body" style="display:flex;align-items:flex-start;grid-gap:20px;">
-                                                <h6 class="card-title">Role</h6>
-                                                <br/>
-                                                <div class="basic-form">
+                                    @if (Model == null)
+                                    {
+                                        <div class="col-lg-12">
+                                            <div class="card">
+                                                <div class="card-body" style="display:flex;align-items:flex-start;grid-gap:20px;">
+                                                    <h6 class="card-title">Role</h6>
+                                                    <br/>
+                                                    <div class="basic-form">
                                                         <div class="form-group">
                                                             <div class="form-check mb-3">
                                                                 <label class="form-check-label">
-                                                                    <input type="checkbox" asp-for=IsStudent class="form-check-input">Student</label>
+                                                                    @if (Model != null && Model.IsStudent == true)
+                                                                    {
+                                                                        <input type="checkbox" asp-for=IsStudent class="form-check-input" checked>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <input type="checkbox" asp-for=IsStudent class="form-check-input">
+                                                                    }
+                                                                    Student
+                                                                </label>
                                                             </div>
                                                             <div class="form-check mb-3">
                                                                 <label class="form-check-label">
-                                                                <input type="checkbox" asp-for=IsTeacher class="form-check-input">Teacher
-                                                            </label>
+                                                                    @if (Model != null && Model.IsStudent == true)
+                                                                    {
+                                                                        <input type="checkbox" asp-for=IsTeacher class="form-check-input" checked>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <input type="checkbox" asp-for=IsTeacher class="form-check-input">
+                                                                    }
+
+                                                                    Teacher
+                                                                </label>
                                                             </div>
                                                         </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <input type="submit" asp-action="Create" asp-controller="Account" class="btn login-form__btn submit w-100" value="Создать"/>
+                                    }
+                                    
+                                    <input type="submit" asp-action="Create" asp-controller="Account" class="btn login-form__btn submit w-100" value="Create"/>
                                 </form>
 
                                 

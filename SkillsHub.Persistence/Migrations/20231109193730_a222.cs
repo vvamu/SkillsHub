@@ -93,7 +93,7 @@ namespace SkillsHub.Persistence.Migrations
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.CreateTable(
-                name: "CourceNames",
+                name: "CourseNames",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -155,7 +155,7 @@ namespace SkillsHub.Persistence.Migrations
                     table.ForeignKey(
                         name: "FK_Cources_CourceNames_NameId",
                         column: x => x.NameId,
-                        principalTable: "CourceNames",
+                        principalTable: "CourseNames",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -291,7 +291,7 @@ namespace SkillsHub.Persistence.Migrations
                 name: "Cources");
 
             migrationBuilder.DropTable(
-                name: "CourceNames");
+                name: "CourseNames");
 
             migrationBuilder.DropTable(
                 name: "EnglishLevels");

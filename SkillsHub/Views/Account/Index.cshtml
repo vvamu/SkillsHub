@@ -1,7 +1,7 @@
 ﻿@using SkillsHub.Application.Helpers;
 @using SkillsHub.Application.DTO;
 @using SkillsHub.Domain.BaseModels
-
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
 
 @model IQueryable<ApplicationUser>?
     <!-- Custom Stylesheet -->
@@ -27,6 +27,12 @@
                         <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
                     <li>
                         <div>
+                        <a style="margin-left:20px" class="btn btn-secondary" asp-action="Create" asp-controller="Account" >
+                            Create new
+                        </a>
+                        </div>
+                        <!--
+                        <div>
                                 <a style="margin-left:20px" class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Action
 
@@ -42,8 +48,8 @@
                                 </li>
                                 </form>
                                 </ul>
-                            
-                        </div>
+                         -->
+                       
                     </li>
                     
                     </ol>
@@ -83,44 +89,20 @@
                                                     <th>Sex</th>
                                                     <th>Phone</th>
                                                     <th>Email</th>
-                                                    <th>BirthDate</th>
-                                                    <th>Age</th>
-                                                    <th>Month Lessons</th>
-                                                    <th>IsAdmin</th>
-                                                    <th>SourceFindCompany</th>
-                                                    <th>IsDeleted</th>
+                                                    <th>BirthDate and Age</th>
+                                                    <th>Total lessons student/teacher</th>
+                                                    <th>Month lessons student/teacher</th>
+                                                    <th>Roles</th>
+                                                    <th>Source Find Company</th>
+                                                    <th>Deleted</th>
+                                                    <th>Soft delete</th>
+                                                    <th>Hard delete (from database)</th>
+
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @{
-
-                                                    foreach (var item in Model)
-                                                    {
-                    /* <tr>
-                                                    <td>Tiger Nixon</td>
-                                                    <td>System Architect</td>
-                                                    <td>Edinburgh</td>
-                                                        <td>61</td>
-                                                        <td>2011/04/25</td>
-                                                        <td>$320,800</td>
-                                                        </tr>
-                                                        */
-                                                        <tr>
-                                                            <td><a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.Id" style="font-weight:900;color:#7571f9">  @item.Login </a></td>
-                                                            <td>@item.FirstName @item.LastName @item.Surname</td>
-                                                            <td>@item.Sex</td>
-                                                            <td>@item.Phone</td>
-                                                            <td>@item.Email</td>
-                                                            <td>@item.BirthDate</td>
-                                                            <td>Age</td>
-
-                                                            <td>Month Lessons</td>
-                                                            <td>@item.IsAdmin</td>
-                                                            <td>@item.SourceFindCompany</td>
-                                                            <td>@item.IsDeleted</td>
-                                                        </tr>
-                                                    }
-                                                }
+                                            <div id="usersList"></div>
+                                                
                                             </tbody>
                                             <tfoot>
                                                 <tr>
@@ -129,12 +111,15 @@
                                                     <th>Sex</th>
                                                     <th>Phone</th>
                                                     <th>Email</th>
-                                                    <th>BirthDate</th>
-                                                    <th>Age</th>
-                                                    <th>Month Lessons</th>
-                                                    <th>IsAdmin</th>
-                                                    <th>SourceFindCompany</th>
-                                                    <th>IsDeleted</th>
+                                                    <th>BirthDate and Age</th>
+                                                    <th>Total lessons student/teacher</th>
+                                                    <th>Month lessons student/teacher</th>
+                                                    <th>Roles</th>
+                                                    <th>Source Find Company</th>
+                                                    <th>Deleted</th>
+                                                    <th>Soft delete</th>
+                                                    <th>Hard delete (from database)</th>
+
                                                 </tr>
                                             </tfoot>
                                         </table>
@@ -155,6 +140,76 @@
     </div>
 
 
-    
+<script src="~/plugins/common/common.min.js"></script>
+<script src="~/js/custom.min.js"></script>
+<script src="~/js/settings.js"></script>
+<script src="~/js/gleek.js"></script>
+<script src="~/js/styleSwitcher.js"></script>
 
+
+
+
+<script>
+
+
+
+    function GetLessonsByGroup() {
+
+
+        var filters = {}
+        var orders = {}
+
+        try {
+            const searchLessonByTopic = document.getElementById("searchLessonByTopic").value;
+            filters = {
+
+            };
+
+            const order = document.getElementById("courcesNames").value;
+
+            orders = {
+                OrderColumn: "DateCreated",
+                OrderType: "asc"
+            }
+
+        }
+        catch (ex) { console.log("err"); }
+
+        //------------------------------------------------------------------
+
+        console.log("ol");
+
+        //var list = document.getElementById("allLessons");
+        //var count = document.getElementsByClassName("lessonInGroup").count; //id of new element;
+        $("#usersList").load("/Account/UsersTableList", { id: 'Model.Id', filters: filters, order: orders });
+
+
+
+        console.log("ol2");
+        /*
+        $.ajax({
+        url: "/Lesson/GetByGroup?id=" + Model.Id,
+        type: "GET",
+        data: data,
+
+        success: function (data) {
+        // Обновление части страницы с полученным частичным представлением
+        $('#AdminLink').empty();
+        $('#AdminLink').html(data);
+        },
+        error: function (xhr, status, error) {
+        // Обработка ошибки
+        console.error(error);
+        }
+        });
+
+        */
+
+    }
+
+
+    $(document).ready(function () {
+
+        GetLessonsByGroup();
+    });
 

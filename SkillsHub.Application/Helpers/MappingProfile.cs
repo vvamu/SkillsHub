@@ -21,6 +21,16 @@ public class MappingProfile : Profile
         CreateMap<Student, StudentDTO>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         CreateMap<ApplicationUser, Student>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         CreateMap<ApplicationUser, StudentDTO>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+        CreateMap<Student, LessonStudent>()
+            .ForMember(dest => dest.StudentId, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src));
+        /*
+        CreateMap<LessonStudent, Student>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.StudentId))
+            .ForMember(dest => dest, opt => opt.MapFrom(src => src.Student));
+        */
     }
 
 }

@@ -13,5 +13,7 @@ namespace SkillsHub.Domain.Models
         public FinanceElement? Parent { get; set; }
         public Guid? ParentId { get; set; }
         public decimal? Budget { get; set; }
+
+        public DateTime Date { get; set; }
     }
 }

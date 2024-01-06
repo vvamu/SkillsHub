@@ -1,16 +1,20 @@
 ﻿@using SkillsHub.Application.DTO;
 @using SkillsHub.Domain.Models;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
 @model Group;
 
 
 <!-- Модальное окно -->
 
 
+@if(Model != null)
+{
+    
 
-            
 
-                    
-                            <form class="mt-1 mb-5 login-input" method="put">
+
+
+<form class="mt-1 mb-5 login-input" method="post">
 
 
     <div class="container-fluid">
@@ -18,116 +22,210 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
+                        @if (Model != null)
+                        {
+                            <h2>Edit group</h2>
+                            var options = new System.Text.Json.JsonSerializerOptions
+                {
+                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                };
 
-                             <h2>EDIT GROUP - @Model.Name</h2>
+                            try
+                            {
 
-                                <div class="validation" asp-validation-summary="ModelOnly"></div>
+                                <input type="hidden" id="studentsByGroup" value="@System.Text.Json.JsonSerializer.Serialize(@ViewBag.studentsByGroup, options)" />
 
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
+                            }
+                            catch (Exception ex) { }
+                        }
+                        else
+                        {
+                            <h2>Create new group</h2>
+                        }
+
+
+                        <div class="validation" asp-validation-summary="ModelOnly"></div>
+
+
+
+
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
                                 <h4>Name<span class="text-danger">*</span></h4>
-                                    </label>
-                                    <input asp-for="Name" type="text" class="form-control" placeholder="For example - Morning group*" required value="@Model.Name"/>
-                                    <div class="validate"></div>
-                                    <div class="invalid-feedback">
-                                        Please choose a username.
-                                    </div>
+                            </label>
+                            <input asp-for="Name" type="text" class="form-control" placeholder="For example - Morning group*" required />
+                            <div class="validate"></div>
+                            <div class="invalid-feedback">
+                                Please choose a name.
+                            </div>
 
-                                </div>
+                        </div>
 
+                        <h4>Total lessons count (by lastSchedule and now)<span class="text-danger">*</span></h4>
+
+                        <input class="form-group" asp-for="LessonsCount" placeholder="(-1 for unlimited count of lessons)"/>
                         <div class="form-group ">
                             <label class=" col-form-label" for="val-skill">
                                 <h4>Category <span class="text-danger">*</span></h4>
                             </label>
+                            <select asp-for="LessonTypeId" class="form-control" id="lessonTypes"  disabled="disabled">
+                               
 
-                            <select asp-for="LessonTypeId" class="form-control" id="lessonTypes"></select>
+                            </select>
                         </div>
 
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
                                 <h4>Cource name <span class="text-danger">*</span></h4>
-                                    </label>
-                                    <select asp-for="CourceId" class="form-control" id="courcesNames"></select>
-                                </div>
+                            </label>
 
+                            <select asp-for="CourseNameId" class="form-control" id="courcesNames"  disabled="disabled">
                                 
-
-                                @*<div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                        Teacher <span class="text-danger">*</span>
-                                    </label>
-
-                                    <select class="form-control" id="requiredTeachers"></select>
-                                </div>*@
-
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                <h4>Teacher from All Teachers <span class="text-danger">*</span></h4>
-                                    </label>
-
-                                    <ul class="form-control" id="allTeachers"></ul>
-                                </div>
-
-                                <!--
-                                                <div class="form-group ">
-                                                    <label class=" col-form-label" for="val-skill">
-                                                        Online/Offline (delete)<span class="text-danger">*</span>
-                                                    </label>
-                                                    <select name="Term" asp-for="Term" class="form-control" id="val-skill">
-                                                        <option value="Online" >Online</option>
-                                                        <option value="Offline" selected>Offline</option>
-                                                    </select>
-                                </div>-->
+                            </select>
+                        </div>
 
 
 
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                <h4>Students<span class="text-danger">*</span></h4>
-                                    </label>
-                                    <ul id="studentsList" class="list-group col"></ul>
-                                </div>
+                        @*<div class="form-group ">
+                        <label class=" col-form-label" for="val-skill">
+                        Teacher <span class="text-danger">*</span>
+                        </label>
 
-                                <div class="form-group ">
-                                    <ul id="courcesList" class="list-group col"></ul>
-                                </div>
+                        <select class="form-control" id="requiredTeachers"></select>
+                        </div>*@
+
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <div style="display:flex"><h4>Teacher  <span class="text-danger">*</span></h4> (from All Teachers)</div>
+                            </label>
+                                <select asp-for="TeacherId" class="form-control" id="allTeachers">
+                                </select> 
+                        </div>
+
+                        <!--
+                                        <div class="form-group ">
+                                            <label class=" col-form-label" for="val-skill">
+                                                Online/Offline (delete)<span class="text-danger">*</span>
+                                            </label>
+                                            <select name="Term" asp-for="Term" class="form-control" id="val-skill">
+                                                <option value="Online" >Online</option>
+                                                <option value="Offline" selected>Offline</option>
+                                            </select>
+                        </div>-->
+
+
+
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <div style="display:flex"><h4>Students<span class="text-danger">*</span></h4> <p>(from All Students)</p></div>
+                            </label>
+                            <ul id="studentsList" class="list-group col"></ul>
+                        </div>
+                        
+                        <!--
+                        <div class="form-group ">
+                            <ul id="courcesList" class="list-group col"></ul>
+
+                        </div>
+                            -->
                     </div>
                 </div>
             </div>
 
             <div class="col">
-                <div class="card">
-                    <div class="card-body">
-                        <div style="display:flex;justify-content:space-between">
-                            <h3>Schedule</h3>
-                            <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>
-                        </div>
-                                
-                                
-                                <div id="schedule_d" class="form-group rowы">
-                                    <!--
-                                    <div id="insert">
-                                        <label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>
-                                        <label>Enter start time</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." />
-                                        <label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />
-                                        <button class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>
-                                    </div>
-                            -->
-                                    
-                                </div>
-                                    <input hidden value="@Model.Id" asp-for="@Model.Id"/>
 
-                        <button type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100">Save changes</button>
-                                        <button class="button btn-red" href="javascript:history.go(-1)">Cancel</button>
-                                               
-                            </div>
+                <div class="row card">
+                    <div class="card-body">
+
+
+                        <div style="display:flex; justify-content:space-between">
+                            <h3>Schedule</h3>
+                            
+                            <input type="button" value="+" onclick="CreateScheduleDay()" class="btn btn-outline-danger"  disabled="disabled" />
+                                
                         </div>
+                        <div id="schedule_d" class="form-group row">
+
+                            <div class="card-body">
+                                <label>Date start group</label>
+                                    <input asp-for="DateStart" class="form-control" type="date" placeholder="Enter..." disabled="disabled" />
+                            </div>
+
+                            @if (Model != null && Model.DaySchedules != null)
+                            {
+                                    <h4>Current schedule (new lessons according to the new schedule will be created after the last past lesson):</h4>
+
+                                @foreach (var ds in Model.DaySchedules)
+                                {
+                                    var duration = ds.WorkingEndTime - ds.WorkingStartTime;
+                                    var numDuration = duration.Value;
+                                    numDuration = numDuration > TimeSpan.Zero ? numDuration : TimeSpan.Zero;
+                                    var numDuration2 = (int)numDuration.TotalMinutes;
+
+                                    <div class="card-body">
+                                        <div style="display:flex; justify-content:space-between">
+                                             <label>Day name</label>
+                                             <button class="btn btn-danger" onclick="RemoveScheduleDay(this)" type="button" disabled="disabled">X</button>
+                                        </div>
+                                       
+                                        <select asp-for="@ds.DayName" class="form-control" name="dayName" disabled="disabled">
+                                            <option>Monday</option>
+                                            <option>Tuesday</option>
+                                            <option>Wednesday</option>
+                                            <option>Tuesday</option>
+                                            <option>Thursday</option>
+                                            <option>Friday</option>
+                                            <option>Saturday</option>
+                                            <option>Sunday</option>
+                                        </select>
+                                            <label>Start time</label><input class="form-control" asp-for="@ds.WorkingStartTime" type="time" name="startTime" placeholder="Enter..." disabled="disabled" />
+                                            <label>Duration (in minutes)</label><input class="form-control" value="@numDuration2" type="number" name="duration" placeholder="Enter..." disabled="disabled" />
+                                            
+                                    </div>
+
+
+                                }
+                            }
+
+                            <hr />
+
+
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between">
+                            <!--
+                            <input type="button" onclick="CheckSchedule()" class="btn login-form__btn submit w-100" value="Check schedule"/>
+                            -->
+                            @if (Model != null)
+                            {
+                                <input type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100" value="Edit group" />
+
+                            }
+                            else
+                            {
+                                <input type="submit" asp-action="Create" asp-controller="Group" formmethod="post" class="btn login-form__btn submit w-100" value="Create new group" />
+                            }
+                        </div>
+
+
+                    </div>
+                </div>
+
+                <div class="row card">
+                    <div class="card-body">
+                        <div id="checkSchedule"></div>
+                    </div>
+                </div>
             </div>
+
+
+
+
         </div>
     </div>
-                                            </form>
+</form>
 
-               
+
 
 <!-- AJAX
 
@@ -205,92 +303,84 @@ console.log(data);
             success: function (data) {
                 data = JSON.parse(data);
                 if (Array.isArray(data)) {
-                    
+
                 }
             }
         });
     }
+
     function CreateScheduleDay() {
         let schedule = $("#schedule_d")[0];
         var div = document.createElement('div');
         var elementValue = '<div><div id="insert" class="card-body">'
-        elementValue += '<label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select><label>Enter start time</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." /><label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />'
+        elementValue += '<label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>'
+        elementValue += '<label>Enter start time (12:00 AM)</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." />'
+        //elementValue += '<label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />'
         elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>'
         elementValue += '</div></div>';
         elementValue += '<hr/>'
         div.innerHTML = elementValue;
         schedule.appendChild(div);
     }
-    function RemoveScheduleDay(btn){
+    function RemoveScheduleDay(btn) {
         let parent = btn.parentElement;
         parent.remove();
     }
 
-    function addItemsToListByResponse(idName, passedUrl) {
-        var itemsUL = $("#idName");
-        itemsUL.empty();
-        $.ajax({
-            url: passedUrl,
-            type: "GET",
-            dataType: "json",
-
-            success: function (data) {
-
-                data = JSON.parse(data);
-
-                if (Array.isArray(data)) {
-
-                    data.forEach(function (item, i, arr) {
-                        itemsUL.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
-
-                        var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='"+ item.Id+"'  /> ";
-                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += "</li>"
-
-                        itemsUL.append(appendedLine);
-
-
-                    });
-
-
-                } else {
-
-                }
-            }
-        });
-
-    }
 
     function getStudentsList() {
 
         var studentsList = $("#studentsList");
+        studentsList.empty();
+
+        var studentsByGroup;
+        var studentsIds;
+        if ($("#studentsByGroup") != null && $("#studentsByGroup").val() != undefined) {
+
+            studentsByGroup = JSON.parse($("#studentsByGroup").val());
+            console.log("studentsByGroup");
+            console.log(studentsByGroup);
+            if (Array.isArray(studentsByGroup)) {
+                studentsIds = studentsByGroup.map(function (student) {
+                    return student.Id;
+                });
+            }
+        }
+
 
         $.ajax({
-            url: "/Student/GetStudentListAsync",
+            url: "/Student/GetStudentListAsync?isDeleted=true",
             type: "GET",
             dataType: "json",
+
             success: function (data) {
+                console.log("students")
+
+                console.log(data);
                 data = JSON.parse(data);
+
                 if (Array.isArray(data)) {
 
-
-
-
                     data.forEach(function (item, i, arr) {
-                        studentsList.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
+                        var user = item.ApplicationUser;
+                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
 
                         var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='"+item.Id+"'  /> ";
-                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+
+
+                        if (studentsIds != undefined && studentsIds.includes(item.Id)) {
+                            appendedLine += "<input type='checkbox' name='studentId'   style='margin-right:5px; color:blue' value='" + item.Id + "' checked  /> ";
+                        }
+                        else {
+
+                            appendedLine += "<input type='checkbox' name='studentId'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        }
+
+                        appendedLine += user.FirstName + " " + user.LastName + " " + user.Surname;
                         appendedLine += "</li>"
 
                         studentsList.append(appendedLine);
                     })
-
-
-
-
                 }
             }
         });
@@ -301,8 +391,11 @@ console.log(data);
 
         var studentsList = $("#courcesNames");
 
+
+        var teacherId = '@Model.CourseName.Id';
+
         $.ajax({
-            url: "/Cource/GetCourcesNamesAsync",
+            url: "/Cource/GetCourcesNamesAsync?IsDeleted=false",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -312,9 +405,16 @@ console.log(data);
 
                     data.forEach(function (item, i, arr) {
 
-                        var appendedLine = "<option class='list-group-item' name='courceId' asp-for='CourceId' value='"+item.Id+"'>" + item.Name;
+                        var appendedLine = "";
+
+                        if (teacherId != undefined && teacherId == item.Id)
+                            appendedLine += "<option selected style='color:blue' class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>" + item.Name;
+                        else
+                            appendedLine += "<option class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>" + item.Name;
+
                         //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
                         //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        appendedLine += " (Min age:" + item.MinimumAge + ";Max age:" + item.MaximumAge + ")"
                         appendedLine += "</option>"
 
                         studentsList.append(appendedLine);
@@ -332,6 +432,7 @@ console.log(data);
     function getLessonTypesList() {
 
         var studentsList = $("#lessonTypes");
+        var teacherId = '@Model.LessonType.Id';
 
         $.ajax({
             url: "/Cource/GetLessonTypesAsync",
@@ -343,11 +444,19 @@ console.log(data);
 
 
                     data.forEach(function (item, i, arr) {
-                        studentsList.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
+                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
 
-                        var appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='"+item.Id+"'>" + item.Name;
+                        var appendedLine = "";
+
+                        if (teacherId != undefined && teacherId == item.Id)
+                            appendedLine += "<option class='list-group-item' selected style='color:blue'  value='" + item.Id + "'>" + item.Name;
+                        else
+                            appendedLine += "<option class='list-group-item' value='" + item.Id + "'>" + item.Name;
+
+
                         //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
                         //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        appendedLine += " (MinumumLessonsToPay:" + item.MinumumLessonsToPay + "; LessonTimeInMinutes:" + item.LessonTimeInMinutes + ")"
                         appendedLine += "</option>"
 
                         studentsList.append(appendedLine);
@@ -359,57 +468,17 @@ console.log(data);
                 }
             }
         });
-        
+
     }
-    
-    function getTeachersByLessonType() { 
-    
-        var requiredTeachers = $("#requiredTeachers");
 
+    function getTeachers() {
 
-        var e = $("#lessonTypes");
-        var strUser = e.options[e.selectedIndex].value;
-        console.log("strUser");
-        console.log(strUser);
-
-        $.ajax({
-            url: "/Teachers/GetTeachersByLessonTypeAsync",
-            type: "GET",
-            dataType: "json",
-            data: strUser,
-            success: function (data) {
-                data = JSON.parse(data);
-                if (Array.isArray(data)) {
-
-                    if (data.length == 0) {
-                        var appendEmpty = "<option class='list-group-item' value='' >Teacher's list to cource is empty</option>";
-                        requiredTeachers.append(appendEmpty);
-                    }
-                    else { 
-                    data.forEach(function (item, i, arr) {
-
-                        var appendedLine = "<li class='list-group-item' name='courceId' asp-for='TeacherId' value='"+ item.Id +"'>" + item.FirstName + " " + item.LastName
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += "</option>"
-
-                        requiredTeachers.append(appendedLine);
-                    })
-                    }
-
-
-
-
-                }
-            }
-        });
-    }
-     
-    function getTeachers() { 
-    
         var requiredTeachers = $("#allTeachers");
+        //requiredTeachers.val() = "";
+        requiredTeachers.empty();
 
-
+        var teacherId = '@Model.Teacher.Id';
+        
         $.ajax({
             url: "/Teachers/GetTeachersAsync",
             type: "GET",
@@ -424,20 +493,36 @@ console.log(data);
                     }
                     data.forEach(function (item, i, arr) {
 
-                        var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='teacherValue' style='margin-right:5px;' value='"+item.Id+"'  /> ";            
-                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += "</li>"
+                        var user = item.ApplicationUser;
+                        
+                        requiredTeachers.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
+                        var appendedLine = "";
+
+                        if (teacherId != undefined && item.Id.toString() == teacherId)
+                            appendedLine += "<option class='list-group-item' style='color:blue' selected name='teacherValue' value='" + item.Id + "'>";
+
+                        else
+                            appendedLine += "<option class='list-group-item' name='teacherValue' value='" + item.Id + "'>";
+
+
+                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        appendedLine += user.FirstName + " " + user.LastName + " " + user.Surname;
+                        appendedLine += "</option>"
 
                         requiredTeachers.append(appendedLine);
+
                     })
-
-
-
-
                 }
             }
         });
+    }
+
+    function CheckSchedule() {
+        var checkSchedule = $("#checkSchedule");
+        checkSchedule.empty();
+
+
+
     }
 
     $(document).ready(function () {
@@ -445,9 +530,9 @@ console.log(data);
         getStudentsList();
         getCourcesNamesList();
         getLessonTypesList();
-        //getTeachersByLessonType();
         getTeachers();
-        CreateScheduleDay();
+        //CreateScheduleDay();
     });
 
 </script>
+}

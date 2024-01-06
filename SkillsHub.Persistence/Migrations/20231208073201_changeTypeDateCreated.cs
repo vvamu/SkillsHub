@@ -20,7 +20,7 @@ namespace SkillsHub.Persistence.Migrations
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "DateCreated",
-                table: "CourceNames",
+                table: "CourseNames",
                 type: "datetime2",
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
@@ -35,7 +35,7 @@ namespace SkillsHub.Persistence.Migrations
 
             migrationBuilder.DropColumn(
                 name: "DateCreated",
-                table: "CourceNames");
+                table: "CourseNames");
         }
     }
 }

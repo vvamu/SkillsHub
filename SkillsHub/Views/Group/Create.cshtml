@@ -18,10 +18,33 @@
             <div class="col">
                 <div class="card">
                     <div class="card-body">
+                         @if(Model != null)
+                        {
+                            <h2>Edit group</h2>
+                            var options = new System.Text.Json.JsonSerializerOptions
+                            {
+                                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                            };
 
-                             <h2>Create new group</h2>
+                            try
+                            {
+
+                                <input type="hidden" id="studentsByGroup" value="@System.Text.Json.JsonSerializer.Serialize(@ViewBag.studentsByGroup, options)" />
+
+                            }
+                            catch (Exception ex) { }
+                        }
+                        else
+                        {
+                            <h2>Create new group</h2>
+                        }
+                       
 
                                 <div class="validation" asp-validation-summary="ModelOnly"></div>
+                                <input type="hidden" id="studentsByGroup" value=""/>
+                                
+                        
+
 
                                 <div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
@@ -30,29 +53,26 @@
                                     <input asp-for="Name" type="text" class="form-control" placeholder="For example - Morning group*" required />
                                     <div class="validate"></div>
                                     <div class="invalid-feedback">
-                                        Please choose a username.
+                                        Please choose a name.
                                     </div>
 
                                 </div>
-                        <h4>Lessons count (creating automaticaly) <span class="text-danger">*</span></h4>
+
+                        <h4>Lessons count <span class="text-danger">*</span></h4>
 
                         <input class="form-group" asp-for="LessonsCount" />
                         <div class="form-group ">
                             <label class=" col-form-label" for="val-skill">
                                 <h4>Category <span class="text-danger">*</span></h4>
                             </label>
-
-                            
-                        
-
                             <select asp-for="LessonTypeId" class="form-control" id="lessonTypes"></select>
                         </div>
 
                                 <div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
-                                <h4>Cource name <span class="text-danger">*</span></h4>
+                                        <h4>Cource name <span class="text-danger">*</span></h4>
                                     </label>
-                                    <select asp-for="CourceId" class="form-control" id="courcesNames"></select>
+                                    <select asp-for="CourseNameId" class="form-control" id="courcesNames"></select>
                                 </div>
 
                                 
@@ -67,10 +87,10 @@
 
                                 <div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
-                                <h4>Teacher from All Teachers <span class="text-danger">*</span></h4>
+                                        <div style="display:flex"><h4>Teacher  <span class="text-danger">*</span></h4> (from All Teachers)</div>
                                     </label>
 
-                                    <ul class="form-control" id="allTeachers"></ul>
+                                    <select asp-for="TeacherId" class="form-control" id="allTeachers" onclose="getTeachers()"></select>
                                 </div>
 
                                 <!--
@@ -88,46 +108,95 @@
 
                                 <div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
-                                <h4>Students<span class="text-danger">*</span></h4>
+                                      <div style="display:flex"><h4>Students<span class="text-danger">*</span></h4> <p>(from All Students)</p></div>
                                     </label>
                                     <ul id="studentsList" class="list-group col"></ul>
                                 </div>
 
                                 <div class="form-group ">
-                                    <ul id="courcesList" class="list-group col"></ul>
+                                    <ul id="courcesList" class="list-group col" ></ul>
+                                  
                                 </div>
                     </div>
                 </div>
             </div>
 
             <div class="col">
-                <div class="card">
+                
+                <div class="row card">
                     <div class="card-body">
-                        <div style="display:flex;justify-content:space-between">
-                            <h3>Schedule</h3>
-                            <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>
+
+
+                        <div style="display:flex; justify-content:space-between">
+                        <h3>Schedule</h3>
+                            <input type="button" value="+" onclick="CreateScheduleDay()" class="btn btn-outline-danger" />
                         </div>
-                                
-                                
-                                <div id="schedule_d" class="form-group rowы">
-                                    <!--
-                                    <div id="insert">
-                                        <label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>
-                                        <label>Enter start time</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." />
-                                        <label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />
+                                <div id="schedule_d" class="form-group row">
+
+                            <div class="card-body">
+                                <label>Date start group</label>
+                                <input asp-for="DateStart" class="form-control" type="date" placeholder="Enter..." />
+                            </div>
+
+                                    @if(Model != null && Model.DaySchedules != null)
+                            {
+                                <h4>Current schedule:</h4>
+                            
+                            @foreach (var ds in Model.DaySchedules)
+                            {
+                                    var duration = ds.WorkingEndTime - ds.WorkingStartTime;
+                                    var numDuration = duration.Value;
+                                    numDuration = numDuration > TimeSpan.Zero ? numDuration : TimeSpan.Zero;
+                                    var numDuration2 = (int)numDuration.TotalMinutes;
+
+                                    <div class="card-body">
+                                        <label>Day name</label>
+                                        <select asp-for="@ds.DayName" class="form-control" name="dayName">
+                                            <option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+                                        </select>
+                                        <label>Start time</label><input class="form-control" asp-for="@ds.WorkingStartTime" type="time" name="startTime" placeholder="Enter..." />
+                                        <label>Duration (in minutes)</label><input class="form-control" value="@numDuration2" type="number" name="duration" placeholder="Enter..." />
                                         <button class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>
-                                    </div>
-                            -->
-                                    
+                                        </div>
+
+                                
+                            }
+                            }
+
+                            <hr/>
+                                   
+
                                 </div>
 
-                                                
-                                        <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" value="Create new group"/>
+                        <div  style="display:flex; justify-content:space-between">
+                            <!--
+                            <input type="button" onclick="CheckSchedule()" class="btn login-form__btn submit w-100" value="Check schedule"/>
+                            -->
+                            @if(Model != null)
+                            {
+                                <input type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100" value="Edit group" />
+
+                            }
+                            else
+                            {
+                                <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" value="Create new group" />
+                            }
+                        </div>
                                
                                                
                             </div>
                         </div>
+
+                         <div class="row card">
+                    <div class="card-body">
+                        <div id="checkSchedule"></div>
+                    </div>
+                </div>
             </div>
+
+
+
+
         </div>
     </div>
                                             </form>
@@ -187,7 +256,9 @@ console.log(data);
 -->
 
 
-<script src="~/plugins/common/common.min.js"></script>
+
+<!--
+    <script src="~/plugins/common/common.min.js"></script>
 
 <script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
 <script src="~/plugins/jquery/jquery.min.js"></script>
@@ -199,27 +270,37 @@ console.log(data);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+
+-->
+
+
+<script src="~/plugins/jquery/jquery.min.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<FilesMatch "\.(ttf|otf|eot|woff)$">
+      <IfModule mod_headers.c>
+        Header set Access-Control-Allow-Origin "*"
+      </IfModule>
+    </FilesMatch>
+
 <script>
 
-    function getDataByAjaxTemplate(passedUrl) {
 
-        $.ajax({
-            url: passedUrl,
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                data = JSON.parse(data);
-                if (Array.isArray(data)) {
-                    
-                }
-            }
-        });
-    }
     function CreateScheduleDay() {
         let schedule = $("#schedule_d")[0];
         var div = document.createElement('div');
         var elementValue = '<div><div id="insert" class="card-body">'
-        elementValue += '<label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select><label>Enter start time</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." /><label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />'
+        elementValue += '<label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>'
+        elementValue += '<label>Enter start time (12:00 AM)</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." />'
+        //elementValue += '<label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />'
         elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>'
         elementValue += '</div></div>';
         elementValue += '<hr/>'
@@ -231,71 +312,58 @@ console.log(data);
         parent.remove();
     }
 
-    function addItemsToListByResponse(idName, passedUrl) {
-        var itemsUL = $("#idName");
-        itemsUL.empty();
-        $.ajax({
-            url: passedUrl,
-            type: "GET",
-            dataType: "json",
-
-            success: function (data) {
-
-                data = JSON.parse(data);
-
-                if (Array.isArray(data)) {
-
-                    data.forEach(function (item, i, arr) {
-                        itemsUL.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
-
-                        var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='"+ item.Id+"'  /> ";
-                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += "</li>"
-
-                        itemsUL.append(appendedLine);
-
-
-                    });
-
-
-                } else {
-
-                }
-            }
-        });
-
-    }
-
+    
     function getStudentsList() {
 
         var studentsList = $("#studentsList");
+        studentsList.empty();
+
+        
+        var studentsByGroup;
+        var studentsIds;
+        /*
+        if ($("#studentsByGroup") != null && $("#studentsByGroup").val() != undefined) {
+
+            studentsByGroup = JSON.parse($("#studentsByGroup").val());
+            console.log("studentsByGroup");
+            console.log(studentsByGroup);
+            studentsIds = studentsByGroup.map(function (student) {
+                return student.Id;
+            });
+        }
+        */
+
 
         $.ajax({
             url: "/Student/GetStudentListAsync",
             type: "GET",
             dataType: "json",
+          
             success: function (data) {
+                console.log("students")
+
+                console.log(data);
                 data = JSON.parse(data);
+                
                 if (Array.isArray(data)) {
-
-
-
-
+                    console.log(data);
                     data.forEach(function (item, i, arr) {
+                        var user = item.ApplicationUser;
                         studentsList.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
 
                         var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='"+item.Id+"'  /> ";
-                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+
+
+                        if (studentsIds != undefined && studentsIds.includes(item.Id))
+                            appendedLine += "<input type='checkbox' name='studentId'  style='margin-right:5px;' value='" + item.Id + "' checked  /> ";
+                        else
+                            appendedLine += "<input type='checkbox' name='studentId'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+
+                        appendedLine += user.FirstName + " " + user.LastName + " " + user.Surname;
                         appendedLine += "</li>"
 
                         studentsList.append(appendedLine);
                     })
-
-
-
-
                 }
             }
         });
@@ -306,8 +374,24 @@ console.log(data);
 
         var studentsList = $("#courcesNames");
 
+        
+        var teacherId;
+        /*
+        try {
+
+
+            if (Model != null && Model.CourseName != null) {
+
+                teacherId = Model.CourseName.Id.ToString();//JSON.parse($("#studentsByGroup").val()).Id;
+                console.log("CourseName");
+                console.log(teacherId);
+            }
+        }
+        catch (e) { console.log(e); }
+        */
+
         $.ajax({
-            url: "/Cource/GetCourcesNamesAsync",
+            url: "/Cource/GetCourcesNamesAsync?IsDeleted=false",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -317,9 +401,16 @@ console.log(data);
 
                     data.forEach(function (item, i, arr) {
 
-                        var appendedLine = "<option class='list-group-item' name='courceId' asp-for='CourceId' value='"+item.Id+"'>" + item.Name;
+                        var appendedLine = "";
+
+                        if (teacherId != undefined && teacherId == item.CourseName.Id)
+                            appendedLine = "<option selected class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>" + item.Name;
+                        else
+                            appendedLine = "<option class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>" + item.Name;
+
                         //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
                         //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        appendedLine += " (Min age:" + item.MinimumAge + ";Max age:" + item.MaximumAge + ")"
                         appendedLine += "</option>"
 
                         studentsList.append(appendedLine);
@@ -337,7 +428,18 @@ console.log(data);
     function getLessonTypesList() {
 
         var studentsList = $("#lessonTypes");
+                var teacherId;
 
+                /*
+        try { 
+        if (Model != null && Model.LessonType != null) {
+
+            teacherId = Model.LessonType.Id.ToString();//JSON.parse($("#studentsByGroup").val()).Id;
+            console.log("LessonType");
+            console.log(teacherId);
+        }
+        } catch (e) => console.log(e);
+        */
         $.ajax({
             url: "/Cource/GetLessonTypesAsync",
             type: "GET",
@@ -350,10 +452,18 @@ console.log(data);
                     data.forEach(function (item, i, arr) {
                         studentsList.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
 
-                        var appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='"+item.Id+"'>" + item.Name;
+                        var appendedLine = ""; 
+
+                        if (teacherId != undefined && teacherId == item.LessonType.Id)
+                            appendedLine += "<option class='list-group-item' selected  value='" + item.Id + "'>" + item.Name;
+                        else
+                            appendedLine += "<option class='list-group-item' value='" + item.Id + "'>" + item.Name;
+
+
                         //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
                         //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += "</option>"
+                        appendedLine += " (MinumumLessonsToPay:" + item.MinumumLessonsToPay + "; LessonTimeInMinutes:" + item.LessonTimeInMinutes + ")"
+                            appendedLine += "</option>"
 
                         studentsList.append(appendedLine);
                     })
@@ -367,54 +477,26 @@ console.log(data);
         
     }
     
-    function getTeachersByLessonType() { 
-    
-        var requiredTeachers = $("#requiredTeachers");
-
-
-        var e = $("#lessonTypes");
-        var strUser = e.options[e.selectedIndex].value;
-        console.log("strUser");
-        console.log(strUser);
-
-        $.ajax({
-            url: "/Teachers/GetTeachersByLessonTypeAsync",
-            type: "GET",
-            dataType: "json",
-            data: strUser,
-            success: function (data) {
-                data = JSON.parse(data);
-                if (Array.isArray(data)) {
-
-                    if (data.length == 0) {
-                        var appendEmpty = "<option class='list-group-item' value='' >Teacher's list to cource is empty</option>";
-                        requiredTeachers.append(appendEmpty);
-                    }
-                    else { 
-                    data.forEach(function (item, i, arr) {
-
-                        var appendedLine = "<li class='list-group-item' name='courceId' asp-for='TeacherId' value='"+ item.Id +"'>" + item.FirstName + " " + item.LastName
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += "</option>"
-
-                        requiredTeachers.append(appendedLine);
-                    })
-                    }
-
-
-
-
-                }
-            }
-        });
-    }
-     
     function getTeachers() { 
     
         var requiredTeachers = $("#allTeachers");
+        //requiredTeachers.val() = "";
+        requiredTeachers.empty();
+
+        var teacherId;
+        /*
+        try {
 
 
+            if (Model != null && Model.Teacher != null) {
+
+                teacherId = Model.Teacher.Id.ToString();//JSON.parse($("#studentsByGroup").val()).Id;
+                console.log("teacherId");
+                console.log(teacherId);
+            }
+        } catch (e) => console.log(e);
+
+        */
         $.ajax({
             url: "/Teachers/GetTeachersAsync",
             type: "GET",
@@ -422,27 +504,43 @@ console.log(data);
             success: function (data) {
                 data = JSON.parse(data);
                 if (Array.isArray(data)) {
-
+                    console.log(data);
                     if (data.length == 0) {
                         var appendEmpty = "<li class='list-group-item' value='' >Teacher's list is empty</li>";
                         requiredTeachers.append(appendEmpty);
                     }
                     data.forEach(function (item, i, arr) {
 
-                        var appendedLine = "<li class='list-group-item'>";
-                        appendedLine += "<input type='checkbox' name='teacherValue' style='margin-right:5px;' value='"+item.Id+"'  /> ";            
-                        appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += "</li>"
+                        var user = item.ApplicationUser;
+
+                        requiredTeachers.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
+
+                        if (teacherId != undefined &&  item.Teacher.Id == teacherId)
+                            var appendedLine = "<option class='list-group-item' selected name='teacherValue' value='" + item.Id + "'>";
+
+                        else
+                            var appendedLine = "<option class='list-group-item' name='teacherValue' value='" + item.Id + "'>";
+
+
+                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        appendedLine += user.FirstName + " " + user.LastName + " " + user.Surname;
+                        appendedLine += "</option>"
 
                         requiredTeachers.append(appendedLine);
+
                     })
-
-
-
-
                 }
             }
         });
+    }
+
+    function CheckSchedule()
+    {
+        var checkSchedule = $("#checkSchedule");
+        checkSchedule.empty();
+
+
+
     }
 
     $(document).ready(function () {
@@ -450,7 +548,6 @@ console.log(data);
         getStudentsList();
         getCourcesNamesList();
         getLessonTypesList();
-        //getTeachersByLessonType();
         getTeachers();
         CreateScheduleDay();
     });

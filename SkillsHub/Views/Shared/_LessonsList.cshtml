@@ -1,0 +1,149 @@
+﻿@using SkillsHub.Domain.BaseModels
+@model List<Lesson>;
+@{
+    var lessons = @Model;
+}
+    @{
+
+                    if (lessons.Count == 0)
+                    {
+                                                <p>EMPTY</p>
+                    }
+                    else
+                    {
+                        <div class="col ">
+                            <div class="card">
+                            <div class="card-body" 
+                                    id="allLessons">
+                                    @foreach (var item in lessons)
+                                    {
+                                        @if(item !=  null)
+                                        {
+                                            var lessonId = item.Id;
+                                            var formId = "lesson" + lessonId;
+
+                                            <div class="col lessonInGroup">
+                                                <form id="@formId">
+
+                                                            <div class="card" style="margin:1%">
+                                                                <div class="card-body">
+                                                                <div>
+                                                                        <input type="hidden"  asp-for="@item.Id" value="@item.Id" />
+                                                                                
+                                                                        <input type="hidden" asp-for="@item.GroupId" value="@item.GroupId" />
+                                                                        <div style="display:flex; justify-content:space-between">
+                                                                        <h5>
+                                                                        @if(User.IsInRole("Student"))
+                                                                        {
+                                                                            <a asp-action="Item" asp-controller="Lesson" asp-route-id="@item.Id">
+                                                                        @(lessons.IndexOf(item) + 1) . @item.StartTime.ToLongDateString() (@item.StartTime.DayOfWeek)  @if (@item.IsСompleted){<span style="color:greenyellow">Completed</span>}
+                                                                        </a>
+                                                                        }
+                                                                        else{
+                                                                             <a asp-action="Create" asp-controller="Lesson" asp-route-id="@item.Id">
+                                                                              @(lessons.IndexOf(item) + 1) . @item.StartTime.ToLongDateString() (@item.StartTime.DayOfWeek)  @if (@item.IsСompleted){<span style="color:greenyellow">Completed</span>}
+                                                                        </a>
+                                                                        }
+                                                                        
+
+                                                                        </h5>
+                                                                            @if(User.IsInRole("Teacher"))
+                                                                            {
+                                                                                    <input type="submit" asp-action="RequestDelete" onclick="alert('Request was send')" asp-controller="Request" asp-route-id="@item.Id" value="X" class="btn btn-outline-danger" />
+                                                                            }
+                                                                            @if(User.IsInRole("Admin"))
+                                                                            {
+
+                                                                                List<ApplicationUser> arrivedUsers = new List<ApplicationUser>();
+                                                                                List<ApplicationUser> notArrivedUsers = new List<ApplicationUser>();
+                                                                                ApplicationUser teacher = new ApplicationUser();
+
+
+                                                                            if (item.ArrivedStudents != null)
+                                                                            {
+                                                                                var users = item.ArrivedStudents.Where(x=>x.IsVisit).Select(x=>x.Student).Select(x=>x.ApplicationUser);
+                                                                                arrivedUsers.AddRange(users);
+
+                                                                                var users2 = item.ArrivedStudents.Where(x=>x.IsVisit == false).Select(x=>x.Student).Select(x=>x.ApplicationUser);
+                                                                                notArrivedUsers.AddRange(users2);
+
+                                                                            }
+
+                                                                            if(item.Teacher != null && item.Teacher.ApplicationUser != null)
+                                                                            teacher  = item.Teacher.ApplicationUser;
+
+                                                                            
+                                                                    <div>
+                                                                                <input type="button" asp-action="RequestDelete" onclick="alert('Request was send')" asp-controller="Request" asp-route-id="@item.Id" value="RequestDelete" class="btn btn-outline-danger" />
+
+                                                                                    <input type="submit" asp-action="Delete" asp-controller="Lesson" formmethod="post" asp-route-id="@item.Id" value="X" class="btn btn-danger" />
+                                                                                    </div>
+                                                                                    <div>
+                                                                                    <strong>Topic of lesson: </strong>@(item.Topic ?? "-") <hr/>
+                                                                                         
+                                                                                    <strong>Visited students:</strong>  <ul>@foreach(var user in arrivedUsers) {<li><a asp-route-id="@user.Id" asp-action="Item" asp-controller="Account">@user.FirstName @user.LastName</a> </li>}</ul> <br/>
+                                                                                    <!--<strong>Teacher:</strong> <a asp-route-id="teacher.Id" asp-action="Item" asp-controller="Account"> teacher.FirstName teacher.LastName</a> <br/>-->
+                                                                                    Result price for teacher: ?
+                                                                                    Result price for admin: ?
+                                                                                    </div>
+                                                                }
+                                                                        </div>
+                                                            </div>
+                                                            <div style="display:flex; justify-content:space-between">
+                                                                @if(User.IsInRole("Student"))
+                                                    {
+                                                                        <div style="display:flex; grid-gap:5%">
+
+                                                                            <input type="time" name="startTime" asp-for="@item.StartTime" disabled /> -
+                                                                            <input type="time" name="endTime" asp-for="@item.EndTime" disabled  />
+                                                                        </div>
+                                                                        <div></div>
+                                                    }
+                                                    else
+                                                    {
+                                                                        <div style="display:flex; grid-gap:5%">
+                                                                            <input type="text" asp-for="@item.Id"  />
+
+                                                                            <input type="time" asp-for="@item.StartTime" /> -
+                                                                            <input type="time"  asp-for="@item.EndTime" />
+                                                                        </div>
+
+                                                                            @if(User.IsInRole("Teacher"))
+                                                                    {
+                                                                                <div>
+                                                                                    <input type="submit" asp-action="RequestEdit" onclick="alert('Request was send')" asp-controller="Request" asp-route-item="@item" value="Change request" class="btn btn-outline-primary" />
+                                                                                </div>
+                                                                    }
+                                                                            @if(User.IsInRole("Admin"))
+                                                                    {
+                                                                                        <div>
+                                                                                        <input type="button" onclick="RequestToChangeLesson('@item.Id')" value="Change request" class="btn btn-outline-primary" />
+
+                                                                                        <input type="submit" asp-action="Edit" asp-controller="Lessons" asp-route-lesson="@item" value="✔" class="btn btn-primary" />
+                                                                                        </div>
+                                                                    }
+                                                                        
+                                                                
+                                                    }
+
+
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </form>
+                                                    </div>
+
+                                                }
+                                    }
+
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                    }
+
+
+                }

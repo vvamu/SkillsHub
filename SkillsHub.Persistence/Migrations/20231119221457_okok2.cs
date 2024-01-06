@@ -17,7 +17,7 @@ namespace SkillsHub.Persistence.Migrations
             migrationBuilder.RenameColumn(
                 name: "CourceId1",
                 table: "Groups",
-                newName: "CourceNameId");
+                newName: "CourseNameId");
 
             migrationBuilder.RenameIndex(
                 name: "IX_Groups_CourceId1",
@@ -27,8 +27,8 @@ namespace SkillsHub.Persistence.Migrations
             migrationBuilder.AddForeignKey(
                 name: "FK_Groups_CourceNames_CourceNameId",
                 table: "Groups",
-                column: "CourceNameId",
-                principalTable: "CourceNames",
+                column: "CourseNameId",
+                principalTable: "CourseNames",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
         }
@@ -41,7 +41,7 @@ namespace SkillsHub.Persistence.Migrations
                 table: "Groups");
 
             migrationBuilder.RenameColumn(
-                name: "CourceNameId",
+                name: "CourseNameId",
                 table: "Groups",
                 newName: "CourceId1");
 

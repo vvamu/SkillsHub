@@ -1,11 +1,17 @@
 ﻿using SkillsHub.Domain.BaseModels;
+using SkillsHub.Domain.Models.NotInUse;
+using System.ComponentModel.DataAnnotations;
 
 namespace SkillsHub.Domain.Models;
 
 public class Lesson : BaseEntity
 {
+    public string? Topic { get; set; }
+    //[Url]
+    public string? LinkToWebinar { get; set; }
+
     public Teacher? Teacher { get; set; }
-    public Guid? TeacherId { get; set; }
+    public Guid? TeacherId { get; set; } 
     public List<LessonStudent>? ArrivedStudents { get; set; }
     public Group? Group { get; set; }
     public Guid? GroupId { get; set; }
@@ -22,7 +28,6 @@ public class Lesson : BaseEntity
 
     public LessonTask? LessonTask { get; set; }
     public Guid? LessonTaskId { get; set; }
-    public string? LinkToWebinar { get; set; }
     public ApplicationUser? Creator { get; set; }
     public bool IsСompleted { get; set; } = false;
 

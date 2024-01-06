@@ -53,14 +53,14 @@ namespace SkillsHub.Persistence.Migrations
 
             migrationBuilder.AddColumn<int>(
                 name: "MaximumAge",
-                table: "CourceNames",
+                table: "CourseNames",
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
                 name: "MinimumAge",
-                table: "CourceNames",
+                table: "CourseNames",
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
@@ -103,11 +103,11 @@ namespace SkillsHub.Persistence.Migrations
 
             migrationBuilder.DropColumn(
                 name: "MaximumAge",
-                table: "CourceNames");
+                table: "CourseNames");
 
             migrationBuilder.DropColumn(
                 name: "MinimumAge",
-                table: "CourceNames");
+                table: "CourseNames");
 
             migrationBuilder.AddColumn<Guid>(
                 name: "GroupId",

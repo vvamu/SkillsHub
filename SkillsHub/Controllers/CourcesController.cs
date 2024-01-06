@@ -24,33 +24,29 @@ public class CourcesController : Controller
 	}
     public IActionResult Index()
     {
-        var cources = _context.Cources.AsQueryable();
-        var courcesNames = _context.CourceNames.AsQueryable();
+        //var cources = _context.Cources.AsQueryable();
+        var courcesNames = _context.CourseNames.AsQueryable();
         var lessonTypes = _context.LessonTypes.AsQueryable();
-        return View((cources,courcesNames,lessonTypes));
+        var a = _context.Groups.ToList().AsQueryable<Object>();
+
+        return View((a, courcesNames,lessonTypes));
     }
 
     [HttpPost]
     public async Task SaveLessonType(LessonType item)
     {
         if (item.Id == Guid.Empty) return;
-        _context.Update(item);
+        _context.LessonTypes.Update(item);
         await _context.SaveChangesAsync();
         
         //return Json(details.Count, JsonRequestBehavior.AllowGet);
     }
 
 	[HttpPost]
-	public async Task SaveCourcesNames(Cource item)
+	public async Task SaveCourcesNames(CourseName item)
 	{
-		_context.Update(item);
-		await _context.SaveChangesAsync();
-	}
-
-	[HttpPost]
-	public async Task SaveLessonTypes(LessonType item)
-	{
-		_context.Update(item);
+        if (item.Id == Guid.Empty) return;
+        _context.CourseNames.Update(item);
 		await _context.SaveChangesAsync();
 	}
 
@@ -95,7 +91,7 @@ public class CourcesController : Controller
     public async Task<IActionResult> GetCourcesNamesAsync()
     {
 
-        var items = await _context.CourceNames.ToListAsync();
+        var items = await _context.CourseNames.ToListAsync();
         string json = "";
 
         try
@@ -134,9 +130,10 @@ public class CourcesController : Controller
 
 
 	[HttpGet]
-	public async Task<IActionResult> CreateCourceName()
+	public async Task<IActionResult> CreateCourceName(Guid studentForIndividual)
 	{
-        //var courceDb = _context.CourceNames.FirstOrDefault(x => x.Id == courceId) ?? new CourceName();
+        //if()
+        //var courceDb = _context.CourseNames.FirstOrDefault(x => x.Id == courceId) ?? new CourseName();
 		return View("CreateCourceName");
         /*		if (courceDb != null) 
         else
@@ -152,7 +149,7 @@ public class CourcesController : Controller
     }
 
 	[HttpPost]
-	public async Task<IActionResult> CreateCourceName(CourceName  item)
+	public async Task<IActionResult> CreateCourceName(CourseName  item)
 	{
         try
         {
@@ -183,13 +180,13 @@ public class CourcesController : Controller
 
 	}
 
-    public IActionResult DeleteCourceName(CourceName item)
+    public IActionResult DeleteCourceName(CourseName item)
     {
-        var courceName = _context.CourceNames.FirstOrDefault(c => c.Id == item.Id);
+        var courceName = _context.CourseNames.FirstOrDefault(c => c.Id == item.Id);
         if (courceName == null) { return RedirectToAction("Index"); }
-        //_context.CourceNames.Remove(courceName);
+        //_context.CourseNames.Remove(courceName);
         courceName.IsDeleted = true;
-        _context.CourceNames.Update(courceName);
+        _context.CourseNames.Update(courceName);
         _context.SaveChanges();
         return RedirectToAction("Index");
     }
