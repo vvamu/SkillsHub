@@ -1,5 +1,5 @@
 ﻿@using SkillsHub.Domain.BaseModels;
-@model (List<Student> allStudents,List<Student> checkedStudents);
+@model (List<Student>? allStudents,List<Student>? checkedStudents);
 
 <ul>
 
@@ -12,7 +12,7 @@
 
             <li class='list-group-item'>
                 <input type='hidden' name='itemId' value='@item.Id' />
-                @if (Model.checkedStudents != null && Model.checkedStudents.Contains(item))
+                @if (Model.checkedStudents != null && Model.checkedStudents.Select(x=>x.Id).Contains(item.Id))
                 {
                     <input type='checkbox' name='studentId' style='margin-right:5px;' value='@item.Id' checked />
                 }

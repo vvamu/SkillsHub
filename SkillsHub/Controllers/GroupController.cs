@@ -123,12 +123,11 @@ public class GroupController : Controller
             _context.Groups.Update(item);
 
             //await _groupService.CreateScheduleDaysToGroup(item, dayName, startTime, studentId);
-            if(studentId.Length > 0)
-            {
+            
                 await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
                 //await _groupService.UpdateStudentsInGroup2()
 
-            }
+        
             await _context.SaveChangesAsync();
             
             var dateStart = item.DateStart;

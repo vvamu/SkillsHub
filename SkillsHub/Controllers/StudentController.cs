@@ -67,7 +67,7 @@ public class StudentController : Controller
 
     #endregion
 
-    #region Ajax-Get
+    #region Get
 
     [HttpGet]
     [Route("/Student/GetStudentListAsync")]
@@ -115,11 +115,11 @@ public class StudentController : Controller
         return Json(JsonSerializerToAjax.GetJsonByIQueriable(items));
     }
 
-    #endregion
+    
 
-    [HttpGet]
+    [HttpPost]
     [Route("/Student/StudentsCheckedCheckboxListByObject")]
-    public async Task<IActionResult> StudentsCheckedCheckboxListByObject(Guid groupId)
+    public async Task<IActionResult> StudentsCheckedCheckboxListByObject(Guid groupId, Guid lessonId)
     {
         List<Student> students = new List<Student>();
 
@@ -151,12 +151,13 @@ public class StudentController : Controller
         //--------------------------------------------------------------------------
       
         var all = items.ToList();
-        var selected = all.Where(x => x.Groups.Select(x => x.Group).Contains(group));
+        var studentsByGroup = group.GroupStudents.Select(x => x.Student).ToList();
 
 
-        return PartialView("_StudentsCheckedCheckboxListByObject",(all, selected));
+        return PartialView("_StudentsCheckedCheckboxListByObject",(all, studentsByGroup));
     }
 
+    #endregion
     #region Create = Update
 
     [HttpGet]

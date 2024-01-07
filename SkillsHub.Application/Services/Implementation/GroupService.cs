@@ -299,9 +299,12 @@ public class GroupService: IGroupService
                 {
 
                     //var student2 = _context.Students.Include(x => x.Groups).FirstOrDefault(x => x.Id == student.Id);
-                    var grSt = await _context.GroupStudents.FirstOrDefaultAsync(x => x.GroupId == group.Id && x.StudentId == student.Id);
-                    if (grSt == null) break;
-                    _context.GroupStudents.Remove(grSt);
+                    //var grSt = await _context.GroupStudents.Include(x=>x.Group).Include(x=>x.Student).FirstOrDefaultAsync(x => x.Group.Id == group.Id && x.Student.Id == student.Id);
+                    //if (grSt == null) continue;
+
+                    //_context.Entry(student.Group).State = EntityState.Unchanged;
+                    //_context.Entry(grSt.Student).State = EntityState.Unchanged;
+                    _context.GroupStudents.Remove(student);
 
 
                     /*
@@ -325,10 +328,10 @@ public class GroupService: IGroupService
             {
                 ApplicationUser? userr;
 
-                var stud = await _context.Students.Include(x=>x.Groups).FirstOrDefaultAsync(x => x.Id == studentId);
-                var groupNew = await _context.Groups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == group.Id);
+                var stud = await _context.Students.FirstOrDefaultAsync(x => x.Id == studentId);
+                var groupNew = new Group() { Id = group.Id };//await _context.Groups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == group.Id);
 
-                if (await _context.GroupStudents.FirstOrDefaultAsync(x => x.GroupId == group.Id && x.StudentId == studentId) != null) break;
+                if (await _context.GroupStudents.FirstOrDefaultAsync(x => x.GroupId == group.Id && x.StudentId == studentId) != null) continue;
 
                 var grSt = new GroupStudent() { Group = groupNew, Student = stud };
                 /*

@@ -202,19 +202,24 @@
                                     <ul>
                                     <li>Cource name: @item.CourseName.Name</li>
                                      <li>Lesson type: @item.LessonType.Name</li>
-                                     <li>Date start: @item.DateStart</li>
+                                        @if (@item.DateStart != DateTime.MinValue)
+                                        {
+                                            <li>Date start: @(DateOnly.FromDateTime(item.DateStart).ToShortDateString())</li>
+                                        }
 
-                                        <li>Teacher: @if (item.Teacher != null)
-                                            {@item.Teacher.ApplicationUser.FirstName
-                                                <span>@item.Teacher.ApplicationUser.LastName</span>
+                                     
+                                        <li>
+                                            <strong>Teacher:</strong> @if (item.Teacher != null)
+                                            {
+                                                <span> @item.Teacher.ApplicationUser.FirstName @item.Teacher.ApplicationUser.LastName @item.Teacher.ApplicationUser.Surname</span>
                                             }
                                         </li>
                                         <li>
-                                            Students: @if (item.GroupStudents != null)
+                                            <strong>Students:</strong> @if (item.GroupStudents != null)
                                             {
                                                 foreach(var i in item.GroupStudents.Select(x=>x.Student))
                                                 {
-                                                    <span>@i.ApplicationUser.LastName</span>
+                                                    <span>@i.ApplicationUser.FirstName @i.ApplicationUser.LastName @i.ApplicationUser.Surname ,</span>
 
                                                 }
                                             }
