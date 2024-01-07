@@ -102,8 +102,6 @@
                                             <th>Total Lessons</th>
                                             <th>Month Lessons</th>
                                             <th>Calculated salary</th>
-                                            <th>IsAdmin</th>
-                                            <th>SourceFindCompany</th>
                                             <th>IsDeleted</th>
                                                 <!--
                                                         <td>item.CalculatedSalary</td>
@@ -126,8 +124,6 @@
                                                     <th>Total Lessons</th>
                                                     <th>Month Lessons</th>
                                                     <th>Calculated salary</th>
-                                                    <th>IsAdmin</th>
-                                                    <th>SourceFindCompany</th>
                                                     <th>IsDeleted</th>
                                         </tr>
                                     </tfoot>
@@ -255,7 +251,7 @@
                             if (student.Groups != null) {
                                 row += '<td>';
                                 student.Groups.forEach(function (group) {
-                                    row += '<p>' + group.Name + '</p>';
+                                row += '<strong>' + (student.Groups.indexOf(group) + 1) + " " +  group.Name + '</strong>, ';
                                 });
                                 row += '</td>';
                             } else {
@@ -267,9 +263,6 @@
                             '<td>' + (student.Lessons == null ? '0' : student.Lessons.filter(function (lesson) {
                                 return new Date(lesson.StartTime).getMonth() == new Date().getMonth();
                             }).length) + '</td>' +
-                            '<td>0 salary</td>' +
-                            '<td>' + student.DateCreated + '</td>' +
-                            '<td>---</td>' +
                             '<td>' + student.IsDeleted + '</td>' +
                             '</tr>';
 

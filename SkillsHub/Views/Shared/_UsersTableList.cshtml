@@ -3,6 +3,50 @@
 @inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
 
 
+    @if (Model == null || Model.Count() == 0)
+        {
+
+                <div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
+                    <h3>Users list is empty</h3>
+                    
+
+                </div>
+
+        }
+
+            else
+            {
+                
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Users</h4>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-bordered zero-configuration">
+                                            <thead>
+                                                <tr>
+                                                    <th>Login</th>
+                                                    <th>Full Name</th>
+                                                    <th>Sex</th>
+                                                    <th>Phone</th>
+                                                    <th>Email</th>
+                                                    <th>BirthDate and Age</th>
+                                                    <th>Total lessons student/teacher</th>
+                                                    <th>Month lessons student/teacher</th>
+                                                    <th>Roles</th>
+                                                    <th>Cources</th
+                                                    <th>Working days</th>
+                                                    <th>Working days</th>
+                                                    <th>Source Find Company</th>
+                                                    <th>Deleted</th>
+                                                    <th>Soft delete</th>
+                                                    <th>Hard delete (from database)</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
 
     @foreach (var item in Model)
     {
@@ -22,7 +66,7 @@
             <td>@item.Sex</td>
             <td>@item.Phone</td>
             <td>@item.Email</td>
-            <td>@item.BirthDate - @(DateTime.Today.Year - item.BirthDate.Year) year</td>
+            <td>@(DateOnly.FromDateTime(item.BirthDate).ToShortDateString()) - @(DateTime.Today.Year - item.BirthDate.Year) year</td>
 
             @{
                 var teacherLessonsMonth = 0;
@@ -31,38 +75,84 @@
                 var studentLessons = 0;
                 var currentMonth = DateTime.Now.Month;
 
-                if (item.UserTeacher != null)
-                {
-                    teacherLessonsMonth = item.UserTeacher.Groups
-                    .SelectMany(x => x.Lessons)
-                    .Where(x => x.EndTime.Month == currentMonth)
-                    .Count();
-                    teacherLessons = item.UserTeacher.Groups
-                    .SelectMany(x => x.Lessons).Count();
-                }
-                if (item.UserStudent != null)
-                {
-                    /*
-                    studentLessonsMonth = item.UserStudent.Groups
-                    .SelectMany(x => x.Lessons)
-                    .Where(x => x.EndTime.Month == currentMonth)
-                    .Count();
-                    studentLessons = item.UserStudent.Groups
-                    .SelectMany(x => x.Lessons).Count();
-                    */
-                }
+               
+                  // var ii = teacherLessonsMonth = item.UserTeacher.Groups;
+                  try{
+
+                  
+                     if (item.UserTeacher != null && item.UserTeacher.Groups != null &&  item.UserTeacher.Groups.SelectMany(x => x.Lessons) != null && item.UserTeacher.Groups.SelectMany(x => x.Lessons).Count() != null)
+                    {
+                        teacherLessonsMonth = item.UserTeacher.Groups
+                       .SelectMany(x => x.Lessons)
+                        .Where(x => x.EndTime.Month == currentMonth)
+                        .Count();
+                        teacherLessons = item.UserTeacher.Groups
+                        .SelectMany(x => x.Lessons).Count();
+                    }
+                    if (item.UserStudent != null)
+                    {
+                        /*
+                        studentLessonsMonth = item.UserStudent.Groups
+                        .SelectMany(x => x.Lessons)
+                        .Where(x => x.EndTime.Month == currentMonth)
+                        .Count();
+                        studentLessons = item.UserStudent.Groups
+                        .SelectMany(x => x.Lessons).Count();
+                        */
+                    }
+                    }catch (Exception ex){}
+               
+                
 
             }
             <td>@teacherLessons / @studentLessons</td>
             <td>@teacherLessonsMonth / @studentLessonsMonth</td>
             <td>
-
                 @{
                     var roles = await _roleManager.UserManager.GetRolesAsync(item);
                     string result = string.Join(",", roles.ToArray());
                     @result
                 }
             </td>
+            <td>@try{
+
+                
+                 @if(item.UserTeacher != null && item.UserTeacher.PossibleCources != null) { 
+                 var teacherCources = item.UserTeacher.PossibleCources.Select(x=>x.CourseName).Select(x=>x.Name).ToList();
+
+                 <p><strong>Teacher:</strong> @foreach(var cource in teacherCources)
+                     {
+                         @cource 
+                     }
+                 </p> 
+                 }
+                 @if(item.UserStudent != null && item.UserStudent.PossibleCources != null) { 
+                 var studentrCources = item.UserStudent.PossibleCources.Select(x=>x.CourseName).Select(x=>x.Name).ToList();
+
+                 <p><strong>Student:</strong> @foreach(var cource in studentrCources)
+                     {
+                         @cource 
+                     }
+                 </p> 
+                 } 
+                 }
+                 catch(Exception ex) {
+
+                 }</td>
+
+
+                  <td>
+                    
+                 @if(item.UserTeacher != null && item.UserTeacher.WorkingDays != null) { 
+
+                 <p><strong>Teacher:</strong> @item.UserTeacher.WorkingDays
+                 </p> 
+                 }
+                 @if(item.UserStudent != null && item.UserStudent.WorkingDays != null) { 
+                     <p><strong>Student:</strong>  @item.UserStudent.WorkingDays 
+                     </p> 
+                 } 
+                </td>
             <td>@item.SourceFindCompany</td>
             <td>@if (item.IsDeleted)
                 {
@@ -72,8 +162,36 @@
                 {
                     <h3>-</h3>
                 }</td>
-            <td><a asp-action="SoftDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-danger">Soft delete</a></td>
-            <td><a asp-action="HardDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-warning">Hard delete</a></td>
+            <td><a asp-action="SoftDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Soft delete</a></td>
+            <td><a asp-action="HardDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Hard delete</a></td>
         </tr>
     }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Login</th>
+                                            <th>Full Name</th>
+                                            <th>Sex</th>
+                                            <th>Phone</th>
+                                            <th>Email</th>
+                                            <th>BirthDate and Age</th>
+                                            <th>Total lessons student/teacher</th>
+                                            <th>Month lessons student/teacher</th>
+                                            <th>Roles</th>
+                                            <th>Cources</th>
+                                            <th>Working days</th>
+                                            <th>Source Find Company</th>
+                                            <th>Deleted</th>
+                                            <th>Soft delete</th>
+                                            <th>Hard delete (from database)</th>
 
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+}

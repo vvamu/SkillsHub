@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MailKit.Search;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Helpers;
+using SkillsHub.Helpers.SearchModels;
 using SkillsHub.Persistence;
 
 namespace SkillsHub.Controllers;
@@ -55,11 +57,15 @@ public class AccountController : Controller
         return View(user);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> UsersTableList()
+    [HttpPost]
+    [Route("/Account/UsersTableList")]
+
+    public async Task<IActionResult> UsersTableList(UserFilterModel filters, OrderModel order)
     {
         var users = await _userService.GetAllAsync();
+        users = await FilterMaster.FilterUsers(users, filters,order);
         //HttpContext.Session.SetString("page", "index");
+        var ku = users.ToList();
         return PartialView("_UsersTableList", await users.ToListAsync());
     }
 

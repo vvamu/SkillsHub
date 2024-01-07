@@ -31,7 +31,6 @@ public class ApplicationUser : IdentityUser<Guid>
     public string Password { get; set; } //?
     public string OwnHashedPassword { get; set; }
     public bool IsDeleted { get; set; } = false;
-    public bool IsAdmin { get; set; } = false;
     public virtual Teacher? UserTeacher { get; set; }
     public virtual Student? UserStudent { get; set; }
     public bool IsVerified { get; set; } = false;

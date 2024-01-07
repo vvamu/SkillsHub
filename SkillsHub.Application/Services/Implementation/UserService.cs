@@ -38,7 +38,7 @@ public class UserService : IUserService
 
     public async Task<ApplicationUser> GetUserByIdAsync(Guid id)
     {        
-        var user = await _context.Users
+        var user = await _context.ApplicationUsers
             
             .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
             .Include(x=>x.UserTeacher.PossibleCources).ThenInclude(x=>x.CourseName)
@@ -56,7 +56,7 @@ public class UserService : IUserService
 
     public async Task<UserCreateDTO> GetUserCreateDTOByIdAsync(Guid id)
     {
-        var user = await _context.Users.Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
+        var user = await _context.ApplicationUsers.Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
             .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.CourseName)
             .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
             .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.CourseName)
@@ -200,9 +200,9 @@ public class UserService : IUserService
 
         //if (item.EnglishLevelId != Guid.Empty) item.EnglishLevel = await _context.EnglishLevels.FirstOrDefaultAsync(x => x.Id == item.EnglishLevelId);
         
-         if (_context.Users.FirstOrDefault(x => x.Email == user.Email) != null || user.Email == null) throw new Exception("User with such email alredy exists");
-        if (_context.Users.FirstOrDefault(x => x.Login == user.Login) != null) throw new Exception("User with such login alredy exists");
-        if (_context.Users.FirstOrDefault(x => x.Phone == user.Phone) != null) throw new Exception("User with such phone alredy exists");
+         if (_context.ApplicationUsers.FirstOrDefault(x => x.Email == user.Email) != null || user.Email == null) throw new Exception("User with such email alredy exists");
+        if (_context.ApplicationUsers.FirstOrDefault(x => x.Login == user.Login) != null) throw new Exception("User with such login alredy exists");
+        if (_context.ApplicationUsers.FirstOrDefault(x => x.Phone == user.Phone) != null) throw new Exception("User with such phone alredy exists");
         
 
         string hashedPassword = HashProvider.ComputeHash(user.Password.Trim());
@@ -270,7 +270,7 @@ public class UserService : IUserService
     }
     private async Task<ApplicationUser> DeleteUserAsync(Guid id)
     {
-        var dbItem = await _context.Users.FirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("User not found");
+        var dbItem = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("User not found");
         dbItem.IsDeleted = true;
         var teacher = await _context.Teachers.Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.ApplicationUser.Id == id);
         var student = await _context.Students.Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.ApplicationUser.Id == id);
@@ -305,7 +305,7 @@ public class UserService : IUserService
         }
 
         if (!_context.Users.Any(x => x.Login == item.Login)) throw new Exception("User with such login not exists");
-        ApplicationUser? user = await _context.Users.Where(x => x.Login == item.Login).FirstOrDefaultAsync()
+        ApplicationUser? user = await _context.ApplicationUsers.Where(x => x.Login == item.Login).FirstOrDefaultAsync()
             ?? throw new Exception("User not found");
 
         var has1 = user.OwnHashedPassword;
@@ -326,7 +326,7 @@ public class UserService : IUserService
             //throw new Exception(errorsString);
         }
 
-        ApplicationUser? user = await _context.Users.Where(x => x.Login == item.Login).FirstOrDefaultAsync()
+        ApplicationUser? user = await _context.ApplicationUsers.Where(x => x.Login == item.Login).FirstOrDefaultAsync()
             ?? throw new Exception("User not found");
 
         var has1 = user.OwnHashedPassword;
@@ -347,7 +347,7 @@ public class UserService : IUserService
 
     public async Task CreateAdminAsync(StudentDTO item = null)
     {
-        var result = await _context.Users.FirstOrDefaultAsync(x => x.Login == "AdminLogin");
+        var result = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Login == "AdminLogin");
         if (result != null) return;
         var admin = new ApplicationUser()
         {
@@ -359,12 +359,11 @@ public class UserService : IUserService
             Sex = "Male",
             Password = "AdminPassword123",
             OwnHashedPassword = HashProvider.ComputeHash("AdminPassword123"),
-            IsAdmin = true,
             IsDeleted = false,
             SecurityStamp = Guid.NewGuid().ToString()
         };
 
-        await _context.Users.AddAsync(admin);
+        await _context.ApplicationUsers.AddAsync(admin);
         await _userManager.CreateAsync(admin, admin.Password.Trim());
         await _context.SaveChangesAsync();
 
@@ -445,7 +444,7 @@ public class UserService : IUserService
     {
         await SoftDeleteAsync(item);
 
-        _context.Users.Remove(item);
+        _context.ApplicationUsers.Remove(item);
         await _context.SaveChangesAsync();
         return item;
     }

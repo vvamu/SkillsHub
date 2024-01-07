@@ -327,6 +327,12 @@ console.log(data);
         parent.remove();
     }
 
+        
+        function getStudents() {
+
+
+            $("#studentsList").load("/Student/StudentsCheckedCheckboxListByObject", { groupId = '@Model.Id' });
+        }
 
     function getStudentsList() {
 
@@ -347,6 +353,7 @@ console.log(data);
             }
         }
 
+        
 
         $.ajax({
             url: "/Student/GetStudentListAsync?isDeleted=true",
@@ -527,7 +534,8 @@ console.log(data);
 
     $(document).ready(function () {
         //getDataByAjax("/Student/GetStudentListAsync")
-        getStudentsList();
+        //getStudentsList();
+        getStudents();
         getCourcesNamesList();
         getLessonTypesList();
         getTeachers();

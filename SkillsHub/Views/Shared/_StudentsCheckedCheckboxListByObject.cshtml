@@ -1,79 +1,32 @@
 ﻿@using SkillsHub.Domain.BaseModels;
-@model List<ApplicationUser>;
-@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
+@model (List<Student> allStudents,List<Student> checkedStudents);
 
+<ul>
 
-
-    @foreach (var item in Model)
+  
+@if(Model.allStudents != null)
+{
+    @foreach(var item in Model.allStudents)
     {
-        <tr>
-            <td>
-                @if (item.IsDeleted == false)
-                {
-                    <a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.Id" style="font-weight:900;color:#7571f9">  @item.Login </a>
+            var user = item.ApplicationUser;
 
+            <li class='list-group-item'>
+                <input type='hidden' name='itemId' value='@item.Id' />
+                @if (Model.checkedStudents != null && Model.checkedStudents.Contains(item))
+                {
+                    <input type='checkbox' name='studentId' style='margin-right:5px;' value='@item.Id' checked />
                 }
                 else
                 {
-                    <a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.Id" style="font-weight:900;color:red">  @item.Login </a>
+                    <input type='checkbox' name='studentId' style='margin-right:5px;' value='@item.Id' />
                 }
-            </td>
-            <td>@item.FirstName @item.LastName @item.Surname</td>
-            <td>@item.Sex</td>
-            <td>@item.Phone</td>
-            <td>@item.Email</td>
-            <td>@item.BirthDate - @(DateTime.Today.Year - item.BirthDate.Year) year</td>
-
-            @{
-                var teacherLessonsMonth = 0;
-                var studentLessonsMonth = 0;
-                var teacherLessons = 0;
-                var studentLessons = 0;
-                var currentMonth = DateTime.Now.Month;
-
-                if (item.UserTeacher != null)
-                {
-                    teacherLessonsMonth = item.UserTeacher.Groups
-                    .SelectMany(x => x.Lessons)
-                    .Where(x => x.EndTime.Month == currentMonth)
-                    .Count();
-                    teacherLessons = item.UserTeacher.Groups
-                    .SelectMany(x => x.Lessons).Count();
-                }
-                if (item.UserStudent != null)
-                {
-                    /*
-                    studentLessonsMonth = item.UserStudent.Groups
-                    .SelectMany(x => x.Lessons)
-                    .Where(x => x.EndTime.Month == currentMonth)
-                    .Count();
-                    studentLessons = item.UserStudent.Groups
-                    .SelectMany(x => x.Lessons).Count();
-                    */
-                }
-
-            }
-            <td>@teacherLessons / @studentLessons</td>
-            <td>@teacherLessonsMonth / @studentLessonsMonth</td>
-            <td>
-
-                @{
-                    var roles = await _roleManager.UserManager.GetRolesAsync(item);
-                    string result = string.Join(",", roles.ToArray());
-                    @result
-                }
-            </td>
-            <td>@item.SourceFindCompany</td>
-            <td>@if (item.IsDeleted)
-                {
-                    <h3>+</h3>
-                }
-                else
-                {
-                    <h3>-</h3>
-                }</td>
-            <td><a asp-action="SoftDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-danger">Soft delete</a></td>
-            <td><a asp-action="HardDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-warning">Hard delete</a></td>
-        </tr>
+                @user.FirstName  @user.LastName @user.Surname;
+            </li>
     }
-
+      
+}
+else
+{
+      <li>List visible student`s is empty</li>
+}
+</ul>

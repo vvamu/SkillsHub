@@ -324,11 +324,13 @@ public class GroupService: IGroupService
             foreach (var studentId in studentsId)
             {
                 ApplicationUser? userr;
+
                 var stud = await _context.Students.Include(x=>x.Groups).FirstOrDefaultAsync(x => x.Id == studentId);
+                var groupNew = await _context.Groups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == group.Id);
 
                 if (await _context.GroupStudents.FirstOrDefaultAsync(x => x.GroupId == group.Id && x.StudentId == studentId) != null) break;
 
-                var grSt = new GroupStudent() { Group = group,Student = stud };
+                var grSt = new GroupStudent() { Group = groupNew, Student = stud };
                 /*
                 if (stud.Groups != null) stud.Groups.Add(item);
                 else  stud.Groups = new List<Group>() { item };
@@ -337,6 +339,9 @@ public class GroupService: IGroupService
                 else group.GroupStudents = new List<Student>() { stud };
                 */
                 await _context.GroupStudents.AddAsync(grSt);
+
+                _context.Entry(grSt.Group).State = EntityState.Unchanged;
+                _context.Entry(grSt.Student).State = EntityState.Unchanged;
                 //await _context.SaveChangesAsync();
                 /*
                 _context.Entry(stud.Groups).State = EntityState.Unchanged;

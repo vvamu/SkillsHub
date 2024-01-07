@@ -118,6 +118,7 @@ public class StudentController : Controller
     #endregion
 
     [HttpGet]
+    [Route("/Student/StudentsCheckedCheckboxListByObject")]
     public async Task<IActionResult> StudentsCheckedCheckboxListByObject(Guid groupId)
     {
         List<Student> students = new List<Student>();
@@ -127,7 +128,7 @@ public class StudentController : Controller
 
         var items = await _userService.GetAllStudentsAsync();
         items = items.Where(x => x.IsDeleted == false);
-
+        //--------------------------------------------------------------------------
         if (!User.IsInRole("Admin"))
         {
             var user = await _userService.GetCurrentUserAsync();
@@ -147,23 +148,13 @@ public class StudentController : Controller
             }
             // items = usersByUserGroups;
         }
-        else { }
-        try
-        {
-            var jsonString = HttpContext.Request.QueryString.Value ?? "";
-            jsonString = jsonString.Substring(1); // Remove '?'
-            jsonString = HttpUtility.UrlDecode(jsonString);
+        //--------------------------------------------------------------------------
+      
+        var all = items.ToList();
+        var selected = all.Where(x => x.Groups.Select(x => x.Group).Contains(group));
 
-            // Deserialize the JSON string
-            var jsonObject = JObject.Parse(jsonString);
-            var filterModel = jsonObject["StudentFilterModel"].ToObject<StudentFilterModel>();
-            //items = await FilterMaster.GetAllStudents(items, filterModel, orders);
 
-        }
-        catch (Exception ex) { }
-        var ii = items.ToList();
-
-        return PartialView("_StudentsCheckedCheckboxListByObject");
+        return PartialView("_StudentsCheckedCheckboxListByObject",(all, selected));
     }
 
     #region Create = Update

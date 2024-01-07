@@ -4,44 +4,43 @@
 @inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
 
 @model IQueryable<RequestLesson>?
-    <!-- Custom Stylesheet -->
-    <link href="/plugins/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
-
 
 <div>
     <div>
+        <!--NAVBAR - Search, Filter, Sort-->
+        <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
 
-        <div class="row page-titles mx-0">
-            <div class="col p-md-0">
-                <ol class="breadcrumb" style="display:flex;align-items:center">
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                    <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
-                    <li>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:20px">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <div class="input-group icons">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
+                                </div>
+                                <input type="search" onchange="changeCourseName() id="search" class="form-control" placeholder="Search Dashboard" aria-label="Search Dashboard">
+                                <div class="drop-down   d-md-none">
+                                    <form action="#">
+                                        <input type="text" class="form-control" placeholder="Search">
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                            <p style="white-space:nowrap">Подобрать группу:</p>
+                            <select class="form-control" id="val-skill" name="val-skill">
 
-
-
-                        <form>
-                    <li>
-
-                        <!-- Кнопка-триггер модального окна -->
-                        <!--
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="GetCreateModal()">
-                                        Create new (Double click)
-                                    </button>
-                        -->
-                        
-                        <!--<a class="dropdown-item" asp-action="Create" asp-controller="Account"></a>-->
-
-                    </li>
-                    </form>
-
-
-
-                    </li>
-
-                </ol>
+                                <option value="">Набор открыт</option>
+                                <option value="">Набор закрыт</option>
+                                <option value="">С учителем</option>
+                                <option value="">Без учителя</option>
+                            </select>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
+        </nav>
+
         <!--ITEMS-->
         @{
             if (Model == null || Model.Count() == 0)
@@ -148,26 +147,16 @@
     </div>
 
 </div>
+
+<script src="~/plugins/common/common.min.js"></script>
+<script src="~/js/custom.min.js"></script>
+<script src="~/js/settings.js"></script>
+<script src="~/js/gleek.js"></script>
+<script src="~/js/styleSwitcher.js"></script>
+
+
+
 <div id="partialZone"></div>
-
-
-<script>
-
-    function SendRequestToChangeLesson(itemId) {
-        //Serialize the form datas.
-        var valdata = $("#coureName" + itemId).serialize();
-        console.log(valdata);
-        //to get alert popup
-        $.ajax({
-            url: "/Cources/SaveCourcesNames",
-            type: "POST",
-            dataType: 'json',
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            data: valdata
-        });
-        alert("Saved")
-    }
-</script>
     
 
 

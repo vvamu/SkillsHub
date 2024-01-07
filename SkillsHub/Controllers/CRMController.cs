@@ -48,7 +48,7 @@ public class CRMController: Controller
             ViewBag.TotalStudents = _context.Students.Count();
             ViewBag.ActiveTotalTeachers = _context.Teachers.Where(x=>x.IsDeleted == false).Count();
             ViewBag.ActiveTotalStudents = _context.Students.Where(x => x.IsDeleted == false).Count();
-            ViewBag.TotalUsers = _context.Users.Count();
+            ViewBag.TotalUsers = _context.ApplicationUsers.Count();
             ViewBag.CountClasses = //_context.Teachers.Include(x => x.Lessons).Count();
             ViewBag.CountMails = _context.EmailMessages.Count();
 

@@ -8,6 +8,10 @@ namespace SkillsHub.Helpers.SearchModels;
 [BindProperties]
 public class StudentFilterModel
 {
+    public Guid GroupId { get; set; }
+    public string? WorkingDay { get; set; }
+
+    //----------------------------------
     public Guid ApplicationUserId { get; set; }
     public string? ParentName { get; set; }
     public string? ParentPhone { get; set; }
@@ -15,8 +19,8 @@ public class StudentFilterModel
     public int MinCountGroups { get; set; }
 
     public DateTime? MinDateCreated { get; set; }
-    public Guid GroupId { get; set; }
-    public string? WorkingDay { get; set; }
+   
+    
     public string? PossibleCourse { get; set; }
     public int IsDeleted { get; set; } = -100;
 }
