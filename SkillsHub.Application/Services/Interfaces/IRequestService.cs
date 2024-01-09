@@ -13,6 +13,9 @@ public interface IRequestService
 
     public Task<Lesson> ApplyLessonRequest(RequestLesson item, Lesson lesson, int answer);
 
+    public Task DeletePreviousRequests(RequestLesson item);
+
+
 
 
 }

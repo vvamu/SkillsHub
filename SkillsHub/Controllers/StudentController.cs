@@ -121,13 +121,30 @@ public class StudentController : Controller
     [Route("/Student/StudentsCheckedCheckboxListByObject")]
     public async Task<IActionResult> StudentsCheckedCheckboxListByObject(Guid groupId, Guid lessonId)
     {
-        List<Student> students = new List<Student>();
-
+        List<Student> selectedStudents = new List<Student>();
         Group group = await _groupService.GetAsync(groupId);
-        if (group == null) return null;
+        Lesson lesson = await _context.Lessons.Include(x=>x.ArrivedStudents).FirstOrDefaultAsync(x=>x.Id == lessonId);
 
         var items = await _userService.GetAllStudentsAsync();
         items = items.Where(x => x.IsDeleted == false);
+
+        //if (group == null && lesson == null) return null;
+        
+        if(group != null)
+        {
+            selectedStudents = group.GroupStudents.Select(x => x.Student).ToList(); //studentsByGroup
+        }
+        if(lesson != null)
+        {
+            group = await _context.Groups.Include(x => x.Lessons).Include(x=>x.GroupStudents).FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(lessonId));
+            if (group == null) return null;
+            items = group.GroupStudents.Select(x => x.Student).AsQueryable();
+            selectedStudents = lesson.ArrivedStudents.Select(x=>x.Student).ToList();
+        }
+
+
+
+        
         //--------------------------------------------------------------------------
         if (!User.IsInRole("Admin"))
         {
@@ -150,11 +167,10 @@ public class StudentController : Controller
         }
         //--------------------------------------------------------------------------
       
-        var all = items.ToList();
-        var studentsByGroup = group.GroupStudents.Select(x => x.Student).ToList();
+        var all = items.ToList();          
 
 
-        return PartialView("_StudentsCheckedCheckboxListByObject",(all, studentsByGroup));
+        return PartialView("_StudentsCheckedCheckboxListByObject",(all, selectedStudents));
     }
 
     #endregion

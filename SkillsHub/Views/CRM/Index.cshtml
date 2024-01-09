@@ -71,7 +71,7 @@
                         <div class="card-body">
                             <h3 class="card-title text-white">Lessons</h3>
                             <div class="d-inline-block">
-                                <h2 class="text-white">@ViewBag.CountClasses - </h2>
+                                <h2 class="text-white">@_context.Lessons.Count() </h2>
                             </div>
                             <span class="float-right display-5 opacity-5">
 
@@ -86,7 +86,7 @@
                 <div class="col-lg-3 col-sm-6">
                     <div class="card gradient-4">
                         <div class="card-body">
-                            <h3 class="card-title text-white">Cources</h3>
+                            <h3 class="card-title text-white">Lesson types</h3>
                             @{
                                 string newCourcesString = "";
                                 var newCourcess = _context.ApplicationUsers.Where(x => (DateTime.Now.Day - x.RegistrationDate.Day) <= 10 && x.RegistrationDate.Year == DateTime.Now.Year && x.RegistrationDate.Month == DateTime.Now.Month).Count();
@@ -94,12 +94,12 @@
                                     newCourcesString += "+" + newUsers + " by month";
                             }
                             <div class="d-inline-block">
-                                <h2 class="text-white">@_context.CourseNames.Count() <span style="font-size:small">-</span></h2>
+                                <h2 class="text-white">@_context.CourseNames.Count() <span style="font-size:small"></span></h2>
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
                             </span>
-                            <br /><span>By Year: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year).Count() </span><br />
-                            <span>By Month: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year && x.EndTime.Month == DateTime.Now.Month).Count()</span>
+                            <br /><span>By year: @_context.CourseNames.Where(x => x.DateCreated.Year <= DateTime.Now.Year).Count() </span><br />
+                            <span>Last: @_context.CourseNames.OrderBy(x=>x.DateCreated).FirstOrDefault().Name</span>
                         </div>
                     </div>
                 </div>
@@ -118,8 +118,8 @@
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
                             </span>
-                            <br /><span>By Year: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year).Count() </span><br />
-                            <span>By Month: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year && x.EndTime.Month == DateTime.Now.Month).Count()</span>
+                            <br /><span>Text</span><br />
+                            <span>Text:</span>
                         </div>
                     </div>
                 </div>
@@ -133,37 +133,37 @@
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
                             </span>
-                            <br /><span>By Year: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year).Count() </span><br />
-                            <span>By Month: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year && x.EndTime.Month == DateTime.Now.Month).Count()</span>
+                            <br /><span>By Year: @_context.EmailMessages.Where(x => x.DateCreated.Year == DateTime.Now.Year).Count() </span><br />
+                            <span>By Month: @_context.Lessons.Where(x => x.DateCreated.Year == DateTime.Now.Year && x.EndTime.Month == DateTime.Now.Month).Count()</span>
                         </div>
                     </div>
                 </div>
 
 
                 <div class="col-lg-3 col-sm-6">
-                    <div class="card gradient-4">
+                    <div class="card " style="background-color:gray">
                         <div class="card-body">
-                            <h3 class="card-title text-white">Tasks</h3>
+                            <h3 class="card-title text-white">X</h3>
                             <div class="d-inline-block">
                                 <h2 class="text-white">0</h2>
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
-                            <br /><span>By Day: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year).Count() </span><br />
-                            <span>By Month: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year && x.EndTime.Month == DateTime.Now.Month).Count()</span>
+                            <br /><span>By Day: X </span><br />
+                            <span>By Month: X</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-3 col-sm-6">
-                    <div class="card gradient-4">
+                    <div class="card " style="background-color:gray">
                         <div class="card-body">
                             <h3 class="card-title text-white">Telegram Mails</h3>
                             <div class="d-inline-block">
                                 <h2 class="text-white">Off</h2>
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
-                            <br /><span>By Year: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year).Count() </span><br />
-                            <span>By Month: @_context.Lessons.Where(x => x.EndTime.Year == DateTime.Now.Year && x.EndTime.Month == DateTime.Now.Month).Count()</span>
+                            <br /><span>By Year: X </span><br />
+                            <span>By Month: X</span>
                         </div>
                     </div>
                 </div>
@@ -182,9 +182,10 @@
                 -->
 
                 <div class="col-lg-3 col-sm-6">
-                    <div class="card gradient-4">
+                    <div class="card " style="background-color:gray">
+                        
                         <div class="card-body">
-                            <h3 class="card-title text-white">Users with Задолженности</h3>
+                            <h3 class="card-title text-white">Users with debt</h3>
                             <div class="d-inline-block">
                                 <h2 class="text-white">100$</h2>
                             </div>
@@ -194,7 +195,7 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-sm-6">
-                    <div class="card gradient-4">
+                    <div class="card " style="background-color:gray">
                         <div class="card-body">
                             <h3 class="card-title text-white">Total sum to Teachers</h3>
                             <div class="d-inline-block">
@@ -206,7 +207,7 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-sm-6">
-                    <div class="card gradient-4">
+                    <div class="card " style="background-color:gray">
                         <div class="card-body">
                             <h3 class="card-title text-white">Total sum to Students</h3>
                             <div class="d-inline-block">
@@ -218,7 +219,7 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-sm-6">
-                    <div class="card gradient-4">
+                    <div class="card " style="background-color:gray">
                         <div class="card-body">
                             <h3 class="card-title text-white">Total revenue</h3>
                             <div class="d-inline-block">
@@ -230,11 +231,12 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-sm-6">
-                    <div class="card gradient-4">
+                    <div class="card " style="background-color:gray">
                         <div class="card-body">
-                            <h3 class="card-title text-white">Продажи курсов</h3>
+                            <h3 class="card-title text-white">Total price for advertising</h3>
                             <div class="d-inline-block">
-                                <h2 class="text-white">100$ - </h2>
+                                <h2 class="text-white">100$</h2>
+                                Х
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
                         </div>

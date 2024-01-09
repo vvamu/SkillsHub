@@ -6,6 +6,6 @@ namespace SkillsHub.Domain.Models;
 public class NotificationMessage : BaseEntity
 {
     public string Message { get; set; }
-    public List<ApplicationUser>? Users { get; set; }
+    public List<NotificationUser>? Users { get; set; }
     public ApplicationUser? Sender { get; set; }
 }

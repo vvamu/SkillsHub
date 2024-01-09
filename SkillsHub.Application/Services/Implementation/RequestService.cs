@@ -17,15 +17,17 @@ public class RequestService : IRequestService
     private readonly IMapper _mapper;
     private readonly IUserService _userService;
     private readonly INotificationService _notificationService;
+    private readonly ILessonService _lessonService;
 
     public RequestService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IMapper mapper, IUserService userService,
-        INotificationService notificationService)
+        INotificationService notificationService, ILessonService lessonService)
     {
         _context = context;
         _userManager = userManager;
         _mapper = mapper;
         _userService = userService;
         _notificationService = notificationService;
+        _lessonService = lessonService;
     }
     
 
@@ -41,14 +43,14 @@ public class RequestService : IRequestService
         {
             var duration = (newLesson.EndTime - newLesson.StartTime).TotalMinutes;
             var defaultDuration = lesson.Group.LessonType.LessonTimeInMinutes;
-            requestMessage += "\nDefault time to lesson type " + lesson.Group.LessonType.Name + " : " + defaultDuration
-                + "\n New duration : " + duration
+            requestMessage += "\n| Default time to lesson type " + lesson.Group.LessonType.Name + " : " + defaultDuration
+                + "\n | New duration : " + duration
                 + "\n Difference : " + (defaultDuration - duration);
         }
         else
         {
-            requestMessage += "In group " + lesson.Group.Name + " lesson  was deleted by date:  "
-                    + lesson.StartTime.ToShortTimeString() + " - " + lesson.EndTime.ToShortTimeString();
+            requestMessage += " in group '" + lesson.Group.Name + "' ";//+ "' lesson  was deleted by date:  ";
+                   // + lesson.StartTime.ToShortTimeString() + " - " + lesson.EndTime.ToShortTimeString();
         }
 
         var user = await _userService.GetCurrentUserAsync();
@@ -83,31 +85,57 @@ public class RequestService : IRequestService
         return item ?? throw new Exception("Request not found");
     }
 
-    public async Task<Lesson> ApplyLessonRequest(RequestLesson item, Lesson lesson, int answer)
+    //Надо отсортировать запросы.
+    //А отправляет запрос на изменение. В принимает запрос. Изменение занятия. Запрос isDeleted = true, все остальные связанные с этим запросом - удаляются. Создается сообщение
+    //А отправляет запрос на изменение. В не принимает запрос. Запрос isDeleted = true, все остальные связанные с этим запросом - удаляются. Создается сообщение
+    //А отправляет запрос на удаление. 
+    public async Task<Lesson> ApplyLessonRequest(RequestLesson item, Lesson lesson, int answer = 1)
     {
-        var lastLessonValue = await _context.Lessons.FirstOrDefaultAsync(x => x.Id == item.Id);
+        var req =  await _context.RequestLessons.Include(x => x.LessonBefore).FirstOrDefaultAsync(x=>x.Id  ==item.Id);
+        var lastLessonValue =  req.LessonBefore;
+        var group = await _context.Groups.Include(x => x.Lessons).FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(lastLessonValue.Id));
+
+        //full requestLesson
 
 
-        var requestLessonsByLesson = await _context.RequestLessons
-            .Include(x => x.LessonBefore).ThenInclude(x => x.Group)
-            .Where(x => x.LessonBefore.Id == item.LessonBefore.Id).ToListAsync();
-
-        if (requestLessonsByLesson  == null && requestLessonsByLesson.FirstOrDefault(x=>x.Id == item.Id) == null) return null;
-        var requestLessonByLesson = requestLessonsByLesson.FirstOrDefault(x => x.Id == item.Id);
-
-        requestLessonsByLesson.Remove(requestLessonByLesson);
-        requestLessonsByLesson.ForEach(x=>_context.Remove(x));
-
-        _context.RequestLessons.Update(requestLessonByLesson);
-        requestLessonByLesson.IsDeleted = true;
-        
         if (answer > 0)
         {
-            _context.Lessons.Update(lesson);
+            await DeletePreviousRequests(item);
+
+            item.IsDeleted = true;
+            _context.RequestLessons.Update(item);
+
+            if(lesson == null)
+            {
+                await _lessonService.DeleteLessonByGroup(group, lesson);
+            }
+            else
+            {
+                _context.Lessons.Update(lesson);
+                await _context.SaveChangesAsync();
+            }
         }
-        await _notificationService.CreateToLesson(lastLessonValue,lesson, null,answer);
+
+        await _notificationService.СreateToEditLesson(lastLessonValue,lesson, null,answer);
         await _context.SaveChangesAsync();
         return lesson;
     }
+
+    public async Task DeletePreviousRequests(RequestLesson item)
+    {
+        var requestLessonsByLesson = await _context.RequestLessons
+            .Include(x => x.LessonBefore).ThenInclude(x => x.Group)
+            .Where(x => x.LessonBefore.Id == item.LessonBefore.Id).ToListAsync();
+        if(item != null)
+        requestLessonsByLesson.Remove(item);
+        foreach (var i in requestLessonsByLesson)
+        {
+            var ii = new RequestLesson() { Id = i.Id };
+            _context.RequestLessons.Remove(ii);
+        }
+        await _context.SaveChangesAsync();
+        
+    }
+
 
 }

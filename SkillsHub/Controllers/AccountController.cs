@@ -195,6 +195,17 @@ public class AccountController : Controller
         //return Json(JsonSerializerToAjax.GetJsonByIQueriable(notifications));
     }
 
+    [HttpPost]
+    public async Task<IActionResult> GetGroupsByUser(Guid id)
+    {
+        var user = await _userService.GetUserByIdAsync(id);
+        var studentGroups = user.UserStudent;
+        var teacherGroups = user.UserTeacher;
+
+        return PartialView("_UsersGroups", (user, studentGroups, teacherGroups));
+
+    }
+
 
 
 

@@ -22,9 +22,11 @@ public class GroupController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserService _userService;
     private readonly ILessonService _lessonService;
+    private readonly INotificationService _notificationService;
 
     public GroupController(IGroupService groupService,ICourcesService courcesService, ApplicationDbContext context, 
-        UserManager<ApplicationUser> userManager, IUserService userService, ILessonService lessonService)
+        UserManager<ApplicationUser> userManager, IUserService userService, ILessonService lessonService,
+        INotificationService notificationService)
     {
         _groupService = groupService;
         _courcesService = courcesService;
@@ -32,6 +34,7 @@ public class GroupController : Controller
         _userManager = userManager;
         _userService = userService;
         _lessonService = lessonService;
+        _notificationService = notificationService;
 
 
     }
@@ -120,6 +123,13 @@ public class GroupController : Controller
             var group = await _groupService.GetAsync(item.Id);
             if (item.LessonTypeId == Guid.Empty) item.LessonTypeId = group.LessonTypeId;
             if(item.CourseNameId == Guid.Empty) item.CourseNameId = group.CourseNameId;
+
+
+
+            if (group.LessonsCount != item.LessonsCount)
+                _notificationService.СreateToUpdateCountLessonsInGroup(group, group.LessonsCount, item.LessonsCount, null);
+
+
             _context.Groups.Update(item);
 
             //await _groupService.CreateScheduleDaysToGroup(item, dayName, startTime, studentId);
@@ -128,6 +138,7 @@ public class GroupController : Controller
                 //await _groupService.UpdateStudentsInGroup2()
 
         
+            
             await _context.SaveChangesAsync();
             
             var dateStart = item.DateStart;
@@ -138,6 +149,7 @@ public class GroupController : Controller
                 dateStart = group.Lessons.OrderByDescending(x=>x.EndTime).FirstOrDefault().EndTime.AddDays(1); //Where(x=>x.EndTime <  DateTime.Now)
                 lessonsCount = item.LessonsCount - group.Lessons.Count();//.Where(x => x.EndTime < DateTime.Now).Count();
             }
+            
             var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, lessonsCount, item);
             //await _groupService.SaveLessonsBySchedule(group, studentId.ToList(), lessons);
 
@@ -242,5 +254,8 @@ public class GroupController : Controller
         }
         return goodGroups;
     }
+
+    
+
 
 }

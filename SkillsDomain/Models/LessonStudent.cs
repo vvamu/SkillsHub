@@ -15,7 +15,7 @@ public class LessonStudent : BaseEntity
     public Student Student { get; set; }
     public bool IsVisit {get;set;}
 
-    public string LessonType { get; set; } //Отработка/Занятие/Групповое/Trial
+    public string LessonType { get; set; } = "Default"; //Отработка/Занятие/Групповое/Trial
 
 }
 

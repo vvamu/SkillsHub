@@ -147,7 +147,7 @@ public class UserService : IUserService
 
         var result = await _userManager.AddToRoleAsync(dbUser, "Teacher");
         await _context.SaveChangesAsync();
-        //if (!result.Succeeded) throw new Exception(result.Errors.ToString());
+        if (!result.Succeeded) throw new Exception(result.Errors.ToString());
         var teacherInDb = await _context.Teachers.Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.ApplicationUser.Id == user.Id);
 
 
@@ -180,7 +180,7 @@ public class UserService : IUserService
         await _context.Students.AddAsync(student);
         var result = await _userManager.AddToRoleAsync(dbUser, "Student");
         await _context.SaveChangesAsync();
-        //if (!result.Succeeded) throw new Exception(result.Errors.ToString());
+        if (!result.Succeeded) throw new Exception(result.Errors.ToString());
 
 
         return student == null ? throw new CannotUnloadAppDomainException() : student;
@@ -554,9 +554,7 @@ public class UserService : IUserService
         var user = await GetCurrentUserAsync();
         List<NotificationMessage> userNotification = new List<NotificationMessage>();
 
-        var notifications = _context.NotificationMessages
-            .Include(x => x.Users)
-            .Where(x => x.Users.Select(x => x.Id).Contains(user.Id)).OrderByDescending(x=>x.DateCreated);
+        var notifications = _context.NotificationUsers.Include(x=>x.User).Include(x=>x.NotificationMessage).Where(x => x.User.Id == user.Id).Select(x=>x.NotificationMessage);
 
         return notifications.AsQueryable();
     }

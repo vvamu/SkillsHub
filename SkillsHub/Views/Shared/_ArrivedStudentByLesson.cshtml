@@ -1,0 +1,86 @@
+﻿@using SkillsHub.Domain.BaseModels;
+@model (List<LessonStudent>? ArrivedStudents,List<Student>? AllStudents, List<Student>? byGroup);
+
+<div class="row">
+    <div class="col">
+        <label class=" col-form-label" for="val-skill" style="display:flex;">
+            <h4>Arrived students<span class="text-danger">*</span></h4>
+            <!--<input type="button" onclick="getStudents()" value="get"/>-->
+            <!--
+            <input type="button" value="Select all" onclick="selectAllStudents()" class="btn btn-primary btn-sm" />
+            <input type="button" value="Unselect all" onclick="unselectAllStudents()" class="btn btn-dangerous btn-sm" />
+                -->
+        </label>
+       
+        @if (Model.ArrivedStudents != null && Model.ArrivedStudents.Count() != 0)
+        {
+            <form id="SaveStudentsByLesson">
+                <ul>
+                    @foreach (var i in Model.ArrivedStudents)
+                    {
+                        @if(i.IsVisit)
+                        {
+                            <input type="hidden" class="visitStudent" value="@i.Id" />
+                        }
+                        @if(i.IsVisit == false)
+                        {
+                            <input type="hidden" class="passedStudent" value="@i.Id" />
+                        }
+
+                        <li style="display:flex; grid-gap:5px">
+                            <select asp-for="@i.IsVisit">
+                                @if(i.IsVisit)
+                                {
+                                    <option value="@true" selected>Visit</option>
+                                    <option value="@false">Missed</option>
+
+                                }else{
+                                    <option value="@true" >Visit</option>
+                                    <option value="@false" selected>Missed</option>
+                                }
+                               
+                                
+                            </select>
+
+
+                            @i.Student.ApplicationUser.FirstName @i.Student.ApplicationUser.LastName @i.Student.ApplicationUser.Surname
+
+                            <input type="button" class="btn btn-sm btn-danger" style="padding-bottom:3px" onclick="RemoveArrivedStudent('@i.Student.ApplicationUser.Id')" />
+                        </li>
+                    }
+                </ul>
+                <input type="button" value="Save students" class="btn btn-primary" onclick="SaveStudentsByLesson()"/>
+            </form>
+        }
+        else
+        {
+            <div>No arrived students</div>
+        }
+    </div>
+
+    <div class="col">
+        <label class=" col-form-label" for="val-skill" style="display:flex;">
+            <h4>Group students<span class="text-danger">*</span></h4>
+        </label>
+        @if(Model.byGroup != null && Model.byGroup.Count() != 0)
+        {
+            @foreach (var st in Model.byGroup)
+            {
+
+             <form style="display:flex">
+                    <input type="checkbox" onchange="CreateArrivedStudent('@st.ApplicationUser.Id')" />
+                      @st.ApplicationUser.FirstName @st.ApplicationUser.LastName @st.ApplicationUser.Surname
+            </form>
+            }
+        }
+        else
+        {
+            <div>No students in group or you should create lesson before arrive students to group</div>
+        }
+       
+            
+        
+
+    </div>
+</div>
+

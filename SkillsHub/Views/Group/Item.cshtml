@@ -92,7 +92,7 @@
                                     Lessons count <span class="text-danger">*</span>
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class="col-form-label">@Group.Lessons.Count</p>
+                                    <p class="col-form-label"> @Group.Lessons.Count / @Group.LessonsCount </p>
                                 </div>
                             </div>
 
@@ -189,7 +189,7 @@
 
                         @if (User.IsInRole("Admin"))
                         {
-                            <input type="submit" asp-action="Create" asp-controller="Lessons" asp-route-itemid="@Model.Id" value="+" class="btn btn-primary" />
+                            <input type="submit" asp-action="Create" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-primary" />
                         }
                     </div>
                 </div>
@@ -203,27 +203,21 @@
                     <div class="container-fluid">
 
                         <div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:20px">
-                            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="display:flex;grid-gap:10px">
                                 <li class="nav-item">
                                     <div class="input-group icons">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
                                         </div>
-                                        <input type="search" onchange="changeCourseName() id="searchByTopic" class="form-control" placeholder="Search by topic" aria-label="Search by topic">
-                                        <div class="drop-down   d-md-none">
-
-                                        </div>
+                                        <input type="search search-input" onchange="searchLessons() id="searchByTopic" class="form-control" placeholder="Search by topic" aria-label="Search by topic">
+                                       
                                     </div>
                                 </li>
-
-
-                                
-
                                 <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p>Teacher:</p>
+                                    <p>Passed by teacher:</p>
 
-                                    <select class="form-control" id="searchByTeacher" name="val-skill" onchange="changeCourseName()">
-                                        <option value="" selected>Все</option>
+                                    <select class="form-control search-select" id="searchByTeacher" name="val-skill" onchange="searchLessons()">
+                                        <option value="" selected></option>
                                         @if (ViewBag.Teachers != null)
                                         {
                                             @foreach (Teacher item in ViewBag.Teachers)
@@ -248,10 +242,9 @@
                                 -->
 
                                 <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p>Student:</p>
-
-                                    <select class="form-control" id="searchStudent" name="val-skill" onchange="changeCourseName()">
-                                        <option value="" selected>Все</option>
+                                    <p>Visited student:</p>
+                                    <select class="form-control search-select" id="searchByStudent" name="val-skill" onchange="searchLessons()">
+                                        <option value="" selected></option>
                                         @if (ViewBag.Students != null)
                                         {
                                             @foreach (Student item in ViewBag.Students)
@@ -266,10 +259,11 @@
                                 <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
                                     <p>Category:</p>
 
-                                    <select class="form-control" id="searchByCategory" name="val-skill" onchange="changeCourseName()">
-                                        <option value="" selected>All</option>
-                                        <option value="" selected>Passed</option>
-                                        <option value="" selected>Сurrent</option>
+                                    <select class="form-control search-select" id="searchByCategory" name="val-skill" onchange="searchLessons()">
+                                        <option selected></option>
+                                        <option>Passed</option>
+                                        <option>Сurrent</option>
+                                        <option>Deleted</option>
                                     </select>
                                 </li>
 
@@ -283,17 +277,29 @@
 
 
                                 <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Сортировать по:</p>
-                                    <select class="form-control" id="val-skill" name="val-skill">
-                                        <option value="orderDateAsc" selected>Времени создания (↑)</option>
-                                        <option value="" selected>Времени создания (↓)</option>
-                                        <option value="" selected>Количеству учеников</option>
+                                    <p style="white-space:nowrap">Order by:</p>
+                                    <select class="form-control  search-select " id="sort-select" onchange="searchLessons()">
+                                        <option selected></option>
+                                        @{
+                                            var i = "Topic StartTime".Split(" ");
+                                            foreach (var a in i)
+                                            {
+                                                <option>@a</option>
+                                            }
+                                        }
+                                    </select>
+                                </li>
 
+                                <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                    <p style="white-space:nowrap">Order type:</p>
+                                    <select class="form-control  search-select " id="sort-select-type" onchange="searchLessons()">
+                                        <option value="asc" selected>↑</option>
+                                        <option value="desc">↓</option>
                                     </select>
                                 </li>
                                 <li class="nav-item">
-                                    <input type="button" onclick="Reset()" class="btn btn-primary" style="margin-left:5px; height:100% " value="Reset" />
-                                    <input type="button" onclick="GetLessonsByGroup()" class="btn btn-primary" style="margin-left:5px; height:100% " value="Search" />
+                                    <input type="button" onclick="resetSearch()" class="btn btn-primary btn-sm" style="margin-left:5px;  " value="Reset" />
+                                    <input type="button" onclick="searchLessons()" class="btn btn-primary btn-sm" style="margin-left:5px;  " value="Search" />
                                 </li>
                             </ul>
                         </div>
@@ -302,8 +308,13 @@
 
 
 
-                <div id="lessonsList">
+                <div id="lessonsList" >
                     <!--await Html.PartialAsync("_LessonsList")-->
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
                 </div>
 
 
@@ -313,101 +324,60 @@
     </form>
 
 
-    <script src="~/plugins/common/common.min.js"></script>
-	<script src="~/js/custom.min.js"></script>
-	<script src="~/js/settings.js"></script>
-	<script src="~/js/gleek.js"></script>
-	<script src="~/js/styleSwitcher.js"></script>
 
 	
 
 
     <script>
 
+        function resetSearch() {
 
+            $('.search-input').val('');
+            // Reset select elements
+            $('.search-select').prop('selectedIndex', 0);
 
-        function GetLessonsByGroup() {
-
-            
-        var filters = {}
-        var orders = {}
-
-        try {
-        const searchLessonByTopic = document.getElementById("searchLessonByTopic").value;
-
-
-        //const searchLessonByTopic = document.getElementById("courcesNames").value;
-
-        filters = {
-        Topic: searchLessonByTopic,
-        Teacher : searchByTeacher,
-        Student : searchByStudent,
-        Group: searchByGroup,
-
-        //ParentName: parentName,
-        //PossibleCourse: category,
-        //MinDateCreated: minDate,
-        //GroupId = groupId
-        };
-
-
-
-
-        const order = document.getElementById("courcesNames").value;
-
-        orders = {
-            OrderColumn: "DateCreated",
-            OrderType : "asc"
+            // Trigger the search
+            searchLessons();
         }
 
-        // Perform further actions with the selected values, such as filtering or sending a request
-        console.log(filters);
+        function searchLessons() {
+
+
+            var filters = {}
+            var orders = {}
+
+            try {
+
+                filters = {
+                    GroupId : '@Model.Id',
+                    Topic: $('#searchByTopic').val(),
+                    TeacherId: $('#searchByTeacher').val(),
+                    StudentId: $('#searchByStudent').val(),
+                    GroupId: '@Model.Id',
+                    Category: $("#searchByCategory").val(),
+                };
+
+                orders = {
+                    OrderColumn: $('#sort-select').val(),
+                    OrderType: $('#sort-select-type').val(),
+                }
+
+                $("#lessonsList").load("/Lesson/FilterLessons", { filters: filters, order: orders });
+
+                // Perform further actions with the selected values, such as filtering or sending a request
+                console.log(filters);
+            }
+            catch (ex) { console.log(ex); }
+
         }
-        catch (ex) { console.log("err"); }
-
-
-        var data = {
-        StudentFilterModel: filters,
-        StudentOrderModel: orders
-        };
 
         //------------------------------------------------------------------
 
-            console.log("ol");
-
-        //var list = document.getElementById("allLessons");
-        //var count = document.getElementsByClassName("lessonInGroup").count; //id of new element;
-            $("#lessonsList").load("/Lesson/GetByGroup", { id : '@Model.Id', filters  : filters, order : orders });
-
-           
-
-
-            console.log("ol2");
-        /*
-        $.ajax({
-        url: "/Lesson/GetByGroup?id=" + Model.Id,
-        type: "GET",
-        data: data,
-
-        success: function (data) {
-        // Обновление части страницы с полученным частичным представлением
-        $('#AdminLink').empty();
-        $('#AdminLink').html(data);
-        },
-        error: function (xhr, status, error) {
-        // Обработка ошибки
-        console.error(error);
-        }
-        });
-
-        */
-
-        }
-
 
         $(document).ready(function () {
-
-            GetLessonsByGroup();
+           
+            searchLessons();
+            
         });
 
 
@@ -444,26 +414,47 @@
         function RequestToChangeLesson(itemId) {
         //Serialize the form datas.
 
-        var valdata = $("#lesson" + itemId).serialize();
-        var data = JSON.stringify($("#lesson" + itemId).serializeArray()); //  <-----------
+            var valdata = $("#lesson" + itemId).serialize();
+            var data = JSON.stringify($("#lesson" + itemId).serializeArray()); //  <-----------
 
-        console.log(valdata)
+            console.log(valdata)
 
-        console.log("----")
-        console.log(data);
+            console.log("----")
+            console.log(data);
 
-        //to get alert popup
-        $.ajax({
-        url: "/Request/Edit",
-        type: "POST",
-        dataType: 'json',
-        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-        data: valdata
+            //to get alert popup
+            $.ajax({
+            url: "/Request/Edit",
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            data: valdata
 
-        });
-        alert("Request was send");
+            });
+            alert("Request was send");
 
         //$("<div>Saved</div>").insertAfter($("#lessonTypeForm"));
+
+        }
+
+        function RequestToDeleteLesson(itemId) {
+            //Serialize the form datas.
+
+            var valdata = { id: itemId };
+            
+
+            //to get alert popup
+            $.ajax({
+                url: "/Request/Delete",
+                type: "POST",
+                dataType: 'json',
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                data: valdata
+
+            });
+            alert("Request was send");
+
+            //$("<div>Saved</div>").insertAfter($("#lessonTypeForm"));
 
         }
 

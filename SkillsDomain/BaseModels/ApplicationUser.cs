@@ -35,10 +35,13 @@ public class ApplicationUser : IdentityUser<Guid>
     public virtual Student? UserStudent { get; set; }
     public bool IsVerified { get; set; } = false;
 
+    public List<NotificationUser>? Notifications { get; set; }
+
+
     //public string? EnglishLevel { get; set; }
 
 
-   // public Guid EnglishLevelId { get; set; }
+    // public Guid EnglishLevelId { get; set; }
 
 
 }

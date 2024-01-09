@@ -27,8 +27,7 @@ public class LessonService : ILessonService
             .Include(x => x.Group).ThenInclude(x => x.LessonType)
             .Include(x => x.Group).ThenInclude(x => x.CourseName)
             //.Include(x => x.Group).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
-            //.Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.ApplicationUser)
-            
+            .Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             
             .Include(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
@@ -47,7 +46,7 @@ public class LessonService : ILessonService
         var lesson = _context.Lessons
             .Include(x => x.Group).ThenInclude(x => x.LessonType)
             .Include(x=> x.Group).ThenInclude(x=>x.Teacher).ThenInclude(x=>x.ApplicationUser)
-            .Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.Student)
+            .Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser).AsNoTracking()
             .FirstOrDefault(x => x.Id == id);//?? throw new Exception("Lesson not found");
@@ -57,58 +56,75 @@ public class LessonService : ILessonService
     #endregion
 
     #region LessonStudents
-
-    private async Task<List<LessonStudent>> CreateLessonStudents(List<Lesson> lessons, List<Guid> studentIds, Teacher teacher)
+    
+    public async Task<List<LessonStudent>> UpdateStudentsByLesson(Lesson lesson, List<Guid> studentIds)
     {
         List<LessonStudent> lessonStudents = new List<LessonStudent>();
 
-        foreach (var studentId in studentIds)
+        try
+        {
+
+        for(int i = 0; i < studentIds.Count; i++)
+        {
+                
+            var user = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == studentIds[i]);
+            if (user != null)  studentIds[i] = user.Id;
+        }
+      
+        var groupStudentsIds = _context.Groups.Include(x => x.Lessons).FirstOrDefault(x => x.Lessons.Select(x => x.Id).Contains(lesson.Id)).GroupStudents.Select(x=>x.Id);
+
+        /*
+        if(lesson.ArrivedStudents != null &&  lesson.ArrivedStudents.Count() != 0)
+        {
+            foreach(var i in lesson.ArrivedStudents)
+            {
+                _context.LessonStudents.Remove(i);
+            }
+            await _context.SaveChangesAsync();
+        }*/
+
+
+
+
+        foreach (var studentId in groupStudentsIds)
         {
             var student = _context.Students.FirstOrDefault(x => x.Id == studentId);
-            //if id in DbSet<ApplicationUsers>
-            if (student == null)
-            {
-                var userr = await _context.ApplicationUsers.Include(x => x.UserStudent).FirstOrDefaultAsync(x => x.Id == studentId);
-                if (userr != null) student = userr.UserStudent;
-            }
+            var lessonStudent = new LessonStudent() { Student = student , Lesson = lesson };
 
-            var lessonStudent = new LessonStudent() { Student = student };
+            _context.Entry(lessonStudent.Student).State = EntityState.Unchanged;
+            _context.Entry(lessonStudent.Lesson).State = EntityState.Unchanged;
 
+            if (studentIds.Contains(studentId))
+                lessonStudent.IsVisit = true;
+            else
+                lessonStudent.IsVisit = false;
+
+            _context.LessonStudents.Add(lessonStudent);
             lessonStudents.Add(lessonStudent);
+
+        }
+        await _context.SaveChangesAsync();
 
             //----------------------------------------------------------------------------------------
 
-
-            if (student.Lessons != null) student.Lessons.Add(lessonStudent);
-            else student.Lessons = new List<LessonStudent> { lessonStudent };
-
-            //Для каждого студента список занятий = все занятия
-            foreach (var lesson in lessons)
-            {
-                lessonStudent.Lesson = lesson;
-            }
-            await _context.LessonStudents.AddAsync(lessonStudent);
-            _context.Students.Update(student);
-
-
-
         }
-        //----------------------------------------------------------------------------------------
-        //Для каждого занятия список ученико = все ученики
-        foreach (var lesson in lessons)
-        {
-            lesson.ArrivedStudents = lessonStudents;
-            _context.Lessons.Update(lesson);
-
-
-        }
-
-
-
+        catch (Exception ex) { }
         return lessonStudents;
     }
+        
 
-   
+    public async Task DeleteLessonByGroup(Group group, Lesson lesson)
+    {
+        _context.Entry(group.Lessons).State = EntityState.Unchanged;
+        var lesson2 = new Lesson() { Id = lesson.Id };
+
+        group.Lessons.Remove(lesson2);
+        _context.Lessons.Remove(lesson2);
+
+        _context.Groups.Update(group);
+
+        await _context.SaveChangesAsync();
+    }
 
     #endregion
 

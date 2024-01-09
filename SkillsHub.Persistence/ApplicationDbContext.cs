@@ -53,6 +53,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
 
     public DbSet<GroupStudent> GroupStudents { get; set; }
 
+    public DbSet<NotificationUser> NotificationUsers { get; set; }
 
 
 
@@ -144,6 +145,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
             .WithMany(x => x.GroupStudents)
             .HasForeignKey(x => x.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
+
+
+        builder.Entity<NotificationUser>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.Notifications)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<NotificationUser>()
+            .HasOne(x => x.NotificationMessage)
+            .WithMany(x => x.Users)
+            .HasForeignKey(x => x.NotificationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
 
 
         base.OnModelCreating(builder);

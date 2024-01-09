@@ -1,24 +1,26 @@
 ﻿@using SkillsHub.Application.DTO;
+@using SkillsHub.Domain.BaseModels
 @using SkillsHub.Domain.Models;
+@using SkillsHub.Persistence;
 
-@model Lesson;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
+
+@model Lesson?;
 
 
 <!-- Модальное окно -->
-@{
+@if(User.IsInRole("Student") && Model !=  null){
     if (Model.Id != Guid.Empty)
     {
-            <form class="mt-1 mb-5 login-input" method="post">
-                    <input type="hidden" asp-for="GroupId" value="@Model.Group.Id" />
-
-
+        <form class="mt-1 mb-5 login-input" method="post">
+            <input type="hidden" asp-for="GroupId" value="'@Model.Group.Id'" />
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col">
                             <div class="card">
                                 <div class="card-body">
 
-                                    <h2>Lesson - "@Model.Group.Name" </h2>
+                                    <h2>Lesson - "@Model.Group.Name" </h2> @if(Model!= null && Model.IsСompleted) {<span style="color:palevioletred">Completed</span>}
 
                                     <div class="validation" asp-validation-summary="ModelOnly"></div>
                                     <div class="form-group">
@@ -74,13 +76,7 @@
                                         <label class=" col-form-label" for="val-skill" style="display:flex;justify-content:space-between">
 
                                             <h4>Arrived students<span class="text-danger">*</span></h4>
-                                        @if (!User.IsInRole("Student"))
-                                        {
-                                            <div style="display:flex;">
-                                                <input type="button" value="Select all" onclick="selectAllStudents()" class="btn btn-primary" />
-                                                <input type="button" value="Select all" onclick="unselectAllStudents()" class="btn btn-dangerous" />
-                                            </div>
-                                        }
+                                        
                                         @if (User.IsInRole("Student"))
                                         {
 
@@ -89,36 +85,12 @@
                                         </label>
                                         <ul>
                                             @foreach (var item in Model.ArrivedStudents)
-                                        {
+                                            {
 
-                                                <li>
-                                                @if(User.IsInRole("Student"))
-                                                {
-                                                    @if (item.IsVisit)
-                                                    {
-                                                        <input type="checkbox" name="arriveStudent" checked disabled/>
-                                                    }
-                                                    else
-                                                    {
-                                                        <input type="checkbox" name="arriveStudent" disabled/>
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    @if (item.IsVisit)
-                                                    {
-                                                        <input type="checkbox" name="arriveStudent" checked />
-                                                    }
-                                                    else
-                                                    {
-                                                        <input type="checkbox" name="arriveStudent" />
-                                                    }
-                                                }
-                                                
-                                                   
-                                                <a asp-action="Item" asp-controller="Account" asp-route-id="@item.Id">@item.Student.ApplicationUser.FirstName @item.Student.ApplicationUser.LastName</a>
-                                                </li>
-                                        }
+                                                    <li>
+                                                      <a asp-action="Item" asp-controller="Account" asp-route-id="@item.Id">@item.Student.ApplicationUser.FirstName @item.Student.ApplicationUser.LastName</a>
+                                                    </li>
+                                            }
                                         </ul>
                                         
                                     </div>
@@ -126,18 +98,16 @@
                                 <div class="form-group" >
                                     <label class=" col-form-label" for="val-skill" style="display:flex;justify-content:space-between">
                                             <h4>Link to webinar<span class="text-danger">*</span></h4>
-                                        @if (!User.IsInRole("Student"))
-                                        {
-                                            <input type="url" asp-for="LinkToWebinar" class="form-control" value="@Model.LinkToWebinar" placeholder="Url link" />
-                                        }
-                                        else
-                                        {
-                                            <input type="url" asp-for="LinkToWebinar" class="form-control" value="@Model.LinkToWebinar" placeholder="Url link" disabled>
-                                        }
+                                        
+                                            <input type="url" asp-for="LinkToWebinar" class="form-control" value="@Model.LinkToWebinar" placeholder="Url link" disabled>                                      
                                         </label>
-                                      
-
                                     </div>
+                                <div class="form-group">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Link to webinar<span class="text-danger">*</span></h4>
+                                    </label>
+                                    <input type="checkbox" asp-for="IsСompleted" class="form-control" disabled>
+                                </div>
 
 
 
@@ -151,78 +121,134 @@
                         </div>
                     </div>
                 </div>
-            </form>
+        </form>
     }
+}
+@if(!User.IsInRole("Student"))
+{
+    <form class="mt-1 mb-5 login-input" method="post">
+        @if (Model != null)
+        {                    
+            <input type="hidden" asp-for="GroupId" value="'@Model.GroupId'" />
+            <input type="hidden" asp-for="@Model.Id" />
+            @if(Model.Teacher != null)
+            {
+                <input type="hidden" id="teacherByLesson" value="'@Model.Teacher.Id'" />
+            }
+            @if (Model.Group != null && Model.Group.Teacher != null)
+            {
+                <input type="hidden" id="teacherByGroup" value="'@Model.Group.Teacher.Id'" />
+            }
+           
+
+        }
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <h2>Lesson editor</h2> @if(Model!= null && Model.IsСompleted) {<span style="color:palevioletred">Completed</span>}
+
+                            <div class="validation" asp-validation-summary="ModelOnly"></div>
+                            <div class="form-group">
+                                <label class=" col-form-label" for="val-skill">
+                                    <h4>
+                                        Default duration - @if (Model != null && Model.Group != null && Model.LessonType != null)
+                                        {
+                                            <span>@Model.Group.LessonType.LessonTimeInMinutes</span>
+                                        }
+                                        <span class="text-danger">*</span>
+                                    </h4>
+                                </label>
+                            </div>
+                            @if(Model !=null)
+                            {
+                                <div class="form-group">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Date start<span class="text-danger">*</span></h4>
+                                    </label>
+                                    <input type="datetime" asp-for="StartTime" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>End time<span class="text-danger">*</span></h4>
+                                    </label>
+                                    <input type="datetime" asp-for="EndTime" class="form-control" >
+                                </div>
+                            }else{
+
+                                <div class="form-group">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Date start<span class="text-danger">*</span></h4>
+                                    </label>
+                                    <input type="datetime" asp-for="StartTime" class="form-control" value="@DateTime.Now">
+                                </div>
+                                <div class="form-group">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>End time<span class="text-danger">*</span></h4>
+                                    </label>
+                                    <input type="datetime" asp-for="EndTime" class="form-control" value="@DateTime.Now.AddHours(1)">
+                                </div>
+
+                            }
+                            <div class="form-group">
+                                <label class=" col-form-label" for="val-skill">
+                                    <h4>Topic<span class="text-danger">*</span></h4>
+                                </label>
+                                <input type="text" asp-for="Topic" />
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <label class=" col-form-label" for="val-skill">
+                                    <h4>Teacher<span class="text-danger">*</span></h4>
+                                </label>
+                                <select asp-for="Teacher" id="allTeachers"></select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class=" col-form-label" for="val-skill">
+                                    <h4>Link to webinar<span class="text-danger">*</span></h4>
+                                </label>
+                                <input type="url" asp-for="LinkToWebinar" class="form-control" placeholder="Input link...">
+                            </div>
+
+                            <div id="arrivedStudentsList">
+                                <div class="d-flex justify-content-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                                </div>
+                             
+                            
+                                <hr/>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" asp-for="IsСompleted"  />
+                                <label class="form-check-label" for="defaultCheck1">
+                                    Completed
+                                </label>
+                            </div>
+                                     
+                            @if(Model !=null && Model.Id != Guid.Empty)
+                            {
+                                <input type="submit" asp-action="Edit" asp-controller="Lesson" class="btn btn-primary" value="Edit" formmethod="post" />
+                            }else{
+                                <input type="submit" asp-action="Create" asp-controller="Lesson" class="btn btn-primary" value="Create" formmethod="post" />
+                            }
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 }
 
 
-<script src="~/plugins/common/common.min.js"></script>
-
-<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
-<script src="~/plugins/jquery/jquery.min.js"></script>
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
 <script>
-
-    function getStudentsList() {
-
-        var studentsList = $("#studentsList");
-        studentsList.empty();
-
-        var studentsByGroup;
-        var studentsIds;
-        if ($("#studentsByGroup") != null && $("#studentsByGroup").val() != undefined) {
-
-            studentsByGroup = JSON.parse($("#studentsByGroup").val());
-            console.log("studentsByGroup");
-            console.log(studentsByGroup);
-            studentsIds = studentsByGroup.map(function (student) {
-                return student.Id;
-            });
-        }
-
-
-        $.ajax({
-            url: "/Student/GetStudentListAsync?isDeleted=true",
-            type: "GET",
-            dataType: "json",
-
-            success: function (data) {
-                console.log("students")
-
-                console.log(data);
-                data = JSON.parse(data);
-
-                if (Array.isArray(data)) {
-
-                    data.forEach(function (item, i, arr) {
-                        var user = item.ApplicationUser;
-                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
-
-                        var appendedLine = "<li class='list-group-item'>";
-
-
-                        if (studentsIds != undefined && studentsIds.includes(item.Id))
-                            appendedLine += "<input type='checkbox' name='studentId'  style='margin-right:5px;' value='" + item.Id + "' checked  /> ";
-                        else
-                            appendedLine += "<input type='checkbox' name='studentId'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-
-                        appendedLine += user.FirstName + " " + user.LastName + " " + user.Surname;
-                        appendedLine += "</li>"
-
-                        studentsList.append(appendedLine);
-                    })
-                }
-            }
-        });
-
-    }
 
     function getLessonTypesList() {
 
@@ -255,7 +281,15 @@
     function getTeachers() {
 
         var requiredTeachers = $("#allTeachers");
+        var teacher = $("#teacherByLesson").val();
+        var teacher2 = $("#teacherByGroup").val();
+        var teacherId = ""
 
+        if (teacher2 != undefined)
+            teacherId = teacher2
+        if (teacher != undefined)
+            teacherId = teacher
+        
 
         $.ajax({
             url: "/Teachers/GetTeachersAsync",
@@ -272,8 +306,12 @@
                     data.forEach(function (item, i, arr) {
                         requiredTeachers.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
 
-                        var appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='" + item.Id + "'>" + item.Id;
-
+                        var appendedLine = ""
+                        if (teacherId != undefined && item.Id.toString() == teacherId)
+                            appendedLine += "<option class='list-group-item' style='color:blue' selected name='teacherValue' value='" + item.Id + "'>";
+                        else
+                            appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='" + item.Id + "'>";
+                        appendedLine += item.ApplicationUser.FirstName + " " + item.ApplicationUser.LastName + " " + item.ApplicationUser.Surname
                         appendedLine += "</option>"
 
                         requiredTeachers.append(appendedLine);
@@ -287,39 +325,11 @@
         });
     }
 
-    function getGroups() {
-
-        var groups = $("#allGroups");
-
-
-        $.ajax({
-            url: "/Group/GetAllGroups",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                data = JSON.parse(data);
-                if (Array.isArray(data)) {
-
-                    if (data.length == 0) {
-                        var appendEmpty = "<li class='list-group-item' value='' >Teacher's list is empty</li>";
-                        groups.append(appendEmpty);
-                    }
-                    data.forEach(function (item, i, arr) {
-                        groups.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
-
-                        var appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='" + item.Id + "'>" + item.Name;
-
-                        appendedLine += "</option>"
-
-                        groups.append(appendedLine);
-                    })
-
-
-
-
-                }
-            }
-        });
+    function getStudents() {
+        try {
+           // $("#studentsList").load("/Student/StudentsCheckedCheckboxListByObject", { lessonId: 'Model.Id' });
+        } catch (ex) { console.log("getStudents"); console.log(ex); }
+        
     }
 
     function selectAllStudents() { 
@@ -333,13 +343,85 @@
 
 
     }
-        
+
+    //-------------------------------------------------
+    function loadArrivedStudentsList() {
+        console.log("SUKA")
+        $("#arrivedStudentsList").load("/Lesson/GetArrivedStudentsByLesson", { id: '@Model.Id' });
+    }
+    function CreateArrivedStudent(userId) {
+        var valdata = { lessonId: '@Model.Id', userId: userId }
+        $.ajax({
+            url: "/Lesson/CreateArrivedStudent",
+            type: "POST",
+            dataType: "json",
+            data: valdata
+        }).done(function (result) {
+            console.log("Successfully removed arrived student");
+            loadArrivedStudentsList();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log("Error occurred during the AJAX request:");
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+        });
+    }
+
+    function RemoveArrivedStudent(userId) {
+
+        var valdata = { lessonId: '@Model.Id', userId: userId }
+        $.ajax({
+            url: "/Lesson/RemoveArrivedStudent",
+            type: "POST",
+            dataType: "json",
+            data: valdata
+        }).done(function (result) {
+            console.log("Successfully removed arrived student");
+            loadArrivedStudentsList();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log("Error occurred during the AJAX request:");
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+        });
+    }
+
+
+
+    function SaveStudentsByLesson() {
+
+        var valdata = $("#SaveStudentsByLesson").serializeArray();
+
+        var visitStudents = $('.visitStudent').map(function () {
+            return $(this).val();
+        }).get();
+
+        var passedStudents = $('.passedStudent').map(function () {
+            return $(this).val();
+        }).get();
+
+        var valdata2 = { visitStudent: visitStudents, passedStuden: passedStudents }
+        console.log(valdata2);
+
+        $.ajax({
+            url: "/Lesson/SaveStudentsByLesson",
+            type: "POST",
+            dataType: 'json',
+            data: valdata2
+
+        });
+    }
+
+
+    //-------------------------------------------------
+
 
     $(document).ready(function () {
+        getStudents();
+        getTeachers();
 
         getLessonTypesList();
-        getTeachers();
-        getGroups();
+        loadArrivedStudentsList();
     });
 
 </script>

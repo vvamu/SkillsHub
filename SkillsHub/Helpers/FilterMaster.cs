@@ -109,35 +109,40 @@ public static class FilterMaster
         return items;
     }
 
-    public static async Task<IQueryable<Lesson>> GetAllLessons(IQueryable<Lesson> items, LessonFilterModel filters, LessonOrderModel orders)
+    public static async Task<IQueryable<Lesson>> GetAllLessons(IQueryable<Lesson> items, LessonFilterModel filters, OrderModel orders)
     {
         if (filters != null)
         {
+            if (filters.GroupId != Guid.Empty)
+                items = items.Where(x => x.Group.Id == filters.GroupId);
             if (filters.TeacherId != Guid.Empty)
-                items = items.Where(x => x.Group.Teacher.Id == filters.TeacherId);
-            if (filters.Topic != "" || string.IsNullOrEmpty(filters.Topic))
-            {
+                items = items.Where(x=>x.Group.Teacher != null).Where(x => x.Group.Teacher.Id == filters.TeacherId);
+            if (filters.StudentId != Guid.Empty)
+                items = items.Where(x => x.Group.GroupStudents != null).Where(x => x.Group.GroupStudents.Select(x=>x.Id).Contains(filters.StudentId));
+            if (!string.IsNullOrEmpty(filters.Topic))
                 items = items.Where(x => x.Topic.Contains(filters.Topic));
-            }
-            /*
-            if (filters.MinSalary != 0)
-                items = items.Where(x => x.Salary >= filters.MinSalary);
-            if (filters.MaxSalary != 0)
-                items = items.Where(x => x.Salary <= filters.MaxSalary);
-            */
-
-
-        }
-        if (orders != null)
-        {
-            if (orders.DateCreated != -100)
+            if (!string.IsNullOrEmpty(filters.Category))
             {
-                if (orders.CountPayedLessons >= 0)
-                    items.OrderBy(x => x.DateCreated);
-                else
-                    items.OrderByDescending(x => x.DateCreated);
+                if(filters.Category == "Passed")
+                    items = items.Where(x=>x.EndTime < DateTime.Now);
+                if (filters.Category == "Current")
+                    items = items.Where(x => x.EndTime > DateTime.Now);
+                if (filters.Category == "Deleted")
+                    items = items.Where(x => x.IsDeleted == true);
+            }
+             
+            if (filters.Category != "Deleted")
+                items = items.Where(x => x.IsDeleted == false);
+
+            if (orders != null)
+            {
+                if (!string.IsNullOrEmpty(orders.OrderType))
+                {
+                    items = items.OrderByDynamic(orders.OrderColumn, orders.OrderType);
+                }
             }
         }
+        
 
         return items;
     }

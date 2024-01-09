@@ -36,9 +36,11 @@ public class RequestController : Controller
     public async Task<IActionResult> Index()
     {
         var items = await _requestService.GetAll();
+        items.Where(x => x.IsDeleted == false);
         return View(items.AsQueryable());
     }
 
+    #region CreateReq
 
 
     [Authorize(Roles = "Teacher,Admin")]
@@ -67,11 +69,13 @@ public class RequestController : Controller
         return RedirectToAction("Item", "Group", new { id = request.LessonBefore.GroupId  });
     }
 
-    
-    public async Task<IActionResult> ApplyRequest(RequestLesson item, Lesson lesson, int answer) //in button value apply or no apply
+    #endregion
+
+    public async Task<IActionResult> ApplyRequest(Guid id, Lesson lesson, int answer = 1) //in button value apply or no apply
     {
 
-        await _requestService.ApplyLessonRequest(item, lesson, answer);
+        var req = await _context.RequestLessons.FirstOrDefaultAsync(x => x.Id == id);
+        await _requestService.ApplyLessonRequest(req, lesson, answer);
 
         return RedirectToAction("Item", "Group", new { id = lesson.GroupId });
     }

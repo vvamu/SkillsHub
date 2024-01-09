@@ -13,4 +13,12 @@ public interface ILessonService
     public IQueryable<Lesson> GetAllByFilter(string? filterStr, Guid? filterCourseId);
     public Task<Lesson> GetAsync(Guid id);
 
+    public Task DeleteLessonByGroup(Group group, Lesson lesson);
+    public Task<List<LessonStudent>> UpdateStudentsByLesson(Lesson lesson, List<Guid> studentIds);
+
+
+   // public Task<List<LessonStudent>> CreateLessonStudents(List<Lesson> lessons, List<Guid> studentIds, Teacher teacher);
+
+
+
 }

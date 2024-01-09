@@ -8,6 +8,7 @@
 <div>
     <div>
         <!--NAVBAR - Search, Filter, Sort-->
+        <!--
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
 
@@ -27,7 +28,7 @@
                             </div>
                         </li>
                         <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                            <p style="white-space:nowrap">Подобрать группу:</p>
+                            <p style="white-space:nowrap">IsDeleted:</p>
                             <select class="form-control" id="val-skill" name="val-skill">
 
                                 <option value="">Набор открыт</option>
@@ -40,6 +41,7 @@
                 </div>
             </div>
         </nav>
+        -->
 
         <!--ITEMS-->
         @{
@@ -55,91 +57,171 @@
             else
             {
 
-                @foreach (var item in Model.Where(x => x.IsDeleted == false).OrderByDescending(x => x.DateCreated))
+                var groups = Model.Select(x => x.LessonBefore).Select(x => x.Group);
+                groups = groups.DistinctBy(x => x.Id);
+                @foreach (var i in groups)
                 {
+                    var reqs = Model.Where(x => x.LessonBefore.Group.Id == i.Id);
+
+
                     <div>
-                        <div class="col">
-                            <div class="card" style="margin:20px">
-                                <div class="card-body">
-                                    <div>
-                                        <!--<img class="mr-3 circle-rounded" src="images/avatar/2.jpg" width="50" height="50" alt="Generic placeholder image">-->
+                            <div class="col">
+                                <div class="card" style="margin:20px">
+                                    <div class="card-body">
                                         <div>
-                                            <div class="d-sm-flex justify-content-between mb-2" style="display:flex">
-                                                <h3 class="mb-sm-0">
-                                                
-                                                    <a asp-action="Item" asp-controller="Group" asp-route-id="@item.LessonBefore.Group.Id">@item.LessonBefore.Group.Name</a>
-                                                    
-                                                    <small class="text-muted ml-4">
-                                                        - <strong>@item.DateCreated</strong> by <strong><a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.User.Id">@item.User.Login </a></strong>
-                                                    </small>
+                                            <!--<img class="mr-3 circle-rounded" src="images/avatar/2.jpg" width="50" height="50" alt="Generic placeholder image">-->
+                                            <div>
+                                                <div class="d-sm-flex justify-content-between mb-2" style="display:flex">
+                                                    <h3 class="mb-sm-0">
+
+                                                        <a asp-action="Item" asp-controller="Group" asp-route-id="@i.Id">@i.Name</a>
+
                                                 </h3>
                                             </div>
-                                                <div style="display:flex;justify-content:space-between">
 
-                                                        <div class="card" style="margin:20px">
-                                                            <div class="card-body">
-                                                                <div>
-                                                                <h4>Before</h4>
-                                                                    <div style="display:flex; justify-content:space-between">
-                                                                        <div style="display:flex; grid-gap:5%">
+                    @foreach (var item in reqs.OrderByDescending(x => x.DateCreated))
+                   {
 
-                                                                            <input type="time" name="startTime" asp-for="@item.LessonBefore.StartTime" /> -
-                                                                            <input type="time" name="endTime" asp-for="@item.LessonBefore.EndTime" />
-                                                                        </div>
-                                                                        
-                                                                    </div>
+                        /*
+            foreach (var item in Model.OrderBy(x=>x.LessonBefore.Group.Id).OrderByDescending(x => x.DateCreated))
+                        {*/
+                                                <div>
+                                                    <div class="d-sm-flex justify-content-between mb-2" style="display:flex">
+                                                        <h5 class="mb-sm-0">
 
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="card" style="margin:20px">
-                                                            <div class="card-body">
-                                                                <div>
-                                                                    <h4>After</h4>
-                                                                    <div style="display:flex; justify-content:space-between">
-                                                                        
-                                                                    <div>@item.RequestMessage</div>
-                                           
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                <div class="card" style="margin:20px">
-                                                    <div class="card-body">
-                                                        <div>
-                                                            @{
-                                                                <form>
-                                                                    <input type="hidden" name="answer" value="1" />
-                                                                    <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Apply request" class="btn btn-primary" />
-                                                                </form>
-                                                                <form>
-                                                                    <input type="hidden" name="answer" value="-1" />
-                                                                    <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Reject request" class="btn btn-danger" />
-                                                                </form>
-
-                                                            }
-                                                        </div>
+                                                            <small class="text-muted ml-4">
+                                                                <strong>@item.DateCreated</strong> by <strong><a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.User.Id">@item.User.Login </a></strong>
+                                                            </small>
+                                                        </h5>
                                                     </div>
                                                 </div>
+                        
 
-                                                
-                                            </div>
+                                                        
+
+
+                                                <!--ApplyRequest(Guid id, Lesson lesson, int answer)-->
+
+
+                                                <div style="display:flex;justify-content:space-between" class="row">
+
+                                                    <div class="card col" style="margin:20px">
+                                                        <div class="card-body">
+                                                            <div>
+                                                                <h4>Before</h4>
+                                                                <div style="display:flex; justify-content:space-between">
+                                                                    <div style="display:flex; grid-gap:5%">
+
+                                                                        <input type="time" name="startTime" asp-for="@item.LessonBefore.StartTime" /> -
+                                                                        <input type="time" name="endTime" asp-for="@item.LessonBefore.EndTime" />
+                                                                    </div>
+
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+
+                                                    <div class="card col" style="margin:20px">
+                                                        <div class="card-body">
+                                                            <div>
+                                                                <h4>Message</h4>
+                                                                <div style="display:flex; justify-content:space-between">
+
+                                                                    <div>@item.RequestMessage</div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="card col" style="margin:20px">
+
+                                                        <!-- ADD GOGS (3) item.LessonBefore.StartTime
+                                                        
+                                                        -->
+
+                                                        <div class="card-body">
+                                                            <div>
+                                                                <h4>Result</h4>
+                                                                <div style="display:flex; justify-content:space-between">
+                                                                    <form>
+                                                                    <input type="hidden" asp-for="@item.Id"/>
+
+                                                                    @if (!item.RequestMessage.Contains("delete"))
+                                                                    {
+
+                                                                        <div class="card col" style="margin:20px">
+                                                                            <div class="card-body">
+                                                                                <div>
+                                                                                    <h4>Before</h4>
+                                                                                    <div style="display:flex; justify-content:space-between">
+                                                                                        <div style="display:flex; grid-gap:5%">
+
+                                                                                            <input type="time" name="startTime" asp-for="@item.LessonBefore.StartTime" /> -
+                                                                                            <input type="time" name="endTime" asp-for="@item.LessonBefore.EndTime" />
+                                                                                        </div>
+
+                                                                                    </div>
+
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    }
+                                                                        <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Apply request" class="btn btn-primary" />
+                                                                    </form>
+                                                                    <form>
+                                                                        <input type="hidden" name="answer" value="-1" />
+                                                                        <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Reject request" class="btn btn-danger" />
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- add DOGs asp-route-id="item.Id"
+                                                    <div class="card" style="margin:20px">
+                                                    <div class="card-body">
+                                                    <div>
+                                                    {
+
+                                                    <form>
+                                                    <input type="hidden" name="answer" value="1" />
+                                                    <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="item.Id" value="Apply request" class="btn btn-primary" />
+                                                    </form>
+                                                    <form>
+                                                    <input type="hidden" name="answer" value="-1" />
+                                                    <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="item.Id" value="Reject request" class="btn btn-danger" />
+                                                    </form>
+
+                                                    }
+                                                    </div>
+                                                    </div>
+                                                    </div>
+                                                    -->
+
+
+                                                </div>
+                                           
+                                      
+
+
+
+                    }
+                    <!--
+                    <form method="get"><a asp-action="Create" asp-controller="Cources"> CReate</a></form>
+                                            -->
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        
+
                     </div>
-
-
-
                 }
-                <!--
-                <form method="get"><a asp-action="Create" asp-controller="Cources"> CReate</a></form>
-                -->
+
             }
         }
 
