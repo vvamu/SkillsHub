@@ -6,8 +6,7 @@
 
     var teacherGroups = new List<Group>();
     var studentGroups = new List<Group>();
-    if (Model.groups.Select(x => x.Teacher).Select(x => x.Id).Contains(Model.user.UserTeacher.Id))
-        teacherGroups = Model.groups;
+
 }
 @if(Model.teacherGroups !=null)
 {
@@ -49,46 +48,14 @@
                 {
                     foreach (var item in Model.teacherGroups)
                     {
-                        var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
-                        var countLessons = item.Lessons.Count();
-                        var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
-                        var startTimes = item.DaySchedules.Select(x => x.WorkingStartTime).ToArray();
-                        var endTimes = item.DaySchedules.Select(x => x.WorkingEndTime).ToArray();
-
-
                         <div class="card">
                             <div class="card-body">
-                                <div style="display:flex;justify-content:space-between">
-                                    <h3>Course - @item.CourseName,  Lesson type: @item.LessonType</h3>
-                                    <h5>Group - '@item.Name'</h5>
-                                    <div>
-                                        <h5>@countEndedLessons / @countLessons lessons - XXX BYN</h5>
-                                    </div>
-                                </div>
-                                <p>
-                                    @for(int a = 0; a < startTimes.Count(); a ++)
-                                    {
-                                        <span>@startTimes[a].ToString() - @endTimes[a].ToString() , </span>
-                                        
-                                    }
-                                    - @scheduleDays
-
-                                </p>
-                                <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
-
-                                    @for (int i = 0; i < item.Lessons.Count(); i++)
-                                    {
-                                        <div>
-                                            <div>@item.Lessons[i].StartTime.ToShortTimeString()</div>
-                                            
-                                            <input type="checkbox" asp-for="@item.Lessons[i]" disabled/>
-                                           
-                                        </div>
-                                    }
-                                </div>
+                                <a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a>
                             </div>
 
                         </div>
+                        
+                        
                     }
                 }
                 else
@@ -109,7 +76,7 @@
     <div class="card">
         <div class="card-body">
             <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-                <h1>Teacher groups</h1>
+                <h1>Student groups</h1>
                 <!--
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                     +
@@ -144,56 +111,14 @@
                 {
                     foreach (var item in Model.groups)
                     {
-                        var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
-                        var countLessons = item.Lessons.Count();
-                        var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
-                        var startTimes = item.DaySchedules.Select(x => x.WorkingStartTime).ToArray();
-                        var endTimes = item.DaySchedules.Select(x => x.WorkingEndTime).ToArray();
-
-
                         <div class="card">
                             <div class="card-body">
-                                <div style="display:flex;justify-content:space-between">
-                                    <h3>Course - @item.CourseName,  Lesson type: @item.LessonType</h3>
-                                    <h5>Group - '@item.Name'</h5>
-                                    <div>
-                                        <h5>@countEndedLessons / @countLessons lessons - XXX BYN</h5>
-                                    </div>
-                                </div>
-                                <p>
-                                    @for (int a = 0; a < startTimes.Count(); a++)
-                                    {
-                                        <span>@startTimes[a].ToString() - @endTimes[a].ToString() , </span>
-
-                                    }
-                                    - @scheduleDays
-
-                                </p>
-                                <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
-
-                                    @for (int i = 0; i < item.Lessons.Count(); i++)
-                                    {
-                                        <div>
-                                            @if (item.Lessons[i].ArrivedStudents.Select(x=>x.Id).Contains(Model.user.Id) && item.Lessons[i].IsСompleted == true)
-                                            {
-                                                <div style="color:red">@item.Lessons[i].StartTime.ToShortTimeString()</div>
-
-                                            }
-                                            else if (!item.Lessons[i].ArrivedStudents.Select(x => x.Id).Contains(Model.user.Id) && item.Lessons[i].IsСompleted == true)
-                                            {
-                                                <div style="color:darkgray">@item.Lessons[i].StartTime.ToShortTimeString()</div>
-                                            }
-                                            else{
-                                                <div >@item.Lessons[i].StartTime.ToShortTimeString()</div>
-                                
-                                            }
-                                                <input type="checkbox" asp-for="@item.Lessons[i]" disabled />
-                                        </div>
-                                    }
-                                </div>
+                            <a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a>
                             </div>
 
-                        </div>
+                            </div>
+                       
+                       
                     }
                 }
                 else

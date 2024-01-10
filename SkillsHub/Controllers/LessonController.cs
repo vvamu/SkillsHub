@@ -160,7 +160,7 @@ public class LessonController : Controller
         var group = await _groupService.GetAsync(id) ?? throw new Exception("Group not found");
         var duration = group.LessonType.LessonTimeInMinutes;
 
-        var item = new Lesson() { GroupId = group.Id, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(duration) };
+        var item = new Lesson() { Group = group, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(duration) };
         return View("Item", item);
     }
 
@@ -177,14 +177,15 @@ public class LessonController : Controller
 
 
     [HttpPost]
-    public async Task<IActionResult> Create(Lesson lesson)
+    public async Task<IActionResult> Create(Lesson lesson, Guid groupId)
     {
         //if(_context.Lessons.FirstOrDefaultAsync(x=>x.Id == lesson.Id) != null) return RedirectToAction("Edit", new {item = lesson});
         try
         {
-
-            var group = await _groupService.GetAsync(lesson.GroupId ?? Guid.Empty);
-            var duration = group.LessonType.LessonTimeInMinutes;
+            int duration = 0;
+            var group = await _groupService.GetAsync(lesson.GroupId ?? groupId);
+            if(group != null)
+            duration = group.LessonType.LessonTimeInMinutes;
 
             if (lesson.StartTime == DateTime.MinValue || lesson.StartTime.Year < DateTime.Now.Year - 10) throw new Exception("Not correct date");
             if (lesson.EndTime == DateTime.MinValue || lesson.EndTime.Year < DateTime.Now.Year - 10) throw new Exception("Not correct date");
@@ -233,6 +234,9 @@ public class LessonController : Controller
 
 
         var lastLessonValue = await _context.Lessons.Include(x=>x.Group).FirstOrDefaultAsync(x=>x.Id == item.Id);
+        var gr = new Group() { Id = lastLessonValue.Group.Id };
+        _context.Entry(lastLessonValue.Group).State = EntityState.Detached;
+
 
         if(lastLessonValue != null &&lastLessonValue.StartTime != item.StartTime && lastLessonValue.EndTime != item.EndTime)
         {
@@ -240,10 +244,12 @@ public class LessonController : Controller
             await _context.SaveChangesAsync();
         }
 
-       
 
+        item.Group = gr;
+        _context.Entry(item.Group).State = EntityState.Unchanged;
         _context.Lessons.Update(item);
         await _context.SaveChangesAsync();
+
         //await _lessonService.UpdateStudentsByLesson(item, studentId.ToList());
 
 
@@ -287,6 +293,7 @@ public class LessonController : Controller
     public async Task<IActionResult> GetArrivedStudentsByLesson(Guid id)
     {
         var lesson = await _lessonService.GetAsync(id);
+
         var groupSt = new List<Student>();//;
 
         if (lesson == null) return PartialView("_ArrivedStudentByLesson");
@@ -304,12 +311,10 @@ public class LessonController : Controller
         var ggg = lesson.Group.GroupStudents.Select(x => x.Student).ToList();
         foreach (var student in ggg)
         {
-            if (!stst.Select(x=>x.Id).Contains(student.Id))
+            if (!stst.Select(x => x.Id).Contains(student.Id))
                 groupSt.Add(student);
         }
 
-
-        //groupSt = groupSt.Except(stst).ToList();
 
 
 

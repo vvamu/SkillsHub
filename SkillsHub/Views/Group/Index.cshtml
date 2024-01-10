@@ -208,8 +208,14 @@
                                         </div>
                                     </div>
                                     <ul>
+                                    
                                     <li>Cource name: @item.CourseName.Name</li>
                                      <li>Lesson type: @item.LessonType.Name</li>
+                                     <li>Min count of students by type: @item.LessonType.MinimumStudents</li>
+                                     <li>Max count of students by type: @item.LessonType.MaximumStudents</li>
+
+
+                                        <li>Status: -</li>
                                         @if (@item.DateStart != DateTime.MinValue)
                                         {
                                             <li>Date start: @(DateOnly.FromDateTime(item.DateStart).ToShortDateString())</li>

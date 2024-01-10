@@ -42,10 +42,11 @@ public class UserService : IUserService
             
             .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
             .Include(x=>x.UserTeacher.PossibleCources).ThenInclude(x=>x.CourseName)
-            .Include(x=>x.UserTeacher).ThenInclude(x=>x.Groups)//.ThenInclude(x=>x.GroupStudents)//.ThenInclude(x=>x.Student)
+            .Include(x=>x.UserTeacher).ThenInclude(x=>x.Groups).ThenInclude(x=>x.GroupStudents)//.ThenInclude(x=>x.Student)
+            .Include(x => x.UserTeacher).ThenInclude(x => x.Groups).ThenInclude(x => x.Lessons)
             .Include(x=>x.UserStudent)
             .Include(x=>x.UserStudent).ThenInclude(x=>x.Groups)//.ThenInclude(x=>x.Student)
-            .Include(x => x.UserStudent).ThenInclude(x => x.Groups)//.ThenInclude(x => x.Group)//.ThenInclude(x=>x.GroupStudents).ThenInclude(x => x.Student)
+            .Include(x => x.UserStudent).ThenInclude(x => x.Groups).ThenInclude(x => x.Group).ThenInclude(x=>x.Lessons)//.ThenInclude(x=>x.GroupStudents).ThenInclude(x => x.Student)
             .Include(x=>x.UserStudent)
             .Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
             .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.CourseName)

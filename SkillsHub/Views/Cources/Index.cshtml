@@ -58,14 +58,14 @@
 										
 										<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px; margin-right:5%">
 											<p style="white-space:nowrap">Activity type:</p>
-											<select class="form-control" id="val-skill" name="val-skill">
+											<select class="form-select" id="val-skill" name="val-skill">
 												<option value="">Active</option>
 												<option value="">Not Active (Deleted)</option>
 											</select>
 										</li>
 										<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
 											<p style="white-space:nowrap">Order by:</p>
-											<select class="form-control" id="val-skill" name="val-skill">
+											<select  class="form-select" id="val-skill" name="val-skill">
 												<option value="">Name</option>
 												<option value="">Date created</option>
 											</select>
@@ -91,20 +91,20 @@
 												<div class="card-body">
 												
 													<div style="display:flex;justify-content:space-between">
-													<div>
-													<label>Name       |  </label>
-														<span>  Date created: @item.DateCreated</span>
+													<div style="display:flex">
+														<label><span style="font-size:20px; font-weight:700">Name</span>   @if(item.DateCreated != DateTime.MinValue) {  <span> |  Date created: @item.DateCreated</span> }</label>
+
 														</div>
 														<form>
 														<input type="hidden" asp-for="@item.Id" value="@item.Id" />
-														<button class="btn btn-danger" type="submit" asp-action="DeleteCourceName" asp-controller="Cources" ><div>X</div></button>
+														<button class="btn btn-danger btn-sm" type="submit" asp-action="DeleteCourceName" asp-controller="Cources" ><div>X</div></button>
 													</form>
 													</div>
 												<form id="@formId">
 													<div style="display:flex">
 														<div>
-														<h4><input type="text" asp-for="@item.Name" value="@item.Name" /></h4>
-														
+														<input type="text" class="form-control" asp-for="@item.Name" value="@item.Name" />
+										
 														</div>
 														
 													</div>
@@ -117,8 +117,8 @@
 														<div style="display:flex">
 															<input type="hidden" asp-for="@item.Id" value="@item.Id">
 															<br/>
-															<input type="number" asp-for="@item.MinimumAge" value="@item.MinimumAge"/>
-															<input type="number" asp-for="@item.MaximumAge" value="@item.MaximumAge" />
+															<input type="number" class="form-control"  asp-for="@item.MinimumAge" value="@item.MinimumAge"/>
+															<input type="number" class="form-control"  asp-for="@item.MaximumAge" value="@item.MaximumAge" />
 															<br/>
 															<button class="btn btn-primary" type="button"  onclick="SaveCourcesNames('@courceNameId')">Save</button>
 														    <!--<form><a class="btn btn-primary" type="submit" asp-route-courceId="item.Id" asp-action="CreateCourceName" asp-controller="Cources">Edit</a></form>-->
@@ -208,15 +208,13 @@
 												
 
 													<div style="display:flex;justify-content:space-between">
-													<div>
-													<label>Name       |  </label>
-														<span>  Date created: @item.DateCreated</span>
-													</div>
+													<label><span style="font-size:20px; font-weight:700">Name</span>   @if(item.DateCreated != DateTime.MinValue) {  <span> |  Date created: @item.DateCreated</span> }</label>
+
 
 														<form>
 															<input type="hidden" asp-for="@item.Id" value="@item.Id" />
 															
-														<button class="btn btn-danger" type="submit" asp-action="DeleteLessonType" asp-controller="Cources" value="@item.Id"><div>X</div></button>
+														<button class="btn btn-danger btn-sm" type="submit" asp-action="DeleteLessonType" asp-controller="Cources" value="@item.Id"><div>X</div></button>
 														</form>
 													</div>
 
@@ -224,7 +222,7 @@
 
 												<form id="@formId">
 													<div style="display:flex;justify-content:space-between">
-														<h3><input type="text"  asp-for="@item.Name"/></h3>
+														<h3><input type="text" class="form-control" asp-for="@item.Name" /></h3>
 														<!--<button class="btn btn-danger">☓</button>-->
 													</div>
 														
@@ -234,34 +232,43 @@
 														</div>
 														<div style="display:flex">
 															<input type="hidden" asp-for="@item.Id" value="@item.Id">
-															<input value="@Convert.ToDecimal(item.TeacherPrice)" asp-for="@item.TeacherPrice"></input>
-														    <input value="@Convert.ToDecimal(item.StudentPrice)"  asp-for="@item.StudentPrice"></input>
-
-															
+														<input value="@Convert.ToDecimal(item.TeacherPrice)" asp-for="@item.TeacherPrice" class="form-control"/>
+														<input value="@Convert.ToDecimal(item.StudentPrice)" asp-for="@item.StudentPrice" class="form-control"/>
 														</div>
+
+													<div style="display:flex;margin-top:20px">
+														<label>Teacher price Per Cource  BYN  |  </label>
+														<label>Student price Per Cource BYN</label>
+													</div>
+													<div style="display:flex">
+														<input value="@(Convert.ToDecimal(item.TeacherPrice) * item.MinumumLessonsToPay)" disabled name="TeacherPricePerCource" class="form-control" />
+														<input value="@(Convert.ToDecimal(item.StudentPrice) * item.MinumumLessonsToPay)" disabled name="StudentPricePerCource" class="form-control" />
+													</div>
 
 													<div style="display:flex;margin-top:20px">
 														<label>MinumumLessonsToPay</label>
 													</div>
 													<div style="display:flex;justify-content:space-between">
-														<input type="number" asp-for="@item.MinumumLessonsToPay" />
+														<input type="number" class="form-control" asp-for="@item.MinumumLessonsToPay" />
 														
 													</div>
 
 													<div style="display:flex;margin-top:20px">
-														<label>Teacher price Per Cource  BYN  |  </label>
-														<label>Student price Per Cource BYN</label>
-														</div>
-													<div style="display:flex">
-														<input value="@(Convert.ToDecimal(item.TeacherPrice) * item.MinumumLessonsToPay)" disabled name="TeacherPricePerCource"></input>
-														<input value="@(Convert.ToDecimal(item.StudentPrice) * item.MinumumLessonsToPay)" disabled name="StudentPricePerCource"></input>
+														<label>Minimum count students to start group  </label>
+														<label>Maximum students in group</label>
 													</div>
+													<div style="display:flex">
+														<input asp-for="@item.MinimumStudents" class="form-control" />
+														<input asp-for="@item.MaximumStudents" class="form-control" />
+													</div>
+
+													
 
 													<div style="display:flex;margin-top:20px">
 														<label>LessonTimeInMinutes</label>
 													</div>
 													<div style="display:flex;justify-content:space-between">
-														<input type="number" asp-for="@item.LessonTimeInMinutes"></input>
+														<input class="form-control" type="number" asp-for="@item.LessonTimeInMinutes"></input>
 
 														<button class="btn btn-primary" type="button" onclick="SaveLessonType('@item.Id')">Save</button>
 													</div>

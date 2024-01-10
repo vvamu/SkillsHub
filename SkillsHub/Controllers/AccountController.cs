@@ -21,13 +21,16 @@ public class AccountController : Controller
     private readonly ICourcesService _courcesService;
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IGroupService _groupService;
+
     public AccountController(IUserService userService, ICourcesService courcesService,
-        ApplicationDbContext context, IMapper mapper)
+        ApplicationDbContext context, IMapper mapper, IGroupService groupService)
     {
         _userService = userService;
         _courcesService = courcesService;
         _context = context;
         _mapper = mapper;
+        _groupService = groupService;
 
     }
     #region Get
@@ -199,15 +202,12 @@ public class AccountController : Controller
     public async Task<IActionResult> GetGroupsByUser(Guid id)
     {
         var user = await _userService.GetUserByIdAsync(id);
-        var studentGroups = user.UserStudent;
-        var teacherGroups = user.UserTeacher;
+        var studentGroups = _groupService.GetAll().SelectMany(x=>x.GroupStudents).Where(x=>x.Student.ApplicationUser.Id == user.Id).Select(x=>x.Group).ToList();
+        var teacherGroups = _groupService.GetAll().Where(x => x.Teacher.ApplicationUser.Id == id).ToList();
 
-        return PartialView("_UsersGroups", (user, studentGroups, teacherGroups));
+        return PartialView("_UserGroups", (user, studentGroups, teacherGroups));
 
     }
-
-
-
 
     [HttpGet]
     [AllowAnonymous]

@@ -28,6 +28,7 @@ public class GroupService: IGroupService
     public IQueryable<Group> GetAll() => _context.Groups
         .Include(x => x.Lessons).Include(x => x.CourseName).Include(x => x.LessonType)
         .Include(x => x.GroupStudents).ThenInclude(x=>x.Student).ThenInclude(x => x.ApplicationUser)
+        .Include(x => x.GroupStudents)//.ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
         //.Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x=>x.L)
         .Include(x => x.DaySchedules)
         .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
@@ -40,6 +41,7 @@ public class GroupService: IGroupService
             .Include(x => x.Lessons).Include(x => x.CourseName).Include(x => x.LessonType)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group)
             .Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x=>x.ApplicationUser)
+            //.Include(x => x.GroupStudents).ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
             .Include(x => x.DaySchedules)
             .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.CourseName)

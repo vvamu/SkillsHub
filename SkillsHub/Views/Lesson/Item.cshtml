@@ -26,11 +26,11 @@
                                     <div class="form-group">
                                         <label class=" col-form-label" for="val-skill">
                                             <h4>
-                                                Default duration - @if (Model != null && Model.Group != null && Model.Group.LessonType != null)
+                                                Default duration by lesson type: @if (Model != null && Model.Group != null && Model.Group.LessonType != null)
                                             {
                                                     <span>@Model.Group.LessonType.LessonTimeInMinutes min</span>
                                             }
-                                                <span class="text-danger">*</span>
+                                                
                                             </h4>
                                         </label>
                                     </div>
@@ -47,11 +47,13 @@
 
                                     <div class="form-group">
                                         <label class=" col-form-label" for="val-skill">
-                                            <h4>Topic<span class="text-danger">*</span></h4>
+                                            <h4>Topic</h4>
                                         </label>
                                         <input type="text" asp-for="Topic" disabled/>
                                     </div>
 
+                                <li>Min count of students by type: -</li>
+                                <li>Max count of students by type: -</li>
 
                                     
                                     <div class="form-group">
@@ -129,7 +131,7 @@
     <form class="mt-1 mb-5 login-input" method="post">
         @if (Model != null)
         {                    
-            <input type="hidden" asp-for="GroupId" value="'@Model.GroupId'" />
+            <input type="hidden" asp-for="GroupId" value="@Model.GroupId" />
             <input type="hidden" asp-for="@Model.Id" />
             @if(Model.Teacher != null)
             {
@@ -139,10 +141,11 @@
             {
                 <input type="hidden" id="teacherByGroup" value="'@Model.Group.Teacher.Id'" />
             }
-           
+            <input type="hidden" asp-for="GroupId" value="@ViewBag.GroupId" />
+            <input type="hidden" name="GroupId" value="@ViewBag.GroupId" />
 
         }
-
+        
         <div class="container-fluid">
             <div class="row">
                 <div class="col">
@@ -159,23 +162,35 @@
                                         {
                                             <span>@Model.Group.LessonType.LessonTimeInMinutes</span>
                                         }
-                                        <span class="text-danger">*</span>
                                     </h4>
                                 </label>
                             </div>
                             @if(Model !=null)
                             {
                                 <div class="form-group">
+                                   
                                     <label class=" col-form-label" for="val-skill">
-                                        <h4>Date start<span class="text-danger">*</span></h4>
+                                        <h4>Start time | End time<span class="text-danger">*</span></h4>
                                     </label>
-                                    <input type="datetime" asp-for="StartTime" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>End time<span class="text-danger">*</span></h4>
-                                    </label>
-                                    <input type="datetime" asp-for="EndTime" class="form-control" >
+
+                                    <div style="display:flex;grid-gap:5px">
+                                        <input type="datetime-local"
+                                               id="meeting-time"
+                                               name="meeting-time"
+                                               value="2018-06-12T19:30"
+                                               min="2018-06-07T00:00"
+                                               max="2018-06-14T00:00"
+                                               class="form-control"
+                                               asp-for="StartTime" />
+                                        <input type="datetime-local"
+                                               id="meeting-time"
+                                               name="meeting-time"
+                                               value="2018-06-12T19:30"
+                                               min="2018-06-07T00:00"
+                                               max="2018-06-14T00:00"
+                                               class="form-control"
+                                               asp-for="EndTime" />
+                                    </div>
                                 </div>
                             }else{
 
@@ -195,9 +210,9 @@
                             }
                             <div class="form-group">
                                 <label class=" col-form-label" for="val-skill">
-                                    <h4>Topic<span class="text-danger">*</span></h4>
+                                    <h4>Topic</h4>
                                 </label>
-                                <input type="text" asp-for="Topic" />
+                                <input type="text" asp-for="Topic" class="form-control"/>
                             </div>
 
                             
@@ -205,14 +220,14 @@
                                 <label class=" col-form-label" for="val-skill">
                                     <h4>Teacher<span class="text-danger">*</span></h4>
                                 </label>
-                                <select asp-for="Teacher" id="allTeachers"></select>
+                                <select asp-for="Teacher" id="allTeachers" class="form-select"></select>
                             </div>
 
                             <div class="form-group">
                                 <label class=" col-form-label" for="val-skill">
                                     <h4>Link to webinar<span class="text-danger">*</span></h4>
                                 </label>
-                                <input type="url" asp-for="LinkToWebinar" class="form-control" placeholder="Input link...">
+                                <input type="url" asp-for="LinkToWebinar" class="form-select" placeholder="Input link...">
                             </div>
 
                             <div id="arrivedStudentsList">
@@ -249,6 +264,9 @@
 
 
 <script>
+
+
+
 
     function getLessonTypesList() {
 

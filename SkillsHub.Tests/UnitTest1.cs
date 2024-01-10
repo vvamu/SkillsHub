@@ -37,6 +37,7 @@ namespace SkillsHub.Tests
         {
             // Arrange
             var userId = Guid.NewGuid();
+            //var lessonType = new LessonType() { }
 
             // Act
             //var user = await _userService.GetUserByIdAsync(userId);
