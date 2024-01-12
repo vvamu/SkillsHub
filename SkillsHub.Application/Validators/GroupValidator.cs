@@ -14,7 +14,7 @@ public class GroupValidator : AbstractValidator<Group>
             .Must(x => (x.IsUnlimitedLessonsCount && x.LessonsCount == 0) || (!x.IsUnlimitedLessonsCount && x.LessonsCount > 1))
             .WithMessage("Invalid lessons сount value");
         RuleFor(x => x)
-            .Must(x => !x.IsLateDateStart && (x.DateStart.Year >= DateTime.Now.Year - 10 && x.DateStart.Year <= DateTime.Now.Year + 10))
+            .Must(x => (!x.IsLateDateStart && (x.DateStart.Year >= DateTime.Now.Year - 10 && x.DateStart.Year <= DateTime.Now.Year + 10)) || (x.IsLateDateStart &&x.DateStart == DateTime.MinValue))
             .WithMessage("Not valid date start");
 
         RuleFor(x => x)

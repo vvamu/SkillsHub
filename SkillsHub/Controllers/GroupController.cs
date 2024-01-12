@@ -118,7 +118,11 @@ public class GroupController : Controller
 
             if(item.IsVerified)
             {
-                await _groupService.CreateLessonsBySchedule(group.DaySchedules, item.DateStart, item.LessonsCount, item, true);
+                if(!item.IsLateDateStart)
+                {
+                    await _groupService.CreateLessonsBySchedule(group.DaySchedules, item.DateStart, item.LessonsCount, item, true);
+
+                }
                 await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
             }
 

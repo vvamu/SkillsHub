@@ -163,7 +163,7 @@
                                 <input asp-for="DateStart" class="form-control" type="date" name="CreateLateDateStart" />
                                 <div class="validate"></div>
                                 <div>
-                                    <input type="checkbox" asp-for="IsLateDateStart" onclick="CreateLateDateStart()" />
+                                    <input type="checkbox" asp-for="IsLateDateStart" onclick="CreateLateDateStartFunc(this)" />
                                     <span style="color:lightseagreen">For late date start</span>
                                 </div>
                             </div>
@@ -341,12 +341,12 @@ console.log(data);
         }
     }
 
-    function CreateLateDateStart() {
-        var checkbox = document.querySelector('[name="CreateLateDateStart"]');
-        var lessonsCountInput = document.querySelector('#lessonsCount');
+    function CreateLateDateStartFunc(input) {
+        var checkbox = input;
+        var lessonsCountInput = document.querySelector('input[name="CreateLateDateStart"]');
 
         if (checkbox.checked) {
-            lessonsCountInput.value = 0;
+            lessonsCountInput.value = "00:00";
             lessonsCountInput.disabled = true;
         } else {
             lessonsCountInput.disabled = false;
