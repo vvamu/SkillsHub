@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Helpers;
@@ -13,6 +14,7 @@ using System.Linq;
 
 namespace SkillsHub.Controllers;
 
+[Authorize]
 public class GroupController : Controller
 {
     private readonly IGroupService _groupService;
@@ -44,10 +46,27 @@ public class GroupController : Controller
         ViewBag.CourseNames = _courcesService.GetAllCourcesNames();
         ViewBag.Students = await _userService.GetAllStudentsAsync();
         ViewBag.Teachers =  _userService.GetAllTeachers();
+
+        
         var groups = await _groupService.GetAll().Where(x=>x.IsDeleted ==false).ToListAsync();
+        /*
+        foreach(var gr in groups)
+        {
+            
+            var g = new Group() { Id = gr.Id, IsVerified = true };
+            if (gr.DateStart == DateTime.MinValue)
+                g.DateStart = DateTime.Now;
+            
+            _context.Groups.Update(g);
+            _context.SaveChangesAsync();
+        }
+        */
+       
 
         return View(groups);
     }
+
+
     public IActionResult IndexByFilters(string? filterStr, Guid? filterCourseId)
     {
         ViewBag.CourseNames = _courcesService.GetAllCourcesNames();
@@ -67,6 +86,7 @@ public class GroupController : Controller
 
     public IActionResult Create()
     {
+
         return View();
     }
 
@@ -78,20 +98,37 @@ public class GroupController : Controller
         Group group = new Group();
         try
         {
+            if(User.IsInRole("Teacher"))
+            {
+                item.IsVerified = false;
+                
+                
+            }
             
-            group =  await _groupService.CreateAsync(item); 
+            group =  await _groupService.CreateAsync(item);
+
+            if (User.IsInRole("Teacher"))
+            {
+                var user = await _userService.GetCurrentUserAsync();
+                var message = "Teacher " + user.FirstName + " " + user.LastName + " " + user.Surname + " send request to create new group '" + item.Name + "'. Check it.";
+                var notification = new NotificationMessage() { IsRequest = true, Message = message };
+            }
 
             await _groupService.CreateScheduleDaysToGroup(group, dayName, startTime, studentId);
-            await _groupService.CreateLessonsBySchedule(group.DaySchedules, item.DateStart, item.LessonsCount, item);
 
-            await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
-            
+            if(item.IsVerified)
+            {
+                await _groupService.CreateLessonsBySchedule(group.DaySchedules, item.DateStart, item.LessonsCount, item, true);
+                await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
+            }
+
+
             await _context.SaveChangesAsync();
 
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message); RedirectToAction("Index");
+            ModelState.AddModelError("", ex.Message); return View("Create",item);
         }
         return RedirectToAction("Item", new { id = group.Id });
 
@@ -149,8 +186,12 @@ public class GroupController : Controller
                 dateStart = group.Lessons.OrderByDescending(x=>x.EndTime).FirstOrDefault().EndTime.AddDays(1); //Where(x=>x.EndTime <  DateTime.Now)
                 lessonsCount = item.LessonsCount - group.Lessons.Count();//.Where(x => x.EndTime < DateTime.Now).Count();
             }
-            
-            var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, lessonsCount, item);
+            if(item.IsVerified)
+            {
+                var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, lessonsCount, item, true);
+
+            }
+
             //await _groupService.SaveLessonsBySchedule(group, studentId.ToList(), lessons);
 
 
@@ -206,7 +247,9 @@ public class GroupController : Controller
         }
         return RedirectToAction("Item" , new {id = item.Id});
     }
-    [HttpDelete]
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
     public async Task<IActionResult> Delete(Guid id)
     {
         var group = await _groupService.GetAsync(id);
@@ -220,6 +263,27 @@ public class GroupController : Controller
 
         _context.Groups.Update(group);
        await  _context.SaveChangesAsync();
+
+        return RedirectToAction("Index");
+    }
+    [Authorize(Roles ="Admin")]
+
+    [HttpPost]
+    public async Task<IActionResult> HardDelete(Guid id)
+    {
+        await _groupService.HardDeleteAsync(id);
+        /*
+        var group = await _groupService.GetAsync(id);
+
+        int a = 10;
+        int b = 20;
+        (a, b) = (b, a);
+
+        int c = b - a;
+        group.IsDeleted = true;
+
+        _context.Groups.Update(group);
+        await _context.SaveChangesAsync();*/
 
         return RedirectToAction("Index");
     }

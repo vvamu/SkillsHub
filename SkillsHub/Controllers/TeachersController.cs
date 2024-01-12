@@ -17,6 +17,8 @@ using System.Data;
 
 namespace SkillsHub.Controllers;
 
+[Authorize]
+
 public class TeachersController : Controller
 {
     IUserService _userService;

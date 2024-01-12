@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Frameworks;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
+using SkillsHub.Domain.Models;
 using SkillsHub.Helpers;
 using SkillsHub.Helpers.SearchModels;
 using SkillsHub.Persistence;
@@ -160,7 +162,10 @@ public class LessonController : Controller
         var group = await _groupService.GetAsync(id) ?? throw new Exception("Group not found");
         var duration = group.LessonType.LessonTimeInMinutes;
 
-        var item = new Lesson() { Group = group, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(duration) };
+        ViewBag.grId = group.Id;
+        ViewBag.DefaultLessonTime = group.LessonType.LessonTimeInMinutes;
+
+        var item = new Lesson() { Group = group, GroupId = group.Id, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(duration) };
         return View("Item", item);
     }
 
@@ -168,31 +173,50 @@ public class LessonController : Controller
     [HttpGet]
     public async Task<IActionResult> CreateBySchedule(Guid id) //groupId
     {
-        var group = await _context.Groups.FirstOrDefaultAsync(x => x.Id == id) ?? throw new Exception("Group not found");
+        var group = await _groupService.GetAsync(id);
+        if (group == null) return RedirectToAction("Index", "Group");
+
+        if (!group.IsUnlimitedLessonsCount && group.Lessons != null)
+        {
+            if (group.LessonsCount <= group.Lessons.Count())
+                return PartialView("_MyError", "So much lessons");
+
+            if (group.NeededLessonsTimeInMinutes <= group.ResultLessonsTimeInMinutes)
+                return PartialView("_MyError", "So much working hours. Send message to administator to fix this problem");
+        }
 
 
-        var item = new Lesson() { GroupId = group.Id };
-        return View(item);
+        //var item = new Lesson() { GroupId = group.Id };
+
+        var dateStart = group.DateStart;
+        var lessonsCount = group.LessonsCount;
+        
+
+        if (group.Lessons != null && group.Lessons.Count() > 0)
+        {
+            
+            dateStart = group.Lessons.OrderByDescending(x => x.EndTime).FirstOrDefault().EndTime.AddDays(1); //Where(x=>x.EndTime <  DateTime.Now)
+            lessonsCount = group.LessonsCount - group.Lessons.Count();//.Where(x => x.EndTime < DateTime.Now).Count();
+        }
+
+        bool isVerified = true;
+        if (User.IsInRole("Teacher")) isVerified = false;
+
+        await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, 1, group , isVerified);
+
+
+
+        return RedirectToAction("Item", "Group", new {id = group.Id});
     }
 
 
     [HttpPost]
-    public async Task<IActionResult> Create(Lesson lesson, Guid groupId)
+    public async Task<IActionResult> Create(Lesson lesson)
     {
         //if(_context.Lessons.FirstOrDefaultAsync(x=>x.Id == lesson.Id) != null) return RedirectToAction("Edit", new {item = lesson});
         try
         {
-            int duration = 0;
-            var group = await _groupService.GetAsync(lesson.GroupId ?? groupId);
-            if(group != null)
-            duration = group.LessonType.LessonTimeInMinutes;
-
-            if (lesson.StartTime == DateTime.MinValue || lesson.StartTime.Year < DateTime.Now.Year - 10) throw new Exception("Not correct date");
-            if (lesson.EndTime == DateTime.MinValue || lesson.EndTime.Year < DateTime.Now.Year - 10) throw new Exception("Not correct date");
-            if(lesson.EndTime.Minute - lesson.StartTime.Minute > duration * 2 || lesson.EndTime < lesson.StartTime) throw new Exception("Not correct date");
-
-            await _context.Lessons.AddAsync(lesson);
-            await _context.SaveChangesAsync();
+            await _lessonService.Create(lesson);
         }
         catch(Exception ex) { ModelState.AddModelError("", ex.Message); return View("Item", lesson); }
         return RedirectToAction("Item", "Group", new { id = lesson.GroupId });
@@ -215,7 +239,7 @@ public class LessonController : Controller
         await _context.SaveChangesAsync();
 
         var group = lesson.Group;//await _groupService.GetAll().FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(id));
-        await _requestService.DeletePreviousRequests(null);
+        await _requestService.DeletePreviousRequests(lesson);
         await _lessonService.DeleteLessonByGroup(group, lesson);
 
         return RedirectToAction("Item","Group",new { id = lesson.GroupId });
@@ -281,10 +305,12 @@ public class LessonController : Controller
         var lesson =await  _lessonService.GetAsync(id);
       
         //ViewBag.studentsByLesson = lesson.ArrivedStudents;
+        
         ViewBag.GroupId =_context.Groups.FirstOrDefaultAsync(x=>x.Lessons.Select(x=>x.Id).Contains(id));
-        //ViewBag.teacher
+        
+        
 
-        if (lesson == null) return View("Create");
+        //if (lesson == null) return Redirect("Create",new Lesson() { GroupId = });
         return View(lesson);
 
     }

@@ -29,7 +29,10 @@
                                 <h2 style="margin-bottom:5%">Group </h2>
                                 @if(User.IsInRole("Admin"))
                                 {
-                                    <input type="submit" asp-action="Delete" asp-controller="Group" value="X" class="btn btn-outline-danger" asp-route-id="@Model.Id" />
+                                    <div>
+                                    <input type="submit" asp-action="Delete" asp-controller="Group" asp-route-id="@Model.Id" value="x" class="btn btn-outline-danger" title="The group can be restored" />
+                                    <input type="submit" asp-action="HardDelete" asp-controller="Group" asp-route-id="@Model.Id" value="x" class="btn btn-danger" title="Full delete with lessons" />
+                                    </div>
                                 }      
                             </div>
 
@@ -67,8 +70,6 @@
                                     <p class="col-form-label">@Group.LessonType.Name</p>
                                 </div>
                             </div>
-                            <li>Min count of students by type: @Model.LessonType.MinimumStudents</li>
-                            <li>Max count of students by type: @Model.LessonType.MaximumStudents</li>
 
                             <!--
                             <div class="form-group row">
@@ -85,7 +86,14 @@
                                     Date start <span class="text-danger">*</span>
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class="col-form-label">@Group.DateStart.ToLongDateString()</p>
+                                    <p class="col-form-label">@if (!Group.IsLateDateStart && Group.DateStart != DateTime.MinValue)
+                                        {
+                                            <span>@Group.DateStart.ToLongDateString()</span>
+                                        }else
+                                        {
+                                            <span>Not decided</span>
+                                        }
+                                    </p>
                                 </div>
                             </div>
                             
@@ -95,13 +103,30 @@
                                     Lessons count <span class="text-danger">*</span>
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class="col-form-label"> @Group.Lessons.Count / @Group.LessonsCount </p>
+                                    <p class="col-form-label"> @Group.Lessons.Count /  @if (!Group.IsUnlimitedLessonsCount) { <span>@Group.LessonsCount</span>} else{<span>Unlimited</span>} </p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">
+                                    Result hours <span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-6">
+                                    <p class="col-form-label">
+                                        <span title="Passed Lessons Time In Minutes">@Group.PassedLessonsTimeInMinutes</span> /  <span title="Assigned Lessons">@Group.ResultLessonsTimeInMinutes</span> /  @if (!Group.IsUnlimitedLessonsCount)
+                                        {
+                                            <span title="Needed Lessons Time In Minutes">@Group.NeededLessonsTimeInMinutes</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Unlimited</span>
+                                        }
+                                    </p>
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    Students in group <span class="text-danger">*</span>
+                                    Students in group (@Group.GroupStudents.Count() / @Group.LessonType.MinimumStudents..@Group.LessonType.MaximumStudents)
                                 </label>
                                 <div class="col-lg-6">
                                     <ol>
@@ -192,7 +217,8 @@
 
                         @if (User.IsInRole("Admin"))
                         {
-                            <input type="submit" asp-action="Create" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-primary" />
+                            <input type="submit" asp-action="CreateBySchedule" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-outline-primary" title="Create by credule"/>
+                            <input type="submit" asp-action="Create" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-primary" title="Create from zero info" />
                         }
                     </div>
                 </div>

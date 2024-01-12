@@ -137,5 +137,19 @@ public class RequestService : IRequestService
         
     }
 
+    public async Task DeletePreviousRequests(Lesson item)
+    {
+        var requestLessonsByLesson = await _context.RequestLessons
+            .Include(x => x.LessonBefore).ThenInclude(x => x.Group)
+            .Where(x => x.LessonBefore.Id == item.Id).ToListAsync();
 
-}
+        foreach (var i in requestLessonsByLesson)
+        {
+            var ii = new RequestLesson() { Id = i.Id };
+            _context.RequestLessons.Remove(ii);
+        }
+        await _context.SaveChangesAsync();
+    }
+
+
+    }

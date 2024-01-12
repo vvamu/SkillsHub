@@ -9,6 +9,19 @@
 
 
 <!-- Модальное окно -->
+
+    <div class="row page-titles mx-0">
+                <div class="col p-md-0">
+                    <ol class="breadcrumb" style="display:flex;align-items:center">
+                        <li class="breadcrumb-item"><a asp-action="Item" asp-controller="Group" asp-route-id="@ViewBag.grId">Group</a></li>
+                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Lesson</a></li>
+                    <li>
+
+                </li>
+
+            </ol>
+        </div>
+    </div>
 @if(User.IsInRole("Student") && Model !=  null){
     if (Model.Id != Guid.Empty)
     {
@@ -26,10 +39,10 @@
                                     <div class="form-group">
                                         <label class=" col-form-label" for="val-skill">
                                             <h4>
-                                                Default duration by lesson type: @if (Model != null && Model.Group != null && Model.Group.LessonType != null)
-                                            {
-                                                    <span>@Model.Group.LessonType.LessonTimeInMinutes min</span>
-                                            }
+                                                Default duration by lesson type: 
+                                            <span>@ViewBag.DefaultLessonTime</span>
+                                            
+
                                                 
                                             </h4>
                                         </label>
@@ -157,57 +170,45 @@
                             <div class="validation" asp-validation-summary="ModelOnly"></div>
                             <div class="form-group">
                                 <label class=" col-form-label" for="val-skill">
-                                    <h4>
-                                        Default duration - @if (Model != null && Model.Group != null && Model.LessonType != null)
-                                        {
-                                            <span>@Model.Group.LessonType.LessonTimeInMinutes</span>
-                                        }
-                                    </h4>
+                                   
                                 </label>
                             </div>
-                            @if(Model !=null)
-                            {
+                           
                                 <div class="form-group">
                                    
-                                    <label class=" col-form-label" for="val-skill">
+                                    <label class=" col-form-label" for="val-skill" style="display:flex">
                                         <h4>Start time | End time<span class="text-danger">*</span></h4>
+                                        <p>
+                                            (Default by lesson type: <span id="defaultLessonTime">@ViewBag.DefaultLessonTime</span> min)
+                                        </p>
                                     </label>
 
-                                    <div style="display:flex;grid-gap:5px">
+                                    <div style="display:flex;grid-gap:15px">
                                         <input type="datetime-local"
                                                id="meeting-time"
                                                name="meeting-time"
-                                               value="2018-06-12T19:30"
+                                              value="2018-06-12T19:30"
                                                min="2018-06-07T00:00"
                                                max="2018-06-14T00:00"
                                                class="form-control"
                                                asp-for="StartTime" />
                                         <input type="datetime-local"
-                                               id="meeting-time"
-                                               name="meeting-time"
-                                               value="2018-06-12T19:30"
+                                               id="meeting-time2"
+                                               name="meeting-time2"
+                                           value="2018-06-12T19:30"
                                                min="2018-06-07T00:00"
                                                max="2018-06-14T00:00"
                                                class="form-control"
                                                asp-for="EndTime" />
+                                             
+                                           
+                                            <div style="width:50%; display:flex;align-items:center;grid-gap:10px">
+                                                Set end time default <input type="button" value="set" class="btn btn-primary btn-sm" onclick="SetEndTime()" />
+                                            </div>
+                                             
                                     </div>
                                 </div>
-                            }else{
-
-                                <div class="form-group">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>Date start<span class="text-danger">*</span></h4>
-                                    </label>
-                                    <input type="datetime" asp-for="StartTime" class="form-control" value="@DateTime.Now">
-                                </div>
-                                <div class="form-group">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>End time<span class="text-danger">*</span></h4>
-                                    </label>
-                                    <input type="datetime" asp-for="EndTime" class="form-control" value="@DateTime.Now.AddHours(1)">
-                                </div>
-
-                            }
+                           
                             <div class="form-group">
                                 <label class=" col-form-label" for="val-skill">
                                     <h4>Topic</h4>
@@ -246,13 +247,14 @@
                                     Completed
                                 </label>
                             </div>
-                                     
+                            <div class="form-group">
                             @if(Model !=null && Model.Id != Guid.Empty)
                             {
                                 <input type="submit" asp-action="Edit" asp-controller="Lesson" class="btn btn-primary" value="Edit" formmethod="post" />
                             }else{
                                 <input type="submit" asp-action="Create" asp-controller="Lesson" class="btn btn-primary" value="Create" formmethod="post" />
                             }
+                            </div>
                             
                         </div>
                     </div>
@@ -264,8 +266,36 @@
 
 
 <script>
+    
+    function SetStartTime(){
+        /*
+        var startTimeInput = document.getElementById("meeting-time");
+        var currentTime = new Date();
+        var formattedTime = currentTime.toISOString().slice(0, 16);
+        startTimeInput.value = formattedTime;
+        */
 
+    }
+    
+    function SetEndTime() {
+        // Get the values of the elements
+        var startTimeInput = document.getElementById("meeting-time");
+        var endTimeInput = document.getElementById("meeting-time2");
+        var defaultLessonTimeSpan = document.getElementById("defaultLessonTime");
 
+        // Get the DateTime values from the inputs
+        var startTime = new Date(startTimeInput.value);
+        var defaultLessonTime = parseInt(defaultLessonTimeSpan.innerText);
+
+        // Compute the EndTime by adding the DefaultLessonTime to the StartTime
+        var endTime = new Date(startTime.getTime() + (defaultLessonTime  * 60 Я * 1000));
+
+        // Format the EndTime to the required format (YYYY-MM-DDTHH:MM)
+        var formattedEndTime = endTime.toISOString().slice(0, 16);
+
+        // Set the value of the EndTime input
+        endTimeInput.value = formattedEndTime;
+    }
 
 
     function getLessonTypesList() {
@@ -440,6 +470,9 @@
 
         getLessonTypesList();
         loadArrivedStudentsList();
+
+        SetStartTime()
+        SetEndTime()
     });
 
 </script>

@@ -162,6 +162,10 @@
 
                             <div class="card-body">
                                 <label>Date start group</label>
+                                @if(Model!= null && Model.Lessons != null && Model.Lessons.Count != 0)
+                                    {
+                                        <input asp-for="DateStart" class="form-control" type="date"  />
+                                    }
                                     <input asp-for="DateStart" class="form-control" type="date"  disabled="disabled" />
                             </div>
 
@@ -444,7 +448,7 @@
 
 
                         //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-                        appendedLine += user.FirstName + " " + user.LastName + " " + user.Surname;
+                        appendedLine += user.Login + " - " + user.FirstName + " " + user.LastName + " " + user.Surname;
                         appendedLine += "</option>"
 
                         requiredTeachers.append(appendedLine);

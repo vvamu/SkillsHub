@@ -60,40 +60,11 @@ public class NotificationService : INotificationService
                     usersToSend = new List<ApplicationUser>() { await _userService.GetCurrentUserAsync() };
                 }
             }
-            if (usersToSend == null)
-            {
-                usersToSend = new List<ApplicationUser>();
+            if (usersToSend == null) usersToSend = await GetUsersByGroup(group);
 
-                var students = group.GroupStudents.Select(x=>x.Student).Select(x => x.ApplicationUser).ToList();
-                var teacher = group.Teacher.ApplicationUser;
-                var admins = _userManager.GetUsersInRoleAsync("Admin").Result;
-
-                usersToSend.AddRange(students);
-                usersToSend.Add(teacher);
-                usersToSend.AddRange(admins);
-            }
-
-            notification = new NotificationMessage() { Message = notificationMessage };
-            _context.NotificationMessages.Add(notification);
-            await _context.SaveChangesAsync();
-            foreach (var user in usersToSend)
-            {
-                var u = new ApplicationUser() { Id = user.Id };
-                
-                var r = new NotificationUser() { User = u, NotificationMessage = notification };
-                _context.Entry(r.User).State = EntityState.Unchanged;
-                _context.Entry(r.NotificationMessage).State = EntityState.Unchanged;
-                await _context.NotificationUsers.AddAsync(r);
-
-
-            }
-
-            
-            
-            //_context.Entry(notification.Sender).State = EntityState.Unchanged;
-
-
-            await _context.SaveChangesAsync();
+            var res = await Create(notificationMessage, usersToSend);
+            return res;
+           
         }
         catch { }
 
@@ -104,33 +75,51 @@ public class NotificationService : INotificationService
     public async Task<NotificationMessage> СreateToUpdateCountLessonsInGroup(Group group, int previousCountLessons,int currentCountLessons, List<ApplicationUser>? usersToSend)
     {
         var message = "Count lessons was changed from " + previousCountLessons + " to " + currentCountLessons;
-        var usersToSend2 = new List<NotificationUser>();
-        if (usersToSend == null)
-        {
-            usersToSend = new List<ApplicationUser>();
+        if (usersToSend == null) usersToSend = await GetUsersByGroup(group);
 
-            var students = group.GroupStudents.Select(x => x.Student).Select(x => x.ApplicationUser).ToList();
-            var teacher = group.Teacher.ApplicationUser;
-            var admins = _userManager.GetUsersInRoleAsync("Admin").Result;
+        var res = await Create(message, usersToSend);
+        return res;
+    }
 
-            usersToSend.AddRange(students);
-            usersToSend.Add(teacher);
-            usersToSend.AddRange(admins);
-        }
-
-        var notification = new NotificationMessage() { Message = message };
-        _context.NotificationMessages.Add(notification);
-
-
-        foreach (var  user in usersToSend)
-        {
-            var r = new NotificationUser() { User = user, NotificationMessage= notification };
-            _context.NotificationUsers.Add(r);
-
-        }
-
+    private async Task<NotificationMessage> Create(NotificationMessage notification, List<ApplicationUser> usersToSend)
+    {
         
+        foreach (var user in usersToSend)
+        {
+            var u = new ApplicationUser() { Id = user.Id };
+            var r = new NotificationUser() { User = u, NotificationMessage = notification };
+            _context.Entry(r.User).State = EntityState.Unchanged;
+            _context.Entry(r.NotificationMessage).State = EntityState.Unchanged;
+            await _context.NotificationUsers.AddAsync(r);
+
+        }
         await _context.SaveChangesAsync();
         return notification;
+    }
+
+    private async Task<NotificationMessage> Create(string message, List<ApplicationUser> usersToSend)
+    {
+        var notification = new NotificationMessage() { Message = message };
+        await _context.NotificationMessages.AddAsync(notification);
+        await _context.SaveChangesAsync();
+
+        var res =  await Create(notification,usersToSend);
+        return res;
+    }
+
+    private async Task<List<ApplicationUser>> GetUsersByGroup(Group group)
+    {
+
+        var usersToSend = new List<ApplicationUser>();
+
+        var students = group.GroupStudents.Select(x => x.Student).Select(x => x.ApplicationUser).ToList();
+        var teacher = group.Teacher.ApplicationUser;
+        var admins = _userManager.GetUsersInRoleAsync("Admin").Result;
+
+        usersToSend.AddRange(students);
+        usersToSend.Add(teacher);
+        usersToSend.AddRange(admins);
+        return usersToSend;
+
     }
 }

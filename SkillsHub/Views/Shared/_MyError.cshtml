@@ -1,0 +1,49 @@
+﻿@model string
+<style>
+    .err-window {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 350px;
+        height: 500px;
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow: auto;
+    }
+</style>
+
+<h1 class="text-danger">Error.</h1>
+<h2 class="text-danger">An error occurred while processing your request.</h2>
+
+<div class="err-window" style="margin-right:8%">
+    <div>
+        <div class="panel panel-primary">
+            <div class="panel-heading" id="accordion" style="display:flex;justify-content:space-between">
+                <h3>Error</h3>
+                <div class="panel-collapse " id="collapseOne">
+                    <!--collapse-->
+                    <div class="panel-body" style="padding:5%">
+                        @Model
+                    </div>
+                    <div style="display:flex">
+                        <input type="button" class="btn btn-danger" onclick="toggleCollapseError()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleCollapseError() {
+        $('#err').toggleClass('show'); // Toggle the collapse state of the div
+
+        // Toggle the chevron icon direction
+        var chevron = $('#chevron');
+        chevron.toggleClass('glyphicon-chevron-down');
+        chevron.toggleClass('glyphicon-chevron-up');
+    }
+
+</script>

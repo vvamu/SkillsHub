@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -25,6 +26,7 @@ using static NuGet.Packaging.PackagingConstants;
 
 namespace SkillsHub.Controllers;
 
+[Authorize]
 public class StudentController : Controller
 {
     private readonly ICourcesService _courcesService;

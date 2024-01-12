@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Interfaces;
@@ -8,6 +9,7 @@ using SkillsHub.Domain.Models;
 using SkillsHub.Persistence;
 using SkillsHub.Persistence.Migrations;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Group = SkillsHub.Domain.Models.Group;
@@ -110,7 +112,7 @@ public class GroupService: IGroupService
 
     #region Helpers
 
-    public async Task<List<Lesson>> CreateLessonsBySchedule(List<WorkingDay> schedules, DateTime startDate, int countLessons, Group group)
+    public async Task<List<Lesson>> CreateLessonsBySchedule(List<WorkingDay> schedules, DateTime startDate, int countLessons, Group group, bool isVerified)
     {
         var lessons = new List<Lesson>();
         var groupLessons = _context.Lessons.Include(x => x.Group).Where(x => x.Group.Id == group.Id);
@@ -132,6 +134,7 @@ public class GroupService: IGroupService
                     StartTime = virtualDate + schedules[scCount].WorkingStartTime ?? DateTime.Now,
                     EndTime = virtualDate + schedules[scCount].WorkingEndTime ?? DateTime.Now,
                     Group = group, ///
+                    
                     //ArrivedStudents = lessonStudents,
                     //Teacher = group.Teacher ?? new Teacher()
                 };
@@ -165,12 +168,41 @@ public class GroupService: IGroupService
 
 
     }
+
+    private async Task<bool> CheckCorrectWorkingDays(string[] dayName, TimeSpan[] startTime)
+    {
+        if (startTime.Count() != dayName.Count()) throw new Exception("Time is not defined to schedule");
+        var dayTimeDict = new Dictionary<string, TimeSpan>();
+        for (int i = 0; i < dayName.Length; i++)
+        {
+            TimeSpan time = startTime[i];
+            if (!dayTimeDict.ContainsKey(dayName[i]))
+            {
+                dayTimeDict.Add(dayName[i], time);
+            }
+            else
+            {
+                // If the same dayName already exists, check for time overlap
+                if (dayTimeDict[dayName[i]] != time)
+                {
+                    throw new Exception("The same dayName already exists, check for time overlap");
+                }
+            }
+        }
+
+        
+
+
+        return true;
+    }
     
 
     public async Task<Group> CreateScheduleDaysToGroup(Group item, string[] dayName, TimeSpan[] startTime, Guid[] studentIds)
     {
         try
         {
+            await CheckCorrectWorkingDays(dayName, startTime);
+
             //var group = await _context.Groups.Include(x => x.DaySchedules).FirstOrDefaultAsync(x => x.Id == item.Id);
             if (item != null && item.DaySchedules != null)
             {
@@ -191,7 +223,7 @@ public class GroupService: IGroupService
             var duration = lessonType.LessonTimeInMinutes;
             var schedules = new List<WorkingDay>();
 
-            if (startTime.Count() != dayName.Count()) throw new Exception("Time is not defined to schedule");
+            
 
             //Create workingDat = schedule with dayName, startTime and endTime
             for (int i = 0; i < dayName.Count(); i++)
@@ -203,6 +235,17 @@ public class GroupService: IGroupService
                     WorkingEndTime = startTime[i] + TimeSpan.FromMinutes(duration),
                     Group = item
                 };
+
+                var validations = new WorkingDayValidator();
+                var validationResult = await validations.ValidateAsync(scheduleDay);
+                if (!validationResult.IsValid)
+                {
+                    var errors = validationResult.Errors;
+                    var errorsString = string.Concat(errors);
+                    throw new Exception(errorsString);
+                }
+
+
                 schedules.Add(scheduleDay);
             }
             await _context.DaySchedules.AddRangeAsync(schedules);
@@ -231,6 +274,7 @@ public class GroupService: IGroupService
             var teacher = item.Teacher ?? await _context.Teachers.Include(x => x.Groups).FirstOrDefaultAsync(x => x.Groups.Select(x => x.Id).Contains(item.Id));
 
             //await CreateLessonStudents(lessons, studentIds, teacher);
+
 
             foreach (var lesson in lessons)
             {
@@ -296,7 +340,7 @@ public class GroupService: IGroupService
             if (item != null && item.GroupStudents != null)
             {
                 var groupStudents = item.GroupStudents.ToList();
-                
+                       
                 foreach (var student in groupStudents)
                 {
 
@@ -306,7 +350,10 @@ public class GroupService: IGroupService
 
                     //_context.Entry(student.Group).State = EntityState.Unchanged;
                     //_context.Entry(grSt.Student).State = EntityState.Unchanged;
-                    _context.GroupStudents.Remove(student);
+                    
+                    if (!studentsId.Contains(student.Id))
+                        _context.GroupStudents.Remove(student);
+                    _context.Entry(student).State = EntityState.Detached;
 
 
                     /*
@@ -364,8 +411,57 @@ public class GroupService: IGroupService
             return group;
 
     }
-    
 
+    public async Task<Group> HardDeleteAsync(Guid id)
+    {
+        var group = await GetAsync(id);
+        var groupStudents = group.GroupStudents;
+        var lessons = group.Lessons;
+        var teacher = group.Teacher;
+
+        foreach(var  i in lessons)
+        {
+            await DeleteLessonByGroup(group, i);
+        }
+        foreach(var i in groupStudents)
+        {
+            _context.Entry(i.Student).State = EntityState.Unchanged;
+            _context.Entry(i.Group).State = EntityState.Unchanged;
+            _context.GroupStudents.Remove(i);
+
+        }
+        if(teacher.Groups != null) {teacher.Groups.Remove(new Group() { Id = id}); _context.Teachers.Update(teacher); }
+
+        _context.Groups.Remove(group);
+        await  _context.SaveChangesAsync();
+
+        return group;
+    }
+
+    #region LessonService
+    public async Task DeleteLessonByGroup(Group group, Lesson lesson)
+    {
+        //_context.Entry(group.Lessons).State = EntityState.Unchanged;
+        var lesson2 = new Lesson() { Id = lesson.Id };
+        _context.Entry(group.Lessons).State = EntityState.Detached;
+
+        var students = lesson.ArrivedStudents;
+        if(students != null)
+        {
+            foreach (var student in students)
+            {
+                _context.Entry(student.Student).State = EntityState.Unchanged;
+                _context.LessonStudents.Remove(student);
+            }
+        }
+
+        group.Lessons.Remove(lesson2);
+        _context.Lessons.Remove(lesson2);
+        _context.Groups.Update(group);
+
+        await _context.SaveChangesAsync();
+    }
+    #endregion
 
 
     /*
@@ -407,7 +503,7 @@ public class GroupService: IGroupService
     }
     */
 
-    
+
 
 
 

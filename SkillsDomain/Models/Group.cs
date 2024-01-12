@@ -21,9 +21,62 @@ public class Group : BaseEntity
     public List<WorkingDay>? DaySchedules { get; set;}
     public int LessonsCount { get; set; }
 
+    [NotMapped]
+    public int PassedLessonsCount
+    {
+        get
+        {
+            if (this.Lessons != null)
+               return this.Lessons.Where(x=>x.IsСompleted).ToList().Count();
+            return 0;
+
+        }
+    }
+
+
+    public bool IsUnlimitedLessonsCount { get; set; } 
+
+    [NotMapped]
+    public int NeededLessonsTimeInMinutes
+    {
+        get
+        {
+            if (this.LessonType != null)
+                return this.LessonType.LessonTimeInMinutes * this.LessonsCount;
+            else
+                return 0;
+        }
+    }
+
+    [NotMapped]
+    public int ResultLessonsTimeInMinutes { get
+        {
+            int resultMinutes = 0;
+            if(this.Lessons != null)
+            this.Lessons.ForEach(x => resultMinutes += (x.EndTime.Minute - x.StartTime.Minute));
+            return resultMinutes;
+
+        }}
+
+    [NotMapped]
+    public int PassedLessonsTimeInMinutes
+    {
+        get
+        {
+            int resultMinutes = 0;
+            if (this.Lessons != null)
+                this.Lessons.Where(x=>x.IsСompleted).ToList().ForEach(x => resultMinutes += (x.EndTime.Minute - x.StartTime.Minute));
+            return resultMinutes;
+
+        }
+    }
+
     public DateTime DateStart { get; set; }
+
+    public bool IsLateDateStart { get; set; }
 
     public Teacher? Teacher { get; set; }
 
     public Guid TeacherId { get; set; }
+    public bool IsVerified { get; set; }
 }
