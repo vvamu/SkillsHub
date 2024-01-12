@@ -202,8 +202,8 @@ public class AccountController : Controller
     public async Task<IActionResult> GetGroupsByUser(Guid id)
     {
         var user = await _userService.GetUserByIdAsync(id);
-        var studentGroups = _groupService.GetAll().SelectMany(x=>x.GroupStudents).Where(x=>x.Student.ApplicationUser.Id == user.Id).Select(x=>x.Group).ToList();
-        var teacherGroups = _groupService.GetAll().Where(x => x.Teacher.ApplicationUser.Id == id).ToList();
+        var studentGroups = _groupService.GetAll().Include(x=>x.Lessons).SelectMany(x=>x.GroupStudents).Where(x=>x.Student.ApplicationUser.Id == user.Id).Select(x=>x.Group).ToList();
+        var teacherGroups = _groupService.GetAll().Include(x=>x.Lessons).ThenInclude(x=>x.ArrivedStudents).Where(x => x.Teacher.ApplicationUser.Id == id).ToList();
 
         return PartialView("_UserGroups", (user, studentGroups, teacherGroups));
 

@@ -4,11 +4,11 @@
 
 @{
 
-    var teacherGroups = new List<Group>();
-    var studentGroups = new List<Group>();
+    var teacherGroups = Model.teacherGroups;
+    var studentGroups = Model.groups;
 
 }
-@if(Model.teacherGroups !=null)
+@if(teacherGroups !=null)
 {
     <div class="card">
         <div class="card-body">
@@ -43,14 +43,74 @@
                 </div>
             </nav>
             -->
-            @{
-                if (Model.teacherGroups != null)
+            
+                @if (teacherGroups != null && teacherGroups.Count > 0)
                 {
-                    foreach (var item in Model.teacherGroups)
+                    @foreach (var item in teacherGroups)
                     {
                         <div class="card">
                             <div class="card-body">
                                 <a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a>
+                                @{var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
+                                var startTimes = item.DaySchedules.Select(x => x.WorkingStartTime).ToArray();
+                                var endTimes = item.DaySchedules.Select(x => x.WorkingEndTime).ToArray();
+                                }
+
+                                @if (item.Lessons != null)
+                                {
+                                    var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
+                                    var countLessons = item.Lessons.Count();
+                                }
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div style="display:flex;justify-content:space-between">
+                                            <h3>Course - @item.CourseName.Name,  Lesson type: @item.LessonType.Name</h3>
+                                            <div>
+                                                <!-- <h5>countEndedLessons / countLessons lessons - XXX BYN</h5>-->
+                                            </div>
+                                        </div>
+                                        <p>
+                                            @for (int a = 0; a < startTimes.Count(); a++)
+                                            {
+                                                <span>@startTimes[a].ToString() - @endTimes[a].ToString() , </span>
+
+                                            }
+                                            - @scheduleDays
+
+                                        </p>
+                                        <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
+                                            @if (item.Lessons != null)
+                                            {
+
+
+                                                @for (int i = 0; i < item.Lessons.Count(); i++)
+                                                {
+                                                    <div>
+                                                    @if (item.Lessons[i].ArrivedStudents != null && item.Lessons[i].IsСompleted == true)
+                                                    {
+                                                        @if (item.Lessons[i].ArrivedStudents.Select(x => x.Id).Contains(Model.user.Id))
+                                                        {
+                                                            <div style="color:red">@item.Lessons[i].StartTime.ToShortTimeString()</div>
+
+                                                        }
+                                                        else
+                                                        {
+                                                            <div style="color:darkgray">@item.Lessons[i].StartTime.ToShortTimeString()</div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <div>@item.Lessons[i].StartTime.ToShortTimeString()</div>
+
+                                                    }
+                                                    <input type="checkbox" asp-for="@item.Lessons[i].IsСompleted" disabled />
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
 
                         </div>
@@ -66,12 +126,12 @@
                         </div>
                     </div>
                 }
-            }
+            
         </div>
     </div>
 }
 
-@if (Model.groups != null)
+@if (studentGroups != null)
 {
     <div class="card">
         <div class="card-body">
@@ -107,13 +167,59 @@
             </nav>
             -->
             @{
-                if (Model.groups != null)
+                if (studentGroups != null)
                 {
-                    foreach (var item in Model.groups)
+                    foreach (var item in studentGroups)
                     {
                         <div class="card">
                             <div class="card-body">
                             <a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a>
+                                @{var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
+                                var startTimes = item.DaySchedules.Select(x => x.WorkingStartTime).ToArray();
+                                var endTimes = item.DaySchedules.Select(x => x.WorkingEndTime).ToArray();
+                                }
+
+                                @if (item.Lessons != null)
+                                {
+                                    var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
+                                    var countLessons = item.Lessons.Count();
+                                }
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div style="display:flex;justify-content:space-between">
+                                            <h3>Course - @item.CourseName.Name,  Lesson type: @item.LessonType.Name</h3>
+                                            <div>
+                                                <!--<h5>countEndedLessons / countLessons lessons - XXX BYN</h5>-->
+                                            </div>
+                                        </div>
+                                        <p>
+                                            @for (int a = 0; a < startTimes.Count(); a++)
+                                            {
+                                                <span>@startTimes[a].ToString() - @endTimes[a].ToString() , </span>
+
+                                            }
+                                            - @scheduleDays
+
+                                        </p>
+                                        <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
+                                            @if (item.Lessons != null)
+                                            {
+
+
+                                                for (int i = 0; i < item.Lessons.Count(); i++)
+                                                {
+                                                    <div>
+                                                        <div>@item.Lessons[i].StartTime.ToShortTimeString()</div>
+
+                                                        <input type="checkbox" asp-for="@item.Lessons[i].IsСompleted" disabled />
+
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
 
                             </div>
