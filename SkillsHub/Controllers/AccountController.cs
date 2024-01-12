@@ -201,6 +201,12 @@ public class AccountController : Controller
     [HttpPost]
     public async Task<IActionResult> GetGroupsByUser(Guid id)
     {
+        var gr = _groupService.GetAll();
+        foreach(var g in gr)
+        {
+
+            await _groupService.HardDeleteAsync(g.Id);
+        }
         var user = await _userService.GetUserByIdAsync(id);
         var studentGroups = _groupService.GetAll().Include(x=>x.Lessons).SelectMany(x=>x.GroupStudents).Where(x=>x.Student.ApplicationUser.Id == user.Id).Select(x=>x.Group).ToList();
         var teacherGroups = _groupService.GetAll().Include(x=>x.Lessons).ThenInclude(x=>x.ArrivedStudents).Where(x => x.Teacher.ApplicationUser.Id == id).ToList();
