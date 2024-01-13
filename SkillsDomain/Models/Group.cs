@@ -78,5 +78,5 @@ public class Group : BaseEntity
     public Teacher? Teacher { get; set; }
 
     public Guid TeacherId { get; set; }
-    public bool IsVerified { get; set; }
+    public bool IsVerified { get; set; } = true;
 }

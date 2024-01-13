@@ -109,12 +109,12 @@
                             <h3 class="card-title text-white">Groups</h3>
                             @{
                                 string newGroupString = "";
-                                var newGroups = _context.ApplicationUsers.Where(x => (DateTime.Now.Day - x.RegistrationDate.Day) <= 10 && x.RegistrationDate.Year == DateTime.Now.Year && x.RegistrationDate.Month == DateTime.Now.Month).Count();
+                                var newGroups = _context.Groups.Where(x => x.DateStart.Month == DateTime.Now.Month).Count();//_context.ApplicationUsers.Where(x => (DateTime.Now.Day - x.RegistrationDate.Day) <= 10 && x.RegistrationDate.Year == DateTime.Now.Year && x.RegistrationDate.Month == DateTime.Now.Month).Count();
                                 if (newGroups > 0)
                                     newGroupString += "+" + newUsers + " by month";
                             }
                             <div class="d-inline-block">
-                                <h2 class="text-white">@_context.Groups.Count() <span style="font-size:small">@newGroups</span></h2>
+                                <h2 class="text-white">@_context.Groups.Count() @if(newGroups != 0){<span style="font-size:small">+ @newGroups started by month </span>}</h2>
                             </div>
                             <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
                             </span>

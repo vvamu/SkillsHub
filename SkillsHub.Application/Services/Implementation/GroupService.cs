@@ -72,6 +72,8 @@ public class GroupService: IGroupService
     public async Task<Group> CreateAsync(Group item)
     {
         if (item == null) throw new Exception("Not correct data for group");
+        if (item.IsLateDateStart) item.DateStart = DateTime.MinValue;
+
         var userRegisterValidator = new GroupValidator();
         var validationResult = await userRegisterValidator.ValidateAsync(item);
         if (!validationResult.IsValid)
@@ -178,6 +180,7 @@ public class GroupService: IGroupService
             TimeSpan time = startTime[i];
             if (!dayTimeDict.ContainsKey(dayName[i]))
             {
+
                 dayTimeDict.Add(dayName[i], time);
             }
             else
@@ -305,6 +308,8 @@ public class GroupService: IGroupService
     public async Task<Group> EditAsync(Group item)
     {
         if (item == null) throw new Exception("Not correct data for group");
+        if (item.IsLateDateStart) item.DateStart = DateTime.MinValue;
+
         var userRegisterValidator = new GroupValidator();
         var validationResult = await userRegisterValidator.ValidateAsync(item);
         if (!validationResult.IsValid)
@@ -353,6 +358,7 @@ public class GroupService: IGroupService
                     
                     if (!studentsId.Contains(student.Id))
                         _context.GroupStudents.Remove(student);
+                  
                     _context.Entry(student).State = EntityState.Detached;
 
 
@@ -430,10 +436,18 @@ public class GroupService: IGroupService
             _context.GroupStudents.Remove(i);
 
         }
-        if(teacher.Groups != null) {teacher.Groups.Remove(new Group() { Id = id}); _context.Teachers.Update(teacher); }
+        if(teacher.Groups != null) 
+        {
+            teacher.Groups.Remove(new Group() { Id = id});
+            _context.Teachers.Update(teacher);
+            await _context.SaveChangesAsync();
 
+            group.Teacher = null;
+        }
+        //_context.Entry(group.Teacher).State = EntityState.Unchanged;
         _context.Groups.Remove(group);
         await  _context.SaveChangesAsync();
+
 
         return group;
     }
@@ -443,7 +457,8 @@ public class GroupService: IGroupService
     {
         //_context.Entry(group.Lessons).State = EntityState.Unchanged;
         var lesson2 = new Lesson() { Id = lesson.Id };
-        _context.Entry(group.Lessons).State = EntityState.Detached;
+        //if(group.Lessons != null)
+        //_context.Entry(group.Lessons).State = EntityState.Detached;
 
         var students = lesson.ArrivedStudents;
         if(students != null)
@@ -452,12 +467,14 @@ public class GroupService: IGroupService
             {
                 _context.Entry(student.Student).State = EntityState.Unchanged;
                 _context.LessonStudents.Remove(student);
+                await _context.SaveChangesAsync();
+
             }
         }
 
-        group.Lessons.Remove(lesson2);
+        //group.Lessons.Remove(lesson2);
+        //_context.Groups.Update(group);
         _context.Lessons.Remove(lesson2);
-        _context.Groups.Update(group);
 
         await _context.SaveChangesAsync();
     }

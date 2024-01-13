@@ -116,6 +116,7 @@ public class AccountController : Controller
                     user.Phone = userCreateModel.Phone;
                     user.Login = userCreateModel.Login;
                     user.BirthDate = userCreateModel.BirthDate;
+                    user.Sex = userCreateModel.Sex;
 
                     _context.ApplicationUsers.Update(user);
 

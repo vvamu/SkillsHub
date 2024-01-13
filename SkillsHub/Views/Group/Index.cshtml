@@ -223,8 +223,8 @@
                                      <li>Lesson type: @item.LessonType.Name</li>
                                      <li>Status: -</li>
                                      
-                                        <li>Lessons <!--by type-->: @item.Lessons.Where(x=>x.IsСompleted == true).Count() / @if (!item.IsUnlimitedLessonsCount) { <span>@item.LessonsCount</span>} else{<span>Unlimited</span>}</li>
-                                        <li>Working minutes <!--by type-->: @item.ResultLessonsTimeInMinutes /@item.NeededLessonsTimeInMinutes</li>
+                                        <li>Lessons <!--by type-->: @item.Lessons.Where(x=>x.IsСompleted == true).Count() / @item.Lessons.Count() @if (!item.IsUnlimitedLessonsCount) { <span></span>} else{<span>Unlimited</span>}</li>
+                                        <li>Working minutes <!--by type item.Result-->: @item.PassedLessonsCount /@item.ResultLessonsTimeInMinutes min</li>
 
                                         
                                         @if (!item.IsLateDateStart && @item.DateStart != DateTime.MinValue)

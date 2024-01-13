@@ -76,8 +76,8 @@
                         <input class="form-control" type="number" asp-for="LessonsCount" min="1" max="50" id="lessonsCount" style="margin-right:10%"/>
                          <div class="validate"></div>
                         <div>
-                        <input type="checkbox" asp-for="IsUnlimitedLessonsCount" onclick="CreateUnlimitedLessons()"/> 
-                        <span style="color:lightseagreen">For unlimited lessons</span>
+                        <input type="checkbox" asp-for="IsUnlimitedLessonsCount" onclick="CreateUnlimitedLessons(this)"/> 
+                        <span style="color:lightseagreen">For unlimited count lessons</span>
                         </div>
                         </div>
 
@@ -160,7 +160,7 @@
 
 
                             <div style="display:flex;grid-gap:10px">
-                                <input asp-for="DateStart" class="form-control" type="date" name="CreateLateDateStart" />
+                                <input asp-for="DateStart" class="form-control" type="date" id="CreateLateDateStart" />
                                 <div class="validate"></div>
                                 <div>
                                     <input type="checkbox" asp-for="IsLateDateStart" onclick="CreateLateDateStartFunc(this)" />
@@ -329,8 +329,8 @@ console.log(data);
 
 <script>
 
-    function CreateUnlimitedLessons() {
-        var checkbox = document.querySelector('[name="IsUnlimitedLessonsCount"]');
+    function CreateUnlimitedLessons(inp) {
+        var checkbox = inp;
         var lessonsCountInput = document.querySelector('#lessonsCount');
 
         if (checkbox.checked) {
@@ -343,7 +343,7 @@ console.log(data);
 
     function CreateLateDateStartFunc(input) {
         var checkbox = input;
-        var lessonsCountInput = document.querySelector('input[name="CreateLateDateStart"]');
+        var lessonsCountInput = document.querySelector('input[id="CreateLateDateStart"]');
 
         if (checkbox.checked) {
             lessonsCountInput.value = "00:00";

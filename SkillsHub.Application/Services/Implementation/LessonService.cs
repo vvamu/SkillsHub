@@ -130,7 +130,7 @@ public class LessonService : ILessonService
 
         group.Lessons.Remove(lesson2);
         _context.Lessons.Remove(lesson2);
-        _context.Groups.Update(group);
+        //_context.Groups.Update(group);
 
         await _context.SaveChangesAsync();
     }

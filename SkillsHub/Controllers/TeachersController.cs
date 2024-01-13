@@ -91,12 +91,13 @@ public class TeachersController : Controller
         try
         {
             var teacher = _context.Teachers.AsNoTracking().Include(x => x.ApplicationUser).FirstOrDefault(x => x.ApplicationUser.Id == item.ApplicationUserId);
-            ApplicationUser user = new ApplicationUser();//= student.ApplicationUser  ?? new ;
-            if (teacher != null) { user = teacher.ApplicationUser; }
+            ApplicationUser user = await _userService.GetUserByIdAsync(item.ApplicationUserId);//= student.ApplicationUser  ?? new ;
+            if (user == null) { user = teacher.ApplicationUser;
+            }
 
             if (teacher == null)
             {
-                user = await _context.ApplicationUsers.FirstOrDefaultAsync(x=>x.Id == item.ApplicationUserId);
+                //user = await _context.ApplicationUsers.FirstOrDefaultAsync(x=>x.Id == item.ApplicationUserId);
                 teacher = await _userService.CreateTeacherAsync(user, item);
                 item = teacher;
             }
@@ -107,6 +108,8 @@ public class TeachersController : Controller
 
             try
             {
+                var ff = new TimeSpan();
+                
                 var res = await _userService.UpdateTeacherWithCourcesNames(item, itemValue.ToList());
                 item = res;
             }catch(Exception ex) { }

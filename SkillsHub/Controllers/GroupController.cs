@@ -48,19 +48,23 @@ public class GroupController : Controller
         ViewBag.Teachers =  _userService.GetAllTeachers();
 
         
-        var groups = await _groupService.GetAll().Where(x=>x.IsDeleted ==false).ToListAsync();
-        /*
-        foreach(var gr in groups)
+        var groups = await _groupService.GetAll().ToListAsync();
+        
+        
+        
+        foreach(var gr in _context.Groups)
         {
             
             var g = new Group() { Id = gr.Id, IsVerified = true };
-            if (gr.DateStart == DateTime.MinValue)
-                g.DateStart = DateTime.Now;
+            //if (gr.DateStart == DateTime.MinValue)
+            //    g.DateStart = DateTime.Now;
+
+            await _groupService.HardDeleteAsync(gr.Id);
             
-            _context.Groups.Update(g);
-            _context.SaveChangesAsync();
+            //_context.Groups.Update(g);
+            //_context.SaveChangesAsync();
         }
-        */
+        
        
 
         return View(groups);
@@ -165,21 +169,22 @@ public class GroupController : Controller
             if (item.LessonTypeId == Guid.Empty) item.LessonTypeId = group.LessonTypeId;
             if(item.CourseNameId == Guid.Empty) item.CourseNameId = group.CourseNameId;
 
-
+            _context.Groups.Update(item);
+            await _context.SaveChangesAsync();
 
             if (group.LessonsCount != item.LessonsCount)
                 _notificationService.СreateToUpdateCountLessonsInGroup(group, group.LessonsCount, item.LessonsCount, null);
 
 
-            _context.Groups.Update(item);
 
             //await _groupService.CreateScheduleDaysToGroup(item, dayName, startTime, studentId);
             
                 await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
-                //await _groupService.UpdateStudentsInGroup2()
+            //await _groupService.UpdateStudentsInGroup2()
 
-        
-            
+          
+
+
             await _context.SaveChangesAsync();
             
             var dateStart = item.DateStart;
@@ -190,66 +195,44 @@ public class GroupController : Controller
                 dateStart = group.Lessons.OrderByDescending(x=>x.EndTime).FirstOrDefault().EndTime.AddDays(1); //Where(x=>x.EndTime <  DateTime.Now)
                 lessonsCount = item.LessonsCount - group.Lessons.Count();//.Where(x => x.EndTime < DateTime.Now).Count();
             }
-            if(item.IsVerified)
+            if (group.IsUnlimitedLessonsCount) lessonsCount = 10;
+            if(item.IsVerified && !item.IsLateDateStart && lessonsCount > 0) 
             {
                 var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, lessonsCount, item, true);
-
+                
             }
-
-            //await _groupService.SaveLessonsBySchedule(group, studentId.ToList(), lessons);
-
-
-
-
-            /*
-
-            //var lessons = new List<Lesson>();
-            var date = DateTime.Now.Date;
-
-            for (int lesCount = 0, scCount = 0; lesCount < item.LessonsCount; lesCount++, scCount++)
-            {
-                if (scCount == schedules.Count)
-                {
-                    scCount = 0;
-                    date.AddDays(7);
-                }
-                var addingDays = LessonMath.Mod((int)date.DayOfWeek, (int)schedules[scCount].DayName);
-                var virtualDate = date.AddDays(addingDays);
-
-                var lesson = new Lesson()
-                {
-                    Creator = await _userManager.GetUserAsync(User),
-                    StartTime = virtualDate + schedules[scCount].WorkingStartTime ?? DateTime.Now,
-                    EndTime = virtualDate + schedules[scCount].WorkingEndTime ?? DateTime.Now,
-                    //ArrivedStudents = lessonStudents,
-                    //Teacher = _context.Gr
-                    // ArrivedStudents = _context.Students.Include(x=>x.Groups).Where(x=>x.Groups.Select(x=>x))
-                    //ArrivedStudents = _context.Groups.Include(x => x.GroupStudents).SelectMany(x => x.GroupStudents);
-                };
-                lessons.Add(lesson);
-            }
-            var prevLessons = _context.Lessons.Include(x=>x.Group).Where(x => x.Group.Id == item.Id);
-            _context.RemoveRange(prevLessons);
-
-            var daySchedules = _context.DaySchedules.Include(x=>x.Group).Where(x => x.Group.Id == item.Id);
-            _context.RemoveRange(daySchedules);
-
-            var prevStudents = _context.Students.Where(x => x.Groups.Select(x=>x.Id).Contains(item.Id));
-            prevStudents.ToList().ForEach(x=>x.Groups.ToList().Remove(item));
-
-            item.Lessons = lessons;
-            item.DaySchedules = schedules;
-
-            var group = await _groupService.EditAsync(item);
-
-            await _context.SaveChangesAsync();
-            */
         }
         catch (Exception ex)
         {
             ModelState.AddModelError("", ex.Message); return RedirectToAction("Index");
         }
         return RedirectToAction("Item" , new {id = item.Id});
+    }
+
+    [HttpPost]
+    public async Task EditDateStart(Guid id,DateTime DateStart)
+    {
+        var group = await _groupService.GetAsync(id);
+        group.IsLateDateStart = false;
+        group.DateStart = DateStart;
+        _context.Groups.Update(group);
+        await _context.SaveChangesAsync();
+
+        var lessonsCount = group.LessonsCount;
+
+        if (group.Lessons != null && group.Lessons.Count != 0)
+        {
+            DateStart = group.Lessons.OrderByDescending(x => x.EndTime).FirstOrDefault().EndTime.AddDays(1); //Where(x=>x.EndTime <  DateTime.Now)
+            lessonsCount = group.LessonsCount - group.Lessons.Count();//.Where(x => x.EndTime < DateTime.Now).Count();
+        }
+        if (group.IsUnlimitedLessonsCount) lessonsCount = 10;
+        if (group.IsVerified && !group.IsLateDateStart && lessonsCount > 0)
+        {
+            var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, DateStart, lessonsCount, group, true);
+
+        }
+
+
     }
 
     [Authorize(Roles = "Admin")]

@@ -109,7 +109,7 @@
                             <li><strong class="text-dark mr-4">Дата добавления</strong> <span>@Model.RegistrationDate</span></li>
                             <hr/>
 
-                                @if(User.Identity.Name == Model.UserName)
+                                @if(User.Identity.Name == Model.UserName || User.IsInRole("Admin"))
                                 {
                                      <li><strong class="text-dark mr-4"><a asp-action="Create" style="color:cornflowerblue" asp-controller="Account" asp-route-id="@Model.Id">Edit</a></strong></li>
                                 }
@@ -189,7 +189,7 @@
                                         {
                                             student.Id = Model.Id;
                                         }
-                                                    <input class="btn btn-primary" type="submit" value="change" asp-route-id="@student.Id" asp-action="Activate" asp-route-userId="@Model.Id" asp-controller="Student" />
+                                        <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-route-id="@student.Id" asp-action="Activate" asp-route-userId="@Model.Id" asp-controller="Student" />
 
                                                     </form>
 
@@ -308,7 +308,7 @@
                                             {
                                                         <h3>Статистика учителя - Active</h3>
                                             }
-                                                        <input class="btn btn-primary" type="submit" value="change" asp-action="Activate" asp-controller="Teachers" asp-route-id="@teacher.Id" asp-route-userId="@Model.Id" />
+                                                        <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-action="Activate" asp-controller="Teachers" asp-route-id="@teacher.Id" asp-route-userId="@Model.Id" />
 
                                                     </form>
 

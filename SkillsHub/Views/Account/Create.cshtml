@@ -66,6 +66,12 @@
                                        <input type="text" asp-for="Surname" class="form-control" placeholder="Отчество*" required>
                                     </div>
                                     <div class="form-group">
+                                        <select asp-for="Sex" class="form-select">
+                                            <option>Male</option>
+                                            <option>Female</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
                                         <label>Phone</label>
                                         <input type="text" asp-for="Phone" class="form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
                                     </div>

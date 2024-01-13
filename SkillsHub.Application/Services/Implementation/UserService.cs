@@ -125,6 +125,7 @@ public class UserService : IUserService
     {
         //var dbUser = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
         var dbUser = user;
+        if (user == null) dbUser = item.ApplicationUser;
         var userRegisterValidator = new TeacherRegisterValidator();
 
         var userRegister = _mapper.Map<TeacherDTO>(item);
@@ -159,6 +160,8 @@ public class UserService : IUserService
     {
         //var dbUser = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
         var dbUser = user;
+        if (dbUser == null) dbUser = item.ApplicationUser;
+        if (dbUser == null) dbUser = await GetUserByIdAsync(item.ApplicationUserId);
 
         var userRegisterValidator = new StudentRegisterValidator();
         var validationResult = await userRegisterValidator.ValidateAsync(item);
@@ -171,6 +174,10 @@ public class UserService : IUserService
 
         var student = _mapper.Map<Student>(item);
         student.ApplicationUser = dbUser;
+       
+
+        dbUser = item.ApplicationUser;
+
         dbUser.UserStudent = item;
 
 

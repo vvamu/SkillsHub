@@ -213,16 +213,16 @@ public class StudentController : Controller
     {//itemValue = students
         var student = _context.Students.AsNoTracking().Include(x => x.ApplicationUser).FirstOrDefault(x => x.Id == item.Id);
 
-        ApplicationUser user = new ApplicationUser();//= student.ApplicationUser  ?? new ;
-        if(student != null) { user = student.ApplicationUser; }
+        ApplicationUser user = item.ApplicationUser;//= student.ApplicationUser  ?? new ;
+        if (user == null) user = await _userService.GetUserByIdAsync(item.ApplicationUserId);
+        if(student != null) { //user = student.ApplicationUser;
+        }
 
         try
         {
             
             if (student == null)
             {
-                user = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == item.ApplicationUserId);
-
                 student = await _userService.CreateStudentAsync(user, item);
                 item = student;
             }
