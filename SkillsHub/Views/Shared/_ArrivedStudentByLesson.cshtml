@@ -1,6 +1,12 @@
 ﻿@using SkillsHub.Domain.BaseModels;
 @model (List<LessonStudent>? ArrivedStudents,List<Student>? AllStudents, List<Student>? byGroup);
 
+@{
+    var ArrivedStudents = Model.ArrivedStudents;
+    var AllStudents = Model.AllStudents;
+    var byGroup = Model.byGroup;
+}
+
 <div class="row">
     <div class="col">
         <label class=" col-form-label" for="val-skill" style="display:flex;">
@@ -12,11 +18,11 @@
                 -->
         </label>
        
-        @if (Model.ArrivedStudents != null && Model.ArrivedStudents.Count() != 0)
+        @if (ArrivedStudents != null && ArrivedStudents.Count() != 0)
         {
             <form id="SaveStudentsByLesson">
                 <ul>
-                    @foreach (var i in Model.ArrivedStudents)
+                    @foreach (var i in ArrivedStudents)
                     {
                         @if(i.IsVisit)
                         {
@@ -62,9 +68,9 @@
         <label class=" col-form-label" for="val-skill" style="display:flex;">
             <h4>Group students<span class="text-danger">*</span></h4>
         </label>
-        @if(Model.byGroup != null && Model.byGroup.Count() != 0)
+        @if(byGroup != null && byGroup.Count() != 0)
         {
-            @foreach (var st in Model.byGroup)
+            @foreach (var st in byGroup)
             {
 
              <form style="display:flex">
