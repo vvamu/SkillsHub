@@ -49,22 +49,6 @@ public class GroupController : Controller
 
         
         var groups = await _groupService.GetAll().ToListAsync();
-        
-        
-        
-        foreach(var gr in _context.Groups)
-        {
-            
-            var g = new Group() { Id = gr.Id, IsVerified = true };
-            //if (gr.DateStart == DateTime.MinValue)
-            //    g.DateStart = DateTime.Now;
-
-            await _groupService.HardDeleteAsync(gr.Id);
-            
-            //_context.Groups.Update(g);
-            //_context.SaveChangesAsync();
-        }
-        
        
 
         return View(groups);
