@@ -331,6 +331,7 @@ public class LessonController : Controller
         ViewBag.GroupId =_context.Groups.FirstOrDefaultAsync(x=>x.Lessons.Select(x=>x.Id).Contains(id));
         
         
+        
 
         //if (lesson == null) return Redirect("Create",new Lesson() { GroupId = });
         return View(lesson);

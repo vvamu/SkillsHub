@@ -200,21 +200,34 @@ public class AccountController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> GetGroupsByUser(Guid id)
+    public async Task<IActionResult> GetStudentGroupsByUser(Guid id)
     {
         var gr = _groupService.GetAll();
-        foreach(var g in gr)
-        {
-
-            await _groupService.HardDeleteAsync(g.Id);
-        }
+        
         var user = await _userService.GetUserByIdAsync(id);
-        var studentGroups = _groupService.GetAll().Include(x=>x.Lessons).SelectMany(x=>x.GroupStudents).Where(x=>x.Student.ApplicationUser.Id == user.Id).Select(x=>x.Group).ToList();
-        var teacherGroups = _groupService.GetAll().Include(x=>x.Lessons).ThenInclude(x=>x.ArrivedStudents).Where(x => x.Teacher.ApplicationUser.Id == id).ToList();
+       
+        var studentGroups = _groupService.GetAll().SelectMany(x=>x.GroupStudents)
+            .Where(x=>x.Student.ApplicationUser.Id == user.Id).Select(x=>x.Group).ToList();
+        List<Group> res = new List<Group>();
+        foreach (var group in studentGroups)
+            res.Add(await _groupService.GetAsync(group.Id));
 
-        return PartialView("_UserGroups", (user, studentGroups, teacherGroups));
+        return PartialView("_StudentGroups", (user, res));
 
     }
+
+    [HttpPost]
+    public async Task<IActionResult> GetTeacherGroupsByUser(Guid id)
+    {
+        var gr = _groupService.GetAll();
+        var user = await _userService.GetUserByIdAsync(id);
+        var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.Teacher.ApplicationUser.Id == id).ToList();
+
+        return PartialView("_TeacherGroups", (user, teacherGroups));
+
+    }
+
+
 
     [HttpGet]
     [AllowAnonymous]

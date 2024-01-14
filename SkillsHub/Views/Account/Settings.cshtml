@@ -1,0 +1,264 @@
+﻿@using SkillsHub.Application.Helpers;
+@using SkillsHub.Application.DTO;
+@using SkillsHub.Domain.BaseModels
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
+
+@model IQueryable<ApplicationUser>?
+    <!-- Custom Stylesheet -->
+    <link href="/plugins/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+
+    <!--**********************************
+        Main wrapper start
+    ***********************************-->
+
+
+    <div>
+
+        <div >
+
+            <div class="row page-titles mx-0">
+                <div class="col p-md-0">
+                    <ol class="breadcrumb" style="display:flex;align-items:center">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
+                    <li>
+                        <div>
+                            <a style="margin-left:20px" class="btn btn-secondary" asp-action="Create" asp-controller="Account">
+                                Create new
+                            </a>
+                            
+                            <ul class="dropdown-menu">
+                                <form>
+                                <li><a class="dropdown-item" href="#">Invite via email</a></li>
+                                <li>
+
+                                    <a class="dropdown-item" asp-action="Create" asp-controller="Account">Create new</a>
+                                    
+                                </li>
+                                </form>
+                                </ul>
+                            </div>
+                    </li>
+                    
+                    </ol>
+                </div>
+            </div>
+        <!-- NAVBAR - Search, Filter, Sort -->
+        <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:20px">
+                    
+                    
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="display:flex;grid-gap:10px">
+
+                        <li class="nav-item">
+                            <div class="input-group icons">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
+                                </div>
+                               
+
+                                <input type="search" onkeypress="getStudents()" id="searchByFIO" class="form-control search-input" placeholder="Search by name/username" />
+                                <div class="drop-down d-md-none">
+                                    <input type="text" class="form-control search-input" placeholder="Search">
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                            <p style="white-space:nowrap">Student cource:</p>
+                            <select class="form-control search-select courceStudent" id="courcesNames" onchange="getStudents()">
+                                <option value="" selected></option>
+                            </select>
+                        </li>
+
+                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                            <p style="white-space:nowrap">Teacher cource:</p>
+                            <select class="form-control search-select courceTeacher" id="courcesNames2" onchange="getStudents()">
+                                <option value="" selected></option>
+                            </select>
+                        </li>
+                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                            <p style="white-space:nowrap">Student working day:</p>
+                            <select class="form-control search-select" id="studentDayName" name="dayName" onchange="getStudents()">
+                                <option></option>
+                                @{
+                                    var days = Enum.GetValues(typeof(DayOfWeek));
+                                    foreach(var day in days)
+                                    {
+                                        <option value="@day">@day</option>
+                                    }
+                                }
+                            </select>
+                        </li>
+                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                            <p style="white-space:nowrap">Teacher working day:</p>
+                            <select class="form-control search-select" id="teacherDayName" name="dayName" onchange="getStudents()">
+                                <option></option>
+                                @{
+                                    foreach (var day in days)
+                                    {
+                                        <option>@day</option>
+                                    }
+                                }
+                            </select>
+                        </li>
+                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                            <p style="white-space:nowrap">Deleted:</p>
+                            <select class="form-control search-select " id="search-deleted" onchange="getStudents()">
+                                <option selected>No</option>
+                                <option>Yes</option>
+                            </select>
+                        </li>
+                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                            <p style="white-space:nowrap">Order by:</p>
+                            <select class="form-control  search-select " id="sort-select" >
+                                <option value="" selected></option>
+                                @{
+                                    var i = "Sex BirthDate RegistrationDate Phone Email SourceFindCompany".Split(" ");
+                                    foreach(var a in i)
+                                    {
+                                        <option value="@a">@a</option>
+                                    }
+                                }
+                            </select>
+                        </li>
+                        
+                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                            <p style="white-space:nowrap">Order type:</p>
+                            <select class="form-control  search-select " id="sort-select-type" onchange="getStudents()">
+                                <option value="asc"  selected>↑</option>
+                                <option value="desc">↓</option>
+                            </select>
+                        </li>
+                        
+                        <!--
+                        <li class="nav-item">
+                            <input type="text" class="form-control search-input" placeholder="2017-06-04" id="minDate" />
+                        </li>
+                        -->
+                        <li class="nav-item" style="margin-left:10px"> <input type="button" onchange="resetSearch()" value="Reset" class="form-control btn btn-primary search" /></li>
+                        <li class="nav-item"><input type="button" onclick="getStudents()" value="Search" class="form-control btn btn-primary search" /></li>
+                            
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+
+            <!-- row -->
+
+
+        
+                                            <div id="usersList">
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+                                            </div>
+                                                
+                                          
+
+         <!-- #/ container -->
+        </div>
+
+    </div>
+
+
+
+
+
+<script>
+
+    function resetSearch() {
+
+        $('.search-input').val('');
+        // Reset select elements
+        $('.search-select').prop('selectedIndex', 0);
+
+        // Trigger the search
+        getStudents();
+    }
+
+    function getStudents() {
+
+
+        var filters = {}
+        var orders = {}
+        console.log($("#searchByFIO").val())
+        try {
+            //const searchLessonByTopic = document.getElementById("searchLessonByTopic").value;
+            filters = {
+                FIO: $("#searchByFIO").val(),
+                StudentWorkingDay: $('#studentDayName').val(),
+                TeachertWorkingDay: $('#teacherDayName').val(),
+                StudentPossibleCource: $('#courcesNames').val(),
+                TeacherPossibleCource: $('#courcesNames2').val(),
+                IsDeleted: $('#search-deleted').val()
+
+            };
+            console.log("hehe")
+            //const order = document.getElementById("courcesNames").value;
+
+            orders = {
+                OrderColumn: $('#sort-select').val(),
+                OrderType: $('#sort-select-type').val(),
+            }
+
+        }
+        catch (ex) { console.log(ex); }
+
+        //------------------------------------------------------------------
+
+        $("#usersList").load("/Account/UsersTableList", { filters: filters, order: orders });
+
+    }
+
+
+
+    function getCourcesNamesList() {
+        var studentsList = $("#courcesNames");
+        var studentsList2 = $("#courcesNames2");
+        $.ajax({
+            url: "/Cource/GetCourcesNamesAsync?IsDeleted=false",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+
+                    data.forEach(function (item, i, arr) {
+
+                        var appendedLine = "";
+
+                      
+                            appendedLine = "<option class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>" + item.Name;
+
+                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        //appendedLine += " (Min age:" + item.MinimumAge + ";Max age:" + item.MaximumAge + ")"
+                        appendedLine += "</option>"
+
+                        studentsList.append(appendedLine);
+                        studentsList2.append(appendedLine);
+                    })
+
+
+
+
+                }
+            }
+        });
+
+    }
+
+
+    $(document).ready(function () {
+
+        getStudents();
+        getCourcesNamesList();
+    });
+
+</script>

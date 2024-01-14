@@ -38,6 +38,9 @@ public class ApplicationUser : IdentityUser<Guid>
     public List<NotificationUser>? Notifications { get; set; }
 
 
+    //public bool IsEditMode { get; set; } = false;
+
+
     //public string? EnglishLevel { get; set; }
 
 

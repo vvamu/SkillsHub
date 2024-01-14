@@ -77,9 +77,20 @@ public class StudentController : Controller
     {
 
 
-        var items = _context.Students.Include(x => x.ApplicationUser)
-            .Where(x => x.IsDeleted == false)
-            .ToList().AsQueryable();
+        var items = await _userService.GetAllStudentsAsync();
+        List<Student> students = new List<Student>();   
+
+
+        students = items.Where(x => x.IsDeleted == false).ToList();
+
+        
+        foreach (var i in students)
+        {
+            if (await _userManager.IsInRoleAsync(i.ApplicationUser, "Teacher"))
+                students.Remove(i);
+        }
+
+
 
         if (!User.IsInRole("Admin"))
         {
@@ -112,9 +123,9 @@ public class StudentController : Controller
         //items = await FilterMaster.GetAllStudents(items, filters, orders);
 
         //HttpContext.Request.QueryString("unknownQuerystring").ToString()
-        var ii = items.ToList();
+        var ii = students.ToList();
 
-        return Json(JsonSerializerToAjax.GetJsonByIQueriable(items));
+        return Json(JsonSerializerToAjax.GetJsonByIQueriable(students.AsQueryable()));
     }
 
     

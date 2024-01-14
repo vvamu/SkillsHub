@@ -42,6 +42,8 @@ public class Lesson : BaseEntity
     public ApplicationUser? Creator { get; set; }
     public bool IsСompleted { get; set; } = false;
 
+    //public bool IsCompletedByTeacher { get; set; }
+
 
     //When lesson "Completed" - From LessonType
     public decimal TeacherPrice { get; set; }

@@ -1,5 +1,4 @@
-﻿using SkillsHub.Application.PageViewModel;
-using SkillsHub.Domain.Models;
+﻿using SkillsHub.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

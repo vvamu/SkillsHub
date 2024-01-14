@@ -70,6 +70,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         builder.Entity<ApplicationUser>().HasOne(x => x.UserStudent).WithOne(x => x.ApplicationUser).HasForeignKey<Student>(x => x.ApplicationUserId).OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<Teacher>().HasMany(x => x.Groups).WithOne(x => x.Teacher).OnDelete(DeleteBehavior.SetNull);
+        //builder.Entity<Teacher>().Ignore(x => x.PassedLessons).Ignore(x => x.PreparedLessons).Ignore(x=>x.PreparedCalculatedPrice).Ignore(x=>x.CurrentCalculatedPrice);
+
+
         //builder.Entity<Student>().HasMany(x => x.Groups).WithMany(x => x.GroupStudents).OnDelete(DeleteBehavior.SetNull);
         //builder.Entity<Student>().HasMany(x => x.Groups).WithMany(x => x.GroupStudents);
 

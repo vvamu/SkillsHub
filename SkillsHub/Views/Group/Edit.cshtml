@@ -26,9 +26,9 @@
                         {
                             <h2>Edit group</h2>
                             var options = new System.Text.Json.JsonSerializerOptions
-                {
-                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
-                };
+                            {
+                                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                            };
 
                             try
                             {
@@ -59,19 +59,21 @@
                                 Please choose a name.
                             </div>
 
-                        </div>
+                      
 
-
-                        <h4>Total lessons count (by lastSchedule and now)<span class="text-danger">*</span></h4>
-                            <div style="display:flex;grid-gap:10px">
-                                <input class="form-control" type="number" asp-for="LessonsCount" min="1" max="50" id="lessonsCount" style="margin-right:10%" />
-                                <div class="validate"></div>
-                                <div>
-                                    <input type="checkbox" asp-for="IsUnlimitedLessonsCount" onclick="CreateUnlimitedLessons()" />
-                                    <span style="color:lightseagreen">For unlimited count lessons</span>
+                            <div class="form-group ">
+                                <label class=" col-form-label" for="val-skill">
+                                    <h4>Total lessons count (min count: @Model.PassedLessonsCount)<span class="text-danger">*</span></h4>
+                                </label>
+                                <div style="display:flex;grid-gap:10px">
+                                    <input class="form-control" type="number" asp-for="LessonsCount" min="1" max="50" id="lessonsCount" style="margin-right:10%" class="form-control"  />
+                                    <div class="validate"></div>
+                                    <div>
+                                        <input type="checkbox" asp-for="IsUnlimitedLessonsCount" onclick="CreateUnlimitedLessons()" />
+                                        <span style="color:lightseagreen">For unlimited count lessons</span>
+                                    </div>
                                 </div>
                             </div>
-
 
                         <div class="form-group ">
                             <label class=" col-form-label" for="val-skill">
@@ -127,24 +129,25 @@
 
 
 
-                        <div class="form-group ">
-                            <label class=" col-form-label" for="val-skill">
-                                    <div style="display:flex">
-                                        <h4>Students<span class="text-danger">*</span></h4>
-                                        <input type="button" onclick="getStudents()" class="btn btn-sm btn-primary" value="(get all)">
+                                <div class="form-group ">
+                                    <label class=" col-form-label" for="val-skill">
+                                            <div style="display:flex">
+                                                <h4>Students<span class="text-danger">*</span></h4>
+                                                <input type="button" onclick="getStudents()" class="btn btn-sm btn-primary" value="(get all)">
 
+                                            </div>
+                                    </label>
+                                    <div id="studentsList" class="list-group col">
+                                            <div class="d-flex justify-content-center">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
                                     </div>
-                            </label>
-                            <div id="studentsList" class="list-group col">
-                                    <div class="d-flex justify-content-center">
-                                        <div class="spinner-border text-primary" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <!--
+
+                                <!--
                         <div class="form-group ">
                             <ul id="courcesList" class="list-group col"></ul>
 
@@ -156,106 +159,108 @@
 
             <div class="col">
 
-                <div class="row card">
-
-
-                        <div style="display:flex; justify-content:space-between">
-                            <h3>Schedule</h3>
-                            
-                                <input type="button" value="+" onclick="CreateScheduleDay()" class="btn btn-secondary" disabled="disabled" />
-                                
-                        </div>
-                        <div id="schedule_d" class="form-group row">
-
+                <div class="row">
+                        <div class="card">
                             <div class="card-body">
-                                <label>Date start group</label>
-                                <!--
-                                if(Model!= null && Model.Lessons != null && Model.Lessons.Count != 0)
-                                    {
-                                        <input asp-for="DateStart" class="form-control" type="date"  />
-                                    }
-                                    else
-                                    {
-                                        <input asp-for="DateStart" class="form-control" type="date" disabled="disabled" />
 
-                                    }-->
-                                    <div style="display:flex;grid-gap:10px">
-                                        <input asp-for="DateStart" class="form-control" type="date" id="CreateLateDateStart" />
-                                        <div class="validate"></div>
-                                        <div>
-                                            <input type="checkbox" asp-for="IsLateDateStart" onclick="CreateLateDateStartFunc(this)" />
-                                            <span style="color:lightseagreen">For late date start</span>
-                                        </div>
+                                    <div style="display:flex; justify-content:space-between">
+                                        <h3>Schedule</h3>
+                            
+                                            <input type="button" value="+" onclick="CreateScheduleDay()" class="btn btn-secondary" disabled="disabled" />
+                                
                                     </div>
-                            </div>
-                            <div style="background-color:aliceblue" class="card-body">
+                                    <div id="schedule_d" class="form-group row">
 
-                            @if (Model != null && Model.DaySchedules != null)
-                            {
-                                    <h4 style="color:dimgray">Current schedule (new lessons according to the new schedule will be created after the last past lesson):</h4>
+                                        <div class="card-body">
+                                            <label>Date start group</label>
+                                            <!--
+                                            if(Model!= null && Model.Lessons != null && Model.Lessons.Count != 0)
+                                                {
+                                                    <input asp-for="DateStart" class="form-control" type="date"  />
+                                                }
+                                                else
+                                                {
+                                                    <input asp-for="DateStart" class="form-control" type="date" disabled="disabled" />
 
-                                @foreach (var ds in Model.DaySchedules)
-                                {
-                                    var duration = ds.WorkingEndTime - ds.WorkingStartTime;
-                                    var numDuration = duration.Value;
-                                    numDuration = numDuration > TimeSpan.Zero ? numDuration : TimeSpan.Zero;
-                                    var numDuration2 = (int)numDuration.TotalMinutes;
-
-                                    <div class="card-body">
-                                        <div style="display:flex; justify-content:space-between">
-                                             <label>Day name</label>
-                                                <button class="btn btn-secondary btn-sm" onclick="RemoveScheduleDay(this)" type="button" disabled="disabled">X</button>
+                                                }-->
+                                                <div style="display:flex;grid-gap:10px">
+                                                    <input asp-for="DateStart" class="form-control" type="date" id="CreateLateDateStart" />
+                                                    <div class="validate"></div>
+                                                    <div>
+                                                        <input type="checkbox" asp-for="IsLateDateStart" onclick="CreateLateDateStartFunc(this)" />
+                                                        <span style="color:lightseagreen">For late date start</span>
+                                                    </div>
+                                                </div>
                                         </div>
+                                        <div style="background-color:aliceblue" class="card-body">
+
+                                        @if (Model != null && Model.DaySchedules != null)
+                                        {
+                                                <h4 style="color:dimgray">Current schedule (new lessons according to the new schedule will be created after the last past lesson):</h4>
+
+                                            @foreach (var ds in Model.DaySchedules)
+                                            {
+                                                var duration = ds.WorkingEndTime - ds.WorkingStartTime;
+                                                var numDuration = duration.Value;
+                                                numDuration = numDuration > TimeSpan.Zero ? numDuration : TimeSpan.Zero;
+                                                var numDuration2 = (int)numDuration.TotalMinutes;
+
+                                                <div class="card-body">
+                                                    <div style="display:flex; justify-content:space-between">
+                                                         <label>Day name</label>
+                                                            <button class="btn btn-secondary btn-sm" onclick="RemoveScheduleDay(this)" type="button" disabled="disabled">X</button>
+                                                    </div>
                                        
-                                        <select asp-for="@ds.DayName" class="form-control" name="dayName" disabled="disabled">
-                                            <option>Monday</option>
-                                            <option>Tuesday</option>
-                                            <option>Wednesday</option>
-                                            <option>Tuesday</option>
-                                            <option>Thursday</option>
-                                            <option>Friday</option>
-                                            <option>Saturday</option>
-                                            <option>Sunday</option>
-                                        </select>
-                                            <label>Start time</label><input class="form-control" asp-for="@ds.WorkingStartTime" type="time" name="startTime" placeholder="Enter..." disabled="disabled" />
-                                            <label>Duration (in minutes)</label><input class="form-control" value="@numDuration2" type="number" name="duration" placeholder="Enter..." disabled="disabled" />
+                                                    <select asp-for="@ds.DayName" class="form-control" name="dayName" disabled="disabled">
+                                                        <option>Monday</option>
+                                                        <option>Tuesday</option>
+                                                        <option>Wednesday</option>
+                                                        <option>Tuesday</option>
+                                                        <option>Thursday</option>
+                                                        <option>Friday</option>
+                                                        <option>Saturday</option>
+                                                        <option>Sunday</option>
+                                                    </select>
+                                                        <label>Start time</label><input class="form-control" asp-for="@ds.WorkingStartTime" type="time" name="startTime" placeholder="Enter..." disabled="disabled" />
+                                                        <label>Duration (in minutes)</label><input class="form-control" value="@numDuration2" type="number" name="duration" placeholder="Enter..." disabled="disabled" />
                                             
+                                                </div>
+                                            }
+                                        }
+
+                                     <hr />
                                     </div>
-                                }
-                            }
-
-                            <hr />
-
 
                         </div>
 
-                        
 
 
+                            </div>
                     </div>
                 </div>
 
                 
-                <div class="row card">
-                    <div class="card-body">
-                        <div id="checkSchedule">
-                                <div style="display:flex; justify-content:space-between">
-                                    <!--
-                                    <input type="button" onclick="CheckSchedule()" class="btn login-form__btn submit w-100" value="Check schedule"/>
-                                    -->
-                                    @if (Model != null)
-                                    {
-                                        <input type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100" value="Edit group" />
+                <div class="row ">
+                    <div class="card"></div>
+                        <div class="card-body">
+                            <div id="checkSchedule">
+                                    <div style="display:flex; justify-content:space-between">
+                                        <!--
+                                        <input type="button" onclick="CheckSchedule()" class="btn login-form__btn submit w-100" value="Check schedule"/>
+                                        -->
+                                        @if (Model != null)
+                                        {
+                                            <input type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100" value="Edit group" />
 
-                                    }
-                                    else
-                                    {
-                                        <input type="submit" asp-action="Create" asp-controller="Group" formmethod="post" class="btn login-form__btn submit w-100" value="Create new group" />
-                                    }
-                                </div>
+                                        }
+                                        else
+                                        {
+                                            <input type="submit" asp-action="Create" asp-controller="Group" formmethod="post" class="btn login-form__btn submit w-100" value="Create new group" />
+                                        }
+                                    </div>
+                            </div>
                         </div>
                     </div>
-                </div>
                     
             </div>
 

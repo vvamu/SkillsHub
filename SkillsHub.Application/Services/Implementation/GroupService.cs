@@ -138,8 +138,12 @@ public class GroupService: IGroupService
                     Group = group, ///
                     
                     //ArrivedStudents = lessonStudents,
-                    //Teacher = group.Teacher ?? new Teacher()
+                    Teacher = group.Teacher ?? new Teacher()
                 };
+
+                
+
+
                 lessons.Add(lesson);
                 _context.Entry(lesson.Group).State = EntityState.Unchanged;
 
@@ -198,8 +202,8 @@ public class GroupService: IGroupService
 
         return true;
     }
-    
 
+    
     public async Task<Group> CreateScheduleDaysToGroup(Group item, string[] dayName, TimeSpan[] startTime, Guid[] studentIds)
     {
         try
@@ -330,6 +334,8 @@ public class GroupService: IGroupService
         //var groupDb = new Group() { Name = item.Name, CourseName = cource , LessonType = lessonType };
         _context.Groups.Update(item);
         await _context.SaveChangesAsync();
+
+
         return item;
     }
     
@@ -338,38 +344,60 @@ public class GroupService: IGroupService
     {
         try
         {
-            //remove all
-            //var item = await _context.Groups.Include(x => x.DaySchedules).FirstOrDefaultAsync(x => x.Id == group.Id);
-            var item = group;
-
-            if (item != null && item.GroupStudents != null)
+            if (group != null && group.GroupStudents != null)
             {
-                var groupStudents = item.GroupStudents.ToList();
+                var groupStudents = group.GroupStudents.ToList();
                        
                 foreach (var student in groupStudents)
                 {
-
-                    //var student2 = _context.Students.Include(x => x.Groups).FirstOrDefault(x => x.Id == student.Id);
-                    //var grSt = await _context.GroupStudents.Include(x=>x.Group).Include(x=>x.Student).FirstOrDefaultAsync(x => x.Group.Id == group.Id && x.Student.Id == student.Id);
-                    //if (grSt == null) continue;
-
-                    //_context.Entry(student.Group).State = EntityState.Unchanged;
-                    //_context.Entry(grSt.Student).State = EntityState.Unchanged;
+                    
                     
                     if (!studentsId.Contains(student.Id))
+                    {
                         _context.GroupStudents.Remove(student);
-                  
+
+                        try
+                        {
+                            var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = student.Student.ApplicationUser.Id } };
+                            var message = " You was removed from group " + group.Name;
+                            var notification = new NotificationMessage() { Message = message, Users = usersToSend };
+
+                            usersToSend.ForEach(x => x.NotificationMessage = notification);
+                            await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
+                            await _context.NotificationMessages.AddAsync(notification);
+                            await _context.SaveChangesAsync();
+                        }catch { }
+
+                    }
+                    try
+                    {
+                        if (!studentsId.Contains(student.Id))
+                    {
+                      
+                            var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = student.Student.ApplicationUser.Id } };
+                            var message = " You was added to group " + group.Name;
+                            var notification = new NotificationMessage() { Message = message, Users = usersToSend };
+
+                            usersToSend.ForEach(x => x.NotificationMessage = notification);
+                            await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
+                            await _context.NotificationMessages.AddAsync(notification);
+                            await _context.SaveChangesAsync();
+                        
+                    }
+                    }
+                    catch { }
+
                     _context.Entry(student).State = EntityState.Detached;
 
 
                     /*
                     if (student2.Groups != null)
                     {
-                        student2.Groups.Remove(item);
-                        item.GroupStudents.Remove(student2);
+                        student2.Groups.Remove(group);
+                        group.GroupStudents.Remove(student2);
 
                         _context.Students.Update(student2);
-                        _context.Groups.Update(item);
+                        _context.Groups.Update(group);
                     }*/
                 }
                 //_context.Students.RemoveRange(groupStudents);
@@ -390,11 +418,11 @@ public class GroupService: IGroupService
 
                 var grSt = new GroupStudent() { Group = groupNew, Student = stud };
                 /*
-                if (stud.Groups != null) stud.Groups.Add(item);
-                else  stud.Groups = new List<Group>() { item };
+                if (stud.Groups != null) stud.Groups.Add(group);
+                else  stud.Groups = new List<Group>() { group };
 
-                if (group != null && group.GroupStudents != null) group.GroupStudents.Add(stud);
-                else group.GroupStudents = new List<Student>() { stud };
+                //if (group != null && group.GroupStudents != null) group.GroupStudents.Add(stud);
+                //else group.GroupStudents = new List<Student>() { stud };
                 */
                 await _context.GroupStudents.AddAsync(grSt);
 
@@ -408,6 +436,9 @@ public class GroupService: IGroupService
                 _context.Students.Update(stud);
                 _context.Groups.Update(group);
                 */
+
+                
+
             }
 
             
@@ -508,9 +539,9 @@ public class GroupService: IGroupService
             {
                 StartTime = virtualDate + schedules[scCount].WorkingStartTime ?? DateTime.Now,
                 EndTime = virtualDate + schedules[scCount].WorkingEndTime ?? DateTime.Now,
-                //Group = item,
+                //Group = group,
                 //ArrivedStudents = lessonStudents,
-                //Teacher = item.Teacher ?? new Teacher()
+                //Teacher = group.Teacher ?? new Teacher()
             };
             lessons.Add(lesson);
         }

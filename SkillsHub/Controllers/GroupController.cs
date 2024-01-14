@@ -49,6 +49,10 @@ public class GroupController : Controller
 
         
         var groups = await _groupService.GetAll().ToListAsync();
+        
+        
+        
+        
        
 
         return View(groups);
@@ -86,11 +90,17 @@ public class GroupController : Controller
         Group group = new Group();
         try
         {
-            if(User.IsInRole("Teacher"))
+            if (User.IsInRole("Teacher"))
             {
                 item.IsVerified = false;
-                
-                
+
+
+            }
+            var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x => x.Id == item.LessonTypeId);
+
+            if (lessonType != null && item.DateStart < DateTime.Now.AddDays(1) && (studentId.Count() <= lessonType.MinimumStudents || studentId.Count() >= lessonType.MaximumStudents )) 
+            {
+                ModelState.AddModelError("", "Not correct count of students to  start group."); return View("Create", item);
             }
             
             group =  await _groupService.CreateAsync(item);
@@ -99,7 +109,9 @@ public class GroupController : Controller
             {
                 var user = await _userService.GetCurrentUserAsync();
                 var message = "Teacher " + user.FirstName + " " + user.LastName + " " + user.Surname + " send request to create new group '" + item.Name + "'. Check it.";
+
                 var notification = new NotificationMessage() { IsRequest = true, Message = message };
+                //_context.No
             }
 
             await _groupService.CreateScheduleDaysToGroup(group, dayName, startTime, studentId);
@@ -112,6 +124,9 @@ public class GroupController : Controller
 
                 }
                 await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
+
+
+                
             }
 
 
@@ -152,6 +167,7 @@ public class GroupController : Controller
             var group = await _groupService.GetAsync(item.Id);
             if (item.LessonTypeId == Guid.Empty) item.LessonTypeId = group.LessonTypeId;
             if(item.CourseNameId == Guid.Empty) item.CourseNameId = group.CourseNameId;
+            if(item.TeacherId == Guid.Empty) item.TeacherId = group.TeacherId;
 
             _context.Groups.Update(item);
             await _context.SaveChangesAsync();
@@ -163,7 +179,7 @@ public class GroupController : Controller
 
             //await _groupService.CreateScheduleDaysToGroup(item, dayName, startTime, studentId);
             
-                await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
+             await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
             //await _groupService.UpdateStudentsInGroup2()
 
           
@@ -185,18 +201,32 @@ public class GroupController : Controller
                 var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, lessonsCount, item, true);
                 
             }
+
+            /*
+            if(group.Lessons != null && group.Lessons.Count != 0)
+            {
+                foreach(var less in group.Lessons.Where(x=>x.IsСompleted == false)
+                {
+                    less.Teacher = group.Teacher;
+
+                }
+            }
+            */
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message); return RedirectToAction("Index");
+            ModelState.AddModelError("", ex.Message); return View(item);
         }
         return RedirectToAction("Item" , new {id = item.Id});
     }
 
     [HttpPost]
-    public async Task EditDateStart(Guid id,DateTime DateStart)
+    public async Task<IActionResult> EditDateStart(Guid id,DateTime DateStart)
     {
         var group = await _groupService.GetAsync(id);
+
+
+        if (DateStart < DateTime.Now) return RedirectToAction("Item", new { id = id }); ;
         group.IsLateDateStart = false;
         group.DateStart = DateStart;
         _context.Groups.Update(group);
@@ -215,6 +245,7 @@ public class GroupController : Controller
             var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, DateStart, lessonsCount, group, true);
 
         }
+        return RedirectToAction("Item", new {id = id});
 
 
     }

@@ -128,8 +128,7 @@ public class UserService : IUserService
         if (user == null) dbUser = item.ApplicationUser;
         var userRegisterValidator = new TeacherRegisterValidator();
 
-        var userRegister = _mapper.Map<TeacherDTO>(item);
-        var validationResult = await userRegisterValidator.ValidateAsync(userRegister);
+        var validationResult = await userRegisterValidator.ValidateAsync(item);
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors;
@@ -237,8 +236,7 @@ public class UserService : IUserService
         //if (_context.Teachers.Any(x => x.Email == item.Email)) throw new Exception("Teacher with such email alredy exists");
         var teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == item.Id) ?? throw new Exception("Teacher not found");
         var userRegisterValidator = new TeacherRegisterValidator();
-        var teacherDTO = _mapper.Map<TeacherDTO>(item);
-        var validationResult = await userRegisterValidator.ValidateAsync(teacherDTO);
+        var validationResult = await userRegisterValidator.ValidateAsync(teacher);
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors;
@@ -353,7 +351,7 @@ public class UserService : IUserService
         await CreateAdminAsync();
     }
 
-    public async Task CreateAdminAsync(StudentDTO item = null)
+    public async Task CreateAdminAsync()
     {
         var result = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Login == "AdminLogin");
         if (result != null) return;
