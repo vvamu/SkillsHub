@@ -183,7 +183,7 @@ public class GroupController : Controller
             //await _groupService.UpdateStudentsInGroup2()
 
           
-
+            
 
             await _context.SaveChangesAsync();
             

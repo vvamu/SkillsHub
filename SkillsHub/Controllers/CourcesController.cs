@@ -28,6 +28,7 @@ public class CourcesController : Controller
         var courcesNames = _context.CourseNames.AsQueryable();
         var lessonTypes = _context.LessonTypes.AsQueryable();
         var a = _context.Groups.ToList().AsQueryable<Object>();
+        
 
         return View((a, courcesNames,lessonTypes));
     }

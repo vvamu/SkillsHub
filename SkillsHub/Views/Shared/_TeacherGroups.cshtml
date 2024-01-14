@@ -45,40 +45,43 @@
                 @if (teacherGroups != null && teacherGroups.Count > 0)
                 {
                     @foreach (var item in teacherGroups)
-                    {
-                        <div class="card">
-                            <div class="card-body">
-                                <h3><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a></h3>
-                                @{var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
+                    {                    
+                            @if (item.Lessons != null)
+                            {
+                                var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
+                                var countLessons = item.Lessons.Count();
+                                var priceByEndedLessons = item.LessonType.TeacherPrice * countEndedLessons;
+                                var priceByLessons = item.LessonType.TeacherPrice * countLessons;
+
+                                var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
                                 var startTimes = item.DaySchedules.Select(x => x.WorkingStartTime).ToArray();
                                 var endTimes = item.DaySchedules.Select(x => x.WorkingEndTime).ToArray();
-                                }
 
-                                @if (item.Lessons != null)
-                                {
-                                    var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
-                                    var countLessons = item.Lessons.Count();
-                                    var priceByEndedLessons = item.LessonType.TeacherPrice * countEndedLessons;
-                                    var priceByLessons = item.LessonType.TeacherPrice * countLessons;
-                                
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div style="display:flex;justify-content:space-between">
-                                                <h3>Course - @item.CourseName.Name,  Lesson type: @item.LessonType.Name</h3>
-                                                <div>
-                                                     <h5>@countEndedLessons / @countLessons lessons - @priceByEndedLessons / @priceByLessons BYN</h5>
-                                                </div>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div style="display:flex;justify-content:space-between">
+                                            <div>
+                                                <h2><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a></h2>
+                                                <p><strong>Course</strong> : @item.CourseName.Name</p>
+                                                <p><strong>Lesson type</strong>: @item.LessonType.Name</p>
+                                                <p>
+                                                    <strong>Schedule</strong> :
+                                                    @for (int a = 0; a < startTimes.Count(); a++)
+                                                    {
+                                                        <span>@startTimes[a].ToString() - @endTimes[a].ToString() , </span>
+
+                                                    }
+                                                    - @scheduleDays
+
+                                                </p>
                                             </div>
-                                            <p>
-                                                @for (int a = 0; a < startTimes.Count(); a++)
-                                                {
-                                                    <span>@startTimes[a].ToString() - @endTimes[a].ToString() , </span>
+                                            <div>
+                                                <h6>@countEndedLessons / @countLessons lessons - @priceByEndedLessons / @priceByLessons BYN</h6>
+                                            </div>
+                                        </div>
 
-                                                }
-                                                - @scheduleDays
 
-                                            </p>
-                                            <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
+                                <div style="display:flex;margin:20px;align-items:start;grid-gap:20px;flex-wrap:wrap">
                                                 @if (item.Lessons != null &&  item.Lessons.Count() != 0)
                                                 {
                                                 var teacherLessons = item.Lessons;//.Where(x=>x.Teacher != null).Where(x => x.Teacher.Id == @Model.user.Id).ToList();
@@ -87,24 +90,22 @@
                                                     @for (int i = 0; i < teacherLessons.Count(); i++)
                                                     {
                                                         <div>
-                                                        @if (teacherLessons[i].ArrivedStudents != null) //teacherLessons[i].IsСompleted == true
+                                                        <div style="display:flex;justify-content:center;flex-wrap:wrap;align-items:center;grid-gap:2%">
+                                                                   
+                                                        
+                                                        @if (teacherLessons[i].Teacher == null || teacherLessons[i].Teacher.ApplicationUser.Id != Model.user.Id)
                                                         {
-                                                            @if (teacherLessons[i].Teacher == null || teacherLessons[i].Teacher.ApplicationUser.Id != Model.user.Id) //teacherLessons[i].ArrivedStudents.Select(x => x.Id).Contains(Model.user.Id)
-                                                            {
-                                                                <div style="color:darkred">@teacherLessons[i].StartTime.ToShortTimeString()</div>
+                                                            <div style="color:red" title="Lesson will visit another teacher">@teacherLessons[i].StartTime.ToShortDateString()</div>
 
-                                                            }
-                                                            else
-                                                            {
-                                                                <div style="color:darkgray">@teacherLessons[i].StartTime.ToShortTimeString()</div>
-                                                            }
                                                         }
                                                         else
                                                         {
-                                                            <div>@teacherLessons[i].StartTime.ToShortTimeString()</div>
-
+                                                            <div style="color:whitesmoke">@teacherLessons[i].StartTime.ToString() <br/> @teacherLessons[i].StartTime.ToShortTimeString()</div>
                                                         }
+                                                        
+                                                       
                                                         <input type="checkbox" asp-for="@teacherLessons[i].IsСompleted" disabled />
+                                                         </div>
                                                         </div>
                                                     }
                                                    
@@ -117,13 +118,14 @@
 
                                     </div>
                                 }
-                            </div>
-
-                        </div>
-                        
+                            
                         
                     }
+                    
+                        
                 }
+       
+
                 else
                 {
                     <div class="card">
