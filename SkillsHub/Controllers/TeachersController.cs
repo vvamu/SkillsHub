@@ -141,10 +141,11 @@ public class TeachersController : Controller
     {
         var items = _userService.GetAllTeachers().ToList().AsQueryable().Where(x=>x.IsDeleted == false).ToList();
 
+        var res = new List<Teacher>();
         foreach(var i in items)
         {
             if (await _userManager.IsInRoleAsync(i.ApplicationUser, "Teacher"))
-                items.Remove(i);
+                res.Add(i);
         }
         
 
@@ -178,7 +179,7 @@ public class TeachersController : Controller
         }
         catch (Exception ex) { }
 
-        return Json(JsonSerializerToAjax.GetJsonByIQueriable(items.AsQueryable()));
+        return Json(JsonSerializerToAjax.GetJsonByIQueriable(res.AsQueryable()));
     }
 
     

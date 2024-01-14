@@ -489,6 +489,7 @@
                     data.forEach(function (item, i, arr) {
 
                         var user = item.ApplicationUser;
+                        console.log("--"+user);
                         
                         requiredTeachers.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
                         var appendedLine = "";

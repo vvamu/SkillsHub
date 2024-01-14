@@ -10,70 +10,74 @@
 
 <!-- Модальное окно -->
 
-    <div class="row page-titles mx-0">
-                <div class="col p-md-0">
-                    <ol class="breadcrumb" style="display:flex;align-items:center">
-                        <li class="breadcrumb-item"><a asp-action="Item" asp-controller="Group" asp-route-id="@ViewBag.grId">Group</a></li>
-                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Lesson</a></li>
-                    <li>
+<div class="row page-titles mx-0">
+    <div class="col p-md-0">
+        <ol class="breadcrumb" style="display:flex;align-items:center">
+            <li class="breadcrumb-item"><a asp-action="Item" asp-controller="Group" asp-route-id="@ViewBag.grId">Group</a></li>
+            <li class="breadcrumb-item active"><a href="javascript:void(0)">Lesson</a></li>
+            <li>
 
-                </li>
+            </li>
 
-            </ol>
-        </div>
+        </ol>
     </div>
-@if(User.IsInRole("Student") && Model !=  null){
+</div>
+@if (User.IsInRole("Student") && Model != null)
+{
     if (Model.Id != Guid.Empty)
     {
         <form class="mt-1 mb-5 login-input" method="post">
             <input type="hidden" asp-for="GroupId" value="'@Model.Group.Id'" />
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col">
-                            <div class="card">
-                                <div class="card-body">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
 
-                                    <h2>Lesson - "@Model.Group.Name" </h2> @if(Model!= null && Model.IsСompleted) {<span style="color:palevioletred">Completed</span>}
+                                <h2>Lesson - "@Model.Group.Name" </h2> @if (Model != null && Model.IsСompleted)
+                                {
+                                    <span style="color:palevioletred">Completed</span>
+                                }
 
-                                    <div class="validation" asp-validation-summary="ModelOnly"></div>
-                                    <div class="form-group">
-                                        <label class=" col-form-label" for="val-skill">
-                                            <h4>
-                                                Default duration by lesson type: 
+                                <div class="validation" asp-validation-summary="ModelOnly"></div>
+                                <div class="form-group">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>
+                                            Default duration by lesson type:
                                             <span>@ViewBag.DefaultLessonTime</span>
-                                            
 
-                                                
-                                            </h4>
-                                        </label>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label class=" col-form-label" for="val-skill">
-                                            <h4>Date start | End date<span class="text-danger">*</span></h4>
-                                        </label>
-                                        <div style="display:flex; justify-content:space-between">
-                                            <input type="datetime" asp-for="StartTime" class="form-control" value="@Model.StartTime"  disabled>
-                                            <input type="datetime" asp-for="EndTime" class="form-control"value="@Model.EndTime" disabled>
-                                        </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label class=" col-form-label" for="val-skill">
-                                            <h4>Topic</h4>
-                                        </label>
-                                        <input type="text" asp-for="Topic" disabled/>
+                                        </h4>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Date start | End date<span class="text-danger">*</span></h4>
+                                    </label>
+                                    <div style="display:flex; justify-content:space-between">
+                                        <input type="datetime" asp-for="StartTime" class="form-control" value="@Model.StartTime" disabled>
+                                        <input type="datetime" asp-for="EndTime" class="form-control" value="@Model.EndTime" disabled>
                                     </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Topic</h4>
+                                    </label>
+                                    <input type="text" asp-for="Topic" disabled />
+                                </div>
 
                                 <li>Min count of students by type: -</li>
                                 <li>Max count of students by type: -</li>
 
-                                    
-                                    <div class="form-group">
-                                        <label class=" col-form-label" for="val-skill">
-                                            <h4>Teacher<span class="text-danger">*</span></h4>
-                                        </label>
-                                        @if(Model.Group!= null && Model.Group.Teacher != null)
+
+                                <div class="form-group">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Teacher<span class="text-danger">*</span></h4>
+                                    </label>
+                                    @if (Model.Group != null && Model.Group.Teacher != null)
                                     {
                                         var teacher = Model.Group.Teacher.ApplicationUser;
                                         <a asp-action="Item" asp-controller="Account" asp-route-id="@Model.Group.Teacher.Id">@teacher.FirstName @teacher.LastName @teacher.Surname</a>
@@ -83,40 +87,40 @@
                                     {
                                         <p>No teacher</p>
                                     }
-                                    
-                                    </div>
+
+                                </div>
 
 
-                                    <div class="form-group">
-                                        <label class=" col-form-label" for="val-skill" style="display:flex;justify-content:space-between">
+                                <div class="form-group">
+                                    <label class=" col-form-label" for="val-skill" style="display:flex;justify-content:space-between">
 
-                                            <h4>Arrived students<span class="text-danger">*</span></h4>
-                                        
+                                        <h4>Arrived students<span class="text-danger">*</span></h4>
+
                                         @if (User.IsInRole("Student"))
                                         {
 
                                             <button asp-action="RemoveUserFromLesson" formmethod="post" asp-controller="Lesson" asp-route-id="@Model.Id" class="btn btn-warning" />
                                         }
-                                        </label>
-                                        <ul>
-                                            @foreach (var item in Model.ArrivedStudents)
-                                            {
+                                    </label>
+                                    <ul>
+                                        @foreach (var item in Model.ArrivedStudents)
+                                        {
 
-                                                    <li>
-                                                      <a asp-action="Item" asp-controller="Account" asp-route-id="@item.Id">@item.Student.ApplicationUser.FirstName @item.Student.ApplicationUser.LastName</a>
-                                                    </li>
-                                            }
-                                        </ul>
-                                        
-                                    </div>
+                                            <li>
+                                                <a asp-action="Item" asp-controller="Account" asp-route-id="@item.Id">@item.Student.ApplicationUser.FirstName @item.Student.ApplicationUser.LastName</a>
+                                            </li>
+                                        }
+                                    </ul>
 
-                                <div class="form-group" >
+                                </div>
+
+                                <div class="form-group">
                                     <label class=" col-form-label" for="val-skill" style="display:flex;justify-content:space-between">
-                                            <h4>Link to webinar<span class="text-danger">*</span></h4>
-                                        
-                                            <input type="url" asp-for="LinkToWebinar" class="form-control" value="@Model.LinkToWebinar" placeholder="Url link" disabled />                                      
-                                        </label>
-                                    </div>
+                                        <h4>Link to webinar<span class="text-danger">*</span></h4>
+
+                                        <input type="url" asp-for="LinkToWebinar" class="form-control" value="@Model.LinkToWebinar" placeholder="Url link" disabled>
+                                    </label>
+                                </div>
                                 <div class="form-group">
                                     <label class=" col-form-label" for="val-skill">
                                         <h4>Link to webinar<span class="text-danger">*</span></h4>
@@ -131,26 +135,22 @@
 
 
 
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </form>
     }
 }
-@if(!User.IsInRole("Student"))
+@if (!User.IsInRole("Student"))
 {
     <form class="mt-1 mb-5 login-input" method="post">
         @if (Model != null)
-        {                    
+        {
             <input type="hidden" asp-for="GroupId" value="@Model.GroupId" />
-            if(Model.Id != Guid.Empty)
-            {
-                <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
-                
-            }
-            @if(Model.Teacher != null)
+            <input type="hidden" asp-for="@Model.Id" />
+            @if (Model.Teacher != null)
             {
                 <input type="hidden" id="teacherByLesson" value="'@Model.Teacher.Id'" />
             }
@@ -162,71 +162,77 @@
             <input type="hidden" name="GroupId" value="@ViewBag.GroupId" />
 
         }
-        
+
         <div class="container-fluid">
             <div class="row">
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
 
-                            <h2>Lesson editor</h2> @if(Model!= null && Model.IsСompleted) {<span style="color:palevioletred">Completed</span>}
+                            <h2>Lesson editor</h2> @if (Model != null && Model.IsСompleted)
+                            {
+                                <span style="color:palevioletred">Completed</span>
+                            }
 
                             <div class="validation" asp-validation-summary="ModelOnly"></div>
                             <div class="form-group">
                                 <label class=" col-form-label" for="val-skill">
-                                   
+
                                 </label>
                             </div>
-                           
-                                <div class="form-group">
-                                   
-                                    <label class=" col-form-label" for="val-skill" style="display:flex">
-                                        <h4>Start time | End time<span class="text-danger">*</span></h4>
-                                        <p>
-                                            (Default by lesson type: <span id="defaultLessonTime">@ViewBag.DefaultLessonTime</span> min)
-                                        </p>
-                                    </label>
 
-                                    <div style="display:flex;grid-gap:15px">
-                                        <input type="datetime-local"
-                                           value="@DateTime.Now.AddDays(1).AddHours(1).ToString("s")"
+                            <div class="form-group">
+
+                                <label class=" col-form-label" for="val-skill" style="display:flex">
+                                    <h4>Start time | End time<span class="text-danger">*</span></h4>
+                                    <p>
+                                        (Default by lesson type: <span id="defaultLessonTime">@ViewBag.DefaultLessonTime</span> min)
+                                    </p>
+                                </label>
+
+                                <div style="display:flex;grid-gap:15px">
+                                    <input type="datetime-local"
+                                           id="meeting-time"
+                                           name="meeting-time"
+                                           value="@DateTime.Now.ToString("s")"
                                            min="@DateTime.Now.AddYears(-1).ToString("s")"
                                            max="@DateTime.Now.AddYears(1).ToString("s")"
-                                               class="form-control"
-                                               asp-for="StartTime" 
-                                               />
-                                        <input type="datetime-local"
-                                               id="meeting-time2"
-                                               name="meeting-time2"
-                                         
+                                           class="form-control"
+                                           asp-for="StartTime" />
+                                    <input type="datetime-local"
+                                           id="meeting-time2"
+                                           name="meeting-time2"
                                            min="@DateTime.Now.AddYears(-1).ToString("s")"
                                            max="@DateTime.Now.AddYears(1).ToString("s")"
-                                               class="form-control"
-                                               asp-for="EndTime" />
-                                             
-                                           
-                                            
-                                             
+                                           class="form-control"
+                                           asp-for="EndTime" />
+
+
+                                    <div style="width:50%; display:flex;align-items:center;grid-gap:10px">
+                                        Set end time default <input type="button" value="set" class="btn btn-primary btn-sm" onclick="SetEndTime()" />
                                     </div>
+
                                 </div>
-                           
+                            </div>
+
                             <div class="form-group">
                                 <label class=" col-form-label" for="val-skill">
                                     <h4>Topic</h4>
                                 </label>
-                                <input type="text" asp-for="Topic" class="form-control"/>
+                                <input type="text" asp-for="Topic" class="form-control" />
                             </div>
 
-                            
+
                             <div class="form-group">
                                 <label class=" col-form-label" for="val-skill">
                                     <h4>Teacher<span class="text-danger">*</span></h4>
                                 </label>
                                 <select asp-for="Teacher" id="allTeachers" class="form-select" disabled>
-                                    @if(Model.Teacher != null&& Model.Teacher.ApplicationUser !=null) 
+                                    @if (Model.Teacher != null && Model.Teacher.ApplicationUser != null)
                                     {
                                         var user = Model.Teacher.ApplicationUser;
-                                        <option>@user.Login @user.FirstName @user.LastName </option>}
+                                        <option>@user.Login @user.FirstName @user.LastName </option>
+                                    }
                                 </select>
                             </div>
 
@@ -237,34 +243,33 @@
                                 <input type="url" asp-for="LinkToWebinar" class="form-select" placeholder="Input link...">
                             </div>
 
-                            @*<div id="arrivedStudentsList">
+                            <div id="arrivedStudentsList">
                                 <div class="d-flex justify-content-center">
                                     <div class="spinner-border text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
                                 </div>
-                                </div>*@
-                             
-                            
-                                <hr/>
+                            </div>
+
+
+                            <hr />
                             <div class="form-check">
-                                @if (Model != null && Model.Id != Guid.Empty)
-                                {
-                                    <input class="form-check-input" type="checkbox" asp-for="IsСompleted" />
-                                }
+                                <input class="form-check-input" type="checkbox" asp-for="IsСompleted" />
                                 <label class="form-check-label" for="defaultCheck1">
                                     Completed
                                 </label>
                             </div>
                             <div class="form-group">
-                            @if(Model !=null && Model.Id != Guid.Empty)
-                            {
-                                <input type="submit" asp-action="Edit" asp-controller="Lesson" class="btn btn-primary" value="Edit" formmethod="post" />
-                            }else{
-                                <input type="submit" asp-action="Create" asp-controller="Lesson" class="btn btn-primary" value="Create" formmethod="post" />
-                            }
+                                @if (Model != null && Model.Id != Guid.Empty)
+                                {
+                                    <input type="submit" asp-action="Edit" asp-controller="Lesson" class="btn btn-primary" value="Edit" formmethod="post" />
+                                }
+                                else
+                                {
+                                    <input type="submit" asp-action="Create" asp-controller="Lesson" class="btn btn-primary" value="Create" formmethod="post" />
+                                }
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -275,8 +280,8 @@
 
 
 <script>
-    
-    function SetStartTime(){
+
+    function SetStartTime() {
         /*
         var startTimeInput = document.getElementById("meeting-time");
         var currentTime = new Date();
@@ -285,7 +290,7 @@
         */
 
     }
-    
+
     function SetEndTime() {
         // Get the values of the elements
         var startTimeInput = document.getElementById("meeting-time");
@@ -297,7 +302,7 @@
         var defaultLessonTime = parseInt(defaultLessonTimeSpan.innerText);
 
         // Compute the EndTime by adding the DefaultLessonTime to the StartTime
-        var endTime = new Date(startTime.getTime() + (defaultLessonTime  * 60  * 1000));
+        var endTime = new Date(startTime.getTime() + (defaultLessonTime * 60 * 1000));
 
         // Format the EndTime to the required format (YYYY-MM-DDTHH:MM)
         var formattedEndTime = endTime.toISOString().slice(0, 16);
@@ -346,7 +351,7 @@
             teacherId = teacher2
         if (teacher != undefined)
             teacherId = teacher
-        
+
 
         $.ajax({
             url: "/Teachers/GetTeachersAsync",
@@ -382,10 +387,10 @@
         });
     }
 
-    function selectAllStudents() { 
-        
+    function selectAllStudents() {
 
-    
+
+
     }
 
     function unselectAllStudents() {
