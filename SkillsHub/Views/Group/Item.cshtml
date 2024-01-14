@@ -242,7 +242,7 @@
                         @if (User.IsInRole("Admin") && Model.IsVerified && !Model.IsLateDateStart && (Model.LessonsCount > lessonsCount))
                         {
                             <input type="submit" asp-action="CreateBySchedule" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-outline-primary" title="Create by credule"/>
-                            <input type="submit" asp-action="Create" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-primary" title="Create from zero info" />
+                            <!--<input type="submit" asp-action="Create" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-primary" title="Create from zero info" /> -->
                         }
                     </div>
                 </div>

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Frameworks;
+using NuGet.Protocol;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
@@ -213,12 +214,22 @@ public class LessonController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(Lesson lesson)
     {
+        if (lesson.GroupId.HasValue)
+        {
+            var group = await _groupService.GetAsync(lesson.GroupId.Value) ?? throw new Exception("Group not found");
+            var duration = group.LessonType.LessonTimeInMinutes;
+
+            ViewBag.grId = group.Id;
+            ViewBag.GroupId = _context.Groups.FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(lesson.GroupId.Value));
+
+        }
+        
         //if(_context.Lessons.FirstOrDefaultAsync(x=>x.Id == lesson.Id) != null) return RedirectToAction("Edit", new {item = lesson});
         try
         {
             await _lessonService.Create(lesson);
         }
-        catch(Exception ex) { ModelState.AddModelError("", ex.Message); return View("Item", lesson); }
+        catch(Exception ex) { ModelState.AddModelError("", ex.Message); lesson.Id = Guid.Empty; return View("Item", lesson); }
         return RedirectToAction("Item", "Group", new { id = lesson.GroupId });
     }
     #endregion
@@ -249,6 +260,16 @@ public class LessonController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(Lesson item)
     {
+
+        if (item.GroupId.HasValue)
+        {
+            var group = await _groupService.GetAsync(item.GroupId.Value) ?? throw new Exception("Group not found");
+            var duration = group.LessonType.LessonTimeInMinutes;
+
+            ViewBag.grId = group.Id;
+            ViewBag.GroupId = _context.Groups.FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(item.GroupId.Value));
+
+        }
         try
         {
             if (item.StartTime == DateTime.MinValue || item.StartTime.Year < DateTime.Now.Year - 10) throw new Exception("Not correct date");
@@ -302,7 +323,7 @@ public class LessonController : Controller
     [HttpGet]
     public async Task<IActionResult> Item(Guid id)
     {
-        var lesson =await  _lessonService.GetAsync(id);
+        var lesson = await  _lessonService.GetAsync(id);
       
         //ViewBag.studentsByLesson = lesson.ArrivedStudents;
         
@@ -319,7 +340,7 @@ public class LessonController : Controller
     [HttpPost]
     public async Task<IActionResult> GetArrivedStudentsByLesson(Guid id)
     {
-        var lesson = await _lessonService.GetAsync(id);
+        var lesson = await _context.Lessons.Include(x=>x.Group).ThenInclude(x=>x.GroupStudents).ThenInclude(x=>x.Student).ThenInclude(x=>x.ApplicationUser).Include(x=>x.ArrivedStudents).ThenInclude(x=>x.Student).ThenInclude(x=>x.ApplicationUser).FirstOrDefaultAsync(x=>x.Id == id);
 
         var groupSt = new List<Student>();//;
 
@@ -327,7 +348,7 @@ public class LessonController : Controller
         var lessonStudents = lesson.ArrivedStudents;
         var stst = lessonStudents.Select(x => x.Student).ToList(); // Convert to List
 
-        var students = _context.Students;
+        var students = _context.Students.Include(x=>x.ApplicationUser);
         //students.RemoveRange(stst);
 
         foreach (var i in stst)

@@ -114,7 +114,7 @@
                                     <label class=" col-form-label" for="val-skill" style="display:flex;justify-content:space-between">
                                             <h4>Link to webinar<span class="text-danger">*</span></h4>
                                         
-                                            <input type="url" asp-for="LinkToWebinar" class="form-control" value="@Model.LinkToWebinar" placeholder="Url link" disabled>                                      
+                                            <input type="url" asp-for="LinkToWebinar" class="form-control" value="@Model.LinkToWebinar" placeholder="Url link" disabled />                                      
                                         </label>
                                     </div>
                                 <div class="form-group">
@@ -145,7 +145,11 @@
         @if (Model != null)
         {                    
             <input type="hidden" asp-for="GroupId" value="@Model.GroupId" />
-            <input type="hidden" asp-for="@Model.Id" />
+            if(Model.Id != Guid.Empty)
+            {
+                <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
+                
+            }
             @if(Model.Teacher != null)
             {
                 <input type="hidden" id="teacherByLesson" value="'@Model.Teacher.Id'" />
@@ -185,9 +189,7 @@
 
                                     <div style="display:flex;grid-gap:15px">
                                         <input type="datetime-local"
-                                               id="meeting-time"
-                                               name="meeting-time"
-                                           value="@DateTime.Now.ToString("s")"
+                                           value="@DateTime.Now.AddDays(1).AddHours(1).ToString("s")"
                                            min="@DateTime.Now.AddYears(-1).ToString("s")"
                                            max="@DateTime.Now.AddYears(1).ToString("s")"
                                                class="form-control"
@@ -203,9 +205,7 @@
                                                asp-for="EndTime" />
                                              
                                            
-                                            <div style="width:50%; display:flex;align-items:center;grid-gap:10px">
-                                                Set end time default <input type="button" value="set" class="btn btn-primary btn-sm" onclick="SetEndTime()" />
-                                            </div>
+                                            
                                              
                                     </div>
                                 </div>
@@ -237,18 +237,21 @@
                                 <input type="url" asp-for="LinkToWebinar" class="form-select" placeholder="Input link...">
                             </div>
 
-                            <div id="arrivedStudentsList">
+                            @*<div id="arrivedStudentsList">
                                 <div class="d-flex justify-content-center">
                                     <div class="spinner-border text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
                                 </div>
-                                </div>
+                                </div>*@
                              
                             
                                 <hr/>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="IsСompleted"  />
+                                @if (Model != null && Model.Id != Guid.Empty)
+                                {
+                                    <input class="form-check-input" type="checkbox" asp-for="IsСompleted" />
+                                }
                                 <label class="form-check-label" for="defaultCheck1">
                                     Completed
                                 </label>
