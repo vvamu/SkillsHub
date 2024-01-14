@@ -112,8 +112,8 @@
                                                                 <div style="display:flex; justify-content:space-between">
                                                                     <div style="display:flex; grid-gap:5%">
 
-                                                                        <input type="time" name="startTime" asp-for="@item.LessonBefore.StartTime" /> -
-                                                                        <input type="time" name="endTime" asp-for="@item.LessonBefore.EndTime" />
+                                                                        <input type="time" name="startTime" asp-for="@item.LessonBefore.StartTime" disabled /> -
+                                                                        <input type="time" name="endTime" asp-for="@item.LessonBefore.EndTime" disabled />
                                                                     </div>
 
                                                                 </div>
@@ -150,32 +150,11 @@
                                                                     <form>
                                                                     <input type="hidden" asp-for="@item.Id"/>
 
-                                                                    @if (!item.RequestMessage.Contains("delete"))
-                                                                    {
-
-                                                                        <div class="card col" style="margin:20px">
-                                                                            <div class="card-body">
-                                                                                <div>
-                                                                                    <h4>Before</h4>
-                                                                                    <div style="display:flex; justify-content:space-between">
-                                                                                        <div style="display:flex; grid-gap:5%">
-
-                                                                                            <input type="time" name="startTime" asp-for="@item.LessonBefore.StartTime" /> -
-                                                                                            <input type="time" name="endTime" asp-for="@item.LessonBefore.EndTime" />
-                                                                                        </div>
-
-                                                                                    </div>
-
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    }
+                                                                    
                                                                         <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Apply request" class="btn btn-primary" />
-                                                                    </form>
-                                                                    <form>
-                                                                        <input type="hidden" name="answer" value="-1" />
-                                                                        <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Reject request" class="btn btn-danger" />
-                                                                    </form>
+                                                                        
+                                                                        <input type="submit" asp-action="Reject" asp-controller="Request" asp-route-id="@item.Id" value="Reject request" class="btn btn-danger" />
+                                                                        </form>
                                                                 </div>
                                                             </div>
                                                         </div>
