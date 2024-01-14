@@ -81,7 +81,7 @@
             </div>
             <hr />
             <div>
-                Проведенные уроки: teacher.PassedLessons.Count() / teacher.PreparedLessons.Count() ; Цена: @teacher.CurrentCalculatedPrice / @teacher.PreparedCalculatedPrice
+                Проведенные уроки: @teacher.PreparedLessons.Where(x=>x.IsСompleted).Count() / @teacher.PreparedLessons.Count() ; Цена: @teacher.CurrentCalculatedPrice BYN / @teacher.TotalCalculatedPrice BYN
             </div>
             <!--
             <div>

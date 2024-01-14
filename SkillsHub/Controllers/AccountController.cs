@@ -22,16 +22,17 @@ public class AccountController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IGroupService _groupService;
+    private readonly ISalaryService _salaryService;
 
     public AccountController(IUserService userService, ICourcesService courcesService,
-        ApplicationDbContext context, IMapper mapper, IGroupService groupService)
+        ApplicationDbContext context, IMapper mapper, IGroupService groupService, ISalaryService salaryService)
     {
         _userService = userService;
         _courcesService = courcesService;
         _context = context;
         _mapper = mapper;
         _groupService = groupService;
-
+        _salaryService = salaryService;
     }
     #region Get
 
@@ -56,6 +57,18 @@ public class AccountController : Controller
         if (user == null)
             user = await _userService.GetCurrentUserAsync();
         HttpContext.Session.SetString("page", "item");
+
+        if (user.UserTeacher != null)
+        {
+            user.UserTeacher.CurrentCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher);
+            user.UserTeacher.TotalCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher, true);
+        }
+        if(user.UserStudent != null)
+        {
+            user.UserStudent.CurrentCalculatedPrice = await _salaryService.GetStudentSalaryAsync(user.UserStudent);
+            user.UserStudent.TotalCalculatedPrice = await _salaryService.GetStudentSalaryAsync(user.UserStudent,true);
+        }
+
 
         return View(user);
     }
@@ -199,18 +212,26 @@ public class AccountController : Controller
         //return Json(JsonSerializerToAjax.GetJsonByIQueriable(notifications));
     }
 
+
+
+
     [HttpPost]
     public async Task<IActionResult> GetStudentGroupsByUser(Guid id)
     {
         var gr = _groupService.GetAll();
         
+        
         var user = await _userService.GetUserByIdAsync(id);
+        if (user.UserStudent == null) return null;
        
         var studentGroups = _groupService.GetAll().SelectMany(x=>x.GroupStudents)
             .Where(x=>x.Student.ApplicationUser.Id == user.Id).Select(x=>x.Group).ToList();
         List<Group> res = new List<Group>();
         foreach (var group in studentGroups)
             res.Add(await _groupService.GetAsync(group.Id));
+
+
+        
 
         return PartialView("_StudentGroups", (user, res));
 
@@ -221,7 +242,15 @@ public class AccountController : Controller
     {
         var gr = _groupService.GetAll();
         var user = await _userService.GetUserByIdAsync(id);
+        if (user.UserTeacher == null) return null;
+
         var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.Teacher.ApplicationUser.Id == id).ToList();
+
+
+        List<Group> res = new List<Group>();
+        foreach (var group in teacherGroups)
+            res.Add(await _groupService.GetAsync(group.Id));
+
 
         return PartialView("_TeacherGroups", (user, teacherGroups));
 

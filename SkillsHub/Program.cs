@@ -117,6 +117,7 @@ public class Program
         builder.Services.AddTransient<IRequestService, RequestService>();
         builder.Services.AddTransient<INotificationService,NotificationService>();
         builder.Services.AddScoped<ILessonService, LessonService>();
+        builder.Services.AddScoped<ISalaryService, SalaryService>();
 
         #endregion
 
