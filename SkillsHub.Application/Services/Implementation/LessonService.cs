@@ -158,8 +158,9 @@ public class LessonService : ILessonService
 
         if (lesson.EndTime.Minute - lesson.StartTime.Minute > duration * 2 || lesson.EndTime < lesson.StartTime) throw new Exception("Not correct date");
 
-
-
+        // в идеале ассинхрон
+         var students = group.GroupStudents.Select((x)=> new LessonStudent() { IsVisit = false, LessonId = lesson.Id, StudentId = x.StudentId } ).ToList();
+        await _context.LessonStudents.AddRangeAsync(students);
 
 
 

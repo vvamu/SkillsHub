@@ -214,13 +214,14 @@ public class LessonController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(Lesson lesson)
     {
-        if (lesson.GroupId.HasValue)
+        Guid? grId = lesson.GroupId.HasValue ? lesson.GroupId.Value : lesson.Group?.Id;
+        if (grId != null)
         {
-            var group = await _groupService.GetAsync(lesson.GroupId.Value) ?? throw new Exception("Group not found");
+            var group = await _groupService.GetAsync(grId.Value) ?? throw new Exception("Group not found");
             var duration = group.LessonType.LessonTimeInMinutes;
 
             ViewBag.grId = group.Id;
-            ViewBag.GroupId = _context.Groups.FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(lesson.GroupId.Value));
+            ViewBag.GroupId = group.Id;
 
         }
         
