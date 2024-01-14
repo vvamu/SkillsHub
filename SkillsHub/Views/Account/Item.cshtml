@@ -596,11 +596,11 @@
 
         function GetStudentGroupsByUser() {
             $("#studentGroups").load("/Account/GetStudentGroupsByUser", { id: '@Model.Id' });
-            $("#teacherGroups").html();
+            $("#teacherGroups").empty();
         }
 
         function GetTeacherGroupsByUser() {
-            $("#studentGroups").html();
+            $("#studentGroups").empty(); 
             $("#teacherGroups").load("/Account/GetTeacherGroupsByUser", { id: '@Model.Id' });
         }
 

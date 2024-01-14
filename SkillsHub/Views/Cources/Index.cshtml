@@ -104,7 +104,6 @@
 													<div style="display:flex">
 														<div>
 														<input type="text" class="form-control" asp-for="@item.Name" value="@item.Name" />
-										
 														</div>
 														
 													</div>
@@ -246,10 +245,12 @@
 													</div>
 
 													<div style="display:flex;margin-top:20px">
-														<label>MinumumLessonsToPay</label>
+														<label>Minumum Lessons To Pay | Minimum Lessons in group</label>
 													</div>
 													<div style="display:flex;justify-content:space-between">
 														<input type="number" class="form-control" asp-for="@item.MinumumLessonsToPay" />
+														<input type="number" class="form-control" asp-for="@item.MinCountLessons"/>
+
 														
 													</div>
 

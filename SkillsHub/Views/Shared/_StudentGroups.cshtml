@@ -63,7 +63,7 @@
                                         <div class="card-body">
                                             <div style="display:flex;justify-content:space-between">
                                                 <div>
-                                                    <h4><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a></h4>
+                                                    <h2><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a></h2>
                                                     <p><strong>Course</strong> : @item.CourseName.Name</p>
                                                     <p><strong>Lesson type</strong>: @item.LessonType.Name</p>
                                                     <p>
@@ -82,7 +82,8 @@
                                                 </div>
                                             </div>
                                            
-                                            <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
+                                                        <div style="display:flex;justify-content:center;flex-wrap:wrap;align-items:start;grid-gap:2%">
+                                                         
                                                 @if (item.Lessons != null && item.Lessons.Count()!=0)
                                                 {
                                                     var studentLessons = item.Lessons;//.Where(x => x.Teacher != null).Where(x => x.Teacher.Id == @Model.user.Id).ToList();
@@ -90,19 +91,22 @@
 
                                                     for (int i = 0; i < studentLessons.Count(); i++)
                                                     {
-                                                        <div>
-                                                            <div>@item.Lessons[i].StartTime.ToShortDateString()</div>
+
+                                                <div>
+                                                    <div style="display:flex;justify-content:center;flex-wrap:wrap;align-items:center;grid-gap:2%">
+
+                                                            <div><a asp-action="Item" asp-controller="Lesson" asp-route-id="@item.Lessons[i].Id">@item.Lessons[i].StartTime.ToShortDateString()</a> <br/></div>
 
                                                             <input type="checkbox" asp-for="@item.Lessons[i].IsСompleted" disabled />
 
-                                                        </div>
+                                                    </div>
+                                                </div>
                                                     }
                                                 }else{
                                                     <div>Group not started yet</div>
                                                 }
-                                                
+                                                </div>
                                             </div>
-                                        </div>
 
                                     </div>
                                 }

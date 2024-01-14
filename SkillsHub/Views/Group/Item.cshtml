@@ -67,7 +67,31 @@
                                     Lesson type <span class="text-danger">*</span>
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class="col-form-label">@Group.LessonType.Name</p>
+                                    <p class="col-form-label">@Group.LessonType.Name - @Group.LessonType.MinCountLessons lessons (@(Group.LessonType.MinCountLessons*@Group.LessonType.LessonTimeInMinutes) min)
+
+                                       
+
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">
+                                    Group lesson <span class="text-danger"></span>
+                                </label>
+                                <div class="col-lg-6">
+                                    <p class="col-form-label">
+                                        @Group.LessonsCount lessons 
+
+                                        @if (!Group.IsUnlimitedLessonsCount)
+                                        {
+                                            <span title="Needed Lessons Time In Minutes">(@Group.NeededLessonsTimeInMinutes min)</span>
+                                        }
+                                        else
+                                        {
+                                            <span>(Unlimited)</span>
+                                        }
+
+                                    </p>
                                 </div>
                             </div>
 
@@ -103,23 +127,10 @@
                                     Lessons count <span class="text-danger">*</span>
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class="col-form-label"> @Group.Lessons.Count /  @if (!Group.IsUnlimitedLessonsCount) { <span>@Group.LessonsCount</span>} else{<span>Unlimited</span>} </p>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-lg-4 col-form-label">
-                                    Result hours <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-lg-6">
-                                    <p class="col-form-label">
-                                        <span title="Passed Lessons Time In Minutes">@Group.PassedLessonsTimeInMinutes</span> /  <span title="Assigned Lessons">@Group.ResultLessonsTimeInMinutes</span> /  @if (!Group.IsUnlimitedLessonsCount)
-                                        {
-                                            <span title="Needed Lessons Time In Minutes">@Group.NeededLessonsTimeInMinutes</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Unlimited</span>
-                                        }
+                                    <p class="col-form-label"> @Group.Lessons.Where(x=>x.IsСompleted).Count() /  
+                                        @if (!Group.IsUnlimitedLessonsCount) { <span>@Group.Lessons.Count()</span>} else{<span>Unlimited</span>} 
+                                        @if (Group.Lessons.Count() < Group.LessonsCount) { <span style="color:red">(Need to add lessons)</span>}
+                                        <span title="Passed Lessons Time In Minutes">@Group.PassedLessonsTimeInMinutes min</span> /  <span title="Assigned Lessons">@Group.ResultLessonsTimeInMinutes min</span>
                                     </p>
                                 </div>
                             </div>

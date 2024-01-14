@@ -52,8 +52,11 @@ public class Group : BaseEntity
     public int ResultLessonsTimeInMinutes { get
         {
             int resultMinutes = 0;
-            if(this.Lessons != null)
-            this.Lessons.ForEach(x => resultMinutes += (x.EndTime.Minute - x.StartTime.Minute));
+            if (this.Lessons == null) return resultMinutes;
+            foreach(var x in this.Lessons)
+            {
+                resultMinutes += (x.EndTime - x.StartTime).Minutes;
+            }
             return resultMinutes;
 
         }}
@@ -65,7 +68,7 @@ public class Group : BaseEntity
         {
             int resultMinutes = 0;
             if (this.Lessons != null)
-                this.Lessons.Where(x=>x.IsСompleted).ToList().ForEach(x => resultMinutes += (x.EndTime.Minute - x.StartTime.Minute));
+                this.Lessons.Where(x=>x.IsСompleted).ToList().ForEach(x => resultMinutes += (x.EndTime - x.StartTime).Minutes);
             return resultMinutes;
 
         }
