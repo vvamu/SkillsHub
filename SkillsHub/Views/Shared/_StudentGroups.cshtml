@@ -47,15 +47,7 @@
                 {
                     foreach (var item in studentGroups)
                     {
-                        <div class="card">
-                            <div class="card-body">
-                                <h4><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a></h4>
-                                @{
-                                    var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
-                                    var startTimes = item.DaySchedules.Select(x => x.WorkingStartTime).ToArray();
-                                    var endTimes = item.DaySchedules.Select(x => x.WorkingEndTime).ToArray();
-                                }
-
+                        
                                 @if (item.Lessons != null)
                                 {
                                     var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
@@ -63,23 +55,33 @@
                                     var priceByEndedLessons = item.LessonType.TeacherPrice * countEndedLessons;
                                     var priceByLessons = item.LessonType.TeacherPrice * countLessons;
 
+                                    var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
+                                    var startTimes = item.DaySchedules.Select(x => x.WorkingStartTime).ToArray();
+                                    var endTimes = item.DaySchedules.Select(x => x.WorkingEndTime).ToArray();
+
                                     <div class="card">
                                         <div class="card-body">
                                             <div style="display:flex;justify-content:space-between">
-                                                <h5>Course - @item.CourseName.Name,  Lesson type: @item.LessonType.Name</h5>
+                                                <div>
+                                                    <h4><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a></h4>
+                                                    <p><strong>Course</strong> : @item.CourseName.Name</p>
+                                                    <p><strong>Lesson type</strong>: @item.LessonType.Name</p>
+                                                    <p>
+                                                        <strong>Schedule</strong> :
+                                                        @for (int a = 0; a < startTimes.Count(); a++)
+                                                        {
+                                                            <span>@startTimes[a].ToString() - @endTimes[a].ToString() , </span>
+
+                                                        }
+                                                        - @scheduleDays
+
+                                                    </p>
+                                                </div>
                                                 <div>
                                                     <h6>@countEndedLessons / @countLessons lessons - @priceByEndedLessons / @priceByLessons BYN</h6>
                                                 </div>
                                             </div>
-                                            <p>Schedule: 
-                                                @for (int a = 0; a < startTimes.Count(); a++)
-                                                {
-                                                    <span>@startTimes[a].ToString() - @endTimes[a].ToString() , </span>
-
-                                                }
-                                                - @scheduleDays
-
-                                            </p>
+                                           
                                             <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
                                                 @if (item.Lessons != null && item.Lessons.Count()!=0)
                                                 {
@@ -89,7 +91,7 @@
                                                     for (int i = 0; i < studentLessons.Count(); i++)
                                                     {
                                                         <div>
-                                                            <div>@item.Lessons[i].StartTime.ToShortTimeString()</div>
+                                                            <div>@item.Lessons[i].StartTime.ToShortDateString()</div>
 
                                                             <input type="checkbox" asp-for="@item.Lessons[i].IsСompleted" disabled />
 
@@ -104,11 +106,7 @@
 
                                     </div>
                                 }
-                            </div>
 
-                            </div>
-                       
-                       
                     }
                 }
                 else
