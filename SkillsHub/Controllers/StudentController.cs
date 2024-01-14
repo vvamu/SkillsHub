@@ -83,11 +83,11 @@ public class StudentController : Controller
 
         students = items.Where(x => x.IsDeleted == false).ToList();
 
-        
+        var res = new List<Student>();
         foreach (var i in students)
         {
-            if (await _userManager.IsInRoleAsync(i.ApplicationUser, "Teacher"))
-                students.Remove(i);
+            if (await _userManager.IsInRoleAsync(i.ApplicationUser, "Student"))
+                res.Add(i);
         }
 
 
@@ -101,31 +101,15 @@ public class StudentController : Controller
                 Select(x=>x.Student).
                 Where(x => x.Id ==  userStudent.Id).
                 //Select(x=>x.ApplicationUser).
-                Where(x => x.IsDeleted == false); ;
+                Where(x => x.IsDeleted == false); 
 
             // items = usersByUserGroups;
         }
-        try
-        {
-            var jsonString = HttpContext.Request.QueryString.Value ?? "";
-            jsonString = jsonString.Substring(1); // Remove '?'
-            jsonString = HttpUtility.UrlDecode(jsonString);
+      
 
-            // Deserialize the JSON string
-            var jsonObject = JObject.Parse(jsonString);
-            var filterModel = jsonObject["StudentFilterModel"].ToObject<StudentFilterModel>();
-            //items = await FilterMaster.GetAllStudents(items, filterModel, orders);
-
-        }
-        catch (Exception ex) { }
-
-
-        //items = await FilterMaster.GetAllStudents(items, filters, orders);
-
-        //HttpContext.Request.QueryString("unknownQuerystring").ToString()
         var ii = students.ToList();
 
-        return Json(JsonSerializerToAjax.GetJsonByIQueriable(students.AsQueryable()));
+        return Json(JsonSerializerToAjax.GetJsonByIQueriable(res.AsQueryable()));
     }
 
     

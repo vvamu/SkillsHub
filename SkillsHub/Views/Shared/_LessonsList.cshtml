@@ -130,11 +130,11 @@ else
                                                     @if (User.IsInRole("Admin"))
                                                     {
                                                         <div>
-                                                            <input type="button" onclick="RequestToChangeLesson('@item.Id')" value="Change request2" class="btn btn-outline-primary" />
-                                                            <input type="button" onclick="RequestToDeleteLesson('@item.Id')" value="Delete request" class="btn btn-outline-danger" />
+                                                            <input type="submit" asp-action="Edit" asp-controller="Request" value="Change request" class="btn btn-outline-primary" />
+                                                            <input type="submit" asp-action="Delete" asp-controller="Request" asp-route-id="@item.Id" value="Delete request" class="btn btn-outline-danger" />
                                                         </div>
                                                         <div>
-                                                            <input type="submit" asp-action="Edit" asp-controller="Lesson" asp-route-id="@item" value="✔" class="btn btn-primary" />
+                                                            <input type="submit" asp-action="Edit" asp-controller="Lesson" asp-route-id="@item.Id" value="✔" class="btn btn-primary" />
                                                             <input type="submit" asp-action="Delete" asp-controller="Lesson" formmethod="post" asp-route-id="@item.Id" value="X" class="btn btn-danger" />
                                                         </div>
                                                     }

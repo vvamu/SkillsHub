@@ -13,4 +13,6 @@ public class RequestLesson : BaseEntity
     public Lesson? LessonBefore { get; set; }
     public string RequestMessage { get; set; }
     public string? AnswerStatus { get; set; }
+    public DateTime NewStart { get; set; }
+    public DateTime NewEnd { get; set; }
 }

@@ -52,8 +52,8 @@ public class RequestController : Controller
 
         var requestMessage = user.Login.ToString()
             + " want to update current lesson with values: "
-            + "\nStart date : " + item.StartTime.ToShortDateString()
-            + "\nEnd date : " + item.EndTime.ToShortDateString();
+            + "\nStart time : " + item.StartTime.ToShortTimeString()
+            + "\nEnd time : " + item.EndTime.ToShortTimeString();
 
         var request = await _requestService.Create(item.Id, requestMessage,item);
 
@@ -64,20 +64,29 @@ public class RequestController : Controller
     {
         var user = await _userService.GetCurrentUserAsync();
         var requestMessage = user.Login.ToString() + " want to delete current lesson";
-        var request = await _requestService.Create(id,requestMessage);
+        var request = await _requestService.Create(id,requestMessage, null);
 
         return RedirectToAction("Item", "Group", new { id = request.LessonBefore.GroupId  });
     }
 
     #endregion
 
-    public async Task<IActionResult> ApplyRequest(Guid id, Lesson lesson, int answer = 1) //in button value apply or no apply
+    public async Task<IActionResult> ApplyRequest(Guid id, Lesson lesson) //in button value apply or no apply
+    {
+
+        var req = await _context.RequestLessons.Include(x=>x.LessonBefore).FirstOrDefaultAsync(x => x.Id == id);
+        await _requestService.ApplyLessonRequest(req, null, 1);
+        //var gr = await _context.Lessons.FirstOrDefaultAsync(x => x.Id == id);
+
+        return RedirectToAction("Index", "Request");
+    }
+    public async Task<IActionResult> RejectRequest(Guid id, Lesson lesson) //in button value apply or no apply
     {
 
         var req = await _context.RequestLessons.FirstOrDefaultAsync(x => x.Id == id);
-        await _requestService.ApplyLessonRequest(req, lesson, answer);
+        await _requestService.ApplyLessonRequest(req, lesson, -1);
 
-        return RedirectToAction("Item", "Group", new { id = lesson.GroupId });
+        return RedirectToAction("Index", "Request");
     }
     #region Service
 

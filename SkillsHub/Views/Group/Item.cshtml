@@ -467,10 +467,10 @@
         function RequestToChangeLesson(itemId) {
         //Serialize the form datas.
 
-            var valdata = $("#lesson" + itemId).serialize();
-            var data = JSON.stringify($("#lesson" + itemId).serializeArray()); //  <-----------
+            var valdata = itemId;
+            //var data = JSON.stringify($(itemId).serializeArray()); //  <-----------
 
-            console.log(valdata)
+            console.log(JSON.stringify(itemId));
 
             console.log("----")
             console.log(data);
@@ -493,7 +493,7 @@
         function RequestToDeleteLesson(itemId) {
             //Serialize the form datas.
 
-            var valdata = { id: itemId };
+            var valdata = { id: itemId.id };
             
 
             //to get alert popup
