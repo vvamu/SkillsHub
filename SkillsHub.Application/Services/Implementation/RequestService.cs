@@ -113,7 +113,7 @@ public class RequestService : IRequestService
             await DeletePreviousRequests(item);
 
             item.LessonBefore.StartTime = item.NewStart;
-            item.LessonBefore.StartTime = item.NewStart;
+            item.LessonBefore.EndTime = item.NewEnd;
 
             _context.Lessons.Update(item.LessonBefore);
             await _context.SaveChangesAsync();
