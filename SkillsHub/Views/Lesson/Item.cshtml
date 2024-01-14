@@ -192,11 +192,11 @@
                                            max="@DateTime.Now.AddYears(1).ToString("s")"
                                                class="form-control"
                                                asp-for="StartTime" 
-                                               step="1"/>
+                                               />
                                         <input type="datetime-local"
                                                id="meeting-time2"
                                                name="meeting-time2"
-                                           step="1"
+                                         
                                            min="@DateTime.Now.AddYears(-1).ToString("s")"
                                            max="@DateTime.Now.AddYears(1).ToString("s")"
                                                class="form-control"
@@ -222,7 +222,12 @@
                                 <label class=" col-form-label" for="val-skill">
                                     <h4>Teacher<span class="text-danger">*</span></h4>
                                 </label>
-                                <select asp-for="Teacher" id="allTeachers" class="form-select"></select>
+                                <select asp-for="Teacher" id="allTeachers" class="form-select" disabled>
+                                    @if(Model.Teacher != null&& Model.Teacher.ApplicationUser !=null) 
+                                    {
+                                        var user = Model.Teacher.ApplicationUser;
+                                        <option>@user.Login @user.FirstName @user.LastName </option>}
+                                </select>
                             </div>
 
                             <div class="form-group">
@@ -289,7 +294,7 @@
         var defaultLessonTime = parseInt(defaultLessonTimeSpan.innerText);
 
         // Compute the EndTime by adding the DefaultLessonTime to the StartTime
-        var endTime = new Date(startTime.getTime() + (defaultLessonTime  * 60 Я * 1000));
+        var endTime = new Date(startTime.getTime() + (defaultLessonTime  * 60  * 1000));
 
         // Format the EndTime to the required format (YYYY-MM-DDTHH:MM)
         var formattedEndTime = endTime.toISOString().slice(0, 16);
@@ -372,13 +377,6 @@
                 }
             }
         });
-    }
-
-    function getStudents() {
-        try {
-           // $("#studentsList").load("/Student/StudentsCheckedCheckboxListByObject", { lessonId: 'Model.Id' });
-        } catch (ex) { console.log("getStudents"); console.log(ex); }
-        
     }
 
     function selectAllStudents() { 
@@ -466,13 +464,15 @@
 
 
     $(document).ready(function () {
-        getStudents();
+
+
+        //getStudents();
         getTeachers();
 
-        getLessonTypesList();
+        //getLessonTypesList();
         loadArrivedStudentsList();
 
-        SetStartTime()
+        //SetStartTime()
         SetEndTime()
     });
 

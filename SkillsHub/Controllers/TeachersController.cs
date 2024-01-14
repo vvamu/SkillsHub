@@ -36,7 +36,6 @@ public class TeachersController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Index()
     {
-        var parameters = new QueryStringParameters() { PageNumber = 1, PageSize = 100 };
         var teachers = _userService.GetAllTeachers();
         return View(teachers);
     }
@@ -127,24 +126,6 @@ public class TeachersController : Controller
 
         return RedirectToAction("Item", "Account", new { itemId = item.ApplicationUserId, id = item.ApplicationUserId });
     }
-
-    [HttpGet]
-
-    public async Task<IActionResult> Item(TeacherDTO item)
-    {
-        try
-        {
-            //var teacher = await _userService.GetUserByIdAsync(userId, item);
-            //if (teacher.ApplicationUser.UserStudent != null) return RedirectToAction("Create", "Student");
-            //if (await _userService.IsAdminAsync()) return RedirectToAction("Index", "CRM");
-            //var userDb = await _userService.SignInAsync(item);
-            //if (userDb == null) return View(userDb);
-            //return RedirectToAction("Index", "CRM");
-            return View(item);
-        }
-        catch (Exception ex) { return View(); }
-
-    }
     public IActionResult Edit()
     {
         return View();
@@ -158,7 +139,15 @@ public class TeachersController : Controller
     [Route("/Teachers/GetTeachersAsync")]
     public async Task<IActionResult> GetAllTeachers()
     {
-        var items = _userService.GetAllTeachers().ToList().AsQueryable().Where(x=>x.IsDeleted == false);
+        var items = _userService.GetAllTeachers().ToList().AsQueryable().Where(x=>x.IsDeleted == false).ToList();
+
+        foreach(var i in items)
+        {
+            if (await _userManager.IsInRoleAsync(i.ApplicationUser, "Teacher"))
+                items.Remove(i);
+        }
+        
+
         try
         {
             var p = HttpContext.Request.QueryString.Value ?? "";
@@ -189,7 +178,7 @@ public class TeachersController : Controller
         }
         catch (Exception ex) { }
 
-        return Json(JsonSerializerToAjax.GetJsonByIQueriable(items));
+        return Json(JsonSerializerToAjax.GetJsonByIQueriable(items.AsQueryable()));
     }
 
     

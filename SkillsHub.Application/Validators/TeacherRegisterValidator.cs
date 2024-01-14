@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using SkillsHub.Application.DTO;
+using SkillsHub.Domain.Models;
 
 namespace SkillsHub.Application.Validators;
 
-public class TeacherRegisterValidator : AbstractValidator<TeacherDTO>
+public class TeacherRegisterValidator : AbstractValidator<Teacher>
 {
     public TeacherRegisterValidator()
     {

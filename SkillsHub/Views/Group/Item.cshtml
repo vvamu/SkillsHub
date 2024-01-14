@@ -132,7 +132,7 @@
                                     <ol>
                                         @foreach (var st in Group.GroupStudents.Select(x => x.Student))
                                         {
-                                            <li><a asp-action="Item" asp-controller="Account" asp-route-itemId="@st.Id" style="font-weight:900;color:#7571f9">
+                                            <li><a asp-action="Item" asp-controller="Account" asp-route-itemId="@st.ApplicationUser.Id" style="font-weight:900;color:#7571f9">
                                                     @st.ApplicationUser.FirstName @st.ApplicationUser.Surname @st.ApplicationUser.LastName
                                                 </a></li>
                                         }
@@ -173,17 +173,7 @@
                                         <input type="submit" value="Edit group" asp-action="Edit" asp-controller="Group" formmethod="get" asp-route-id="@Model.Id" class="btn btn-primary" />
                                         
                                     </form>
-                                    @if(Model.IsLateDateStart)
-                                    {
-                                         <div class="card">
-                                    <div class="card-body" style="display:flex;justify-content:space-between">
-                                        <form>
-                                        <input class="form-control" type="date" name="DateStart" />
-                                        <input type="submit" value="Start" asp-action="EditDateStart" asp-controller="Group"  formmethod="post" asp-route-id="@Model.Id" class="btn btn-primary" />
-                                        </form>
-                                    </div>
-                                </div>
-                                    }
+                                    
                                 }
                                
                                
@@ -192,6 +182,21 @@
                             </div>
                         </div>
                     </div>
+
+                    @if (User.IsInRole("Admin") && Model.IsLateDateStart)
+                    {
+
+                        <div class="card">
+                            <form>
+                                <div class="card-body" style="display:flex;justify-content:space-between">
+
+                                    <input class="form-control" type="date" name="DateStart" />
+                                    <input type="submit" value="Start" asp-action="EditDateStart" asp-controller="Group" formmethod="post" asp-route-id="@Model.Id" class="btn btn-primary" />
+
+                                </div>
+                            </form>
+                        </div>
+                    }
 
                     @if (User.IsInRole("Admin"))
                     {
@@ -229,8 +234,12 @@
                         <h4>LESSONS</h4>
                         <div style="display:flex;"/>
 
+                        @{
+                            var lessonsCount = 0;
+                            if (Model.Lessons != null) lessonsCount = Model.Lessons.Count();
+                        }
 
-                        @if (User.IsInRole("Admin") && Model.IsVerified && !Model.IsLateDateStart)
+                        @if (User.IsInRole("Admin") && Model.IsVerified && !Model.IsLateDateStart && (Model.LessonsCount > lessonsCount))
                         {
                             <input type="submit" asp-action="CreateBySchedule" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-outline-primary" title="Create by credule"/>
                             <input type="submit" asp-action="Create" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-primary" title="Create from zero info" />

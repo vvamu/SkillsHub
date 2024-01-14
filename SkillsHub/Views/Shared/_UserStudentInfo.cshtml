@@ -1,0 +1,120 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using SkillsHub.Domain.BaseModels;
+@inject UserManager<ApplicationUser> _userManager;
+
+
+@model ApplicationUser;
+
+@if ((User.IsInRole("Admin") || User.Identity.Name == Model.Login) && Model != null && Model.UserStudent != null)
+{
+    var student = Model.UserStudent ?? new Student();
+    var visitedLessons = Model.UserStudent.VisitedLessons;
+    var TotalLessons = Model.UserStudent.Lessons;
+
+<div class="card">
+        <div class="card-body">
+            <div>
+                @{
+                    <form style="display:flex; justify-content:space-between">
+                        <input type="hidden" asp-for="@student.Id" value="@student.Id" />
+                        <input type="hidden" asp-for="@student.ApplicationUserId" value="@Model.Id" />
+                        @if (!(await _userManager.IsInRoleAsync(Model, "Student")) || Model.UserStudent.IsDeleted)
+                        {
+
+                            <h3 style="color:dimgray">Статистика ученика - UnActive</h3>
+                        }
+                        else
+                        {
+                            <h3>Статистика ученика - Active</h3>
+                        }
+                        @if (student.Id == Guid.Empty)
+                        {
+                            student.Id = Model.Id;
+                        }
+                        <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-route-id="@student.Id" asp-action="Activate" asp-route-userId="@Model.Id" asp-controller="Student" />
+
+                    </form>
+
+                }
+
+            </div>
+            <div style="display:flex; justify-content:space-between">
+                <b>Working schedule: </b>
+                @if (student.WorkingDays != null)
+                {
+                    <ol style="padding-left:0.2%">
+
+                        @foreach (var item in student.WorkingDays.Split("-"))
+                        {
+                            <li>@item.ToString()</li>
+                        }
+                    </ol>
+                }
+                <b></b>
+                <b></b>
+
+
+
+            </div>
+            
+            <div style="display:flex; justify-content:space-between">
+
+                <b>Направления работы:</b> @{
+                    if (student.PossibleCources != null)
+                    {
+
+                        <ol>
+                            @foreach (var item in student.PossibleCources.Select(x => x.CourseName.Name))
+                            {
+                                <li>@item</li>
+                            }
+                        </ol>
+                    }
+                    else
+                    {
+                        <p>EMPTY</p>
+                    }
+                }
+                <b></b>
+                <hr />
+                <!------------------------CHANGEEEEE------------------------------->
+
+            </div>
+
+
+            @if (student.ParentName != null && student.ParentName != "")
+            {
+                <div>
+                    <b>Родитель: </b> @student.ParentName : @if (student.ParentPhone != null)
+                    {
+                        @student.ParentPhone
+                    }
+                </div>
+            }
+            <div>
+                Уроки ученика: @visitedLessons.Count() / @TotalLessons.Count() ; Цена: @Model.UserStudent.CurrentCalculatedPrice / @Model.UserStudent.TotalCalculatedPrice BYN
+            </div>
+            <div>
+                Оплачено: -
+            </div>
+            <!--
+            <div>
+                Посещено групп англ / индив англ / групп прогр:
+            </div>
+            -->
+            <!--
+            <div>
+                Ожидаемые групповых английский / индивидуальных английский / групповых программирование:
+            </div>
+            -->
+            <!--
+            <div>
+                Оплачено групповых английский / индивидуальных английский / групповых программирование:
+            </div>
+            -->
+
+        </div>
+    </div>
+
+
+}

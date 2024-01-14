@@ -150,237 +150,17 @@
 
 
 
-                @if (User.IsInRole("Admin") || Model.UserStudent != null)
-                {
-                            var student = Model.UserStudent ?? new Student();
+                <div>
+                    @await Html.PartialAsync("_UserStudentInfo", Model)
+                </div>
 
-                            var visitedLessonsCount = 0;
-                            var preparedLessonsCount = 0;
+                <div>
+                    @await Html.PartialAsync("_UserTeacherInfo", Model)
+                </div>
 
-                           
-                            
-                            if (student.Lessons != null && student.Lessons.Select(x=>x.Lesson) != null)
-                            {
-                                //visitedLessonsCount += student.Lessons.Select(x=>x.Lesson).Where(x => x.IsСompleted).Count();
-                        //preparedLessonsCount += student.Lessons.Select(x => x.Lesson).Where(x => !x.IsСompleted).Count();
+
+                
                         
-                            }
-                            
-                            
-                                
-
-                            <div class="card">
-                                <div class="card-body">
-                                <div>
-                                    @{
-                                                <form style="display:flex; justify-content:space-between">
-                                                        <input type="hidden" asp-for="@student.Id" value="@student.Id" />
-                                                        <input type="hidden" asp-for="@student.ApplicationUserId" value="@Model.Id" />
-                                                    @if (!(await _userManager.IsInRoleAsync(Model, "Student")) || Model.UserStudent == null)
-                                        {
-                                    
-                                                        <h3 style="color:dimgray">Статистика ученика - UnActive</h3>
-                                        }
-                                        else
-                                        {
-                                                            <h3>Статистика ученика - Active</h3>
-                                        }
-                                                    @if(student.Id == Guid.Empty)
-                                        {
-                                            student.Id = Model.Id;
-                                        }
-                                        <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-route-id="@student.Id" asp-action="Activate" asp-route-userId="@Model.Id" asp-controller="Student" />
-
-                                                    </form>
-
-                                    }
-                                
-                                </div>
-                            <div style="display:flex; justify-content:space-between">
-                                <b>Working schedule: </b>
-                                @if (student.WorkingDays != null)
-                                {
-                                    <ol style="padding-left:0.2%">
-
-                                        @foreach (var item in student.WorkingDays.Split("-"))
-                                        {
-                                            <li>@item.ToString()</li>
-                                        }
-                                    </ol>
-                                }
-                                <b></b>
-                                <b></b>
-
-
-
-                            </div>
-                                    <div style="display:flex; justify-content:space-between">
-                              
-                                        <b>Направления работы:</b> @{
-                                            if (student.PossibleCources != null)
-                                            {
-                                       
-                                                            <ol>
-                                                        @foreach (var item in student.PossibleCources.Select(x=>x.CourseName.Name))
-                                                {
-                                                                <li>@item</li>
-                                                }
-                                                            </ol>
-                                            }
-                                            else
-                                            {
-                                                            <p>EMPTY</p>
-                                            }
-                                        }
-                                <b></b>
-                                <hr />
-                                        <!------------------------CHANGEEEEE------------------------------->
-
-                                    </div>
-
-                           
-                                        @if (student.ParentName != null && student.ParentName != "")
-                                        {
-                                                <div>
-                                                    <b>Родитель: </b> @student.ParentName : @if(student.ParentPhone != null) {@student.ParentPhone}
-                                                </div>
-                                        }
-                                        <div>
-                                                Посещенные уроки ученика: XXX
-                                        </div>
-                                        <div>
-                                                Ожидаемые уроки ученика: XXX
-                                        </div>
-                                        <div>
-                                                Посещено групп англ / индив англ / групп прогр:
-                                        </div>
-                                        <div>
-                                                Ожидаемые групповых английский / индивидуальных английский / групповых программирование:
-                                        </div>
-                                        <div>
-                                                Оплачено групповых английский / индивидуальных английский / групповых программирование:
-                                        </div>
-                                        <div>
-                                                Итого к оплате:
-                                        </div>
-                                    </div>
-                                </div>
-                        }
-                        
-
-                    
-            
-                @if(User.IsInRole("Admin") || Model.UserTeacher != null){
-                    var teacher = Model.UserTeacher ?? new Teacher();
-                    
-                    
-                        var lessonsTeacherCount = 0;
-                        var preparedTeacherCount = 0;
-                        var resultSalary = 0;
-                        /*
-                        @if (teacher.Lessons != null)
-                        {
-                            lessonsTeacherCount += @Model.UserTeacher.Lessons.Where(x => x.IsСompleted).Count();
-                            preparedTeacherCount += @Model.UserTeacher.Lessons.Where(x => !x.IsСompleted).Count();
-
-
-                        }*/
-
-                        //if (teacher.Groups != null)
-                            //foreach(var lesson in Model.UserStudent.Groups.)
-                            //visitedLessonsCount += 0;
-
-                        <div class="card">
-                            <div class="card-body">
-
-
-                                <div >
-                                    @{
-                                                    <form style="display:flex; justify-content:space-between">
-                                                        <input type="hidden" asp-for="@teacher.Id" value="@teacher.Id" />
-                                                        <input type="hidden" asp-for="@teacher.ApplicationUserId" value="@Model.Id" />
-                                                    @if (!(await _userManager.IsInRoleAsync(Model, "Teacher")) || Model.UserTeacher == null)
-                                            {
-
-                                                        <h3 style="color:dimgray">Статистика учителя - UnActive</h3>
-                                            }
-                                            else
-                                            {
-                                                        <h3>Статистика учителя - Active</h3>
-                                            }
-                                                        <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-action="Activate" asp-controller="Teachers" asp-route-id="@teacher.Id" asp-route-userId="@Model.Id" />
-
-                                                    </form>
-
-                                    }
-
-                                </div>
-
-
-                                <div style="display:flex; justify-content:space-between">
-                                    <b>Working schedule: </b> 
-                                    @if (teacher.WorkingDays != null)
-                                    {
-                                        <ol style="padding-left:0.2%">
-
-                                            @foreach (var item in teacher.WorkingDays.Split("-"))
-                                        {
-                                            <li>@item.ToString()</li>
-                                        }
-                                        </ol>
-                                    }
-                                    <b></b>
-                                    <b></b>
-                                       
-                                       
-                                  
-                                </div>
-                                <div style="display:flex; justify-content:space-between">
-                                
-                                    <b>Направления работы:</b> @{
-                                        if (teacher.PossibleCources != null)
-                                        {
-                                            var res = String.Join(',', Model.UserTeacher.PossibleCources.Select(x => x.CourseName));
-
-                                                        <ol>
-                                                            @foreach (var item in Model.UserTeacher.PossibleCources.Select(x=>x.CourseName))
-                                                {
-                                                                <li>@item.Name</li>
-                                                }
-                                                        </ol>
-                                        }
-                                        else
-                                        {
-                                                        <p>EMPTY</p>
-                                        }
-                                    }
-
-                                    <b></b>
-                                    <b></b>
-                                    
-
-                                </div>
-                                <hr />
-                                <div>
-                                    Проведенные уроки: @lessonsTeacherCount
-                                </div>
-                                <div>
-                                    Ожидаемые уроки учителя: @preparedTeacherCount
-                                </div>
-                                <!--
-                                <div>
-                                    Проведено групповых английский / индивидуальных английский / групповых программирование: 
-                                </div>
-                                <div>
-                                    Ожидаемые групповых английский / индивидуальных английский / групповых программирование:
-                                </div>
-                                -->
-                                <div>
-                                    Текущая оплата за месяц: @resultSalary
-                                </div>
-                            </div>
-                        </div>
-                    }
 
             
             </div>
@@ -389,9 +169,17 @@
                     <div class="container-fluid">
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                                <li>
-                                    <input type="button" class="btn btn-primary" onclick="getStudentGropus()" value="User Groups" />
+                                <li class="nav-item">
+                                    <a type="button" class="nav-link active" onclick="getAllGrops()" style="color:cornflowerblue">All</a>
                                     
+                                </li>
+                                 <li class="nav-item">
+                                    <a type="button" class="nav-link" onclick="GetTeacherGroupsByUser()" style="color:cornflowerblue">Teacher</a>
+                                    
+                                </li>
+                                <li class="nav-item">
+                                    <a type="button" class="nav-link" onclick="GetStudentGroupsByUser()" style="color:cornflowerblue">Student</a>
+
                                 </li>
                             </ul>
                         </div>
@@ -435,6 +223,8 @@
                 </nav>
                 -->
 
+              
+
                 <div id="studentGroups">
                     
                     <div class="d-flex justify-content-center">
@@ -443,6 +233,15 @@
                         </div>
                     </div>
                 </div>
+                <div id="teacherGroups">
+
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
 
                 
                    
@@ -790,10 +589,23 @@
 
 
 <script>
-    function getStudentGropus(){
-            $("#studentGroups").load("/Account/GetGroupsByUser", { id: '@Model.Id' });
+        function getAllGrops() {
+            $("#studentGroups").load("/Account/GetStudentGroupsByUser", { id: '@Model.Id' });
+            $("#teacherGroups").load("/Account/GetTeacherGroupsByUser", { id: '@Model.Id' });
         }
-    getStudentGropus();
+
+        function GetStudentGroupsByUser() {
+            $("#studentGroups").load("/Account/GetStudentGroupsByUser", { id: '@Model.Id' });
+            $("#teacherGroups").html();
+        }
+
+        function GetTeacherGroupsByUser() {
+            $("#studentGroups").html();
+            $("#teacherGroups").load("/Account/GetTeacherGroupsByUser", { id: '@Model.Id' });
+        }
+
+
+        getAllGrops();
 
         
 
