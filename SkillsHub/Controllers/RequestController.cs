@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Ocsp;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
@@ -60,13 +61,16 @@ public class RequestController : Controller
         return RedirectToAction("Item", "Group", new { id = request.LessonBefore.GroupId });
     }
     [Authorize(Roles = "Teacher,Admin")]
+    [HttpPost]
+    [Route("/Request/Delete/{id}")]
     public async Task<IActionResult> RequestDelete(Guid id)
     {
         var user = await _userService.GetCurrentUserAsync();
         var requestMessage = user.Login.ToString() + " want to delete current lesson";
-        var request = await _requestService.Create(id,requestMessage, null);
+        var req = await _requestService.Create(id,requestMessage, null);
+        //await _requestService.ApplyLessonRequest(req, null, 1);
 
-        return RedirectToAction("Item", "Group", new { id = request.LessonBefore.GroupId  });
+        return RedirectToAction("Item", "Group", new { id = req.LessonBefore.GroupId });
     }
 
     #endregion
@@ -74,8 +78,17 @@ public class RequestController : Controller
     public async Task<IActionResult> ApplyRequest(Guid id, Lesson lesson) //in button value apply or no apply
     {
 
-        var req = await _context.RequestLessons.Include(x=>x.LessonBefore).FirstOrDefaultAsync(x => x.Id == id);
-        await _requestService.ApplyLessonRequest(req, null, 1);
+        var req = await _context.RequestLessons.Include(x=>x.LessonBefore).ThenInclude(x => x.Group).FirstOrDefaultAsync(x => x.Id == id);
+        await _requestService.ApplyLessonRequest(req, 1);
+        //var gr = await _context.Lessons.FirstOrDefaultAsync(x => x.Id == id);
+
+        return RedirectToAction("Index", "Request");
+    }
+    public async Task<IActionResult> ApplyDeleteRequest(Guid id, Lesson lesson) //in button value apply or no apply
+    {
+
+        var req = await _context.RequestLessons.Include(x => x.LessonBefore).ThenInclude(x=>x.Group).FirstOrDefaultAsync(x => x.Id == id);
+        await _requestService.ApplyLessonDeleteRequest(req, 1);
         //var gr = await _context.Lessons.FirstOrDefaultAsync(x => x.Id == id);
 
         return RedirectToAction("Index", "Request");
@@ -83,8 +96,16 @@ public class RequestController : Controller
     public async Task<IActionResult> RejectRequest(Guid id, Lesson lesson) //in button value apply or no apply
     {
 
-        var req = await _context.RequestLessons.FirstOrDefaultAsync(x => x.Id == id);
-        await _requestService.ApplyLessonRequest(req, lesson, -1);
+        var req = await _context.RequestLessons.Include(x => x.LessonBefore).ThenInclude(x => x.Group).FirstOrDefaultAsync(x => x.Id == id);
+        await _requestService.ApplyLessonRequest(req, -1);
+
+        return RedirectToAction("Index", "Request");
+    }
+    public async Task<IActionResult> RejectDeleteRequest(Guid id, Lesson lesson) //in button value apply or no apply
+    {
+
+        var req = await _context.RequestLessons.Include(x => x.LessonBefore).ThenInclude(x => x.Group).FirstOrDefaultAsync(x => x.Id == id);
+        await _requestService.ApplyLessonDeleteRequest(req, -1);
 
         return RedirectToAction("Index", "Request");
     }

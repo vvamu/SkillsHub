@@ -119,7 +119,7 @@ public class LessonService : ILessonService
     public async Task DeleteLessonByGroup(Group group, Lesson lesson)
     {
         //_context.Entry(group.Lessons).State = EntityState.Unchanged;
-        var lesson2 = new Lesson() { Id = lesson.Id };
+        //var lesson2 = new Lesson() { Id = lesson.Id };
         var students = await _context.LessonStudents.Include(x=>x.Lesson).Include(x=>x.Student).Where(x=>x.Lesson.Id == lesson.Id).ToListAsync();
         
         foreach (var student in students)
@@ -128,8 +128,8 @@ public class LessonService : ILessonService
             _context.LessonStudents.Remove(student);
         }
 
-        group.Lessons.Remove(lesson2);
-        _context.Lessons.Remove(lesson2);
+        //group.Lessons.Remove(lesson2);
+        _context.Lessons.Remove(lesson);
         //_context.Groups.Update(group);
 
         await _context.SaveChangesAsync();

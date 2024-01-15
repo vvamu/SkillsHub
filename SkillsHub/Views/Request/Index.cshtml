@@ -107,6 +107,7 @@
 
                                                     <div class="card col" style="margin:20px">
                                                         <div class="card-body">
+                                                            <h3>Lesson Date @item.LessonBefore.StartTime.ToShortDateString()</h3>
                                                             <div>
                                                                 <h4>Before</h4>
                                                                 <div style="display:flex; justify-content:space-between">
@@ -119,6 +120,21 @@
                                                                 </div>
 
                                                             </div>
+                                                            @if (!item.RequestMessage.ToLower().Contains("delete"))
+                                                            {
+                                                                <div>
+                                                                    <h4>After</h4>
+                                                                    <div style="display:flex; justify-content:space-between">
+                                                                        <div style="display:flex; grid-gap:5%">
+
+                                                                            <input type="time" asp-for="@item.NewStart" disabled /> -
+                                                                            <input type="time" asp-for="@item.NewEnd" disabled />
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                </div>
+                                                            }
                                                         </div>
                                                     </div>
 
@@ -150,11 +166,17 @@
                                                                     <form>
                                                                     <input type="hidden" asp-for="@item.Id"/>
 
-                                                                    
-                                                                        <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Apply request" class="btn btn-primary" />
-                                                                        
-                                                                        <input type="submit" asp-action="Reject" asp-controller="Request" asp-route-id="@item.Id" value="Reject request" class="btn btn-danger" />
-                                                                        </form>
+                                                                        @if(item.RequestMessage.Contains("delete"))
+                                                                        {
+                                                                            <input type="submit" asp-action="ApplyDeleteRequest" asp-controller="Request" asp-route-id="@item.Id" value="Apply request" class="btn btn-primary" />
+                                                                            <input type="submit" asp-action="RejectDeleteRequest" asp-controller="Request" asp-route-id="@item.Id" value="Reject request" class="btn btn-danger" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Apply request" class="btn btn-primary" />
+                                                                            <input type="submit" asp-action="RejectRequest" asp-controller="Request" asp-route-id="@item.Id" value="Reject request" class="btn btn-danger" />
+                                                                        }
+                                                                    </form>
                                                                 </div>
                                                             </div>
                                                         </div>

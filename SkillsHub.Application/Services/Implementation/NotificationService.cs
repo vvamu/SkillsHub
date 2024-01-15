@@ -41,7 +41,7 @@ public class NotificationService : INotificationService
             if (lesson == null)
             {
                 notificationMessage += "In group " + group.Name + " lesson  was deleted by date:  "
-                        + lastLessonValue.StartTime.ToShortTimeString() + " - " + lastLessonValue.EndTime.ToShortTimeString();
+                        + lastLessonValue.StartTime + " - " + lastLessonValue.EndTime;
             }
             else
             {
@@ -49,11 +49,10 @@ public class NotificationService : INotificationService
                 {
 
                     notificationMessage += "In group " + group.Name + " lesson  was changed from "
-                        + lastLessonValue.StartTime.ToShortTimeString() + " - " + lastLessonValue.EndTime.ToShortTimeString()
-                        + " to " + lesson.StartTime.ToShortTimeString() + " - " + lesson.EndTime.ToShortTimeString();
+                        + lastLessonValue.StartTime + " - " + lastLessonValue.EndTime
+                        + " to " + lesson.StartTime + " - " + lesson.EndTime;
 
                 }
-
                 else
                 {
                     notificationMessage += "In group " + group.Name + " lesson  was`s changed.";
@@ -61,6 +60,7 @@ public class NotificationService : INotificationService
                 }
             }
             if (usersToSend == null) usersToSend = await GetUsersByGroup(group);
+            
 
             var res = await Create(notificationMessage, usersToSend);
             return res;

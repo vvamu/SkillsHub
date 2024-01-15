@@ -11,7 +11,8 @@ public interface IRequestService
     public Task<RequestLesson> Get(Guid id);
     public Task<RequestLesson> Create(Guid lessonId, string requestMessage, Lesson? newLesson = null);
 
-    public Task<Lesson> ApplyLessonRequest(RequestLesson item, Lesson lesson, int answer);
+    public Task<RequestLesson> ApplyLessonRequest(RequestLesson item, int answer);
+    public Task<RequestLesson> ApplyLessonDeleteRequest(RequestLesson item, int answer);
 
     public Task DeletePreviousRequests(RequestLesson item);
     public Task DeletePreviousRequests(Lesson item);

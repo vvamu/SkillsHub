@@ -186,23 +186,12 @@ public class GroupService: IGroupService
     private async Task<bool> CheckCorrectWorkingDays(string[] dayName, TimeSpan[] startTime)
     {
         if (startTime.Count() != dayName.Count()) throw new Exception("Time is not defined to schedule");
+        if (startTime.Count() > 6) throw new Exception("To many schedule days");
         var dayTimeDict = new Dictionary<string, TimeSpan>();
         for (int i = 0; i < dayName.Length; i++)
         {
-            TimeSpan time = startTime[i];
-            if (!dayTimeDict.ContainsKey(dayName[i]))
-            {
-
-                dayTimeDict.Add(dayName[i], time);
-            }
-            else
-            {
-                // If the same dayName already exists, check for time overlap
-                if (dayTimeDict[dayName[i]] != time)
-                {
-                    throw new Exception("The same dayName already exists, check for time overlap");
-                }
-            }
+            if (dayTimeDict.ContainsKey(dayName[i])) continue;
+            dayTimeDict.Add(dayName[i], startTime[i]);
         }
 
         

@@ -26,7 +26,7 @@ public class Lesson : BaseEntity
         get
         {
             int resultMinutes = 0;
-            return this.EndTime.Minute - this.StartTime.Minute;
+            return (int)(EndTime - StartTime).TotalMinutes;
         }
     }
 
