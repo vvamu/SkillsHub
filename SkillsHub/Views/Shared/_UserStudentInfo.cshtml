@@ -31,7 +31,11 @@
                         {
                             student.Id = Model.Id;
                         }
-                        <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-route-id="@student.Id" asp-action="Activate" asp-route-userId="@Model.Id" asp-controller="Student" />
+                        @if(User.IsInRole("Admin"))
+                        {
+                            <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-route-id="@student.Id" asp-action="Activate" asp-route-userId="@Model.Id" asp-controller="Student" />
+
+                        }
 
                     </form>
 
@@ -56,6 +60,7 @@
 
 
             </div>
+
             
             <div style="display:flex; justify-content:space-between">
 
@@ -91,6 +96,7 @@
                     }
                 </div>
             }
+            <hr/>
             <div>
                 Уроки ученика: @visitedLessons.Count() / @TotalLessons.Count() ; Цена: @Model.UserStudent.CurrentCalculatedPrice / @Model.UserStudent.TotalCalculatedPrice BYN
             </div>

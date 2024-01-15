@@ -1,9 +1,10 @@
 ﻿@using SkillsHub.Domain.BaseModels;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
 
 @model (ApplicationUser user, List<Group>? groups);
 
 @{
-
+    var user = Model.user;
     var studentGroups = Model.groups;
 
 }
@@ -43,7 +44,7 @@
             </nav>
             -->
             @{
-                if (studentGroups != null)
+                if (studentGroups != null && studentGroups.Count() != 0)
                 {
                     foreach (var item in studentGroups)
                     {
@@ -82,25 +83,74 @@
                                                 </div>
                                             </div>
                                            
-                                                        <div style="display:flex;justify-content:center;flex-wrap:wrap;align-items:start;grid-gap:2%">
+                                                        <div style="display:flex;flex-wrap:wrap;grid-gap:2%">
                                                          
                                                 @if (item.Lessons != null && item.Lessons.Count()!=0)
                                                 {
                                                     var studentLessons = item.Lessons;//.Where(x => x.Teacher != null).Where(x => x.Teacher.Id == @Model.user.Id).ToList();
+                                                    
 
 
                                                     for (int i = 0; i < studentLessons.Count(); i++)
                                                     {
+                                                _context.Lessons.ToList();
+                                                _context.LessonStudents.ToList();
+                                                _context.Students.ToList();
+                                                _context.ApplicationUsers.ToList();
 
-                                                <div>
-                                                    <div style="display:flex;justify-content:center;flex-wrap:wrap;align-items:center;grid-gap:2%">
+                                                        var studentsOnLesson = item.Lessons[i].ArrivedStudents;
 
-                                                            <div><a asp-action="Item" asp-controller="Lesson" asp-route-id="@item.Lessons[i].Id">@item.Lessons[i].StartTime.ToShortDateString()</a> <br/></div>
+                                               
 
-                                                            <input type="checkbox" asp-for="@item.Lessons[i].IsСompleted" disabled />
 
-                                                    </div>
-                                                </div>
+                                                var studentLesson = studentsOnLesson.FirstOrDefault(x => x.Student.ApplicationUser.Id == user.Id && x.Lesson.Id == item.Lessons[i].Id);
+
+
+                                                        <div>
+                                                            <div style="display:flex;justify-content:center;flex-wrap:wrap;align-items:center;grid-gap:2%">
+                                                    
+                                                                    <div>
+
+                                                                    
+
+                                                                        @if(studentsOnLesson.Select(x=>x.Student.ApplicationUserId).Contains(user.Id))
+                                                                        {
+                                                                <span title="@item.Lessons[i].StartTime.ToShortTimeString()">@item.Lessons[i].StartTime.ToShortDateString()</span>
+                                                                <a asp-action="Item" asp-controller="Lesson" title="@item.Lessons[i].StartTime.ToShortTimeString()" asp-route-id="@item.Lessons[i].Id">
+                                                                    
+                                                                </a>
+                                                            }   
+                                                                        else if (studentLesson != null && studentLesson.IsVisit && studentLesson.Lesson.IsСompleted)
+                                                                        {
+                                                                <span style="color:green" title="@item.Lessons[i].StartTime.ToShortTimeString()">@item.Lessons[i].StartTime.ToShortDateString()</span>
+                                                                             <a asp-action="Item" asp-controller="Lesson" title="@item.Lessons[i].StartTime.ToShortTimeString()" asp-route-id="@item.Lessons[i].Id">
+                                                                            
+                                                                </a>
+                                                                        }
+                                                                        else if(studentLesson != null && !studentLesson.IsVisit && studentLesson.Lesson.IsСompleted)
+                                                                        {
+                                                                <span style="color:red" title="@item.Lessons[i].StartTime.ToShortTimeString()">@item.Lessons[i].StartTime.ToShortDateString()</span> 
+                                                                            <a asp-action="Item" asp-controller="Lesson" title="@item.Lessons[i].StartTime.ToShortTimeString()" asp-route-id="@item.Lessons[i].Id">
+                                                                                
+                                                                            </a>
+                                                                        }
+                                                                         else
+                                                                        {
+                                                                <span style="color:#c4baff" title="@item.Lessons[i].StartTime.ToShortTimeString()">@item.Lessons[i].StartTime.ToShortDateString()</span>
+                                                                <a asp-action="Item" asp-controller="Lesson" title="@item.Lessons[i].StartTime.ToShortTimeString()" asp-route-id="@item.Lessons[i].Id">
+                                                                                
+                                                                            </a>
+                                                                        }
+
+
+                                                                    
+                                                           
+                                                                    </div>
+
+                                                                    <input type="checkbox" asp-for="@item.Lessons[i].IsСompleted" disabled />
+
+                                                            </div>
+                                                        </div>
                                                     }
                                                 }else{
                                                     <div>Group not started yet</div>

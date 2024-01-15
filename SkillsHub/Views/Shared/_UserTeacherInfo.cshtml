@@ -27,8 +27,10 @@
                         {
                             <h3>Статистика учителя - Active</h3>
                         }
-                        <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-action="Activate" asp-controller="Teachers" asp-route-id="@teacher.Id" asp-route-userId="@Model.Id" />
-
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-action="Activate" asp-controller="Teachers" asp-route-id="@teacher.Id" asp-route-userId="@Model.Id" />
+                        }
                     </form>
 
                 }
@@ -82,6 +84,9 @@
             <hr />
             <div>
                 Проведенные уроки: @teacher.PreparedLessons.Where(x=>x.IsСompleted).Count() / @teacher.PreparedLessons.Count() ; Цена: @teacher.CurrentCalculatedPrice BYN / @teacher.TotalCalculatedPrice BYN
+            </div>
+            <div>
+                Выплачено: 0 BYN / 0 BYN
             </div>
             <!--
             <div>

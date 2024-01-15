@@ -219,14 +219,14 @@ public class AccountController : Controller
     public async Task<IActionResult> GetStudentGroupsByUser(Guid id)
     {
         var gr = _groupService.GetAll();
-        
-        
+        List<Group> res = new List<Group>();
+
+
         var user = await _userService.GetUserByIdAsync(id);
-        if (user.UserStudent == null) return null;
+        if (user.UserStudent == null) return PartialView("_StudentGroups", (user, res));
        
         var studentGroups = _groupService.GetAll().SelectMany(x=>x.GroupStudents)
             .Where(x=>x.Student.ApplicationUser.Id == user.Id).Select(x=>x.Group).ToList();
-        List<Group> res = new List<Group>();
         foreach (var group in studentGroups)
             res.Add(await _groupService.GetAsync(group.Id));
 
@@ -242,12 +242,13 @@ public class AccountController : Controller
     {
         var gr = _groupService.GetAll();
         var user = await _userService.GetUserByIdAsync(id);
-        if (user.UserTeacher == null) return null;
+        List<Group> res = new List<Group>();
+
+        if (user.UserTeacher == null) return PartialView("_TeacherGroups", (user, res));
 
         var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.Teacher.ApplicationUser.Id == id).ToList();
 
 
-        List<Group> res = new List<Group>();
         foreach (var group in teacherGroups)
             res.Add(await _groupService.GetAsync(group.Id));
 
