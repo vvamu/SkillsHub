@@ -95,21 +95,15 @@ public class RequestService : IRequestService
     //А отправляет запрос на изменение. В принимает запрос. Изменение занятия. Запрос isDeleted = true, все остальные связанные с этим запросом - удаляются. Создается сообщение
     //А отправляет запрос на изменение. В не принимает запрос. Запрос isDeleted = true, все остальные связанные с этим запросом - удаляются. Создается сообщение
     //А отправляет запрос на удаление. 
-    public async Task<Lesson> ApplyLessonRequest(RequestLesson item, Lesson lesson, int answer = 1)
+    public async Task<RequestLesson> ApplyLessonRequest(RequestLesson item, int answer = 1)
     {
-        //var req =  await _context.RequestLessons.Include(x => x.LessonBefore).FirstOrDefaultAsync(x=>x.Id  ==item.Id);
-        //var lastLessonValue =  req.LessonBefore;
-        //var group = await _context.Groups.Include(x => x.Lessons).FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(lastLessonValue.Id));
+        item.IsDeleted = true;
 
-        //full requestLesson
-
+        
 
         if (answer > 0)
         {
-            item.IsDeleted = true;
-
-            _context.RequestLessons.Update(item);
-
+            
             await DeletePreviousRequests(item);
 
             item.LessonBefore.StartTime = item.NewStart;
@@ -119,10 +113,39 @@ public class RequestService : IRequestService
             await _context.SaveChangesAsync();
             
         }
-
+        
+        _context.RequestLessons.Remove(item);
         //await _notificationService.СreateToEditLesson(lastLessonValue,lesson, null,answer);
         await _context.SaveChangesAsync();
-        return lesson;
+        return item;
+    }
+    public async Task<RequestLesson> ApplyLessonDeleteRequest(RequestLesson item, int answer = 1)
+    {
+
+        item.IsDeleted = true;
+
+        if (answer > 0)
+        {
+
+            await DeletePreviousRequests(item);
+
+            var l = item.LessonBefore;
+
+            _context.RequestLessons.Remove(item);
+
+            await _context.SaveChangesAsync();
+            _context.Lessons.Remove(l);
+            await _context.SaveChangesAsync();
+
+        }
+        else
+        {
+            _context.RequestLessons.Remove(item);
+            
+            await _context.SaveChangesAsync();
+        }
+        //await _notificationService.СreateToEditLesson(lastLessonValue,lesson, null,answer);
+        return item;
     }
 
     public async Task DeletePreviousRequests(RequestLesson item)
@@ -134,9 +157,7 @@ public class RequestService : IRequestService
         
         foreach (var i in requestLessonsByLesson)
         {
-
-            _context.Entry(i.LessonBefore).State = EntityState.Unchanged;
-            if (i.Id == item.Id) continue;
+            i.LessonBefore = null;
             _context.Remove(i);
         }
         await _context.SaveChangesAsync();
