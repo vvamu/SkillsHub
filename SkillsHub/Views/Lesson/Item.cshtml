@@ -13,7 +13,7 @@
 <div class="row page-titles mx-0">
     <div class="col p-md-0">
         <ol class="breadcrumb" style="display:flex;align-items:center">
-            <li class="breadcrumb-item"><a asp-action="Item" asp-controller="Group" asp-route-id="@Model.Group.Id">Group</a></li>
+            <li class="breadcrumb-item"><a asp-action="Item" asp-controller="Group" asp-route-id="@Model.GroupId">Group</a></li>
             <li class="breadcrumb-item active"><a href="javascript:void(0)">Lesson</a></li>
             <li>
 
@@ -27,7 +27,7 @@
     if (Model.Id != Guid.Empty)
     {
         <form class="mt-1 mb-5 login-input" method="post">
-            <input type="hidden" asp-for="GroupId" value="'@Model.Group.Id'" />
+            <input type="hidden" asp-for="GroupId" value="'@Model.GroupId'" />
             <div class="container-fluid">
                 <div class="row">
                     <div class="col">
@@ -193,24 +193,23 @@
                                 <div style="display:flex;grid-gap:15px">
                                     <input type="datetime-local"
                                            id="meeting-time"
-                                           name="meeting-time"
-                                           value="@DateTime.Now.ToString("s")"
                                            min="@DateTime.Now.AddYears(-1).ToString("s")"
                                            max="@DateTime.Now.AddYears(1).ToString("s")"
                                            class="form-control"
+                                           step="1"
                                            asp-for="StartTime" />
                                     <input type="datetime-local"
                                            id="meeting-time2"
-                                           name="meeting-time2"
                                            min="@DateTime.Now.AddYears(-1).ToString("s")"
                                            max="@DateTime.Now.AddYears(1).ToString("s")"
                                            class="form-control"
+                                           step="1"
                                            asp-for="EndTime" />
 
 
-                                    <div style="width:50%; display:flex;align-items:center;grid-gap:10px">
+                                    <!--<div style="width:50%; display:flex;align-items:center;grid-gap:10px">
                                         Set end time default <input type="button" value="set" class="btn btn-primary btn-sm" onclick="SetEndTime()" />
-                                    </div>
+                                    </div>-->
 
                                 </div>
                             </div>
@@ -240,7 +239,7 @@
                                 <label class=" col-form-label" for="val-skill">
                                     <h4>Link to webinar<span class="text-danger">*</span></h4>
                                 </label>
-                                <input type="url" asp-for="LinkToWebinar" class="form-select" placeholder="Input link...">
+                                <input type="text" asp-for="LinkToWebinar" class="form-select" placeholder="Input link...">
                             </div>
 
                             <div id="arrivedStudentsList">

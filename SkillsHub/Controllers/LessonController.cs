@@ -261,20 +261,20 @@ public class LessonController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(Lesson item)
     {
-
+        int duration = 40;
         if (item.GroupId.HasValue)
         {
             var group = await _groupService.GetAsync(item.GroupId.Value) ?? throw new Exception("Group not found");
-            var duration = group.LessonType.LessonTimeInMinutes;
+            duration = group.LessonType.LessonTimeInMinutes;
 
             ViewBag.grId = group.Id;
-            ViewBag.GroupId = _context.Groups.FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(item.GroupId.Value));
+            ViewBag.GroupId = await _context.Groups.FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(item.GroupId.Value));
 
         }
         try
         {
-            if (item.StartTime == DateTime.MinValue || item.StartTime.Year < DateTime.Now.Year - 10) throw new Exception("Not correct date");
-            if (item.EndTime == DateTime.MinValue || item.EndTime.Year < DateTime.Now.Year - 10) throw new Exception("Not correct date");
+            if (item.StartTime.Year < DateTime.Now.Year - 1 || item.StartTime.AddMinutes(duration) > item.EndTime) throw new Exception("Not correct date");
+            if (item.EndTime.Year < DateTime.Now.Year - 1) throw new Exception("Not correct date");
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View("Item", item); }
 
@@ -283,24 +283,26 @@ public class LessonController : Controller
         var gr = new Group() { Id = lastLessonValue.Group.Id };
         _context.Entry(lastLessonValue.Group).State = EntityState.Detached;
 
-
-        if(lastLessonValue != null &&lastLessonValue.StartTime != item.StartTime && lastLessonValue.EndTime != item.EndTime)
-        {
-            await _notificationService.СreateToEditLesson(lastLessonValue, item, null, 1);
-            await _context.SaveChangesAsync();
-        }
-
-
-        item.Group = gr;
+        bool editedTime = lastLessonValue != null && lastLessonValue.StartTime != item.StartTime && lastLessonValue.EndTime != item.EndTime;
+        
+            item.Group = gr;
         _context.Entry(item.Group).State = EntityState.Unchanged;
         _context.Lessons.Update(item);
         await _context.SaveChangesAsync();
 
+
+        if (editedTime)
+        {
+            await _notificationService.СreateToEditLesson(lastLessonValue, item, null, 1);
+            await _context.SaveChangesAsync();
+            //return RedirectToAction("Edit", "Request", new {item = lastLessonValue });
+        }
         //await _lessonService.UpdateStudentsByLesson(item, studentId.ToList());
 
 
         return RedirectToAction("Item", "Group", new { id = lastLessonValue.Group.Id });
     }
+
 
     [HttpPost]
     public async Task SaveStudentsByLesson(Guid[] visitStudent, Guid[] passedStudent, Guid lessonId)
