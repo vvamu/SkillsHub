@@ -95,12 +95,12 @@
                                                         
                                                         @if (teacherLessons[i].Teacher == null || teacherLessons[i].Teacher.ApplicationUser.Id != Model.user.Id)
                                                         {
-                                                            <div style="color:red" title="Lesson will visit another teacher">@teacherLessons[i].StartTime.ToShortDateString()</div>
+                                                            <div style="color:red" title="Lesson will visit another teacher;  ">@teacherLessons[i].StartTime.ToShortDateString()</div>
 
                                                         }
                                                         else
                                                         {
-                                                            <div style="color:whitesmoke">@teacherLessons[i].StartTime.ToString() <br/> @teacherLessons[i].StartTime.ToShortTimeString()</div>
+                                                        <div title=" @teacherLessons[i].StartTime.ToShortTimeString()">@teacherLessons[i].StartTime.ToShortDateString() <br /></div>
                                                         }
                                                         
                                                        

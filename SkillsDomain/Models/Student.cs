@@ -21,58 +21,11 @@ public class Student : BaseEntity
     public string? WorkingDays { get; set; }
 
     [NotMapped]
-    public decimal CurrentCalculatedPrice
-    {
-        get
-        {
-            decimal res = 0;
-            if (this.Groups == null || this.Groups.Count() == 0) return res;
+    public decimal CurrentCalculatedPrice {  get; set; }
 
-
-            foreach (var group in this.Groups.Select(x=>x.Group))
-            {
-                decimal pricePerLesson = 0;
-                if (group.LessonType == null) continue;
-                pricePerLesson = group.LessonType.StudentPrice;
-                int countPaidLessons = 0;
-                foreach (var lesson in group.Lessons.Where(x => x.ArrivedStudents.Select(x=>x.Id).Contains(this.Id)))
-                {
-                    if (lesson.IsСompleted)
-                        countPaidLessons++;
-                }
-                res += pricePerLesson * countPaidLessons;
-
-            }
-            return res;
-        }
-    }
 
     [NotMapped]
-    public decimal TotalCalculatedPrice
-    {
-        get
-        {
-            decimal res = 0;
-            if (this.Groups == null || this.Groups.Count() == 0) return res;
-
-
-            foreach (var group in this.Groups.Select(x => x.Group))
-            {
-                decimal pricePerLesson = 0;
-                if (group.LessonType == null) continue;
-                pricePerLesson = group.LessonType.StudentPrice;
-                int countPaidLessons = 0;
-                foreach (var lesson in group.Lessons.Where(x => x.ArrivedStudents.Select(x => x.Id).Contains(this.Id)))
-                {
-                    if (lesson.IsСompleted)
-                        countPaidLessons++;
-                }
-                res += pricePerLesson * countPaidLessons;
-
-            }
-            return res;
-        }
-    }
+    public decimal TotalCalculatedPrice { get; set; }
 
     [NotMapped]
     public List<Lesson> VisitedLessons

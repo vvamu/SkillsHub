@@ -28,7 +28,10 @@ public class GroupService: IGroupService
 
     #region Get
     public IQueryable<Group> GetAll() => _context.Groups
-        .Include(x => x.Lessons).Include(x => x.CourseName).Include(x => x.LessonType)
+        .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+        .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x=>x.ApplicationUser)
+
+
         .Include(x => x.GroupStudents).ThenInclude(x=>x.Student).ThenInclude(x => x.ApplicationUser)
         .Include(x => x.GroupStudents)//.ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
         //.Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x=>x.L)
@@ -40,6 +43,11 @@ public class GroupService: IGroupService
     public async Task<Group> GetAsync(Guid id)
     {
         var groups = await _context.Groups
+            .Include(x=>x.Lessons)
+            .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
+
+
             .Include(x => x.Lessons).Include(x => x.CourseName).Include(x => x.LessonType)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group)
             .Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x=>x.ApplicationUser)
