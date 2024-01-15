@@ -1,7 +1,10 @@
 ﻿@using SkillsHub.Domain.BaseModels;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
 @model List<Lesson>;
 @{
-var lessons = @Model;
+    var lessons = @Model;
+    _context.Groups.ToList();
+    _context.LessonTypes.ToList();
 }
 @{
 if (lessons.Count == 0)
@@ -113,14 +116,18 @@ else
                                                             @if (User.IsInRole("Admin"))
                                                             {
                                                                 <p>
-                                                                    Result price for teacher: ?
-                                                                    Result price for admin: ?
+                                                                    Result price for student: @item.Group.LessonType.StudentPrice BYN
+                                                                    <br/>
+                                                                    Result price for teacher: @item.Group.LessonType.TeacherPrice BYN
+                                                                    <br/>
+                                                                    Result price for admin: @(item.Group.LessonType.TeacherPrice - (item.Group.LessonType.StudentPrice * item.ArrivedStudents.Count())) BYN
                                                                 </p>
                                                             }
                                                             @if (User.IsInRole("Teacher"))
                                                             {
+
                                                                 <p>
-                                                                    Result price for teacher: ?
+                                                                    Result price for teacher: @item.Group.LessonType.TeacherPrice BYN
                                                                 </p>
                                                             }
                                                         </div>

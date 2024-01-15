@@ -10,5 +10,6 @@ public interface INotificationService
 	public Task<NotificationMessage> СreateToEditLesson(Lesson lastLessonValue, Lesson? lesson, List<ApplicationUser>? usersToSend, int answer = 1);
     public Task<NotificationMessage> СreateToUpdateCountLessonsInGroup(Group group, int previousCountLessons, int currentCountLessons, List<ApplicationUser>? usersToSend);
 
+    public Task<NotificationMessage> Create(string message, List<ApplicationUser> usersToSend);
 
 }

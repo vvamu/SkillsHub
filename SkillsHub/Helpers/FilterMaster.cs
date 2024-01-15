@@ -150,8 +150,6 @@ public static class FilterMaster
     {
         if (filters != null)
         {
-            
-
             if (!string.IsNullOrEmpty(filters.StudentWorkingDay))
             {
                 items = items.Where(x => x.UserStudent != null).Where(x => x.UserStudent.WorkingDays.Contains(filters.StudentWorkingDay));
@@ -195,11 +193,11 @@ public static class FilterMaster
             if (!string.IsNullOrEmpty(filters.FIO))
             {
                 var concatenatedUsers = items
-                    .Select(x => $"{x.UserName ?? ""} - {x.Login ?? ""} - {x.FirstName ?? ""} - {x.LastName ?? ""} - {x.Surname ?? ""}")
+                    .Select(x => $"{x.UserName.ToLower() ?? ""} - {x.Login.ToLower() ?? ""} - {x.FirstName.ToLower() ?? ""} - {x.LastName.ToLower() ?? ""} - {x.Surname.ToLower() ?? ""}")
                     .ToList();
 
                 items = concatenatedUsers
-                    .Where(u => u.Contains(filters.FIO))
+                    .Where(u => u.Contains(filters.FIO.ToLower()))
                     .Join(items, u => u, x => $"{x.UserName ?? ""} - {x.Login ?? ""} - {x.FirstName ?? ""} - {x.LastName ?? ""} - {x.Surname ?? ""}", (u, x) => x)
                     .ToList()
                     .AsAsyncQueryable();

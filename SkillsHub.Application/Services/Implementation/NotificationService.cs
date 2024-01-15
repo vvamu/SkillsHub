@@ -97,7 +97,7 @@ public class NotificationService : INotificationService
         return notification;
     }
 
-    private async Task<NotificationMessage> Create(string message, List<ApplicationUser> usersToSend)
+    public async Task<NotificationMessage> Create(string message, List<ApplicationUser> usersToSend)
     {
         var notification = new NotificationMessage() { Message = message };
         await _context.NotificationMessages.AddAsync(notification);
@@ -107,7 +107,7 @@ public class NotificationService : INotificationService
         return res;
     }
 
-    private async Task<List<ApplicationUser>> GetUsersByGroup(Group group)
+    public async Task<List<ApplicationUser>> GetUsersByGroup(Group group)
     {
 
         var usersToSend = new List<ApplicationUser>();

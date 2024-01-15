@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MailKit.Search;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.DTO;
@@ -23,9 +24,11 @@ public class AccountController : Controller
     private readonly IMapper _mapper;
     private readonly IGroupService _groupService;
     private readonly ISalaryService _salaryService;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public AccountController(IUserService userService, ICourcesService courcesService,
-        ApplicationDbContext context, IMapper mapper, IGroupService groupService, ISalaryService salaryService)
+        ApplicationDbContext context, IMapper mapper, IGroupService groupService, ISalaryService salaryService
+        ,UserManager<ApplicationUser> userManager)
     {
         _userService = userService;
         _courcesService = courcesService;
@@ -33,6 +36,7 @@ public class AccountController : Controller
         _mapper = mapper;
         _groupService = groupService;
         _salaryService = salaryService;
+        _userManager = userManager;
     }
     #region Get
 
@@ -80,9 +84,24 @@ public class AccountController : Controller
     {
         var users = await _userService.GetAllAsync();
         users = await FilterMaster.FilterUsers(users, filters,order);
+        List<ApplicationUser> list = new List<ApplicationUser>();
+
+        if(!string.IsNullOrEmpty(filters.UserRole))
+        {
+            foreach(var i in users)
+            {
+                if (!(await _userManager.IsInRoleAsync(i, filters.UserRole)))
+                    //users = users.Where(x=>x.Id !=  i.Id);
+                    list.Add(await _userService.GetUserByIdAsync(i.Id));
+            }
+
+        }
+        else
+        {
+            list = await users.ToListAsync();
+        }
         //HttpContext.Session.SetString("page", "index");
-        var ku = users.ToList();
-        return PartialView("_UsersTableList", await users.ToListAsync());
+        return PartialView("_UsersTableList", list);
     }
 
     [HttpGet]

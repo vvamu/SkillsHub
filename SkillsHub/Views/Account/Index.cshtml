@@ -11,7 +11,15 @@
     <!--**********************************
         Main wrapper start
     ***********************************-->
+    <style>
+    .search-input{
+        min-width:30px
+    }
 
+    .search-select {
+        min-width: 30px
+    }
+    </style>
 
     <div>
 
@@ -47,100 +55,117 @@
         <!-- NAVBAR - Search, Filter, Sort -->
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
-                <div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:20px">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;">
                     
-                    
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="display:flex;grid-gap:10px">
+                    <div class="row">
+                        <div class="col col-11">
+                            <div class="" style="display:flex;grid-gap:10px;flex-wrap:wrap">
 
-                        <li class="nav-item">
-                            <div class="input-group icons">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
-                                </div>
+                                <div class="nav-item">
+                                    <div class="input-group icons">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
+                                        </div>
                                
 
-                                <input type="search" onkeypress="getStudents()" id="searchByFIO" class="form-control search-input" placeholder="Search by name/username" />
-                                <div class="drop-down d-md-none">
-                                    <input type="text" class="form-control search-input" placeholder="Search">
+                                        <input type="search" onkeypress="getStudents()" id="searchByFIO" class="form-control search-input" placeholder="Search by name/username" />
+                                        <div class="drop-down d-md-none">
+                                            <input type="text" class="form-control search-input" placeholder="Search">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                            <p style="white-space:nowrap">Student cource:</p>
-                            <select class="form-control search-select courceStudent" id="courcesNames" onchange="getStudents()">
-                                <option value="" selected></option>
-                            </select>
-                        </li>
+                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                    <p style="white-space:nowrap">Role:</p>
+                                    <select class="form-control search-select userRole" id="userRole" onchange="getStudents()">
+                                        <option selected></option>
+                                        <option>Student</option>
+                                        <option>Teacher</option>
+                                    </select>
+                                </div>
 
-                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                            <p style="white-space:nowrap">Teacher cource:</p>
-                            <select class="form-control search-select courceTeacher" id="courcesNames2" onchange="getStudents()">
-                                <option value="" selected></option>
-                            </select>
-                        </li>
-                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                            <p style="white-space:nowrap">Student working day:</p>
-                            <select class="form-control search-select" id="studentDayName" name="dayName" onchange="getStudents()">
-                                <option></option>
-                                @{
-                                    var days = Enum.GetValues(typeof(DayOfWeek));
-                                    foreach(var day in days)
-                                    {
-                                        <option value="@day">@day</option>
-                                    }
-                                }
-                            </select>
-                        </li>
-                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                            <p style="white-space:nowrap">Teacher working day:</p>
-                            <select class="form-control search-select" id="teacherDayName" name="dayName" onchange="getStudents()">
-                                <option></option>
-                                @{
-                                    foreach (var day in days)
-                                    {
-                                        <option>@day</option>
-                                    }
-                                }
-                            </select>
-                        </li>
-                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                            <p style="white-space:nowrap">Deleted:</p>
-                            <select class="form-control search-select " id="search-deleted" onchange="getStudents()">
-                                <option selected>No</option>
-                                <option>Yes</option>
-                            </select>
-                        </li>
-                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                            <p style="white-space:nowrap">Order by:</p>
-                            <select class="form-control  search-select " id="sort-select" >
-                                <option value="" selected></option>
-                                @{
-                                    var i = "Sex BirthDate RegistrationDate Phone Email SourceFindCompany".Split(" ");
-                                    foreach(var a in i)
-                                    {
-                                        <option value="@a">@a</option>
-                                    }
-                                }
-                            </select>
-                        </li>
+                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                    <p style="white-space:nowrap">Student cource:</p>
+                                    <select class="form-control search-select courceStudent" id="courcesNames" onchange="getStudents()">
+                                        <option value="" selected></option>
+                                    </select>
+                                </div>
+
+                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                    <p style="white-space:nowrap">Teacher cource:</p>
+                                    <select class="form-control search-select courceTeacher" id="courcesNames2" onchange="getStudents()">
+                                        <option value="" selected></option>
+                                    </select>
+                                </div>
+                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                    <p style="white-space:nowrap">Student working day:</p>
+                                    <select class="form-control search-select" id="studentDayName" name="dayName" onchange="getStudents()">
+                                        <option></option>
+                                        @{
+                                            var days = Enum.GetValues(typeof(DayOfWeek));
+                                            foreach(var day in days)
+                                            {
+                                                <option value="@day">@day</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                    <p style="white-space:nowrap">Teacher working day:</p>
+                                    <select class="form-control search-select" id="teacherDayName" name="dayName" onchange="getStudents()">
+                                        <option></option>
+                                        @{
+                                            foreach (var day in days)
+                                            {
+                                                <option>@day</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                    <p style="white-space:nowrap">Deleted:</p>
+                                    <select class="form-control search-select " id="search-deleted" onchange="getStudents()">
+                                        <option selected>No</option>
+                                        <option>Yes</option>
+                                    </select>
+                                </div>
+                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                    <p style="white-space:nowrap">Order by:</p>
+                                    <select class="form-control  search-select " id="sort-select" >
+                                        <option value="" selected></option>
+                                        @{
+                                            var i = "Sex BirthDate RegistrationDate Phone Email SourceFindCompany".Split(" ");
+                                            foreach(var a in i)
+                                            {
+                                                <option value="@a">@a</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
                         
-                        <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                            <p style="white-space:nowrap">Order type:</p>
-                            <select class="form-control  search-select " id="sort-select-type" onchange="getStudents()">
-                                <option value="asc"  selected>↑</option>
-                                <option value="desc">↓</option>
-                            </select>
-                        </li>
+                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                    <p style="white-space:nowrap">Order type:</p>
+                                    <select class="form-control  search-select " id="sort-select-type" onchange="getStudents()">
+                                        <option value="asc"  selected>↑</option>
+                                        <option value="desc">↓</option>
+                                    </select>
+                                </div>
                         
-                        <!--
-                        <li class="nav-item">
-                            <input type="text" class="form-control search-input" placeholder="2017-06-04" id="minDate" />
-                        </li>
-                        -->
-                        <li class="nav-item" style="margin-left:10px"> <input type="button" onchange="resetSearch()" value="Reset" class="form-control btn btn-primary search" /></li>
-                        <li class="nav-item"><input type="button" onclick="getStudents()" value="Search" class="form-control btn btn-primary search" /></li>
-                            
-                    </ul>
+                                <!--
+                                <li class="nav-item">
+                                    <input type="text" class="form-control search-input" placeholder="2017-06-04" id="minDate" />
+                                </li>
+                                -->
+                       
+                            </div>
+                        </div>
+                        <div class="col">
+                        <div>
+                            <div class="nav-item"> <input type="button" onchange="resetSearch()" value="Reset" class="form-control btn btn-primary search" /></div>
+                            <div class="nav-item"><input type="button" onclick="getStudents()" value="Search" class="form-control btn btn-primary search" /></div>
+
+                        </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -195,7 +220,8 @@
                 TeachertWorkingDay: $('#teacherDayName').val(),
                 StudentPossibleCource: $('#courcesNames').val(),
                 TeacherPossibleCource: $('#courcesNames2').val(),
-                IsDeleted: $('#search-deleted').val()
+                IsDeleted: $('#search-deleted').val(),
+                UserRole: $('#userRole').val()
 
             };
             console.log("hehe")

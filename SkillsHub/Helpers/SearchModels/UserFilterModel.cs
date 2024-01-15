@@ -13,6 +13,8 @@ public class UserFilterModel
     public string? TeacherPossibleCource { get; set; }
     public string? StudentPossibleCource { get; set; }
 
+    public string? UserRole { get; set; }
+
     public string IsDeleted { get; set; }
 
 
