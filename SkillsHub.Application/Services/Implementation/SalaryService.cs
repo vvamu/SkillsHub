@@ -40,7 +40,7 @@ public class SalaryService : ISalaryService
             if (group.LessonType == null || group.Lessons == null || group.Lessons.Count() == 0) continue;
             pricePerLesson = group.LessonType.StudentPrice;
             int countPaidLessons = 0;
-            foreach (var lesson in group.Lessons.Where(x =>x.ArrivedStudents != null && x.ArrivedStudents.Select(x => x.Id).Contains(student.Id)))
+            foreach (var lesson in group.Lessons.Where(x =>x.ArrivedStudents != null && x.ArrivedStudents.Select(x => x.Student.Id).Contains(student.Id)))
             {
                 if (byMonth && lesson.StartTime.Month != DateTime.Now.Month) continue;
 
