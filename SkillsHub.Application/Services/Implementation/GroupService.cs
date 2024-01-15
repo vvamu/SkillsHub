@@ -166,6 +166,8 @@ public class GroupService: IGroupService
             }
             ///
             group.Lessons = lessons;
+            _context.Entry(group.Teacher).State = EntityState.Unchanged;
+            _context.Entry(group.Teacher.ApplicationUser).State = EntityState.Unchanged;
             _context.Groups.Update(group);
             await _context.SaveChangesAsync();
 

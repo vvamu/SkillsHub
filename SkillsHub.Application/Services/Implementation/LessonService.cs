@@ -120,7 +120,7 @@ public class LessonService : ILessonService
     {
         //_context.Entry(group.Lessons).State = EntityState.Unchanged;
         //var lesson2 = new Lesson() { Id = lesson.Id };
-        var students = await _context.LessonStudents.Include(x=>x.Lesson).Include(x=>x.Student).Where(x=>x.Lesson.Id == lesson.Id).ToListAsync();
+        var students = await _context.LessonStudents.Include(x=>x.Student).Where(x=>x.Lesson.Id == lesson.Id).ToListAsync();
         
         foreach (var student in students)
         {
