@@ -245,9 +245,9 @@ public class LessonController : Controller
     public async Task<IActionResult> Delete(Guid id)
     {
         var lesson = _context.Lessons.Include(x => x.Group).AsNoTracking().FirstOrDefault(x => x.Id == id) ?? throw new Exception("Lesson not found");
-        var lastLessonValue = await _context.Lessons.FirstOrDefaultAsync(x => x.Id == lesson.Id);
+        //var lastLessonValue = await _context.Lessons.FirstOrDefaultAsync(x => x.Id == lesson.Id);
 
-        await _notificationService.СreateToEditLesson(lastLessonValue, lesson, null, 1);
+        await _notificationService.СreateToEditLesson(lesson, null, null, 1);
         await _context.SaveChangesAsync();
 
         var group = lesson.Group;//await _groupService.GetAll().FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(id));

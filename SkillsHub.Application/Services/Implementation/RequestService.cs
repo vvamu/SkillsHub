@@ -98,24 +98,26 @@ public class RequestService : IRequestService
     public async Task<RequestLesson> ApplyLessonRequest(RequestLesson item, int answer = 1)
     {
         item.IsDeleted = true;
-
         
 
         if (answer > 0)
         {
-            
+            var lastLesson = new Lesson() { StartTime = item.LessonBefore.StartTime, EndTime = item.LessonBefore.EndTime, GroupId = item.LessonBefore.GroupId };
+
             await DeletePreviousRequests(item);
 
             item.LessonBefore.StartTime = item.NewStart;
             item.LessonBefore.EndTime = item.NewEnd;
 
             _context.Lessons.Update(item.LessonBefore);
+
+            await _notificationService.СreateToEditLesson(lastLesson, item.LessonBefore, null, answer);
             await _context.SaveChangesAsync();
             
         }
         
         _context.RequestLessons.Remove(item);
-        //await _notificationService.СreateToEditLesson(lastLessonValue,lesson, null,answer);
+        
         await _context.SaveChangesAsync();
         return item;
     }
@@ -126,6 +128,7 @@ public class RequestService : IRequestService
 
         if (answer > 0)
         {
+            var lastLesson = new Lesson() { StartTime = item.LessonBefore.StartTime, EndTime = item.LessonBefore.EndTime, GroupId = item.LessonBefore.GroupId };
 
             await DeletePreviousRequests(item);
 
@@ -135,6 +138,8 @@ public class RequestService : IRequestService
 
             await _context.SaveChangesAsync();
             _context.Lessons.Remove(l);
+
+            await _notificationService.СreateToEditLesson(lastLesson, item.LessonBefore, null, answer);
             await _context.SaveChangesAsync();
 
         }
@@ -170,12 +175,15 @@ public class RequestService : IRequestService
             .Include(x => x.LessonBefore).ThenInclude(x => x.Group)
             .Where(x => x.LessonBefore.Id == item.Id).ToListAsync();
 
+
+
         foreach (var i in requestLessonsByLesson)
         {
-            _context.Remove(i.Id);
+            i.LessonBefore = null;
+            _context.Remove(i);
         }
         await _context.SaveChangesAsync();
     }
 
 
-    }
+}
