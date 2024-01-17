@@ -345,6 +345,7 @@ public class LessonService : ILessonService
         var lessonsByGroup = _context.Lessons.Include(x => x.Group).Where(x => x.Group.Id == groupId).OrderBy(x => x.StartTime);
         foreach (var less in lessonsByGroup)
         {
+            if (less.Id == lesson.Id) continue;
             if (lesson.StartTime.CompareTo(less.StartTime) >= 0 && lesson.EndTime.CompareTo(less.EndTime) <= 0)
             {
                 throw new Exception("New lesson time conflicted with lesson :" + less.StartTime + " - " + less.EndTime);

@@ -101,7 +101,7 @@ else
                                                         <div>
                                                             <strong>Topic of lesson: </strong>@(item.Topic ?? "-") <br />
                                                             
-                                                            <strong>Teacher:</strong> <a asp-route-id="teacher.Id" asp-action="Item" asp-controller="Account">@if(teacher != null) {<span> @teacher.FirstName @teacher.LastName @teacher.Surname</span>} else { <span>-</span> }</a> <br />
+                                                            <strong>Teacher:</strong> <a asp-route-id="@teacher.Id" asp-action="Item" asp-controller="Account">@if(teacher != null) {<span> @teacher.FirstName @teacher.LastName @teacher.Surname</span>} else { <span>-</span> }</a> <br />
                                                             <strong>Arrived students:</strong>
                                                             @if (item.ArrivedStudents != null && item.ArrivedStudents.Count() != 0)
                                                             {

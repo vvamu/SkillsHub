@@ -105,7 +105,7 @@ public class GroupController : Controller
 
             
             if (lessonType != null && (item.DateStart < DateTime.Now.AddDays(1) 
-                && (item.GroupStudents.Count() <= lessonType.MinimumStudents || studentId.Count() >= lessonType.MaximumStudents)) || item.IsLateDateStart)
+                && (studentId.Count() >= lessonType.MaximumStudents) || item.IsLateDateStart))
             {
                 ModelState.AddModelError("", "Not correct count of students to  start group."); return View("Create", item);
             }

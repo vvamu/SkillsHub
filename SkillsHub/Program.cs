@@ -137,7 +137,7 @@ public class Program
 
         //app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-        if (!app.Environment.IsDevelopment())
+        if (app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Home/Error");
 
