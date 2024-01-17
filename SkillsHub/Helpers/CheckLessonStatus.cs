@@ -48,9 +48,11 @@ public class CheckLessonStatus
 	public async Task CheckEmptyGroup()
 	{
 		var lessons = _context.Lessons;
+		_context.Lessons.ToList();
+		_context.Groups.ToList();
 		foreach (var lesson in lessons)
 		{
-			if (lesson.EndTime < DateTime.Now)
+			if (lesson.EndTime < DateTime.Now && lesson.Group != null && !lesson.Group.IsLateDateStart)
 			{
                 lesson.IsСompleted = true;
             }

@@ -12,7 +12,14 @@
                 <!--<form><a asp-action="Item" asp-controller="Account" asp-route-id="Model.ApplicationUserId">Account</a></form>-->
                 <span>Account</span>
             </li>
-            <li class="breadcrumb-item active"><a href="javascript:void(0)">Teacher edit</a></li>
+            <li class="breadcrumb-item active"><a href="javascript:void(0)">Teacher edit</a> 
+                <label>Active</label>
+            <select asp-for="IsDeleted">
+                <option value="@true">+</option>
+                <option value="@false">-</option>
+            </select>    
+            
+            </li>
         </ol>
     </div>
 </div>
@@ -107,7 +114,38 @@
                         <div id="schedule_d" class="form-group row"></div>
                     </div>
                     <div class="form-group row">
-                        <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Teachers" value="Submit" /> </div>
+                        <div class="col-lg-8 ml-auto"> </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="card">
+                            <div class="card-body">
+                                <div>
+                                    <div>
+                                        <h2>Payment</h2>
+                                        <hr />
+
+                                        <div class="container-fluid">
+                                            @{
+                                                if (User.IsInRole("Admin"))
+                                                {
+                                                    <input class="form-control" asp-for="PaidAmount" min="0" /> <label>BYN</label>
+                                                }
+                                                else if (Model.Id != Guid.Empty)
+                                                {
+                                                    <input class="form-control" asp-for="PaidAmount" min="0" disabled /> <label>BYN</label>
+                                                }
+                                            }
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Submit" asp-controller="Student" value="Submit" /> </div>
+                                        </div>
+
+                                    </div><!-- <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>-->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

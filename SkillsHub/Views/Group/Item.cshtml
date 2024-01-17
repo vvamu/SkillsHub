@@ -24,14 +24,22 @@
                     <div class="card">
                         <div class="card-body">
 
-                           
+
                             <div style="display:flex;justify-content:space-between">
-                                <h2 style="margin-bottom:5%">Group </h2>
+                                <h2 style="margin-bottom:5%">Group </h2>  
+                                @if (Model.IsDeleted)
+                                {
+                                    <span>Not active</span>
+                                }
                                 @if(User.IsInRole("Admin"))
                                 {
                                     <div>
+                                        
                                     <input type="submit" asp-action="Delete" asp-controller="Group" asp-route-id="@Model.Id" value="x" class="btn btn-outline-danger" title="The group can be restored" />
-                                    <input type="submit" asp-action="HardDelete" asp-controller="Group" asp-route-id="@Model.Id" value="x" class="btn btn-danger" title="Full delete with lessons" />
+                                        
+                                    <!--
+                                    <input type="submit" asp-action="HardDelete" asp-controller="Group" asp-route-id="Model.Id" value="x" class="btn btn-danger" title="Full delete with lessons" />
+                                        -->
                                     </div>
                                 }      
                             </div>
@@ -207,31 +215,38 @@
                             </form>
                         </div>
                     }
-
+                    
                     @if (User.IsInRole("Admin"))
                     {
+                        var countEndedLessons = Model.Lessons.Where(x => x.IsСompleted).Count();
+                        var countLessons = Model.Lessons.Count();
+                        var priceByEndedLessons = Model.LessonType.TeacherPrice * countEndedLessons;
+                        var priceByLessons = Model.LessonType.TeacherPrice * countLessons;
+                        var lessonStudents = Model.Lessons.Where(x => x.IsСompleted && x.ArrivedStudents != null).SelectMany(x => x.ArrivedStudents).Count();
+
                         <div class="card">
                             <div class="card-body">
-                                <h4>Bills</h4>
+                                <h4>Bills per cource</h4>
                                 <div class="col">
 
                                     <div class="form-group" style="display:flex">
-                                        <span>Current Teacher salary : ?  |  </span>
-                                        <span>Full Teacher salary : ?</span>
+                                        <span>Current Teacher salary : @(Model.LessonType.TeacherPrice * countEndedLessons) BYN |  </span>
+                                        <span>Full Teacher salary :  @(Model.LessonType.TeacherPrice * countLessons) BYN</span>
                                     </div>
 
                                     <div class="form-group">
-                                        <span>Current Students money : ?  |  </span>
-                                        <span>Full Students money : ?</span>
+                                        <span>Current Students price : @(Model.LessonType.StudentPrice * lessonStudents) BYN  |  </span>
+                                        <span>Min/Max Students price :  @(Model.LessonType.StudentPrice * Model.LessonType.MinCountLessons)/ @(Model.LessonType.StudentPrice * Model.LessonType.MaximumStudents) BYN</span>
                                     </div>
 
                                     <div class="form-group">
-                                        <span>Current difference : ?  |  </span>
-                                        <span>Full difference : ?</span>
+                                        <span>Current difference :  @((Model.LessonType.TeacherPrice * countEndedLessons) - (Model.LessonType.StudentPrice * lessonStudents)) BYN |  </span>
+                                        <span>Min/Max difference : @((Model.LessonType.TeacherPrice * countLessons) - (Model.LessonType.StudentPrice * Model.LessonType.MinCountLessons))/@((Model.LessonType.TeacherPrice * countLessons) - (Model.LessonType.StudentPrice * Model.LessonType.MaximumStudents)) BYN</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        
                     }
 
                 </div>

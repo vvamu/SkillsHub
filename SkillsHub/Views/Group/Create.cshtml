@@ -1,48 +1,23 @@
 ﻿@using SkillsHub.Application.DTO;
 @using SkillsHub.Domain.Models;
 @model Group;
-
-
 <!-- Модальное окно -->
-
-
-<style>
-    input:valid {
-        border: 2px solid green;
-    }
-
-    input:invalid {
-        border: 2px solid red;
-    }
-
-        input:invalid:required {
-            background-color: #d2d2d2;
-        }
-</style>
-            
-
-                    
-                            <form class="mt-1 mb-5 login-input" method="post">
-
-
+<form class="mt-1 mb-5 login-input" method="post">
     <div class="container-fluid">
         <div class="row">
             <div class="col">
                 <div class="card">
                     <div class="card-body">
-                         @if(Model != null)
+                        @if (Model != null)
                         {
                             <h2>Edit group</h2>
                             var options = new System.Text.Json.JsonSerializerOptions
                             {
                                 ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
                             };
-
                             try
                             {
-
                                 <input type="hidden" id="studentsByGroup" value="@System.Text.Json.JsonSerializer.Serialize(@ViewBag.studentsByGroup, options)" />
-
                             }
                             catch (Exception ex) { }
                         }
@@ -50,115 +25,95 @@
                         {
                             <h2>Create new group</h2>
                         }
-                       
-
-                                <div class="validation" asp-validation-summary="ModelOnly"></div>
-                                <input type="hidden" id="studentsByGroup" value=""/>
-                                
-                        
-
-
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
+                        <div class="validation" asp-validation-summary="ModelOnly"></div>
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
                                 <h4>Name<span classtext-danger">*</span></h4>
                             </label>
-                                    <input asp-for="Name" type="text" class="form-control" placeholder="For example - Morning group*" required />
-                                    <div class="validate"></div>
-                                    <div class="invalid-feedback">
-                                        Please choose a name.
-                                    </div>
-
-                                </div>
-
-                               
+                            <input asp-for="Name" type="text" class="form-control" placeholder="For example - Morning group*" required />
+                            <div class="validate"></div>
+                            <div class="invalid-feedback">
+                                Please choose a name.
+                            </div>
+                        </div>
                         <h4>Lessons count <span class="text-danger">*</span></h4>
                         <div style="display:flex;grid-gap:10px">
-                        <input class="form-control" type="number" asp-for="LessonsCount" min="1" max="50" id="lessonsCount" style="margin-right:10%"/>
-                         <div class="validate"></div>
-                        <div>
-                        <input type="checkbox" asp-for="IsUnlimitedLessonsCount" onclick="CreateUnlimitedLessons(this)"/> 
-                        <span style="color:lightseagreen">For unlimited count lessons</span>
+                            <input class="form-control" type="number" asp-for="LessonsCount" min="1" max="50" id="lessonsCount" style="margin-right:10%" />
+                            <div class="validate"></div>
+                            <div>
+                                <input type="checkbox" asp-for="IsUnlimitedLessonsCount" onclick="CreateUnlimitedLessons(this)" />
+                                <span style="color:lightseagreen">For unlimited count lessons</span>
+                            </div>
                         </div>
-                        </div>
-
                         <div class="form-group ">
                             <label class=" col-form-label" for="val-skill">
                                 <h4>Category <span class="text-danger">*</span></h4>
                             </label>
                             <select asp-for="LessonTypeId" class="form-control" id="lessonTypes"></select>
                         </div>
-
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>Cource name <span class="text-danger">*</span></h4>
-                                    </label>
-                                    <select asp-for="CourseNameId" class="form-control" id="courcesNames"></select>
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <h4>Cource name <span class="text-danger">*</span></h4>
+                            </label>
+                            <select asp-for="CourseNameId" class="form-control" id="courcesNames"></select>
+                        </div>
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <div style="display:flex">
+                                    <h4>Group with permanent staff  <span class="text-danger">*</span></h4>
+                                    (all students to all lessons)
                                 </div>
-
-                                
-
-                                @*<div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                        Teacher <span class="text-danger">*</span>
-                                    </label>
-
-                                    <select class="form-control" id="requiredTeachers"></select>
-                                </div>*@
-
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <div style="display:flex"><h4>Teacher  <span class="text-danger">*</span></h4> (from All Teachers)</div>
-                                    </label>
-
-                                    <select asp-for="TeacherId" class="form-control" id="allTeachers" onclose="getTeachers()"></select>
+                            </label>
+                            <select asp-for="IsPermanentStaffGroup" class="form-control">
+                                <option value="@false">No</option>
+                                <option value="@true">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <div style="display:flex">
+                                    <h4>Teacher  <span class="text-danger">*</span></h4>
+                                    (from All Teachers)
                                 </div>
-
-                                <!--
-                                                <div class="form-group ">
-                                                    <label class=" col-form-label" for="val-skill">
-                                                        Online/Offline (delete)<span class="text-danger">*</span>
-                                                    </label>
-                                                    <select name="Term" asp-for="Term" class="form-control" id="val-skill">
-                                                        <option value="Online" >Online</option>
-                                                        <option value="Offline" selected>Offline</option>
-                                                    </select>
-                                </div>-->
-
-
-
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                      <div style="display:flex"><h4>Students<span class="text-danger">*</span></h4> <p>(from All Students)</p></div>
-                                    </label>
-                                    <ul id="studentsList" class="list-group col"></ul>
+                            </label>
+                            <select asp-for="TeacherId" class="form-control" id="allTeachers" onclose="getTeachers()"></select>
+                        </div>
+                        <!--
+                           <div class="form-group ">
+                               <label class=" col-form-label" for="val-skill">
+                                   Online/Offline (delete)<span class="text-danger">*</span>
+                               </label>
+                               <select name="Term" asp-for="Term" class="form-control" id="val-skill">
+                                   <option value="Online" >Online</option>
+                                   <option value="Offline" selected>Offline</option>
+                               </select>
+                           </div>-->
+                        <div>
+                            <label class=" col-form-label" for="val-skill">
+                                <div style="display:flex">
+                                    <h4>Students<span class="text-danger">*</span></h4>
+                                    <p>(from All Students)</p>
                                 </div>
-
-                                <div class="form-group ">
-                                    <ul id="courcesList" class="list-group col" ></ul>
-                                  
-                                </div>
+                            </label>
+                            <ul id="studentsList" class="list-group col"></ul>
+                        </div>      
+                        <div class="form-group ">
+                            <ul id="courcesList" class="list-group col"></ul>
+                        </div>
                     </div>
                 </div>
             </div>
-
             <div class="col">
-                
                 <div class="row card">
                     <div class="card-body">
-
-
                         <div style="display:flex; justify-content:space-between">
-                        <h3>Schedule</h3>
+                            <h3>Schedule</h3>
                             <input type="button" value="+" onclick="CreateScheduleDay()" class="btn btn-outline-danger" />
                         </div>
-                                <div id="schedule_d" class="form-group row">
-
+                        <div id="schedule_d" class="form-group row">
                             <div class="card-body">
                                 <label>Date start group</label>
-                                
                             </div>
-
-
                             <div style="display:flex;grid-gap:10px">
                                 <input asp-for="DateStart" class="form-control" type="date" id="CreateLateDateStart" />
                                 <div class="validate"></div>
@@ -167,60 +122,28 @@
                                     <span style="color:lightseagreen">For late date start</span>
                                 </div>
                             </div>
-
-
-                                    @if(Model != null && Model.DaySchedules != null)
-                            {
-                                <h4>Current schedule:</h4>
-                            
-                            @foreach (var ds in Model.DaySchedules)
-                            {
-                                    var duration = ds.WorkingEndTime - ds.WorkingStartTime;
-                                    var numDuration = duration.Value;
-                                    numDuration = numDuration > TimeSpan.Zero ? numDuration : TimeSpan.Zero;
-                                    var numDuration2 = (int)numDuration.TotalMinutes;
-
-                                    <div class="card-body">
-                                        <label>Day name</label>
-                                        <select asp-for="@ds.DayName" class="form-control" name="dayName">
-                                            <option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
-                                        </select>
-                                        <label>Start time</label><input class="form-control" asp-for="@ds.WorkingStartTime" type="time" name="startTime" placeholder="Enter..." />
-                                        <label>Duration (in minutes)</label><input class="form-control" value="@numDuration2" type="number" name="duration" placeholder="Enter..." />
-                                        <button class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>
-                                        </div>
-
-                                
-                            }
-                            }
-
-                            <hr/>
-                                   
-
-                                </div>
-
-                        <div  style="display:flex; justify-content:space-between">
+                            <hr />
+                        </div>
+                        <div style="display:flex; justify-content:space-between">
                             <!--
-                            <input type="button" onclick="CheckSchedule()" class="btn login-form__btn submit w-100" value="Check schedule"/>
-                            -->
-                            @if(User.IsInRole("Admin"))
+                               <input type="button" onclick="CheckSchedule()" class="btn login-form__btn submit w-100" value="Check schedule"/>
+                               -->
+                            @if (User.IsInRole("Admin"))
                             {
-                                @if(Model != null)
+                                @if (Model != null)
                                 {
                                     <input type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100" value="Edit group" />
-
                                 }
                                 else
                                 {
                                     <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" onclick="CheckCorrect()" value="Create new group" />
                                 }
                             }
-                            @if(User.IsInRole("Teacher"))
+                            @if (User.IsInRole("Teacher"))
                             {
                                 @if (Model != null)
                                 {
                                     <input type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100" value="Request to edit group" />
-
                                 }
                                 else
                                 {
@@ -228,107 +151,33 @@
                                 }
                             }
                         </div>
-                               
-                                               
-                            </div>
-                        </div>
-
-                         <div class="row card">
-                    <div class="card-body">
-                        <div id="checkSchedule"></div>
                     </div>
                 </div>
+                <!--
+                   <div class="card-body">
+                       <div id="checkSchedule"></div>
+                   </div>
+                           --->
             </div>
-
-
-
-
         </div>
     </div>
-                                            </form>
-
-
-<!-- AJAX
-
-    var dataRet = new Array();
-    var ddd;
-    function getDataByAjax(passedUrl) {
-
-        $.ajax({
-            url: passedUrl,
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-
-
-                data = JSON.parse(data);
-
-                if (Array.isArray(data)) {
-                    dataRet = data;
-                    console.log("getDataByAjax")
-                    console.log(dataRet);
-                    return data;
-                }
-
-
-            },
-            error: function () {
-                 console.log("ERROR AJAX - " + passedUrl)
-            }
-
-        }).then(function (result) {
-            //dataRet = data;
-            console.log("getDataByAjax2")
-            console.log(dataRet);
-
-            return dataRet;
-        })
-        console.log("getDataByAjax3")
-
-        return dataRet;
-
-    }
-
-
-
-var studentsList = $("#studentsList");
-studentsList.empty();
-
-var data = getDataByAjax("/Student/GetStudentListAsync");
-
-console.log("getStudentsList");
-console.log(data);
--->
-
-
-
+</form>
 <!--
-    <script src="~/plugins/common/common.min.js"></script>
+   <script src="~/plugins/common/common.min.js"></script>
 
-<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
-<script src="~/plugins/jquery/jquery.min.js"></script>
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+   <script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
+   <script src="~/plugins/jquery/jquery.min.js"></script>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
 
 
--->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
-
-
-<FilesMatch "\.(ttf|otf|eot|woff)$">
-      <IfModule mod_headers.c>
-        Header set Access-Control-Allow-Origin "*"
-      </IfModule>
-    </FilesMatch>
-
+   -->
 <script>
-
     function CreateUnlimitedLessons(inp) {
         var checkbox = inp;
         var lessonsCountInput = document.querySelector('#lessonsCount');
@@ -351,7 +200,7 @@ console.log(data);
         } else {
             lessonsCountInput.disabled = false;
         }
-    
+
     }
 
     function CreateScheduleDay() {
@@ -363,53 +212,43 @@ console.log(data);
         //elementValue += '<label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />'
         elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>'
         elementValue += '</div></div>';
-        elementValue += '<hr/>'
+        elementValue += '<hr/></div>'
         div.innerHTML = elementValue;
         schedule.appendChild(div);
     }
-    function RemoveScheduleDay(btn){
+    function RemoveScheduleDay(btn) {
         let parent = btn.parentElement;
+        parent = parent.parentElement;
+        parent = parent.parentElement;
+
         parent.remove();
     }
 
-    
     function getStudentsList() {
 
         var studentsList = $("#studentsList");
         studentsList.empty();
 
-        
+
         var studentsByGroup;
         var studentsIds;
-        /*
-        if ($("#studentsByGroup") != null && $("#studentsByGroup").val() != undefined) {
-
-            studentsByGroup = JSON.parse($("#studentsByGroup").val());
-            console.log("studentsByGroup");
-            console.log(studentsByGroup);
-            studentsIds = studentsByGroup.map(function (student) {
-                return student.Id;
-            });
-        }
-        */
-
 
         $.ajax({
             url: "/Student/GetStudentListAsync",
             type: "GET",
             dataType: "json",
-          
-            success: function (data) {
-                console.log("students")
 
-                console.log(data);
+            success: function (data) {
+                //console.log("students")
+
+                //console.log(data);
                 data = JSON.parse(data);
-                
+
                 if (Array.isArray(data)) {
-                    console.log(data);
+                    //console.log(data);
                     data.forEach(function (item, i, arr) {
                         var user = item.ApplicationUser;
-                        studentsList.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
+                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
 
                         var appendedLine = "<li class='list-group-item'>";
 
@@ -419,7 +258,7 @@ console.log(data);
                         else
                             appendedLine += "<input type='checkbox' name='studentId'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
 
-                        appendedLine += user.FirstName + " " + user.LastName + " " + user.Surname;
+                        appendedLine += user.FirstName + " " + user.LastName + " " + user.Surname + "(" + user.Age + "years)";
                         appendedLine += "</li>"
 
                         studentsList.append(appendedLine);
@@ -434,7 +273,7 @@ console.log(data);
 
         var studentsList = $("#courcesNames");
 
-        
+
         var teacherId;
         /*
         try {
@@ -451,11 +290,12 @@ console.log(data);
         */
 
         $.ajax({
-            url: "/Cource/GetCourcesNamesAsync?IsDeleted=false",
+            url: "/Cource/GetCourcesNamesAsync",
             type: "GET",
             dataType: "json",
             success: function (data) {
                 data = JSON.parse(data);
+                console.log(data);
                 if (Array.isArray(data)) {
 
 
@@ -488,18 +328,18 @@ console.log(data);
     function getLessonTypesList() {
 
         var studentsList = $("#lessonTypes");
-                var teacherId;
+        var teacherId;
 
-                /*
-        try { 
-        if (Model != null && Model.LessonType != null) {
+        /*
+    try {
+    if (Model != null && Model.LessonType != null) {
 
-            teacherId = Model.LessonType.Id.ToString();//JSON.parse($("#studentsByGroup").val()).Id;
-            console.log("LessonType");
-            console.log(teacherId);
-        }
-        } catch (e) => console.log(e);
-        */
+    teacherId = Model.LessonType.Id.ToString();//JSON.parse($("#studentsByGroup").val()).Id;
+    console.log("LessonType");
+    console.log(teacherId);
+    }
+    } catch (e) => console.log(e);
+    */
         $.ajax({
             url: "/Cource/GetLessonTypesAsync",
             type: "GET",
@@ -507,23 +347,19 @@ console.log(data);
             success: function (data) {
                 data = JSON.parse(data);
                 if (Array.isArray(data)) {
-
+                    console.log("efwerf");
+                    console.log(data);
 
                     data.forEach(function (item, i, arr) {
-                        studentsList.append("<input type='hidden' name='itemId'  value='"+item.Id+"'/>");
+                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
 
-                        var appendedLine = ""; 
+                        var appendedLine = "";
+                    
+                        appendedLine += "<option class='list-group-item' value='" + item.Id + "'>" + item.Name;
 
-                        if (teacherId != undefined && teacherId == item.LessonType.Id)
-                            appendedLine += "<option class='list-group-item' selected  value='" + item.Id + "'>" + item.Name;
-                        else
-                            appendedLine += "<option class='list-group-item' value='" + item.Id + "'>" + item.Name;
-
-
-                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-                        //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += " (MinumumLessonsToPay:" + item.MinumumLessonsToPay + "; LessonTimeInMinutes:" + item.LessonTimeInMinutes + "; Students to start: " + item.MinimumStudents + "..." + item.MaximumStudents + ")"
-                            appendedLine += "</option>"
+                        
+                        appendedLine += " (MinumumLessonsToPay:" + item.MinumumLessonsToPay + "; LessonTimeInMinutes:" + item.LessonTimeInMinutes + "; Min/Max count students: " + item.MinimumStudents + "/" + item.MaximumStudents + ")"
+                        appendedLine += "</option>"
 
                         studentsList.append(appendedLine);
                     })
@@ -534,11 +370,11 @@ console.log(data);
                 }
             }
         });
-        
+
     }
-    
-    function getTeachers() { 
-    
+
+    function getTeachers() {
+
         var requiredTeachers = $("#allTeachers");
         //requiredTeachers.val() = "";
         requiredTeachers.empty();
@@ -575,7 +411,7 @@ console.log(data);
 
                         requiredTeachers.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
 
-                        if (teacherId != undefined &&  item.Teacher.Id == teacherId)
+                        if (teacherId != undefined && item.Teacher.Id == teacherId)
                             var appendedLine = "<option class='list-group-item' selected name='teacherValue' value='" + item.Id + "'>";
 
                         else
@@ -594,12 +430,9 @@ console.log(data);
         });
     }
 
-    function CheckSchedule()
-    {
+    function CheckSchedule() {
         var checkSchedule = $("#checkSchedule");
         checkSchedule.empty();
-
-
 
     }
 

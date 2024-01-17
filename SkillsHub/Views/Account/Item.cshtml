@@ -154,8 +154,9 @@
                     @await Html.PartialAsync("_UserStudentInfo", Model)
                 </div>
 
-                <div>
-                    @await Html.PartialAsync("_UserTeacherInfo", Model)
+                <div>                   
+                        @await Html.PartialAsync("_UserTeacherInfo", Model)
+                    
                 </div>
 
 
@@ -167,19 +168,31 @@
             <div class="col-lg-6 col-xl-8">
                 <nav class="navbar navbar-expand-lg bg-light">
                     <div class="container-fluid">
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <div class=" navbar-collapse" id="navbarSupportedContent">
+                            <ul style="display:inline-flex">
                                 <li class="nav-item">
-                                    <a type="button" class="nav-link active" onclick="getAllGrops()" style="color:cornflowerblue">All</a>
+                                    <a type="button" class="nav-link active my-link" onclick="getAllGrops()" style="color:cornflowerblue">All</a>
                                     
                                 </li>
-                                 <li class="nav-item">
-                                    <a type="button" class="nav-link" onclick="GetTeacherGroupsByUser()" style="color:cornflowerblue">Teacher</a>
-                                    
-                                </li>
-                                <li class="nav-item">
-                                    <a type="button" class="nav-link" onclick="GetStudentGroupsByUser()" style="color:cornflowerblue">Student</a>
+                                @if (Model.UserTeacher != null)
+                                {
+                                    <li class="nav-item">
+                                        <a type="button" class="nav-link my-link" onclick="GetTeacherGroupsByUser()" style="color:cornflowerblue">Teacher</a>
+                                    </li>
+                                }
+                                @if(Model.UserStudent!= null)
+                                {
+                                    <li class="nav-item">
+                                        <a type="button" class="nav-link my-link" onclick="GetStudentGroupsByUser()" style="color:cornflowerblue">Student</a>
 
+                                </li>                                    
+                                }
+                                <li>
+                                    <select class="form-select" id="filterGroup">
+                                        <option></option>
+                                        <option value="Yes">Completed</option>
+                                        <option value="No">Current</option>
+                                    </select>
                                 </li>
                             </ul>
                         </div>
@@ -233,22 +246,29 @@
                         </div>
                     </div>
                 </div>
-                <div id="teacherGroups">
 
-                    <div class="d-flex justify-content-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+
+                <div>
+
+
+                  
+
+                        <div id="teacherGroups">
+
+                            <div class="d-flex justify-content-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
+                     
 
                 
                    
 
             
             
-                    <!--
+                    
                         <div class="card">
                                 <div class="card-body">
                                     <div class="media media-reply">
@@ -268,60 +288,7 @@
                         </div>
                         </div>
                         </div>
-                    -->
-
-                    <!--BEAUTIFUL CARDS -->
-                    
-                    <!--
-                        <div class="card">
-                            <div class="card-body">
-                                    <div style="display:flex;justify-content:space-between">
-                                        <h3>Групповые занятия. Курс - Speaking Club</h3>
-                                        <div>
-                                            <h5>3 из 5 занятий - 300 BYN</h5>
-                                        </div>
-                                    </div>
-                                    <p>02.11 - 12.11 - Чт, Пт</p>
-                                    <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
-                                        for(int i = 0;i<5;i++)
-                                        {
-                                            <div>
-                                            <div>02.11</div>
-                                            <input type="checkbox" style="margin:10px" />
-                                            </div>
-                                        }
-                                    </div>
-                            </div>
-                        -->
-
-                            <!--
-                        </div>
-                            <div class="card">
-                                <div class="card-body">
-                                    <div style="display:flex;justify-content:space-between">
-                                        <h3>Индивидуальные занятия. Курс - Speaking Club</h3>
-                                        <div>
-                                            <h5>Ученик: Бичун Надежда - 10 лет</h5>
-                                            <h5>3 из 5 занятий - 300 BYN</h5>
-                                        </div>
-                                    </div>
-                                    <p>02.11 - 12.11 - Чт, Пт</p>
-                                    <div style="margin:20px;align-items:center;display:flex;grid-gap:20px">
-                                        for (int i = 0; i < 2; i++)
-                                        {
-                                            <div>
-                                                <div>02.11</div>
-                                                <input type="checkbox" style="margin:10px" />
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-
-                            </div>
-                    -->
-                    
-                    
-
+                  
 
                 <!--
             <div class="card">
@@ -404,204 +371,50 @@
     <!-- #/ container -->
 </div>
 
-
-<!-- Модальное окно для добавления группы учителю  -->
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="staticBackdropLabel">Записать на курс</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-            </div>
-            <form class="mt-1 mb-5 login-input" method="post">
-            <div class="modal-body">
-                <div class="login-form-bg h-100">
-                    <div class="container h-100">
-                        <div class="row justify-content-center h-100">
-                            <div >
-                                <div class="form-input-content">
-                                    <div class=" login-form mb-0">
-                                        <div >
-                                            
-                                                <div class="validation" asp-validation-summary="ModelOnly"></div>
-                                                @if (Model.UserTeacher != null)
-                                                {
-                                                    <input type="hidden" name="teacherId" value="@Model.UserTeacher.Id" />
-                                                }
-                                                @if(Model.UserStudent != null)
-                                                {
-                                                    <input type="hidden" name="userId" value="@Model.UserStudent.Id" />
-                                                }
-
-                                                <!--
-                                                <div class="form-group">
-                                                    <input type="text" class="form-control" placeholder="Name*" required>
-                                                    <p>Generated by cource name, lesson type, but you can set your value</p>
-                                                </div>
-                                                -->
-
-                                                <div class="form-group ">
-                                                        <label class=" col-form-label" for="val-skill">
-                                                            Lesson type<span class="text-danger">*</span>
-                                                            
-                                                        </label>
-                                                        <div class="" id="englishLevels">
-                                                        <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="lessonTypesSelect" name="val-skill">
-
-                                                            <option value="">Выберете одно</option>
-                                                            @if (ViewBag.LessonTypes != null)
-                                                                {
-                                                                
-                                                                    @foreach (LessonType item in ViewBag.LessonTypes)
-                                                                        {
-                                                                            <option value="@item.Name">@item.Name</option> // Групповое английский / Программирование
-                                                                            <p></p>
-                                                                        
-                                                                        }
-                                                            }
-
-                                                            </select>
-                                                        </div>
-                                                </div>
-
-                                                
-
-                                                <div class="form-group">
-                                                    <label class=" col-form-label" for="val-skill">
-                                                        Course type<span class="text-danger">*</span>
-                                                    </label>
-                                                    <div class="">
-                                                        <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="val-skill" name="val-skill">
-
-                                                            <option value="">Choose one</option>
-                                                            @if (ViewBag.CourcesNames != null) //English for Organizations
-                                                            {
-                                                                @foreach (CourseName item in ViewBag.CourcesNames)
-                                                                {
-                                                                    <option value="@item.Name">@item.Name</option>
-                                                                }
-
-                                                            }
-                                                           
-                                                        </select>
-                                                    </div>
-                                                    <div class="form-group ">
-                                                        <label class=" col-form-label" for="val-skill">
-                                                            English level<span class="text-danger">*</span>
-                                                        </label>
-                                                        <div class="" id="englishLevels">
-                                                            <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="val-skill" name="val-skill">
-
-                                                                <option value="">Choose one</option>
-                                                                @if (ViewBag.EnglishLevels != null)
-                                                                {
-                                                                    @foreach (EnglishLevel item in ViewBag.EnglishLevels) //A1
-                                                                    {
-                                                                        <option value="@item.Name">@item.Name</option>
-                                                                       
-                                                                    }
-                                                                    <option value="">-</option>
-                                                                }
-
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <!--
-                                                    <div class="form-group">
-                                                        <label class=" col-form-label" for="val-skill">
-                                                            Онлайн/Оффлайн<span class="text-danger">*</span>
-                                                        </label>
-                                                        <div class="" id="englishLevels">
-                                                            <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="val-skill" name="val-skill">
-                                                                <option value="">Выберете одно</option>
-                                                                 <option value="Online">Онлайн</option>
-                                                                 <option value="Offline">Оффлайн</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    -->
-
-                                                    <div class="form-group ">
-                                                        <label class=" col-form-label" for="val-skill">
-                                                            Group (Only for group lesson type) - сделать поиск по выбранному направлению и типу занятий и чтобы группа была неактивна!!<span class="text-danger">*</span>
-
-                                                        </label>
-                                                        <div class="">
-                                                            <select name="groupId" class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="groupsFreeList" name="val-skill">
-
-                                                                <option value="">Choоse one</option>
-                                                                <option value=""><a asp-action="Create" asp-controller="Group">Create new</a></option>
-                                                                @*   @if (ViewBag.FreeGroups != null)
-                                                                {
-
-                                                                @foreach (Group item in ViewBag.FreeGroups)
-                                                                {
-                                                                <option value="@item.Name">@item.Name - @item.ArrivedStudents.Count() из @item.CourseName.Name</option>
-                                                                // Групповое английский / Программирование
-
-                                                                }
-                                                                } *@
-
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="form-group ">
-                                                        <label class=" col-form-label" for="val-skill">
-                                                            Student (Only for individual type)<span class="text-danger">*</span>
-
-                                                        </label>
-                                                        <div class="">
-                                                            <select class="form-select form-select-lg mb-3" aria-label=".form-select-sm example" id="studentSelect" >
-
-                                                                <option value="">Choose one</option>
-
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                </div>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                    <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Cources" asp-route-id="@Model.Id">Записать</button>
-                <!---->
-            </div>
-            </form>
-        </div>
-    </div>
-    
-</div>
-
-
+    @await Html.PartialAsync("_AddTeacherToGroupModal", @Model)
 
 
 
 <script>
+
+            $(document).ready(function () {
+                $('.my-link').click(function () {
+
+                    console.log("my-link");
+                    // Remove the "active" class from all links
+                    $('.my-link').removeClass('active');
+
+                    // Add the "active" class to the clicked link
+                    $(this).addClass('active');
+                });
+            });
+
         function getAllGrops() {
-            $("#studentGroups").load("/Account/GetStudentGroupsByUser", { id: '@Model.Id' });
-            $("#teacherGroups").load("/Account/GetTeacherGroupsByUser", { id: '@Model.Id' });
+            var groupFilters = {
+            IsDeleted: $("#filterGroup").val()
+        
+        }
+
+            $("#studentGroups").load("/Account/GetStudentGroupsByUser", { id: '@Model.Id', filters: groupFilters });
+            $("#teacherGroups").load("/Account/GetTeacherGroupsByUser", { id: '@Model.Id', filters: groupFilters });
         }
 
         function GetStudentGroupsByUser() {
-            $("#studentGroups").load("/Account/GetStudentGroupsByUser", { id: '@Model.Id' });
+            var groupFilters = {
+                IsDeleted: $("#filterGroup").val()
+
+            }
+            $("#studentGroups").load("/Account/GetStudentGroupsByUser", { id: '@Model.Id', filters: groupFilters });
             $("#teacherGroups").empty();
         }
 
         function GetTeacherGroupsByUser() {
+            var groupFilters = {
+                IsDeleted: $("#filterGroup").val()
+
+            }
             $("#studentGroups").empty(); 
-            $("#teacherGroups").load("/Account/GetTeacherGroupsByUser", { id: '@Model.Id' });
+            $("#teacherGroups").load("/Account/GetTeacherGroupsByUser", { id: '@Model.Id', filters: groupFilters });
         }
 
 

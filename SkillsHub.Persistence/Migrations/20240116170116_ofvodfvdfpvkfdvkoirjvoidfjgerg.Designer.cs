@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillsHub.Persistence;
 
@@ -11,9 +12,11 @@ using SkillsHub.Persistence;
 namespace SkillsHub.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240116170116_ofvodfvdfpvkfdvkoirjvoidfjgerg")]
+    partial class ofvodfvdfpvkfdvkoirjvoidfjgerg
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -444,9 +447,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<bool>("IsLateDateStart")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsPermanentStaffGroup")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsUnlimitedLessonsCount")
                         .HasColumnType("bit");
 
@@ -468,6 +468,9 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.Property<string>("Term")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("WithPermanentStaff")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

@@ -126,7 +126,7 @@ public class UserService : IUserService
         //var dbUser = await _context.Users.Where(x => x.Id == userId).FirstOrDefaultAsync() ?? throw new Exception("User not found");
         var dbUser = user;
         if (user == null) dbUser = item.ApplicationUser;
-        var userRegisterValidator = new TeacherRegisterValidator();
+        var userRegisterValidator = new TeacherValidator();
 
         var validationResult = await userRegisterValidator.ValidateAsync(item);
         if (!validationResult.IsValid)
@@ -162,7 +162,7 @@ public class UserService : IUserService
         if (dbUser == null) dbUser = item.ApplicationUser;
         if (dbUser == null) dbUser = await GetUserByIdAsync(item.ApplicationUserId);
 
-        var userRegisterValidator = new StudentRegisterValidator();
+        var userRegisterValidator = new StudentValidator();
         var validationResult = await userRegisterValidator.ValidateAsync(item);
         if (!validationResult.IsValid)
         {
@@ -235,7 +235,7 @@ public class UserService : IUserService
     {
         //if (_context.Teachers.Any(x => x.Email == item.Email)) throw new Exception("Teacher with such email alredy exists");
         var teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == item.Id) ?? throw new Exception("Teacher not found");
-        var userRegisterValidator = new TeacherRegisterValidator();
+        var userRegisterValidator = new TeacherValidator();
         var validationResult = await userRegisterValidator.ValidateAsync(teacher);
         if (!validationResult.IsValid)
         {

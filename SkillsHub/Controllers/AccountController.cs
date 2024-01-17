@@ -12,6 +12,7 @@ using SkillsHub.Domain.BaseModels;
 using SkillsHub.Helpers;
 using SkillsHub.Helpers.SearchModels;
 using SkillsHub.Persistence;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace SkillsHub.Controllers;
 
@@ -235,7 +236,7 @@ public class AccountController : Controller
 
 
     [HttpPost]
-    public async Task<IActionResult> GetStudentGroupsByUser(Guid id)
+    public async Task<IActionResult> GetStudentGroupsByUser(Guid id, GroupFilterModel filters, OrderModel order)
     {
         var gr = _groupService.GetAll();
         List<Group> res = new List<Group>();
@@ -246,18 +247,22 @@ public class AccountController : Controller
        
         var studentGroups = _groupService.GetAll().SelectMany(x=>x.GroupStudents)
             .Where(x=>x.Student.ApplicationUser.Id == user.Id).Select(x=>x.Group).ToList();
-        foreach (var group in studentGroups)
+        
+
+        var ress = await FilterMaster.FilterGroups(studentGroups.AsQueryable(), filters, order);
+        var rerer = ress.ToList();
+
+        foreach (var group in rerer)
             res.Add(await _groupService.GetAsync(group.Id));
 
 
-        
 
         return PartialView("_StudentGroups", (user, res));
 
     }
 
     [HttpPost]
-    public async Task<IActionResult> GetTeacherGroupsByUser(Guid id)
+    public async Task<IActionResult> GetTeacherGroupsByUser(Guid id, GroupFilterModel filters, OrderModel order)
     {
         var gr = _groupService.GetAll();
         var user = await _userService.GetUserByIdAsync(id);
@@ -268,11 +273,14 @@ public class AccountController : Controller
         var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.Teacher.ApplicationUser.Id == id).ToList();
 
 
-        foreach (var group in teacherGroups)
-            res.Add(await _groupService.GetAsync(group.Id));
+        //foreach (var group in teacherGroups)
+        //  res.Add(await _groupService.GetAsync(group.Id));
+
+        var ress = await FilterMaster.FilterGroups(teacherGroups.AsQueryable(), filters, order);
+        var result = ress.ToList();
 
 
-        return PartialView("_TeacherGroups", (user, teacherGroups));
+        return PartialView("_TeacherGroups", (user, ress.ToList()));
 
     }
 

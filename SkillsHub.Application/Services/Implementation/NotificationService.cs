@@ -99,7 +99,11 @@ public class NotificationService : INotificationService
 
     public async Task<NotificationMessage> Create(string message, List<ApplicationUser> usersToSend)
     {
+        var admins = _userManager.GetUsersInRoleAsync("Admin").Result;
+        if (usersToSend == null) usersToSend = admins.ToList();
+
         var notification = new NotificationMessage() { Message = message };
+
         await _context.NotificationMessages.AddAsync(notification);
         await _context.SaveChangesAsync();
 

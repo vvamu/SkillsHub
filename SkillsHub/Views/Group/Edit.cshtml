@@ -80,13 +80,46 @@
                                 <h4>Category <span class="text-danger">*</span></h4>
                             </label>
                             <select asp-for="LessonTypeId" class="form-select" id="lessonTypes"  disabled="disabled">
-                               
+                              
 
                             </select>
+                            <ul>
+                                        @{
+                                            _context.LessonTypes.ToList();
+                                            int min = 0;
+                                            if (Model.LessonType != null) min = @Model.LessonType.MinCountLessons;
+
+                                    <li>Min count of students by type: @min</li>
+                                    <li>Max count of students by type: -</li>
+                                        }
+                            </ul>
                         </div>
+
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <div style="display:flex">
+                                    <h4>Group with permanent staff <span class="text-danger">*</span></h4>
+                                    (all students to all lessons)
+                                </div>
+                            </label>
+                                
+                                @if (Model.IsPermanentStaffGroup)
+                            {
+                                <select asp-for="IsPermanentStaffGroup" >
+                                    <option value="@true" selected>Yes</option>
+                                    <option value="@false">false</option>
+                                </select>
+                            }
+                            else
+                            {
+                                <select asp-for="IsPermanentStaffGroup">
+                                    <option value="@true">Yes</option>
+                                    <option value="@false" selected>false</option>
+                                    </select>
+                            }
+                         </div>
                         
-                            <li>Min count of students by type: -</li>
-                            <li>Max count of students by type: -</li>
+                            
 
                         <div class="form-group ">
                             <label class=" col-form-label" for="val-skill">
@@ -188,7 +221,7 @@
                                                     <div class="validate"></div>
                                                     <div>
                                                         <input type="checkbox" asp-for="IsLateDateStart" onclick="CreateLateDateStartFunc(this)" />
-                                                        <span style="color:lightseagreen">For late date start</span>
+                                                        <span style="color:lightseagreen">For late date start</span> 
                                                     </div>
                                                 </div>
                                         </div>
@@ -309,7 +342,7 @@
         //elementValue += '<label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />'
         elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>'
         elementValue += '</div></div>';
-        elementValue += '<hr/>'
+        elementValue += '<hr/></div>'
         div.innerHTML = elementValue;
         schedule.appendChild(div);
     }
@@ -387,7 +420,8 @@
         var studentsList = $("#courcesNames");
 
 
-        var teacherId = '@Model.CourseName.Id';
+            var teacherId = '@(Model.CourseName != null ? @Model.CourseName.Id.ToString() : "")'
+        
 
         $.ajax({
             url: "/Cource/GetCourcesNamesAsync?IsDeleted=false",
@@ -427,7 +461,8 @@
     function getLessonTypesList() {
 
         var studentsList = $("#lessonTypes");
-        var teacherId = '@Model.LessonType.Id';
+
+            var teacherId = '@(Model.LessonType != null ? Model.LessonType.ToString() : "")'
 
         $.ajax({
             url: "/Cource/GetLessonTypesAsync",
@@ -451,7 +486,7 @@
 
                         //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
                         //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += " (MinumumLessonsToPay:" + item.MinumumLessonsToPay + "; LessonTimeInMinutes:" + item.LessonTimeInMinutes + ")"
+                        appendedLine += " (MinumumLessonsToPay:" + item.MinumumLessonsToPay + "; LessonTimeInMinutes:" + item.LessonTimeInMinutes + "; Min/Max count students: " + item.MinimumStudents + "/" +  item.MaximumStudents + ")"
                         appendedLine += "</option>"
 
                         studentsList.append(appendedLine);
@@ -472,7 +507,8 @@
         //requiredTeachers.val() = "";
         requiredTeachers.empty();
 
-        var teacherId = '@Model.Teacher.Id';
+            var teacherId = '@(Model.Teacher != null ? @Model.Teacher.Id.ToString() : "")'
+
         
         $.ajax({
             url: "/Teachers/GetTeachersAsync",

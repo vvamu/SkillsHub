@@ -44,9 +44,9 @@
             </nav>
             -->
             @{
-                if (studentGroups != null && studentGroups.Count() != 0)
+                if(studentGroups != null && studentGroups.Count() > 0)
                 {
-                    foreach (var item in studentGroups)
+                    @foreach (var item in studentGroups)
                     {
                         
                                 @if (item.Lessons != null)

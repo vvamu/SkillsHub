@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SkillsHub.Domain.Models;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SkillsHub.Domain.BaseModels;
@@ -36,6 +37,13 @@ public class ApplicationUser : IdentityUser<Guid>
     public bool IsVerified { get; set; } = false;
 
     public List<NotificationUser>? Notifications { get; set; }
+
+    [NotMapped]
+    public int Age { get
+        {
+            return (DateTime.Today.Year - this.BirthDate.Year);
+        }
+    }
 
 
     //public bool IsEditMode { get; set; } = false;

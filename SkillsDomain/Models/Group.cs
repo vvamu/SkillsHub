@@ -84,7 +84,7 @@ public class Group : BaseEntity
 
     public Guid TeacherId { get; set; }
 
-    public bool WithPermanentStaff { get; set; }
+    public bool IsPermanentStaffGroup { get; set; }
 
     public bool IsVerified { get; set; } = true;
 }

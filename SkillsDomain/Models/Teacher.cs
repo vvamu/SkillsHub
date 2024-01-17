@@ -13,6 +13,8 @@ public class Teacher : BaseEntity
 
     public List<CourseNameTeacher>? PossibleCources { get; set; }
 
+    public decimal PaidAmount { get; set; }
+
     [NotMapped]
     public decimal CurrentCalculatedPrice {  get; set; }
     

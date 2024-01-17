@@ -10,8 +10,7 @@ public class Student : BaseEntity
     public string? ParentName { get; set; }
     public string? ParentPhone { get; set; }
     //Payment
-    public int CountPayedLessons { get; set; }
-    //public Dictionary<int,DateTime> Payment {  get; set; }
+    public decimal PaymentAmount { get; set; }
 
     public List<CourseNameStudent>? PossibleCources { get; set; }
 
@@ -20,8 +19,10 @@ public class Student : BaseEntity
 
     public string? WorkingDays { get; set; }
 
+    #region NotMapped
+
     [NotMapped]
-    public decimal CurrentCalculatedPrice {  get; set; }
+    public decimal CurrentCalculatedPrice { get; set; }
 
 
     [NotMapped]
@@ -33,8 +34,8 @@ public class Student : BaseEntity
         get
         {
             List<Lesson> lessons = new List<Lesson>();
-            if(this.Groups == null || this.Groups.Select(x=>x.Group).Where(x=>x.Lessons != null).Count() == 0) return lessons;
-            lessons = this.Groups.Select(x => x.Group).Where(x => x.Lessons != null).SelectMany(x=>x.Lessons).Where(x=>x.IsСompleted).Where(x=>x.ArrivedStudents != null && x.ArrivedStudents.Select(x=>x.Student.Id).Contains(this.Id)).ToList();
+            if (this.Groups == null || this.Groups.Select(x => x.Group).Where(x => x.Lessons != null).Count() == 0) return lessons;
+            lessons = this.Groups.Select(x => x.Group).Where(x => x.Lessons != null).SelectMany(x => x.Lessons).Where(x => x.IsСompleted).Where(x => x.ArrivedStudents != null && x.ArrivedStudents.Select(x => x.Student.Id).Contains(this.Id)).ToList();
 
             return lessons;
         }
@@ -51,6 +52,14 @@ public class Student : BaseEntity
             return lessons;
         }
     }
+
+    [NotMapped]
+    public int CountPayedLessons { get; set; }
+
+
+    #endregion
+
+
 
 
 

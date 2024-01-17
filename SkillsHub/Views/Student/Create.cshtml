@@ -51,11 +51,16 @@
                                 @if (Model!= null && Model.Id != Guid.Empty)
                                 {
                                     <h2>Edit student</h2>
+                                    <select asp-for="IsDeleted">
+                                        <option value="@true">+</option>
+                                        <option value="@false">-</option>
+                                    </select>
                                 }
 
                                 else
                                 {
-                                    <h2>Create student</h2> 
+                                    <h2>Create student</h2>
+                                  
                                 }
                                 @if(Model!= null && Model.ApplicationUser != null)
                                 {
@@ -109,6 +114,7 @@
                 </div>
             </div>
             <div class="col">
+                <div class="row">
                 <div class="card">
                     <div class="card-body">
                         <div>
@@ -147,16 +153,49 @@
 
                             </div><!-- <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>-->
                         </div>
-                        <div id="schedule_d" class="form-group row"></div>
+                        <div id="schedule_d" class="form-group row">
+
+                            
+
+                        </div>
                     </div>
-                    <div class="form-group row">
-                        <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Student" value="Submit" /> </div>
-                    </div>
+                    
                 </div>
+                </div>
+               
+                <div class="row">
+                    <div class="card">
+                        <div class="card-body">
+                            <div>
+                                <div>
+                                    <h2>Payment</h2>
+                                    <hr />
+                                   
+                                        <div class="container-fluid">
+                                            @{
+                                                if(User.IsInRole("Admin"))
+                                            {
+                                                <input class="form-control" asp-for="PaymentAmount" min="0" /> <label>BYN</label>
+                                            }
+                                            else if(Model.Id != Guid.Empty)
+                                            {
+                                                <input class="form-control" asp-for="PaymentAmount" min="0" disabled /> <label>BYN</label>
+                                            }
+                                            }
+                                        </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Submit" asp-controller="Student" value="Submit" /> </div>
+                                    </div>
+
+                                </div><!-- <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>-->
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+            </div>
             </div>
         </div>
-    </div>
-    </div>
 </form>
 
 
@@ -237,8 +276,6 @@
         });
 
     }
-
-    
 
     $(document).ready(function () {
         $('#userType').change(function () {

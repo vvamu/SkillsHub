@@ -34,15 +34,18 @@ public class StudentController : Controller
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IGroupService _groupService;
+    private readonly INotificationService _notificationService;
 
     public StudentController(ICourcesService courcesService,
-        IUserService userService,ApplicationDbContext context, UserManager<ApplicationUser> userManager, IGroupService groupService)
+        IUserService userService,ApplicationDbContext context, UserManager<ApplicationUser> userManager, 
+        IGroupService groupService, INotificationService notificationService)
     {
         _courcesService = courcesService;
         _userService = userService;
         _context = context;
         _userManager = userManager;
         _groupService = groupService;
+        _notificationService = notificationService;
         //var items = _userService.GetAllStudentsDTOAsync().Result;
         //Reporter.ReportToXLS<Student>(items.ToArray());
     }
@@ -186,8 +189,8 @@ public class StudentController : Controller
             var possibleCourses = await _context.Students.Where(x => x.ApplicationUserId == user.Id).SelectMany(x => x.PossibleCources).ToArrayAsync();
             ViewBag.PossibleCourses = possibleCourses;
 
-
             student.ApplicationUserId = user.Id;
+            
 
             return View(student);
         }
@@ -204,24 +207,34 @@ public class StudentController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Student item, Guid[] itemValue, string[] workingDay)
-    {//itemValue = students
+    public async Task<IActionResult> Create(Student item, Guid[] itemValue, string[] workingDay) //itemValue = courceName
+    {
         var student = _context.Students.AsNoTracking().Include(x => x.ApplicationUser).FirstOrDefault(x => x.Id == item.Id);
 
-        ApplicationUser user = item.ApplicationUser;//= student.ApplicationUser  ?? new ;
+        ApplicationUser user = item.ApplicationUser;
         if (user == null) user = await _userService.GetUserByIdAsync(item.ApplicationUserId);
         if(student != null) { //user = student.ApplicationUser;
         }
 
         try
         {
-            
+             if(student.PaymentAmount != 0 && student.PaymentAmount != item.PaymentAmount && !User.IsInRole("Admin"))
+            { 
+                var message = "User in student account " + User.Identity.Name + " tryed to change payment amout from " + student.PaymentAmount + " to " + item.PaymentAmount;
+                await _notificationService.Create(message,null);
+                await _userService.SignOutAsync();
+                throw new Exception("An attempt was made to fix a field that is only accessible to the administrator. The request has been sent to the appropriate place");
+
+                //return RedirectToAction("Index", "Home");
+                
+            }
+
             if (student == null)
             {
                 student = await _userService.CreateStudentAsync(user, item);
                 item = student;
             }
-
+            
 
             item = await UpdateWorkingDays(item, workingDay);
 

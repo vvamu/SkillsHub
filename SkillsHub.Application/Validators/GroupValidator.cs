@@ -10,8 +10,12 @@ public class GroupValidator : AbstractValidator<Group>
     public GroupValidator()
     {
         RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required.");
+        RuleFor(x => x).Must(x => x.CourseName != null || x.CourseNameId != Guid.Empty).WithMessage("Cource not found");
+        RuleFor(x => x).Must(x => x.LessonType != null || x.LessonTypeId != Guid.Empty).WithMessage("Lesson type not found");
+
+
         RuleFor(x => x)
-            .Must(x => (x.IsUnlimitedLessonsCount && x.LessonsCount == 0) || (!x.IsUnlimitedLessonsCount && x.LessonsCount > 1))
+            .Must(x => (x.IsUnlimitedLessonsCount && x.LessonsCount <= 0) || (!x.IsUnlimitedLessonsCount && x.LessonsCount > 1))
             .WithMessage("Invalid lessons сount value");
 
         RuleFor(x => x)
@@ -22,6 +26,8 @@ public class GroupValidator : AbstractValidator<Group>
         RuleFor(x => x)
              .Must(x => (!x.IsVerified && x.DateStart > DateTime.Now) || (x.IsVerified))
              .WithMessage("Group can`t be started if not verified. Choose a later start time.");
+
+        
 
         //RuleFor(x => x.CourceId && x.CourseName).NotEmpty().WithMessage("Cource is required");
         //RuleFor(x => x.LessonType).NotEmpty().WithMessage("LessonType is required");

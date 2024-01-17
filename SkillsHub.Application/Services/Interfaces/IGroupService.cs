@@ -15,10 +15,10 @@ public interface IGroupService
     public Task<Group> EditAsync(Group item);
     public Task<Group> CreateAsync(Group item);
     public Task<Group> HardDeleteAsync(Guid id); //with lessons
-    public Task<Group> CreateScheduleDaysToGroup(Group item, string[] dayName, TimeSpan[] startTime, Guid[] studentIds);
+    public Task<Group> CreateScheduleDaysToGroup(Group item, string[] dayName, TimeSpan[] startTime);
     public Task<List<Lesson>> CreateLessonsBySchedule(List<WorkingDay> schedules, DateTime startDate, int countLessons,Group group, bool isVerified);
 
-    public Task<Group> UpdateStudentsInGroup(Group item, List<Guid> studentIds);
+    public Task<Group> UpdateGroupStudents(Group item, List<Guid> studentIds);
 
 
 

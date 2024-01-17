@@ -14,11 +14,12 @@ public interface ILessonService
     public Task<Lesson> GetAsync(Guid id);
 
     public Task<Lesson> Create(Lesson lesson);
+    public Task<Lesson> Edit(Lesson lesson);
+
 
     public Task DeleteLessonByGroup(Group group, Lesson lesson);
-    public Task<List<LessonStudent>> UpdateStudentsByLesson(Lesson lesson, List<Guid> studentIds);
-
-
+    public Task<List<LessonStudent>> UpdateLessonStudents(Lesson lesson, List<Guid> studentIds);
+    //public Task<LessonStudent> UpdateLessonStudent(Lesson lesson, Guid studentId);
 
    // public Task<List<LessonStudent>> CreateLessonStudents(List<Lesson> lessons, List<Guid> studentIds, Teacher teacher);
 

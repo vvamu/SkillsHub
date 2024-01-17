@@ -21,7 +21,7 @@ public class Lesson : BaseEntity
     public DateTime EndTime { get; set; }
 
     [NotMapped]
-    public int LessonTime
+    public int Duration
     {
         get
         {

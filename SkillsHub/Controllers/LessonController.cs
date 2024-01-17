@@ -67,62 +67,7 @@ public class LessonController : Controller
         //items = items.Where(x => x.Group.Id == id).Where(x => x.IsDeleted == false);
         items = await FilterMaster.GetAllLessons(items, filters, order);
 
-        /*
-        try
-        {
-            var group = await _context.Groups.Include(x=>x.Lessons).ThenInclude(x=>x.Teacher)
-                .Include(x=>x.Teacher)
-                .FirstOrDefaultAsync(x=>x.Id == id);
-
-            foreach(var item in items)
-            {
-                item.Group = group;
-                if (item.Teacher != null)
-                {
-                    item.Teacher = group.Teacher;
-                    
-                }
-                
-
-                if (!group.Lessons.Select(x=>x.Id).Contains(item.Id))
-                {
-                    if (group.Lessons != null)
-                        group.Lessons.Add(item);
-                    group.Lessons = new List<Lesson>() { item };
-
-                }
-                
-                _context.Entry(item.Group).State = EntityState.Unchanged;
-                //_context.Entry(group.Lessons).State = EntityState.Unchanged;
-                //_context.Entry(item.Teacher).State = EntityState.Unchanged;
-                _context.Lessons.Update(item);
-                //_context.Groups.Update(group);
-            }
-           
-            await _context.SaveChangesAsync();
-        }
-        catch (Exception ex){ }
-    */
-
-
-        //try
-        //{
-        //    var ii = items.ToList();
-        //    var jsonString = HttpContext.Request.QueryString.Value ?? "";
-        //    jsonString = jsonString.Substring(1); // Remove '?'
-        //    jsonString = HttpUtility.UrlDecode(jsonString);
-
-        //    var jsonObject = JObject.Parse(jsonString);
-        //    var filterModel = jsonObject["LessonFilterModel"].ToObject<LessonFilterModel>();
-        //    //var orderModel = jsonObject["LessonOrderModel"].ToObject<LessonOrderModel>();
-
-           
-
-        //}
-        //catch (Exception ex) { }
-        ////var viewName = Server.MapPath("~/Views/Group/_LessonsList.cshtml");
-        //var res = System.IO.File.Exists("_LessonsList");
-
+       
         return PartialView("_LessonsList", items.ToList());
 
         //return View();
@@ -224,8 +169,6 @@ public class LessonController : Controller
             ViewBag.GroupId = group.Id;
 
         }
-        
-        //if(_context.Lessons.FirstOrDefaultAsync(x=>x.Id == lesson.Id) != null) return RedirectToAction("Edit", new {item = lesson});
         try
         {
             await _lessonService.Create(lesson);
@@ -271,13 +214,15 @@ public class LessonController : Controller
             ViewBag.GroupId = await _context.Groups.FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(item.GroupId.Value));
 
         }
+        
         try
         {
-            if (item.StartTime.Year < DateTime.Now.Year - 1 || item.StartTime.AddMinutes(duration) > item.EndTime) throw new Exception("Not correct date");
-            if (item.EndTime.Year < DateTime.Now.Year - 1) throw new Exception("Not correct date");
+            await _lessonService.Edit(item);
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View("Item", item); }
 
+
+        #region CreateNotification
 
         var lastLessonValue = await _context.Lessons.Include(x=>x.Group).FirstOrDefaultAsync(x=>x.Id == item.Id);
         var gr = new Group() { Id = lastLessonValue.Group.Id };
@@ -285,7 +230,7 @@ public class LessonController : Controller
 
         bool editedTime = lastLessonValue != null && lastLessonValue.StartTime != item.StartTime && lastLessonValue.EndTime != item.EndTime;
         
-            item.Group = gr;
+        item.Group = gr;
         _context.Entry(item.Group).State = EntityState.Unchanged;
         _context.Lessons.Update(item);
         await _context.SaveChangesAsync();
@@ -297,13 +242,25 @@ public class LessonController : Controller
             await _context.SaveChangesAsync();
             //return RedirectToAction("Edit", "Request", new {item = lastLessonValue });
         }
-        //await _lessonService.UpdateStudentsByLesson(item, studentId.ToList());
+        #endregion
+
+        //await _lessonService.UpdateLessonStudents(item, studentId.ToList());
 
 
         return RedirectToAction("Item", "Group", new { id = lastLessonValue.Group.Id });
     }
 
+    [HttpPost]
+    public async Task ChangeArrivedStudentStatus(Guid id,  bool neededStatus)
+    {
+        var item = await _context.LessonStudents.FirstOrDefaultAsync(x => x.Id == id);
+        if (item == null) return;
+        if (neededStatus) item.IsVisit = true;
+        else item.IsVisit = false;
+        _context.LessonStudents.Update(item);
+        await _context.SaveChangesAsync();
 
+    }
     [HttpPost]
     public async Task SaveStudentsByLesson(Guid[] visitStudent, Guid[] passedStudent, Guid lessonId)
     {
@@ -327,15 +284,7 @@ public class LessonController : Controller
     public async Task<IActionResult> Item(Guid id)
     {
         var lesson = await  _lessonService.GetAsync(id);
-      
-        //ViewBag.studentsByLesson = lesson.ArrivedStudents;
-        
         ViewBag.GroupId =_context.Groups.FirstOrDefaultAsync(x=>x.Lessons.Select(x=>x.Id).Contains(id));
-        
-        
-        
-
-        //if (lesson == null) return Redirect("Create",new Lesson() { GroupId = });
         return View(lesson);
 
     }
@@ -344,7 +293,7 @@ public class LessonController : Controller
     public async Task<IActionResult> GetArrivedStudentsByLesson(Guid id)
     {
         var lesson = await _context.Lessons.Include(x=>x.Group).ThenInclude(x=>x.GroupStudents).ThenInclude(x=>x.Student).ThenInclude(x=>x.ApplicationUser).Include(x=>x.ArrivedStudents).ThenInclude(x=>x.Student).ThenInclude(x=>x.ApplicationUser).FirstOrDefaultAsync(x=>x.Id == id);
-
+        
         var groupSt = new List<Student>();//;
 
         if (lesson == null) return PartialView("_ArrivedStudentByLesson");
@@ -370,7 +319,7 @@ public class LessonController : Controller
 
 
         ViewBag.LessonId = id;
-        return PartialView("_ArrivedStudentByLesson", (lesson.ArrivedStudents, students.ToList(), groupSt));
+        return PartialView("_ArrivedStudentByLesson", (lesson.ArrivedStudents, students.ToList(), groupSt, lesson.Group.IsPermanentStaffGroup));
 
     }
 

@@ -1,0 +1,109 @@
+﻿@using SkillsHub.Domain.BaseModels;
+@model (List<LessonStudent>? ArrivedStudents,List<Student>? AllStudents, List<Student>? byGroup, bool isPermanentStaffGroup);
+
+@{
+    var ArrivedStudents = Model.ArrivedStudents;
+    var AllStudents = Model.AllStudents;
+    var byGroup = Model.byGroup;
+    var isPermanent = Model.isPermanentStaffGroup;
+}
+
+<div class="row">
+    <div class="col">
+        <label class=" col-form-label" for="val-skill" style="display:flex;">
+            <h4>Arrived students<span class="text-danger">*</span></h4>
+            <!--<input type="button" onclick="getStudents()" value="get"/>-->
+            <!--
+            <input type="button" value="Select all" onclick="selectAllStudents()" class="btn btn-primary btn-sm" />
+            <input type="button" value="Unselect all" onclick="unselectAllStudents()" class="btn btn-dangerous btn-sm" />
+                -->
+        </label>
+       
+        @if (ArrivedStudents != null && ArrivedStudents.Count() != 0)
+        {
+            <form id="SaveStudentsByLesson">
+                <ul>
+                    @foreach (var i in ArrivedStudents)
+                    {
+                        @if(i.IsVisit)
+                        {
+                            <input type="hidden" name="visitStudent" value="@i.Id" />
+                        }
+                        @if(i.IsVisit == false)
+                        {
+                            <input type="hidden" name="passedStudent" value="@i.Id" />
+                        }
+
+                        <li style="display:flex; grid-gap:5px">
+                            @if (i.IsVisit)
+                            {
+                                <select asp-for="@i.IsVisit" onchange="changeArrivedStudentStatus('@i.Id',false)">
+                                    <option value="@true" selected>Visit</option>
+                                    <option value="@false">Missed</option>
+                                </select>
+                            }
+                            else
+                            {
+                                <select asp-for="@i.IsVisit" onchange="changeArrivedStudentStatus('@i.Id',true)">
+                                    <option value="@true">Visit</option>
+                                    <option value="@false" selected>Missed</option>
+                                    </select>
+                            }
+
+                            @i.Student.ApplicationUser.FirstName @i.Student.ApplicationUser.LastName @i.Student.ApplicationUser.Surname
+
+                            <input type="button" class="btn btn-sm btn-danger" style="padding-bottom:3px" onclick="RemoveArrivedStudent('@i.Student.ApplicationUser.Id')" />
+                        </li>
+                    }
+                </ul>
+               
+            </form>
+        }
+        else
+        {
+            <div>No arrived students</div>
+        }
+    </div>
+
+    @if(isPermanent)
+    {
+        <div class="col">
+            <label class=" col-form-label" for="val-skill" style="display:flex;">
+                <h4>Group students<span class="text-danger">*</span></h4>
+            </label>
+            @if(byGroup != null && byGroup.Count() != 0)
+            {
+                @foreach (var st in byGroup)
+                {
+
+                 <form style="display:flex">
+                        <input type="checkbox" onchange="CreateArrivedStudent('@st.ApplicationUser.Id')" />
+                          @st.ApplicationUser.FirstName @st.ApplicationUser.LastName @st.ApplicationUser.Surname
+                </form>
+                }
+            }
+            else
+            {
+                <div>No students in group. Or you should create lesson before arrive students to group</div>
+            }
+        </div>
+    }
+</div>
+   
+
+<script>
+    function changeArrivedStudentStatus(id,val)
+    {
+        var valdata = { id: id, neededStatus: val };
+
+        $.ajax({
+            url: "/Lesson/ChangeArrivedStudentStatus",
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            data: valdata
+        });
+        alert("Saved")
+    }
+
+</script>

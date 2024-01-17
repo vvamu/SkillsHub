@@ -4,11 +4,11 @@ using SkillsHub.Domain.Models;
 
 namespace SkillsHub.Application.Validators;
 
-public class StudentRegisterValidator : AbstractValidator<Student>
+public class StudentValidator : AbstractValidator<Student>
 {
-    public StudentRegisterValidator()
+    public StudentValidator()
     {
-        
+        RuleFor(x => x.PaymentAmount).GreaterThan(0);
     }
 
 }

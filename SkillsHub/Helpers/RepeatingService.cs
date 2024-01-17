@@ -111,6 +111,7 @@ public class RepeatingService : BackgroundService
             var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var _notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
+            _context.Groups.ToList();
             _context.Teachers.ToList();
             _context.ApplicationUsers.ToList();
 
@@ -124,7 +125,7 @@ public class RepeatingService : BackgroundService
                     await _context.SaveChangesAsync();
 
                 }
-            if (lessonR == null) return;
+            if (lessonR == null ||lessonR.Group == null) return;
 
             List<ApplicationUser> usersToSend = new List<ApplicationUser>();
             var group = lessonR.Group;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.IdentityModel.Tokens;
 using SkillsHub.Application.DTO;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Helpers.SearchModels;
@@ -116,21 +117,21 @@ public static class FilterMaster
             if (filters.GroupId != Guid.Empty)
                 items = items.Where(x => x.Group.Id == filters.GroupId);
             if (filters.TeacherId != Guid.Empty)
-                items = items.Where(x=>x.Group.Teacher != null).Where(x => x.Group.Teacher.Id == filters.TeacherId);
+                items = items.Where(x => x.Group.Teacher != null).Where(x => x.Group.Teacher.Id == filters.TeacherId);
             if (filters.StudentId != Guid.Empty)
-                items = items.Where(x => x.Group.GroupStudents != null).Where(x => x.Group.GroupStudents.Select(x=>x.Id).Contains(filters.StudentId));
+                items = items.Where(x => x.Group.GroupStudents != null).Where(x => x.Group.GroupStudents.Select(x => x.Id).Contains(filters.StudentId));
             if (!string.IsNullOrEmpty(filters.Topic))
                 items = items.Where(x => x.Topic.Contains(filters.Topic));
             if (!string.IsNullOrEmpty(filters.Category))
             {
-                if(filters.Category == "Passed")
-                    items = items.Where(x=>x.EndTime < DateTime.Now);
+                if (filters.Category == "Passed")
+                    items = items.Where(x => x.EndTime < DateTime.Now);
                 if (filters.Category == "Current")
                     items = items.Where(x => x.EndTime > DateTime.Now);
                 if (filters.Category == "Deleted")
                     items = items.Where(x => x.IsDeleted == true);
             }
-             
+
             if (filters.Category != "Deleted")
                 items = items.Where(x => x.IsDeleted == false);
 
@@ -142,7 +143,7 @@ public static class FilterMaster
                 }
             }
         }
-        
+
 
         return items;
     }
@@ -162,7 +163,7 @@ public static class FilterMaster
             {
                 var i = items.Where(x => x.UserStudent != null).Where(x => x.UserStudent.PossibleCources != null);
                 var ki = i.ToList();
-                items = i.Where(x => x.UserStudent.PossibleCources.Select(x=>x.CourseName).Select(x=>x.Id.ToString()).Contains(filters.StudentPossibleCource));
+                items = i.Where(x => x.UserStudent.PossibleCources.Select(x => x.CourseName).Select(x => x.Id.ToString()).Contains(filters.StudentPossibleCource));
             }
             if (!string.IsNullOrEmpty(filters.TeacherPossibleCource))
             {
@@ -170,13 +171,13 @@ public static class FilterMaster
             }
             if (!string.IsNullOrEmpty(filters.IsDeleted))
             {
-                if(filters.IsDeleted == "Yes")
+                if (filters.IsDeleted == "Yes")
                 {
-                    items = items.Where(x=>x.IsDeleted ==  true);
+                    items = items.Where(x => x.IsDeleted == true);
                 }
-                else items = items.Where(x=>x.IsDeleted == false);
+                else items = items.Where(x => x.IsDeleted == false);
             }
-            if (string.IsNullOrEmpty(filters.IsDeleted))
+            else
             {
                 items = items.Where(x => x.IsDeleted == false);
             }
@@ -205,6 +206,39 @@ public static class FilterMaster
             }
         }
         return items;
+    }
+
+    public static async Task<IQueryable<Group>> FilterGroups(IQueryable<Group> items, GroupFilterModel filters, OrderModel orders)
+    {
+        if (filters != null)
+        {
+            if (!string.IsNullOrEmpty(filters.IsDeleted))
+            {
+                if (filters.IsDeleted == "Yes")
+                {
+                    items = items.Where(x => x.IsDeleted == true);
+                }
+                else if(filters.IsDeleted == "No") items = items.Where(x => x.IsDeleted == false);
+            }
+            else
+            {
+                //items = items.Where(x => x.IsDeleted == false);
+            }
+
+           
+
+        }
+        if (orders != null)
+        {
+            if (!string.IsNullOrEmpty(orders.OrderType))
+            {
+                items = items.OrderByDynamic(orders.OrderColumn, orders.OrderType);
+            }
+        }
+
+
+        return items;
+
     }
 }
 

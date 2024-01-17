@@ -98,7 +98,11 @@ public class GroupController : Controller
             }
             var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x => x.Id == item.LessonTypeId);
 
-            if (lessonType != null && item.DateStart < DateTime.Now.AddDays(1) && (studentId.Count() <= lessonType.MinimumStudents || studentId.Count() >= lessonType.MaximumStudents )) 
+            //if (item.IsPermanentStaffGroup) item.IsLateDateStart = true;
+
+            
+            if (lessonType != null && (item.DateStart < DateTime.Now.AddDays(1) 
+                && (item.GroupStudents.Count() <= lessonType.MinimumStudents || studentId.Count() >= lessonType.MaximumStudents)) || item.IsLateDateStart)
             {
                 ModelState.AddModelError("", "Not correct count of students to  start group."); return View("Create", item);
             }
@@ -114,20 +118,30 @@ public class GroupController : Controller
                 //_context.No
             }
 
-            await _groupService.CreateScheduleDaysToGroup(group, dayName, startTime, studentId);
+            await _groupService.CreateScheduleDaysToGroup(group, dayName, startTime);
 
+            List<Lesson> lessons = new List<Lesson>();
             if(item.IsVerified)
             {
                 if(!item.IsLateDateStart)
                 {
-                    await _groupService.CreateLessonsBySchedule(group.DaySchedules, item.DateStart, item.LessonsCount, item, true);
+                   lessons =await _groupService.CreateLessonsBySchedule(group.DaySchedules, item.DateStart, item.LessonsCount, item, true);
+                }               
+            }
+            await _groupService.UpdateGroupStudents(group, studentId.ToList());
 
-                }
-                await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
 
-
+            if (item.IsPermanentStaffGroup)
+            {
+                foreach (var lesson in lessons)
+                {
+                    
+                        await _lessonService.UpdateLessonStudents(lesson, studentId.ToList());
+                    }
+                   
                 
             }
+
 
 
             await _context.SaveChangesAsync();
@@ -163,29 +177,32 @@ public class GroupController : Controller
     {
         try
         {
+            
             //need
             var group = await _groupService.GetAsync(item.Id);
+            _context.Entry(group).State = EntityState.Detached;
             if (item.LessonTypeId == Guid.Empty) item.LessonTypeId = group.LessonTypeId;
             if(item.CourseNameId == Guid.Empty) item.CourseNameId = group.CourseNameId;
             if(item.TeacherId == Guid.Empty) item.TeacherId = group.TeacherId;
+
+            var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x => x.Id == item.LessonTypeId);
+
+            /*
+            if (lessonType != null && ((item.DateStart < DateTime.Now.AddDays(1)
+                && (item.GroupStudents.Count() <= lessonType.MinimumStudents || studentId.Count() >= lessonType.MaximumStudents)) || item.IsLateDateStart))
+            {
+                ModelState.AddModelError("", "Not correct count of students to  start group."); return View("Create", item);
+            }*/
 
             _context.Groups.Update(item);
             await _context.SaveChangesAsync();
 
             if (group.LessonsCount != item.LessonsCount)
-                _notificationService.СreateToUpdateCountLessonsInGroup(group, group.LessonsCount, item.LessonsCount, null);
-
-
+                await _notificationService.СreateToUpdateCountLessonsInGroup(group, group.LessonsCount, item.LessonsCount, null);
 
             //await _groupService.CreateScheduleDaysToGroup(item, dayName, startTime, studentId);
             
-             await _groupService.UpdateStudentsInGroup(group, studentId.ToList());
-            //await _groupService.UpdateStudentsInGroup2()
-
-          
-            
-
-            await _context.SaveChangesAsync();
+             await _groupService.UpdateGroupStudents(group, studentId.ToList()); //this  method with UpdateLessonStudent
             
             var dateStart = item.DateStart;
             var lessonsCount = item.LessonsCount;
@@ -199,9 +216,17 @@ public class GroupController : Controller
             if(item.IsVerified && !item.IsLateDateStart && lessonsCount > 0) 
             {
                 var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, lessonsCount, item, true);
+
                 
             }
 
+            var less = _context.Lessons.Include(x=>x.ArrivedStudents).Where(x=>x.GroupId == group.Id && x.IsСompleted == false).ToList();
+            foreach (var lesson in less)
+            {
+                await _lessonService.UpdateLessonStudents(lesson, studentId.ToList());
+            }
+
+            
             /*
             if(group.Lessons != null && group.Lessons.Count != 0)
             {
@@ -254,22 +279,15 @@ public class GroupController : Controller
     [HttpPost]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var group = await _groupService.GetAsync(id);
-
-        int a = 10;
-        int b = 20;
-        (a, b) = (b, a);
-
-        int c = b - a;
-        group.IsDeleted = true;
-
+        var group = _context.Groups.FirstOrDefault(x => x.Id == id);
+        group.IsDeleted = true; 
         _context.Groups.Update(group);
        await  _context.SaveChangesAsync();
 
         return RedirectToAction("Index");
     }
-    [Authorize(Roles ="Admin")]
 
+    [Authorize(Roles ="Admin")]
     [HttpPost]
     public async Task<IActionResult> HardDelete(Guid id)
     {

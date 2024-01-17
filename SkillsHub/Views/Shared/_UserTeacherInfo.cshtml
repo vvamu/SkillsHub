@@ -86,7 +86,7 @@
                 Проведенные уроки: @teacher.PreparedLessons.Where(x=>x.IsСompleted).Count() / @teacher.PreparedLessons.Count() ; Цена: @teacher.CurrentCalculatedPrice BYN / @teacher.TotalCalculatedPrice BYN
             </div>
             <div>
-                Выплачено: 0 BYN / 0 BYN
+                Выплачено: @teacher.PaidAmount BYN 
             </div>
             <!--
             <div>
