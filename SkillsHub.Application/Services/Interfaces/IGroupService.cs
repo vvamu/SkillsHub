@@ -10,7 +10,6 @@ namespace SkillsHub.Application.Services.Interfaces;
 public interface IGroupService
 {
     public IQueryable<Group> GetAll();
-    public IQueryable<Group> GetAllByFilter(string? filterStr, Guid? filterCourseId);
     public Task<Group> GetAsync(Guid id);
     public Task<Group> EditAsync(Group item);
     public Task<Group> CreateAsync(Group item);

@@ -38,11 +38,6 @@ public class LessonService : ILessonService
         return items;
     }
 
-    public IQueryable<Lesson> GetAllByFilter(string? filterStr, Guid? filterCourseId)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<Lesson> GetAsync(Guid id)
     {
         var lesson = _context.Lessons

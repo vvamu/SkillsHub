@@ -224,12 +224,13 @@ public class GroupController : Controller
             }
 
             var less = _context.Lessons.Include(x=>x.ArrivedStudents).Where(x=>x.GroupId == group.Id && x.IsСompleted == false).ToList();
-            foreach (var lesson in less)
+            if (item.IsPermanentStaffGroup)
             {
-                await _lessonService.UpdateLessonStudents(lesson, studentId.ToList());
+                foreach (var lesson in less)
+                {
+                    await _lessonService.UpdateLessonStudents(lesson, studentId.ToList());
+                }
             }
-
-            
             /*
             if(group.Lessons != null && group.Lessons.Count != 0)
             {

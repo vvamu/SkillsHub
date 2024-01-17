@@ -34,7 +34,7 @@
 
 										
 											<div style="display:flex;justify-content:space-between;">
-											<h3>Folder <input type="text" value="@elem.Name" /> - Sum: @itemsInFolder.Sum(x => x.Budget) BYN</h3>
+											<h3>Folder <input type="text" class="form-control"  value="@elem.Name" /> - Sum: @itemsInFolder.Sum(x => x.Budget) BYN</h3>
 												<div>
 													<button asp-route-id="@elem.Id" asp-action="DeleteFolder" asp-controller="Finances" class="btn btn-danger">X</button>
 												</div>
@@ -54,9 +54,9 @@
 												<div style="background-color:cornsilk; display:flex;justify-content:space-between;margin-bottom:1%" class="form-group">
 													<span>
 														@(itemsInFolder.ToList().IndexOf(item) + 1) -
-														<input type="text" value="@item.Name"  /> 
-														<input type="number" value="@Convert.ToDouble(item.Budget)" /> BYN
-														<input  type="date"/>
+														<input type="text" value="@item.Name" class="form-control" />
+														<input type="number" class="form-control" value="@Convert.ToDouble(item.Budget)" /> BYN
+														<input type="date" class="form-control" />
 														</span>
 															<div>
 															<button asp-route-id="@item.Id" asp-action="DeleteElement" asp-controller="Finances" class="btn-danger btn btn-sm">X</button>
