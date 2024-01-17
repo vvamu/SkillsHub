@@ -8,6 +8,7 @@ using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
 using SkillsHub.Helpers;
+using SkillsHub.Helpers.SearchModels;
 using SkillsHub.Persistence;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,23 +50,25 @@ public class GroupController : Controller
 
         
         var groups = await _groupService.GetAll().ToListAsync();
-        
-        
-        
-        
-       
 
         return View(groups);
     }
 
-
-    public IActionResult IndexByFilters(string? filterStr, Guid? filterCourseId)
+    [HttpPost]
+    public async Task<IActionResult> GetGroups(GroupFilterModel filters, OrderModel order)
     {
-        ViewBag.CourseNames = _courcesService.GetAllCourcesNames();
-        //ViewBag.Students = 
-        //return View(_groupService.GetAllByFilter(filterStr, filterCourseId));
-        return View();
+        var gr = _groupService.GetAll();
+        List<Group> res = new List<Group>();
+
+        var ress = await FilterMaster.FilterGroups(gr.AsQueryable(), filters, order);
+        var rerer = ress.ToList();
+
+        foreach (var group in rerer)
+            res.Add(await _groupService.GetAsync(group.Id));
+
+        return PartialView("_GroupsList", res);
     }
+
     public async Task<IActionResult> Item(Guid id)
     {
         var group = await _groupService.GetAsync(id);
