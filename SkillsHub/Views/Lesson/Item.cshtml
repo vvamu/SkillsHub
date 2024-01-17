@@ -243,13 +243,13 @@
                                             teacherUserId = user.Id;
 
 
-                                            <option value="@user.Id">@user.Login @user.FirstName @user.LastName </option>
+                                            <option selected class="text-info" value="@Model.Teacher.Id">@user.Login @user.FirstName @user.LastName </option>
 
                                        
                                         }
-                                        @foreach (var teacher in _context.Teachers.Include(x=>x.ApplicationUser).Where(x => x.IsDeleted == false).Select(x => x.ApplicationUser).Where(x=>x.Id != teacherUserId))
+                                        @foreach (var teacher in _context.Teachers.Include(x=>x.ApplicationUser).Where(x => x.IsDeleted == false).Where(x=>x.Id != teacherUserId))
                                         {
-                                            <option value="@teacher.Id">@teacher.Login @teacher.FirstName @teacher.LastName</option>
+                                            <option value="@teacher.Id">@teacher.ApplicationUser.Login @teacher.ApplicationUser.FirstName @teacher.ApplicationUser.LastName</option>
                                         }
                                     
                                     </select>

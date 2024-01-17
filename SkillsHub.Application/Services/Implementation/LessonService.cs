@@ -324,14 +324,18 @@ public class LessonService : ILessonService
 
     public async Task<Lesson> Edit(Lesson lesson)
     {
-        var lessonValidator = new LessonValidator();
-        var validationResult = await lessonValidator.ValidateAsync(lesson);
-        if (!validationResult.IsValid)
+        try
         {
-            var errors = validationResult.Errors;
-            var errorsString = string.Concat(errors);
-            throw new Exception(errorsString);
+            var lessonValidator = new LessonValidator();
+            var validationResult = await lessonValidator.ValidateAsync(lesson);
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors;
+                var errorsString = string.Concat(errors);
+                throw new Exception(errorsString);
+            }
         }
+        catch (Exception ex) { Console.WriteLine(ex.Message); }
 
         #region CheckCorrect
 
@@ -351,9 +355,10 @@ public class LessonService : ILessonService
                 throw new Exception("New lesson time conflicted with lesson :" + less.StartTime + " - " + less.EndTime);
             }
         }
-
+        var teacher = _context.Teachers.Where(x => x.Id == lesson.TeacherId).ToList();
+        var user = _context.Users.Where(x => x.Id == lesson.TeacherId).ToList();
         #endregion
-
+        //_context.Teachers.Update(new Teacher() { Id= (Guid)lesson.TeacherId });
         _context.Lessons.Update(lesson);
         await _context.SaveChangesAsync();
 
