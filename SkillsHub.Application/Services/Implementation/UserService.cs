@@ -225,6 +225,7 @@ public class UserService : IUserService
         if (item.IsStudent == true) user.UserStudent = new Student() { ApplicationUser = user, IsDeleted = true };
         if (item.IsTeacher == true) user.UserTeacher = new Teacher() { ApplicationUser = user, IsDeleted = true };
 
+
         return user;
 
     }
