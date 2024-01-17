@@ -222,10 +222,41 @@ public static class FilterMaster
             }
             else
             {
-                //items = items.Where(x => x.IsDeleted == false);
+                items = items.Where(x => x.IsDeleted == false);
+            }
+            if (!string.IsNullOrEmpty(filters.IsLateDateStart))
+            {
+                if (filters.IsLateDateStart == "Yes")
+                {
+                    items = items.Where(x => x.IsLateDateStart == true);
+                }
+                else if (filters.IsLateDateStart == "No") items = items.Where(x => x.IsLateDateStart == false);
+            }
+            if (!string.IsNullOrEmpty(filters.IsPermanentStaffGroup))
+            {
+                if (filters.IsPermanentStaffGroup == "Yes")
+                {
+                    items = items.Where(x => x.IsPermanentStaffGroup == true);
+                }
+                else if (filters.IsPermanentStaffGroup == "No") items = items.Where(x => x.IsPermanentStaffGroup == false);
+            }
+            if (filters.LessonTypeId != Guid.Empty && filters.LessonTypeId != null)
+            {
+                items = items.Where(x=>x.LessonTypeId == filters.LessonTypeId);
+            }
+            if (filters.CourseNameId != Guid.Empty && filters.CourseNameId != null)
+            {
+                items = items.Where(x => x.CourseNameId == filters.CourseNameId);
             }
 
-           
+
+
+            if (!string.IsNullOrEmpty(filters.Name))
+            {
+                items = items.Where(x=>x.Name.ToLower().Contains(filters.Name.ToLower()));
+
+            }
+
 
         }
         if (orders != null)

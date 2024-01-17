@@ -10,7 +10,6 @@ namespace SkillsHub.Application.Services.Interfaces;
 public interface ILessonService
 {
     public IQueryable<Lesson> GetAll();
-    public IQueryable<Lesson> GetAllByFilter(string? filterStr, Guid? filterCourseId);
     public Task<Lesson> GetAsync(Guid id);
 
     public Task<Lesson> Create(Lesson lesson);

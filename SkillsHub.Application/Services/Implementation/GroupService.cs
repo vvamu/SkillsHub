@@ -62,20 +62,6 @@ public class GroupService: IGroupService
         return item;
     }
 
-    public IQueryable<Group> GetAllByFilter(string? filterStr, Guid? filterCourseId)
-    {
-        var groups = _context.Groups
-            .Include(x => x.Lessons).Include(x => x.CourseName).Include(x => x.LessonType)
-            .Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
-            .Include(x => x.DaySchedules)
-            .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser).AsQueryable();
-
-        if (filterCourseId != Guid.Empty) groups = groups.Where(x => x.CourseNameId == filterCourseId);
-        if (!string.IsNullOrEmpty(filterStr)) groups = groups.Where(x => x.Name.Contains(filterStr));
-        //сортировка по времени создания
-        return groups;
-    }
-
     #endregion
 
     #region Create

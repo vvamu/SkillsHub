@@ -35,7 +35,7 @@
         else {
 
 
-                @foreach(var item in Model.Where(x=>x.IsDeleted == false).OrderByDescending(x=>x.DateCreated))
+                @foreach(var item in Model)
                 {
                     <div class="card" style="margin:20px">
                     <div class="card-body">
@@ -76,9 +76,9 @@
                                     
                                     <li>Cource name: @item.CourseName.Name</li>
                                      <li>Lesson type: @item.LessonType.Name</li>
-                                     <li>Status: -</li>
+                                     <li>Status: @if(item.IsDeleted){<span>Completed</span>} else {<span>Not completed</span>} </li>
                                      
-                                        <li>Lessons <!--by type-->: @item.Lessons.Where(x=>x.IsСompleted == true).Count() / @item.Lessons.Count() @if (!item.IsUnlimitedLessonsCount) { <span></span>} else{<span>Unlimited</span>}</li>
+                                        <li>Lessons <!--by type-->passed, assigned, scheduled  : @item.Lessons.Where(x=>x.IsСompleted == true).Count() / @item.Lessons.Count() @if (!item.IsUnlimitedLessonsCount) { <span></span>} else{<span>Unlimited</span>}</li>
                                         <li>Working minutes <!--by type item.Result-->: @item.PassedLessonsCount /@item.ResultLessonsTimeInMinutes min</li>
 
                                         
@@ -90,6 +90,7 @@
                                         {
                                             <li>Date start: Not decided</li>
                                         }
+                                        <li>Date created: @item.DateCreated.ToShortDateString()</li>
 
                                         <li>
                                             <strong>Teacher:</strong> @if (item.Teacher != null)
