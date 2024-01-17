@@ -1,4 +1,5 @@
-﻿@using SkillsHub.Application.DTO;
+﻿@using Microsoft.EntityFrameworkCore;
+@using SkillsHub.Application.DTO;
 @using SkillsHub.Domain.BaseModels
 @using SkillsHub.Domain.Models;
 @using SkillsHub.Persistence;
@@ -227,7 +228,7 @@
                                     <label class=" col-form-label" for="val-skill">
                                         <h4>Teacher<span class="text-danger">*</span></h4>
                                     </label>
-                                    <select asp-for="Teacher" id="allTeachers" class="form-select">
+                                    <select asp-for="TeacherId" id="allTeachers" class="form-select">
                                     
                                         @{
                                             _context.Teachers.ToList();
@@ -242,13 +243,13 @@
                                             teacherUserId = user.Id;
 
 
-                                            <option>@user.Login @user.FirstName @user.LastName </option>
+                                            <option value="@user.Id">@user.Login @user.FirstName @user.LastName </option>
 
                                        
                                         }
-                                        @foreach (var teacher in _context.Teachers.Where(x => x.IsDeleted == false).Select(x => x.ApplicationUser).Where(x=>x.Id != teacherUserId))
+                                        @foreach (var teacher in _context.Teachers.Include(x=>x.ApplicationUser).Where(x => x.IsDeleted == false).Select(x => x.ApplicationUser).Where(x=>x.Id != teacherUserId))
                                         {
-                                            <option>@teacher.Login @teacher.FirstName @teacher.LastName</option>
+                                            <option value="@teacher.Id">@teacher.Login @teacher.FirstName @teacher.LastName</option>
                                         }
                                     
                                     </select>

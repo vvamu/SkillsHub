@@ -466,28 +466,31 @@ public class UserService : IUserService
         if (teacher != null)
         {
             teacher.IsDeleted = true;
-            var groups = _context.Groups.Include(x => x.Teacher).
-                Where(x => x.Teacher.Id == teacher.Id);
+            teacher.Groups = null;
+            //var groups = _context.Groups.Include(x => x.Teacher).
+            //    Where(x => x.Teacher.Id == teacher.Id);
 
-            foreach (var group in groups)
-            {
-                group.Teacher = null;
-                _context.Groups.Update(group);
-            }
+            //foreach (var group in groups)
+            //{
+            //    group.Teacher = null;
+            //    _context.Groups.Update(group);
+            //}
 
             foreach (var cource in teacher.PossibleCources)
             {
-                //teacher.PossibleCources
+                //
             }
-
+            teacher.PossibleCources = null;
 
             var scheduleTeacher = teacher.WorkingDays;
             if (scheduleTeacher != null)
             {
                 //_context.WorkingDays.RemoveRange(scheduleTeacher);
+                teacher.WorkingDays = null;
             }
 
 
+            await _context.SaveChangesAsync();
 
         }
         if (student != null)
@@ -512,7 +515,7 @@ public class UserService : IUserService
             var schedulteStudent = student.WorkingDays;
             if (schedulteStudent != null)
             {
-                //_context.WorkingDays.RemoveRange(schedulteStudent);
+                student.WorkingDays = null;
             }
 
         }
