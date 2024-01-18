@@ -26,10 +26,11 @@ public class AccountController : Controller
     private readonly IGroupService _groupService;
     private readonly ISalaryService _salaryService;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ILessonService _lessonService;
 
     public AccountController(IUserService userService, ICourcesService courcesService,
         ApplicationDbContext context, IMapper mapper, IGroupService groupService, ISalaryService salaryService
-        ,UserManager<ApplicationUser> userManager)
+        ,UserManager<ApplicationUser> userManager, ILessonService lessonService)
     {
         _userService = userService;
         _courcesService = courcesService;
@@ -38,6 +39,7 @@ public class AccountController : Controller
         _groupService = groupService;
         _salaryService = salaryService;
         _userManager = userManager;
+        _lessonService = lessonService;
     }
     #region Get
 
@@ -256,8 +258,14 @@ public class AccountController : Controller
             res.Add(await _groupService.GetAsync(group.Id));
 
 
+        var otherLessons = _lessonService.GetAll()
+            .Where(x => x.ArrivedStudents.Select(x => x.Id).Contains(user.UserStudent.Id))
+            .Where(x => !studentGroups.Select(x => x.Id).Contains(x.Group.Id));
 
-        return PartialView("_StudentGroups", (user, res));
+
+
+
+        return PartialView("_StudentGroups", (user, res, otherLessons.ToList()));
 
     }
 

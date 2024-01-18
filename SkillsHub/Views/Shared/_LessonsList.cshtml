@@ -130,7 +130,13 @@ else
                                                                     Result price for teacher: @item.Group.LessonType.TeacherPrice BYN
                                                                 </p>
                                                             }
-                                                        </div>
+                                                            @if(User.IsInRole("Student"))
+                                                                {
+                                                                    <p>
+                                                                        Result price for student: @item.Group.LessonType.StudentPrice BYN
+                                                                    </p>
+                                                                }
+                                                            </div>
                                                     }
                                                 </div>
                                                 <div class="col">
