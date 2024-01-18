@@ -17,9 +17,9 @@ public class LessonValidator : AbstractValidator<Lesson>
             .Must(x => x.EndTime.Year > (DateTime.Now.Year - 10) && x.EndTime.Year < (DateTime.Now.Year + 10))
             .Must(x =>x.Duration > 10 && x.Duration < 150)
             .WithMessage("Not correct date");
-        RuleFor(x => x)
-            .Must(x => (x.IsСompleted && x.ArrivedStudents.Count() > 0) || !x.IsСompleted)
-            .WithMessage("Group can't be started if not verified");
+        //RuleFor(x => x)
+        //    .Must(x => (x.IsСompleted && x.ArrivedStudents.Count() > 0) || !x.IsСompleted)
+        //    .WithMessage("Group can't be started if not verified");
     }
 }
 

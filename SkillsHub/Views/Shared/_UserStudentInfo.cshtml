@@ -4,8 +4,11 @@
 
 
 @model ApplicationUser;
+@{
+    var condition = (User.IsInRole("Admin") || User.Identity.Name == Model.Login) && Model != null && Model.UserStudent != null;
+}
 
-@if ((User.IsInRole("Admin") || User.Identity.Name == Model.Login) && Model != null && Model.UserStudent != null)
+@if (condition)
 {
     var student = Model.UserStudent ?? new Student();
     var visitedLessons = Model.UserStudent.VisitedLessons;

@@ -162,6 +162,8 @@ public class AccountController : Controller
             }else
             {
                 user = await _userService.CreateUserAsync(userCreateModel);
+
+                //return RedirectToAction("Item", new { itemId = user.Id });
                 if (userCreateModel.IsStudent)
                 {
                     if (userCreateModel.IsTeacher) HttpContext.Session.SetString("isTeacher", "true");

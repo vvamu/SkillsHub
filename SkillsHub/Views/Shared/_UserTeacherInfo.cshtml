@@ -5,7 +5,11 @@
 
 @model ApplicationUser;
 
-@if ((User.IsInRole("Admin") || User.Identity.Name == Model.Login) && Model.UserTeacher != null)
+@{
+    var condition = (User.IsInRole("Admin") || User.Identity.Name == Model.Login) && Model != null && Model.UserTeacher != null;
+}
+
+@if (condition)
 {
     var teacher = Model.UserTeacher;
 

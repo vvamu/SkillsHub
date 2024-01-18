@@ -247,7 +247,7 @@
 
                                        
                                         }
-                                        @foreach (var teacher in _context.Teachers.Include(x=>x.ApplicationUser).Where(x => x.IsDeleted == false).Where(x=>x.Id != teacherUserId))
+                                        @foreach (var teacher in _context.Teachers.Include(x=>x.ApplicationUser).Where(x => x.IsDeleted == false).Where(x=>x.ApplicationUser.Id != teacherUserId))
                                         {
                                             <option value="@teacher.Id">@teacher.ApplicationUser.Login @teacher.ApplicationUser.FirstName @teacher.ApplicationUser.LastName</option>
                                         }
