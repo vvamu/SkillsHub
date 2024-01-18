@@ -1,10 +1,12 @@
 ﻿@using SkillsHub.Domain.BaseModels;
 
-@model (ApplicationUser user,List<Group>? teacherGroups);
+@model (ApplicationUser user,List<Group>? teacherGroups,List<Lesson>? otherLessons);
 
 @{
     var us = Model.user;
     var teacherGroups = Model.teacherGroups;
+    var otherLessons = Model.otherLessons;
+
 }
 @if (us.UserTeacher != null)
 {
@@ -139,4 +141,174 @@
             </div>
         }
     }
+}
+
+@if (otherLessons != null && otherLessons.Count > 0)
+{
+    <div class="card">
+        <div class="card-body" id="lessonsList">
+
+
+            <div class="col ">
+                <div class="card">
+                    <div class="card-body"
+                         id="allLessons">
+                        @foreach (var item in otherLessons)
+                        {
+                            @if (item != null)
+                            {
+                                var lessonId = item.Id;
+                                var formId = "lesson" + lessonId;
+                                <div class="col lessonInGroup">
+                                    <form id="@formId">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div>
+                                                    <!--HEADER LESSON-->
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <div class="row">
+                                                                <input type="hidden" asp-for="@item.Id" value="@item.Id" />
+                                                                <input type="hidden" asp-for="@item.GroupId" value="@item.GroupId" />
+                                                                <div style="display:flex; justify-content:space-between">
+                                                                    <h5>
+
+                                                                        <a asp-action="Item" asp-controller="Lesson" asp-route-id="@item.Id">
+                                                                            @(otherLessons.IndexOf(item) + 1) . @item.StartTime.ToLongDateString() (@item.StartTime.DayOfWeek)
+                                                                            @if (item.IsDeleted)
+                                                                            {
+                                                                                <span style="color:red">Deleted</span>
+                                                                            }
+                                                                            else if ((@item.EndTime < DateTime.Now) && !(item.IsСompleted))
+                                                                            {
+                                                                                <span style="color:red">Not completed</span>
+                                                                            }
+                                                                            else if (@item.IsСompleted && (@item.EndTime < DateTime.Now))
+                                                                            {
+                                                                                <span style="color:green">Completed</span>
+                                                                            }
+                                                                            else if (@item.IsСompleted)
+                                                                            {
+                                                                                <span style="color:greenyellow">Completed but the lesson wasn't over yet</span>
+                                                                            }
+                                                                        </a>
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div style="display:flex; justify-content:space-between">
+                                                                    @if (User.IsInRole("Student"))
+                                                                    {
+                                                                        <div style="display:flex; grid-gap:5%" class="cs-form">
+                                                                            <input type="time" name="startTime" asp-for="@item.StartTime" class="form-control" disabled /> -
+                                                                            <input type="time" name="endTime" asp-for="@item.EndTime" class="form-control" disabled />
+                                                                        </div>
+                                                                        <div></div>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <div style="display:flex; grid-gap:5%">
+                                                                            <input type="time" asp-for="@item.StartTime" class="form-control" /> -
+                                                                            <input type="time" asp-for="@item.EndTime" class="form-control" />
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!--END HEADER LESSON-->
+                                                        <div class="col">
+                                                            @{
+                                                                //Get variables to show teacher
+                                                                List
+                                                                <ApplicationUser>
+                                                                arrivedUsers = new List<ApplicationUser>();
+                                                                List<ApplicationUser> notArrivedUsers = new List<ApplicationUser>();
+                                                                ApplicationUser teacher = new ApplicationUser();
+                                                                if (item.ArrivedStudents != null)
+                                                                {
+                                                                    var users = item.ArrivedStudents.Where(x => x.IsVisit).Select(x => x.Student).Select(x => x.ApplicationUser);
+                                                                    arrivedUsers.AddRange(users);
+                                                                    var users2 = item.ArrivedStudents.Where(x => x.IsVisit == false).Select(x => x.Student).Select(x => x.ApplicationUser);
+                                                                    notArrivedUsers.AddRange(users2);
+                                                                }
+
+                                                                if (item.Teacher != null && item.Teacher.ApplicationUser != null)
+                                                                    teacher = item.Teacher.ApplicationUser;
+                                                                <div>
+                                                                    <strong>Group: </strong> @item.Group.Name - @item.Group.CourseName.Name - @item.Group.LessonType.Name <br />
+                                                                    <strong>Lesson topic: </strong>@(item.Topic ?? "-") <br />
+
+
+                                                                    <strong>Teacher:</strong> <a asp-route-id="@teacher.Id" asp-action="Item" asp-controller="Account">
+                                                                        @if (teacher != null)
+                                                                        {
+                                                                            <span> @teacher.FirstName @teacher.LastName @teacher.Surname</span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span>-</span>
+                                                                        }
+                                                                    </a> <br />
+                                                                    <strong>Arrived students:</strong>
+                                                                    @if (item.ArrivedStudents != null && item.ArrivedStudents.Count() != 0)
+                                                                    {
+                                                                        <ul>
+                                                                            @foreach (var userr in item.ArrivedStudents.Select(x => x.Student).Select(x => x.ApplicationUser))
+                                                                            {
+                                                                                <li><a asp-route-id="@userr.Id" asp-action="Item" asp-controller="Account">@userr.FirstName @userr.LastName</a> </li>
+                                                                            }
+                                                                        </ul>
+                                                                    }
+                                                                    <br />
+                                                                    @if (User.IsInRole("Admin"))
+                                                                    {
+                                                                        <p>
+                                                                            Result price for student: @item.Group.LessonType.StudentPrice BYN
+                                                                            <br />
+                                                                            Result price for teacher: @item.Group.LessonType.TeacherPrice BYN
+                                                                            <br />
+                                                                            Result price for admin: @(item.Group.LessonType.TeacherPrice - (item.Group.LessonType.StudentPrice * item.ArrivedStudents.Count())) BYN
+                                                                        </p>
+                                                                    }
+                                                                    @if (User.IsInRole("Teacher"))
+                                                                    {
+
+                                                                        <p>
+                                                                            Result price for teacher: @item.Group.LessonType.TeacherPrice BYN
+                                                                        </p>
+                                                                    }
+                                                                    @if (User.IsInRole("Student"))
+                                                                    {
+                                                                        <p>
+                                                                            Result price for student: @item.Group.LessonType.StudentPrice BYN
+                                                                        </p>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                       
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            }
+            <!--
+                    <div style="display:flex;justify-content:space-between">
+                        <div>
+            <h2><a asp-action="Item" asp-controller="Group" asp-route-id="lesson.Group.Id">Group item.Name</a></h2>
+                            <p><strong>Course</strong> : item.CourseName.Name</p>
+                            <p><strong>Lesson type</strong>: item.LessonType.Name</p>
+
+                -->
+
+        </div>
+    </div>
 }

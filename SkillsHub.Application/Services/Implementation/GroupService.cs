@@ -81,7 +81,7 @@ public class GroupService: IGroupService
 
         
 
-        if (_context.Groups.FirstOrDefault(x => x.Name == item.Name) != null) throw new Exception("Group with such name already exist");
+        //if (_context.Groups.FirstOrDefault(x => x.Name == item.Name) != null) throw new Exception("Group with such name already exist");
 
         var teacher = _context.Teachers.FirstOrDefault(x => x.Id == item.TeacherId);
         ApplicationUser? userr;

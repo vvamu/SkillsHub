@@ -214,7 +214,7 @@ public class StudentController : Controller
         ApplicationUser user = item.ApplicationUser;
         if (user == null) user = await _userService.GetUserByIdAsync(item.ApplicationUserId);
         if(student != null) { //user = student.ApplicationUser;
-        }
+                              }
 
         try
         {
@@ -241,7 +241,6 @@ public class StudentController : Controller
             item = await UpdateWorkingDays(item, workingDay);
 
             item = await _userService.UpdateStudentWithCourcesNames(item, itemValue.ToList());
-            //var resItem = await CreateScheduleDaysToStudentWihoutSaving(item, dayName, startTime,duration);
             await _context.SaveChangesAsync();
 
 

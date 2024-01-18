@@ -137,6 +137,20 @@ public class UserService : IUserService
             throw new Exception(errorsString);
         }
 
+        if(item.ApplicationUserId != Guid.Empty)
+        {
+            await _context.Teachers.AddAsync(item);
+            await _context.SaveChangesAsync();
+
+            var result = await _userManager.AddToRoleAsync(dbUser, "Teacher");
+            if (!result.Succeeded) throw new Exception(result.Errors.ToString());
+            await _context.SaveChangesAsync();
+
+            return item == null ? throw new Exception("Error with save teacher in database") : item;
+        }
+        return item;
+
+        /*
         item.ApplicationUser = dbUser;
         dbUser.UserTeacher = item;
 
@@ -147,13 +161,13 @@ public class UserService : IUserService
         _context.ApplicationUsers.Update(dbUser);
         await _context.Teachers.AddAsync(item);
 
-        var result = await _userManager.AddToRoleAsync(dbUser, "Teacher");
-        await _context.SaveChangesAsync();
-        if (!result.Succeeded) throw new Exception(result.Errors.ToString());
+        
+        //if (!result.Succeeded) throw new Exception(result.Errors.ToString());
         var teacherInDb = await _context.Teachers.Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.ApplicationUser.Id == user.Id);
 
 
         return teacherInDb == null ? throw new Exception("Error with save teacher in database") : teacherInDb;
+        */
 
     }
     public async Task<Student> CreateStudentAsync(ApplicationUser user, Student item)
@@ -172,6 +186,21 @@ public class UserService : IUserService
             throw new Exception(errorsString);
         }
 
+        if(item.ApplicationUserId != Guid.Empty)
+        {
+            await _context.Students.AddAsync(item);
+            await _context.SaveChangesAsync();
+
+            var res = await _userManager.AddToRoleAsync(dbUser, "Student");
+            await _context.SaveChangesAsync();
+            if (!res.Succeeded) throw new Exception(res.Errors.ToString());
+            return item == null ? throw new CannotUnloadAppDomainException() : item;
+
+
+        }
+
+
+        ////---------------------------
         var student = _mapper.Map<Student>(item);
         student.ApplicationUser = dbUser;
        
@@ -208,9 +237,9 @@ public class UserService : IUserService
 
         //if (item.EnglishLevelId != Guid.Empty) item.EnglishLevel = await _context.EnglishLevels.FirstOrDefaultAsync(x => x.Id == item.EnglishLevelId);
         
-         if (_context.ApplicationUsers.FirstOrDefault(x => x.Email == user.Email) != null || user.Email == null) throw new Exception("User with such email alredy exists");
+         //if (_context.ApplicationUsers.FirstOrDefault(x => x.Email == user.Email) != null || user.Email == null) throw new Exception("User with such email alredy exists");
         if (_context.ApplicationUsers.FirstOrDefault(x => x.Login == user.Login) != null) throw new Exception("User with such login alredy exists");
-        if (_context.ApplicationUsers.FirstOrDefault(x => x.Phone == user.Phone) != null) throw new Exception("User with such phone alredy exists");
+        //if (_context.ApplicationUsers.FirstOrDefault(x => x.Phone == user.Phone) != null) throw new Exception("User with such phone alredy exists");
         
 
         string hashedPassword = HashProvider.ComputeHash(user.Password.Trim());
@@ -413,6 +442,10 @@ public class UserService : IUserService
         }
 
         await _context.SaveChangesAsync();
+
+
+
+
         return item;
     }
 
@@ -442,6 +475,8 @@ public class UserService : IUserService
         }
 
         await _context.SaveChangesAsync();
+
+        
         return item;
 
     }
@@ -506,6 +541,13 @@ public class UserService : IUserService
 
             await _context.SaveChangesAsync();
 
+            foreach (var role in await _userManager.GetRolesAsync(item))
+            {
+                await _userManager.RemoveFromRoleAsync(item,role);
+            }
+
+            await _context.SaveChangesAsync();
+
         }
 
         //var lessons = _context.Lessons.Include(x => x.Creator).
@@ -515,7 +557,7 @@ public class UserService : IUserService
         //    lesson.Creator = null;
         //    _context.Lessons.Update(lesson);
         //}
-        
+
         /*
         if(item.EnglishLevel != null)
         {

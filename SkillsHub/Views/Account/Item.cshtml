@@ -108,11 +108,15 @@
                             <li><strong class="text-dark mr-4">Почта</strong> <span>@Model.Email</span></li>
                             <li><strong class="text-dark mr-4">Дата добавления</strong> <span>@Model.RegistrationDate</span></li>
                             <hr/>
-
-                                @if(User.Identity.Name == Model.UserName || User.IsInRole("Admin"))
+                           
+                            
+                            @if(User.Identity.Name == Model.UserName || User.IsInRole("Admin"))
                                 {
                                      <li><strong class="text-dark mr-4"><a asp-action="Create" style="color:cornflowerblue" asp-controller="Account" asp-route-id="@Model.Id">Edit</a></strong></li>
                                 }
+                            @if (false)
+                            {
+
 
                                 @if(Model.IsDeleted == false)
                             {
@@ -129,7 +133,7 @@
                                     <li><strong class="text-dark mr-4"><a asp-action="HardDelete" style="color:orangered" asp-controller="Account" asp-route-id="@Model.Id">Hard delete</a></strong></li>
 
                                 }
-                   
+                            }
                         </ul>
 
                             <div class="mt-5 mt-xl-6">
@@ -239,12 +243,16 @@
               
 
                 <div id="studentGroups">
+                    @if(Model.UserStudent != null)
+                    {
+                        
                     
                     <div class="d-flex justify-content-center">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>
+                    }
                 </div>
 
 
@@ -254,12 +262,14 @@
                   
 
                         <div id="teacherGroups">
-
+                             @if(Model.UserTeacher != null)
+                    {
                             <div class="d-flex justify-content-center">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
                             </div>
+                    }
                         </div>
                      
 
@@ -268,7 +278,7 @@
 
             
             
-                    
+                    <!--
                         <div class="card">
                                 <div class="card-body">
                                     <div class="media media-reply">
@@ -288,7 +298,7 @@
                         </div>
                         </div>
                         </div>
-                  
+                  -->
 
                 <!--
             <div class="card">

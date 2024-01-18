@@ -63,7 +63,7 @@
 
                             <div class="form-group ">
                                 <label class=" col-form-label" for="val-skill">
-                                    <h4>Total lessons count (min count: @Model.PassedLessonsCount)<span class="text-danger">*</span></h4>
+                                    <h4>Total lessons count (from @Model.LessonType.MinCountLessons , passed: @Model.PassedLessonsCount)<span class="text-danger">*</span></h4>
                                 </label>
                                 <div style="display:flex;grid-gap:10px">
                                     <input class="form-control" type="number" asp-for="LessonsCount" min="1" max="50" id="lessonsCount" style="margin-right:10%" class="form-control"  />
@@ -89,8 +89,8 @@
                                             int min = 0;
                                             if (Model.LessonType != null) min = @Model.LessonType.MinCountLessons;
 
-                                    <li>Min count of students by type: @min</li>
-                                    <li>Max count of students by type: -</li>
+                                    <li>Min count of students by type: @Model.LessonType.MinCountLessons</li>
+                                    <li>Max count of students by type: Model.LessonType.MinCountLessons</li>
                                         }
                             </ul>
                         </div>
@@ -165,7 +165,7 @@
                                 <div class="form-group ">
                                     <label class=" col-form-label" for="val-skill">
                                             <div style="display:flex">
-                                                <h4>Students<span class="text-danger">*</span></h4>
+                                                <h4>Students<span class="text-danger">*</span>(from @Model.LessonType.MinimumStudents to @Model.LessonType.MaximumStudents)</h4>
                                                 <input type="button" onclick="getStudents()" class="btn btn-sm btn-primary" value="(get all)">
 
                                             </div>

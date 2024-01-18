@@ -18,7 +18,7 @@ using System.Text.RegularExpressions;
 using static Viber.Bot.NetCore.Models.ViberResponse;
 
 namespace SkillsHub.Controllers;
-[Authorize]
+
 public class CRMController: Controller
 {
     private readonly IMailService _mailService;
@@ -41,9 +41,12 @@ public class CRMController: Controller
 
         var user = await _userService.GetCurrentUserAsync();
         if (user.ExternalConnections != null) ViewBag.NotificationsStatus = "On - " + user.ExternalConnections.Count; else ViewBag.NotificationsStatus = "Off";
-        if (User.IsInRole("Admin"))
-
+        if (!User.IsInRole("Admin"))
         {
+            return RedirectToAction("Item", "Account", new { id = user.Id });
+        }
+
+        
             ViewBag.TotalTeachers = _context.Teachers.Count();
             ViewBag.TotalStudents = _context.Students.Count();
             ViewBag.ActiveTotalTeachers = _context.Teachers.Where(x=>x.IsDeleted == false).Count();
@@ -52,14 +55,9 @@ public class CRMController: Controller
             ViewBag.CountClasses = //_context.Teachers.Include(x => x.Lessons).Count();
             ViewBag.CountMails = _context.EmailMessages.Count();
 
-            return View();
-        }
-        else
-        {
-            return RedirectToAction("Item", "Account", new { itemId = user.Id });
-        }
+            return View(user);
+       
 
-        return View(user);
     }
 
 

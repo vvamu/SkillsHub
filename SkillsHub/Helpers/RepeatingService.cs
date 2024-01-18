@@ -90,7 +90,7 @@ public class RepeatingService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             await CompleteLessons();
-          
+            await CreateLessonToUnlimitedGroup();
 
             await Task.Delay(60000 * 60, stoppingToken); //60000 = 1 min
 
@@ -137,6 +137,33 @@ public class RepeatingService : BackgroundService
                 + "was completed automatically. Check what students marked.";
 
             await _notificationService.Create(message, usersToSend);
+        }
+    }
+
+
+    public async Task CreateLessonToUnlimitedGroup()
+    {
+        using (var scope = _serviceScopeFactory.CreateScope())
+        {
+
+            var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var _groupService = scope.ServiceProvider.GetRequiredService<IGroupService>();
+
+            var groups = _groupService.GetAll().Where(x=>x.IsUnlimitedLessonsCount);
+
+            foreach(var group in groups)
+            {
+                if(group.Lessons.Where(x=>x.IsСompleted == false).Count() < 10)
+                {
+                    DateTime DateStart = DateTime.Now;
+                    if (group.Lessons != null && group.Lessons.Count != 0)
+                    {
+                        DateStart = group.Lessons.OrderByDescending(x => x.EndTime).FirstOrDefault().EndTime.AddDays(1); //Where(x=>x.EndTime <  DateTime.Now)
+                    }
+
+                   await _groupService.CreateLessonsBySchedule(group.DaySchedules, DateStart, 1,group, true);
+                }
+            }
         }
     }
 }

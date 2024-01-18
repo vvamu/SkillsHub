@@ -19,13 +19,15 @@ public class LessonService : ILessonService
     //private readonly IRequestService _requestService;
     private readonly IUserService _userService;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly INotificationService _notificationService;
 
-    public LessonService(ApplicationDbContext context, IUserService userService,UserManager<ApplicationUser> userManager)
+    public LessonService(ApplicationDbContext context, IUserService userService,UserManager<ApplicationUser> userManager,INotificationService notificationService)
     {
         _context = context;
        // _requestService = requestService;
         _userService = userService;
         _userManager = userManager;
+        _notificationService = notificationService;
     }
 
     #region Get
@@ -130,16 +132,20 @@ public class LessonService : ILessonService
                         {
                             _context.Students.ToList();
                             _context.ApplicationUsers.ToList();
-                            var user = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.UserStudent.Id == student.Id);
+                            if(student != null)
+                            {
+                                var user = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.UserStudent.Id == student.Id);
 
-                            var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = user.Id } };
-                            var message = " You was added to lesson in group " + groupName;
-                            var notification = new NotificationMessage() { Message = message, Users = usersToSend };
+                                var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = user.Id } };
+                                var message = " You was added to lesson in group " + groupName;
+                                var notification = new NotificationMessage() { Message = message, Users = usersToSend };
 
-                            usersToSend.ForEach(x => x.NotificationMessage = notification);
-                            await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
-                            await _context.NotificationMessages.AddAsync(notification);
-                            await _context.SaveChangesAsync();
+                                usersToSend.ForEach(x => x.NotificationMessage = notification);
+                                await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
+                                await _context.NotificationMessages.AddAsync(notification);
+                                await _context.SaveChangesAsync();
+                            }
+                           
 
                         }
                     }
@@ -346,18 +352,20 @@ public class LessonService : ILessonService
         if (lesson.EndTime.Minute - lesson.StartTime.Minute > duration * 2 || lesson.EndTime < lesson.StartTime) throw new Exception("Not correct date");
 
         var lessonsByGroup = _context.Lessons.Include(x => x.Group).Where(x => x.Group.Id == groupId).OrderBy(x => x.StartTime);
-        foreach (var less in lessonsByGroup)
+        /*foreach (var less in lessonsByGroup)
         {
             if (less.Id == lesson.Id) continue;
             if (lesson.StartTime.CompareTo(less.StartTime) >= 0 && lesson.EndTime.CompareTo(less.EndTime) <= 0)
             {
                 throw new Exception("New lesson time conflicted with lesson :" + less.StartTime + " - " + less.EndTime);
             }
-        }
+        }*/
         #endregion
         var user = await _userService.GetCurrentUserAsync();
         var prevLesson = await _context.Lessons.AsNoTracking().Include(x => x.Group).ThenInclude(x => x.LessonType).FirstOrDefaultAsync(x => x.Id == lesson.Id);
         _context.Entry(prevLesson).State = EntityState.Detached;
+
+
 
 
         _context.Lessons.Update(lesson);
@@ -369,13 +377,21 @@ public class LessonService : ILessonService
             + " want to update current lesson with values: "
             + "\nStart time : " + lesson.StartTime.ToShortDateString() + " " + lesson.StartTime.ToShortTimeString()
             + "\nEnd time : " + lesson.EndTime.ToShortDateString() + " " + lesson.EndTime.ToShortTimeString();
-            await CreateRequest(prevLesson, requestMessage, lesson, user);
+            //await CreateRequest(prevLesson, requestMessage, lesson, user);
+
+           
+
         }
-        
-        lesson.StartTime = prevLesson.StartTime;
-        lesson.EndTime = prevLesson.EndTime;
-        _context.Lessons.Update(lesson);
+
+        await _notificationService.СreateToEditLesson(prevLesson, lesson, null);
         await _context.SaveChangesAsync();
+
+
+
+        //lesson.StartTime = prevLesson.StartTime;
+        //lesson.EndTime = prevLesson.EndTime;
+        //_context.Lessons.Update(lesson);
+        //await _context.SaveChangesAsync();
 
         return lesson;
 

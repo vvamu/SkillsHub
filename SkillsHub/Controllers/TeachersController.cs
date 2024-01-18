@@ -95,40 +95,41 @@ public class TeachersController : Controller
         {
             var teacher = _context.Teachers.AsNoTracking().Include(x => x.ApplicationUser).FirstOrDefault(x => x.ApplicationUser.Id == item.ApplicationUserId);
             ApplicationUser user = await _userService.GetUserByIdAsync(item.ApplicationUserId);//= student.ApplicationUser  ?? new ;
-            if (user == null) { user = teacher.ApplicationUser;
-            }
+            if (user == null) { user = teacher.ApplicationUser;}
 
-            if (teacher == null) throw new Exception("Error with create teacher");
-            
-                if (teacher.PaidAmount != 0 && teacher.PaidAmount != item.PaidAmount && !User.IsInRole("Admin"))
-                {
+            if (teacher == null)
+            {
+                teacher = await _userService.CreateTeacherAsync(user, item);
+                item = teacher;
+            }
+            #region CheckPaidAmount
+
+            if (teacher.PaidAmount != 0 && teacher.PaidAmount != item.PaidAmount && !User.IsInRole("Admin"))
+            {
                     var message = "User in teacher account " + User.Identity.Name + " tryed to change payment amout from " + teacher.PaidAmount + " to " + item.PaidAmount;
                     await _notificationService.Create(message, null);
                     throw new Exception("An attempt was made to fix a field that is only accessible to the administrator. The request has been sent to the appropriate place");
-
-                //await _userService.SignOutAsync();
-
-                //return RedirectToAction("Index", "Home");
             }
+            #endregion
 
-            //user = await _context.ApplicationUsers.FirstOrDefaultAsync(x=>x.Id == item.ApplicationUserId);
-            teacher = await _userService.CreateTeacherAsync(user, item);
-                item = teacher;
-            
-
+            #region WorkingDays
             item.WorkingDays = String.Join("-", workingDay);
             _context.Teachers.Update(item);
             await _context.SaveChangesAsync();
+            #endregion
 
+            #region CourceNames
             try
             {
                 var ff = new TimeSpan();
-                
                 var res = await _userService.UpdateTeacherWithCourcesNames(item, itemValue.ToList());
                 item = res;
-            }catch(Exception ex) { }
-            
-            
+            }
+            catch (Exception ex) { }
+            #endregion
+
+
+
 
 
             //user = await _userService.GetUserByIdAsync(item.ApplicationUserId);
@@ -208,6 +209,7 @@ public class TeachersController : Controller
         
         if (await _userManager.IsInRoleAsync(item.ApplicationUser, "Teacher"))
         {
+            item.IsDeleted = true;
             await _userManager.RemoveFromRoleAsync(item.ApplicationUser, "Teacher");
         }
         else

@@ -15,15 +15,13 @@ public class NotificationService : INotificationService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMapper _mapper;
     private readonly IUserService _userService;
-    private readonly IGroupService _groupService;
 
-    public NotificationService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IMapper mapper, IUserService userService, IGroupService groupService)
+    public NotificationService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IMapper mapper, IUserService userService)
     {
         _context = context;
         _userManager = userManager;
         _mapper = mapper;
         _userService = userService;
-        _groupService = groupService;
     }
     
 
@@ -35,7 +33,7 @@ public class NotificationService : INotificationService
         try
         {
             
-            var group = await _groupService.GetAsync(lastLessonValue.GroupId ?? Guid.Empty);
+            var group = await GetAsync(lastLessonValue.GroupId ?? Guid.Empty);
             var notificationMessage = "";
 
             if (lesson == null)
@@ -125,5 +123,25 @@ public class NotificationService : INotificationService
         usersToSend.AddRange(admins);
         return usersToSend;
 
+    }
+
+    public async Task<Group> GetAsync(Guid id)
+    {
+        var groups = await _context.Groups
+            .Include(x => x.Lessons)
+            .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
+
+
+            .Include(x => x.Lessons).Include(x => x.CourseName).Include(x => x.LessonType)
+            //.Include(x => x.GroupStudents).ThenInclude(x => x.Group)
+            .Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
+            //.Include(x => x.GroupStudents).ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
+            .Include(x => x.DaySchedules)
+            .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.CourseName)
+            .Include(x => x.LessonType).ToListAsync();
+        var item = groups.Find(x => x.Id == id);
+        return item;
     }
 }

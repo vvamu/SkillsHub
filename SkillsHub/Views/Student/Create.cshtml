@@ -106,7 +106,15 @@
                                     Possibility to work<span class="text-danger">*</span>
                                 </label>
                                 <div class="col-lg-6">
-                                    <ul id="courcesNames" class="list-group col"></ul>
+
+                                    @if (Model.Id != Guid.Empty)
+                                    {
+                                        <ul id="courcesNames" class="list-group col"></ul>
+                                    }
+                                    else
+                                    {
+                                        <div>Later</div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -126,29 +134,37 @@
                                         Working days<span class="text-danger">*</span>
                                     </label>
                                     <div class="col-lg-6">
-                                        <ul class="list-group col">
-                                            @foreach (var day in Enum.GetNames<DayOfWeek>())
+                                            @if (Model.Id != Guid.Empty)
                                             {
+                                                <ul class="list-group col">
 
-
-                                                <li class="list-group-item">
-                                                    @if (Model != null && Model.WorkingDays != null && Model.WorkingDays.Contains(day))
+                                                    @foreach (var day in Enum.GetNames<DayOfWeek>())
                                                     {
-                                                        <input name="workingDay" style='margin-right:5px;' type="checkbox" value="@day" checked />
 
-                                                        @day
 
+                                                        <li class="list-group-item">
+                                                            @if (Model != null && Model.WorkingDays != null && Model.WorkingDays.Contains(day))
+                                                            {
+                                                                <input name="workingDay" style='margin-right:5px;' type="checkbox" value="@day" checked />
+
+                                                                @day
+
+                                                            }
+                                                            else
+                                                            {
+                                                                <input name="workingDay" style='margin-right:5px;' type="checkbox" value="@day" />
+
+                                                                @day
+                                                            }
+                                                        </li>
                                                     }
-                                                    else
-                                                    {
-                                                        <input name="workingDay" style='margin-right:5px;' type="checkbox" value="@day" />
-
-                                                        @day
-                                                    }
-                                                </li>
+                                                </ul>
                                             }
-                                        </ul>
-                                    </div>
+                                            else
+                                            {
+                                                <li>Later</li>
+                                            }
+                                        </div>
                                 </div>
 
                             </div><!-- <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>-->
@@ -163,35 +179,34 @@
                 </div>
                 </div>
                
-                <div class="row">
                     <div class="card">
                         <div class="card-body">
                             <div>
                                 <div>
                                     <h2>Payment</h2>
                                     <hr />
-                                   
+                                   <!--
                                         <div class="container-fluid">
-                                            @{
+                                            <label>Student already paid</label>
+                                            {
                                                 if(User.IsInRole("Admin"))
                                             {
-                                                <input class="form-control" asp-for="PaymentAmount" min="0" /> <label>BYN</label>
+                                                <input class="form-control" asp-for="PaymentAmount"  /> <label>BYN</label>
                                             }
                                             else if(Model.Id != Guid.Empty)
                                             {
-                                                <input class="form-control" asp-for="PaymentAmount" min="0" disabled /> <label>BYN</label>
+                                                <input class="form-control" asp-for="PaymentAmount" disabled /> <label>BYN</label>
                                             }
                                             }
                                         </div>
-
+                                      -->
                                     <div class="form-group row">
-                                        <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Student" value="Submit" /> </div>
+                                        <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Student" /> </div>
                                     </div>
 
                                 </div><!-- <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>-->
                             </div>
                         </div>
-                    </div>
                     </div>
             </div>
             </div>

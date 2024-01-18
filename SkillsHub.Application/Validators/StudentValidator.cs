@@ -8,7 +8,7 @@ public class StudentValidator : AbstractValidator<Student>
 {
     public StudentValidator()
     {
-        RuleFor(x => x.PaymentAmount).GreaterThan(0);
+        //RuleFor(x => x.PaymentAmount).GreaterThan(0);
     }
 
 }

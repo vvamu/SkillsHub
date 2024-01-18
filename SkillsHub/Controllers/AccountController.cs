@@ -49,6 +49,7 @@ public class AccountController : Controller
         //var users = await _userService.GetAllAsync();
         HttpContext.Session.SetString("page", "index");
         return View();
+
     }
     [HttpGet]
     public async Task<IActionResult> Item(Guid itemId, Guid id)
@@ -93,7 +94,7 @@ public class AccountController : Controller
         {
             foreach(var i in users)
             {
-                if (!(await _userManager.IsInRoleAsync(i, filters.UserRole)))
+                if ((await _userManager.IsInRoleAsync(i, filters.UserRole)))
                     //users = users.Where(x=>x.Id !=  i.Id);
                     list.Add(await _userService.GetUserByIdAsync(i.Id));
             }
@@ -289,8 +290,12 @@ public class AccountController : Controller
         var ress = await FilterMaster.FilterGroups(teacherGroups.AsQueryable(), filters, order);
         var result = ress.ToList();
 
+        var otherLessons = _lessonService.GetAll()
+           .Where(x => x.Teacher.Id == user.UserTeacher.Id)
+           .Where(x => !teacherGroups.Select(x => x.Id).Contains(x.Group.Id)).ToList();
 
-        return PartialView("_TeacherGroups", (user, ress.ToList()));
+
+        return PartialView("_TeacherGroups", (user, ress.ToList(), otherLessons));
 
     }
 

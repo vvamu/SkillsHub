@@ -7,6 +7,12 @@ namespace SkillsHub.Application.DTO;
 public class UserCreateDTO
 {
     public Guid Id { get; set; }
+
+
+    public string? PasswordChanged { get; set; }
+    public string? PasswordChangedConfirm { get; set; }
+
+
     public string Login { get; set; } //unique
     public string FirstName { get; set; }
     public string LastName { get; set; }

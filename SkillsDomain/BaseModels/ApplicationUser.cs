@@ -36,6 +36,12 @@ public class ApplicationUser : IdentityUser<Guid>
     public virtual Student? UserStudent { get; set; }
     public bool IsVerified { get; set; } = false;
 
+    [NotMapped]
+    public string? PasswordChanged { get; set; }
+
+    [NotMapped]
+    public string? PasswordChangedConfirm { get; set; }
+
     public List<NotificationUser>? Notifications { get; set; }
 
     [NotMapped]

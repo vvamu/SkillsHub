@@ -217,7 +217,7 @@ public class LessonController : Controller
         
         try
         {
-            await _lessonService.Edit(item);
+            var  ressss= await _lessonService.Edit(item);
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View("Item", item); }
 
@@ -232,8 +232,8 @@ public class LessonController : Controller
         
         item.Group = gr;
         _context.Entry(item.Group).State = EntityState.Unchanged;
-        _context.Lessons.Update(item);
-        await _context.SaveChangesAsync();
+        //_context.Lessons.Update(item);
+        //await _context.SaveChangesAsync();
 
 
         if (editedTime)
@@ -309,11 +309,20 @@ public class LessonController : Controller
         }
 
         var ggg = lesson.Group.GroupStudents.Select(x => x.Student).ToList();
+
+        if (lesson.Group.IsPermanentStaffGroup)
+        {
+            var ccc = await _userService.GetAllStudentsAsync();
+            ccc = ccc.Where(x => x.IsDeleted == false);
+            ggg = ccc.ToList();
+        }
+
         foreach (var student in ggg)
         {
             if (!stst.Select(x => x.Id).Contains(student.Id))
                 groupSt.Add(student);
         }
+        
 
 
 

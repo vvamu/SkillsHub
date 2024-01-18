@@ -19,7 +19,7 @@ using System.Web;
 
 namespace SkillsHub.Controllers;
 
-[Authorize(Roles ="Admin")]
+[Authorize]
 public class RequestController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -44,9 +44,7 @@ public class RequestController : Controller
     #region CreateReq
 
 
-    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost]
-    [Route("/Request/Edit")]
     public async Task<IActionResult> RequestEdit(Lesson item)
     {
         var user = await _userService.GetCurrentUserAsync();
@@ -60,9 +58,7 @@ public class RequestController : Controller
 
         return RedirectToAction("Item", "Group", new { id = request.LessonBefore.GroupId });
     }
-    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost]
-    [Route("/Request/Delete/{id}")]
     public async Task<IActionResult> RequestDelete(Guid id)
     {
         var user = await _userService.GetCurrentUserAsync();
