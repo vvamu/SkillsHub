@@ -125,21 +125,10 @@
                                         <h2>Payment</h2>
                                         <hr />
 
-                                        <div class="container-fluid">
-                                            @{
-                                                if (User.IsInRole("Admin"))
-                                                {
-                                                    <input class="form-control" asp-for="PaidAmount" min="0" /> <label>BYN</label>
-                                                }
-                                                else if (Model.Id != Guid.Empty)
-                                                {
-                                                    <input class="form-control" asp-for="PaidAmount" min="0" disabled /> <label>BYN</label>
-                                                }
-                                            }
-                                        </div>
+                                        
 
                                         <div class="form-group row">
-                                            <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Submit" asp-controller="Student" value="Submit" /> </div>
+                                            <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Teachers" value="Submit" /> </div>
                                         </div>
 
                                     </div><!-- <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>-->

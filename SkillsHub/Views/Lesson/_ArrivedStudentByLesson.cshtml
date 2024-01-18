@@ -2,9 +2,9 @@
 @model (List<LessonStudent>? ArrivedStudents,List<Student>? AllStudents, List<Student>? byGroup, bool IsPermanentStaffGroup);
 
 @{
-    var ArrivedStudents = Model.ArrivedStudents;
-    var AllStudents = Model.AllStudents;
-    var byGroup = Model.byGroup;
+    var ArrivedStudents = Model.ArrivedStudents.Where(x => x.IsDeleted == false).ToList();
+    var AllStudents = Model.AllStudents.Where(x=>x.IsDeleted == false).ToList();
+    var byGroup = Model.byGroup.Where(x => x.IsDeleted == false).ToList();
     var isPermanent = Model.IsPermanentStaffGroup;
 }
 

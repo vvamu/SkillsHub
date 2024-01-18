@@ -1,22 +1,25 @@
 ﻿@using SkillsHub.Domain.BaseModels;
 @model (List<Student>? allStudents,List<Student>? checkedStudents);
-
+@{
+    var allStudents = Model.allStudents.Where(x => x.IsDeleted == false).ToList();
+    var checkedStudents = Model.checkedStudents.Where(x => x.IsDeleted == false).ToList();
+}
 <ul>
 
   
-@if(Model.allStudents == null && Model.allStudents.Count() == 0)
+@if(allStudents == null && allStudents.Count() == 0)
 {
         <li>List visible student`s is empty</li>  
 }
 else
 {
-        @foreach (var item in Model.allStudents)
+        @foreach (var item in allStudents)
         {
             var user = item.ApplicationUser;
 
             <li class='list-group-item'>
                 <input type='hidden' name='itemId' value='@item.Id' />
-                @if (Model.checkedStudents != null && Model.checkedStudents.Select(x => x.Id).Contains(item.Id))
+                @if (checkedStudents != null && checkedStudents.Select(x => x.Id).Contains(item.Id))
                 {
                     <input type='checkbox' name='studentId' style='margin-right:5px;' value='@item.Id' checked />
                 }

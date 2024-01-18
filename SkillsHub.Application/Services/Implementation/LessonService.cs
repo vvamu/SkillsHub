@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Application.Validators;
 using SkillsHub.Domain.BaseModels;
@@ -15,10 +16,16 @@ namespace SkillsHub.Application.Services.Implementation;
 public class LessonService : ILessonService
 {
     private readonly ApplicationDbContext _context;
+    //private readonly IRequestService _requestService;
+    private readonly IUserService _userService;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public LessonService(ApplicationDbContext context)
+    public LessonService(ApplicationDbContext context, IUserService userService,UserManager<ApplicationUser> userManager)
     {
         _context = context;
+       // _requestService = requestService;
+        _userService = userService;
+        _userManager = userManager;
     }
 
     #region Get
@@ -319,6 +326,7 @@ public class LessonService : ILessonService
 
     public async Task<Lesson> Edit(Lesson lesson)
     {
+       
         var lessonValidator = new LessonValidator();
         var validationResult = await lessonValidator.ValidateAsync(lesson);
         if (!validationResult.IsValid)
@@ -327,7 +335,7 @@ public class LessonService : ILessonService
             var errorsString = string.Concat(errors);
             throw new Exception(errorsString);
         }
-
+        
         #region CheckCorrect
 
         Guid groupId = (Guid)lesson.GroupId;
@@ -346,14 +354,62 @@ public class LessonService : ILessonService
                 throw new Exception("New lesson time conflicted with lesson :" + less.StartTime + " - " + less.EndTime);
             }
         }
-
         #endregion
+        var user = await _userService.GetCurrentUserAsync();
+        var prevLesson = await _context.Lessons.AsNoTracking().Include(x => x.Group).ThenInclude(x => x.LessonType).FirstOrDefaultAsync(x => x.Id == lesson.Id);
+        _context.Entry(prevLesson).State = EntityState.Detached;
 
+
+        _context.Lessons.Update(lesson);
+        await _context.SaveChangesAsync();
+
+        if (await _userManager.IsInRoleAsync(user, "Teacher")) //условие для учителей
+        {
+            var requestMessage = user.Login.ToString()
+            + " want to update current lesson with values: "
+            + "\nStart time : " + lesson.StartTime.ToShortDateString() + " " + lesson.StartTime.ToShortTimeString()
+            + "\nEnd time : " + lesson.EndTime.ToShortDateString() + " " + lesson.EndTime.ToShortTimeString();
+            await CreateRequest(prevLesson, requestMessage, lesson, user);
+        }
+        
+        lesson.StartTime = prevLesson.StartTime;
+        lesson.EndTime = prevLesson.EndTime;
         _context.Lessons.Update(lesson);
         await _context.SaveChangesAsync();
 
         return lesson;
 
+    }
+    public async Task<RequestLesson> CreateRequest(Lesson prevLesson, string requestMessage, Lesson newLesson, ApplicationUser user)
+    {
+        DateTime newStart = DateTime.Now;
+        DateTime newEnd = DateTime.Now;
+        if (newLesson != null)
+        {
+            var duration = (newLesson.EndTime - newLesson.StartTime).TotalMinutes;
+            var defaultDuration = prevLesson.Group.LessonType.LessonTimeInMinutes;
+            requestMessage += "\n| Default time to lesson type " + prevLesson.Group.LessonType.Name + " : " + defaultDuration
+                + "\n | New duration : " + duration
+                + "\n Difference : " + (defaultDuration - duration);
+
+            newStart = newLesson.StartTime;
+            newEnd = newLesson.EndTime;
+
+        }
+        else
+        {
+            requestMessage += " in group '" + newLesson.Group.Name + "' ";//+ "' lesson  was deleted by date:  ";
+                                                                       // + lesson.StartTime.ToShortTimeString() + " - " + lesson.EndTime.ToShortTimeString();
+        }
+
+        var request = new RequestLesson() { LessonBefore = newLesson, RequestMessage = requestMessage, User = user, NewStart = newStart, NewEnd = newEnd };
+
+        _context.Entry(request.User).State = EntityState.Unchanged;
+        _context.Entry(request.LessonBefore).State = EntityState.Unchanged;
+
+        _context.RequestLessons.Add(request);
+        await _context.SaveChangesAsync();
+        return request;
     }
 
     public async Task<Group> GetGroupAsync(Guid id)

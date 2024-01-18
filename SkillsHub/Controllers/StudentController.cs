@@ -218,7 +218,13 @@ public class StudentController : Controller
 
         try
         {
-             if(student.PaymentAmount != 0 && student.PaymentAmount != item.PaymentAmount && !User.IsInRole("Admin"))
+            if (student == null)
+            {
+                student = await _userService.CreateStudentAsync(user, item);
+                item = student;
+                user.UserStudent = item;
+            }
+            if (student.PaymentAmount != 0 && student.PaymentAmount != item.PaymentAmount && !User.IsInRole("Admin"))
             { 
                 var message = "User in student account " + User.Identity.Name + " tryed to change payment amout from " + student.PaymentAmount + " to " + item.PaymentAmount;
                 await _notificationService.Create(message,null);
@@ -229,11 +235,7 @@ public class StudentController : Controller
                 
             }
 
-            if (student == null)
-            {
-                student = await _userService.CreateStudentAsync(user, item);
-                item = student;
-            }
+           
             
 
             item = await UpdateWorkingDays(item, workingDay);

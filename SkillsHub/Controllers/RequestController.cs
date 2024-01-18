@@ -53,8 +53,8 @@ public class RequestController : Controller
 
         var requestMessage = user.Login.ToString()
             + " want to update current lesson with values: "
-            + "\nStart time : " + item.StartTime.ToShortTimeString()
-            + "\nEnd time : " + item.EndTime.ToShortTimeString();
+            + "\nStart time : " + item.StartTime.ToShortDateString() + " " + item.StartTime.ToShortTimeString()
+            + "\nEnd time : " + item.EndTime.ToShortDateString() + " " + item.EndTime.ToShortTimeString();
 
         var request = await _requestService.Create(item.Id, requestMessage,item);
 

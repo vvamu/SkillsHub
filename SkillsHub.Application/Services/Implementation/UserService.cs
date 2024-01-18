@@ -13,6 +13,7 @@ using SkillsHub.Application.Validators;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Interfaces;
 using Azure.Core;
+using Spire.Xls.Charts;
 
 namespace SkillsHub.Application.Services.Implementation;
 
@@ -449,7 +450,8 @@ public class UserService : IUserService
 
     public async Task<ApplicationUser> HardDeleteAsync(ApplicationUser item)
     {
-        await SoftDeleteAsync(item);
+        if(!item.IsDeleted)
+            await SoftDeleteAsync(item);
 
         _context.ApplicationUsers.Remove(item);
         await _context.SaveChangesAsync();
@@ -466,36 +468,21 @@ public class UserService : IUserService
         if (teacher != null)
         {
             teacher.IsDeleted = true;
-            teacher.Groups = null;
-            //var groups = _context.Groups.Include(x => x.Teacher).
-            //    Where(x => x.Teacher.Id == teacher.Id);
+            teacher.Groups = new List<Group>();
 
-            //foreach (var group in groups)
-            //{
-            //    group.Teacher = null;
-            //    _context.Groups.Update(group);
-            //}
 
-            foreach (var cource in teacher.PossibleCources)
-            {
-                //
-            }
-            teacher.PossibleCources = null;
+            teacher.PossibleCources = new List<CourseNameTeacher>();
 
             var scheduleTeacher = teacher.WorkingDays;
-            if (scheduleTeacher != null)
-            {
-                //_context.WorkingDays.RemoveRange(scheduleTeacher);
-                teacher.WorkingDays = null;
-            }
 
-
+            //await DeleteStudentAsync(teacher.Id);
+            _context.Teachers.Update(teacher);
             await _context.SaveChangesAsync();
 
         }
         if (student != null)
         {
-
+            student.IsDeleted = true;
 
             var groupIdsWithStudent = _context.Groups;
 
@@ -510,23 +497,25 @@ public class UserService : IUserService
                 }
             }
 
+            student.Groups = new List<GroupStudent>();
+            student.PossibleCources = new List<CourseNameStudent>();
 
+            
+            student.Lessons = new List<LessonStudent>();
+            _context.Students.Update(student);
 
-            var schedulteStudent = student.WorkingDays;
-            if (schedulteStudent != null)
-            {
-                student.WorkingDays = null;
-            }
+            await _context.SaveChangesAsync();
 
         }
 
-        var lessons = _context.Lessons.Include(x => x.Creator).
-            Where(x => x.Creator.Id == item.Id);
-        foreach (var lesson in lessons)
-        {
-            lesson.Creator = null;
-            _context.Lessons.Update(lesson);
-        }
+        //var lessons = _context.Lessons.Include(x => x.Creator).
+        //    Where(x => x.Creator.Id == item.Id);
+        //foreach (var lesson in lessons)
+        //{
+        //    lesson.Creator = null;
+        //    _context.Lessons.Update(lesson);
+        //}
+        
         /*
         if(item.EnglishLevel != null)
         {
