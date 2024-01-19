@@ -200,17 +200,22 @@ public class LessonService : ILessonService
 
         #endregion
 
+        
+
+        await _context.Lessons.AddAsync(lesson);
+        await _context.SaveChangesAsync();
+
         #region AddStudentsToNewGroup
         if (group.IsPermanentStaffGroup)
         {
             // в идеале ассинхрон
-            var students = group.GroupStudents.Select((x)=> new LessonStudent() { IsVisit = false, LessonId = lesson.Id, StudentId = x.StudentId } ).ToList();
+            var students = group.GroupStudents.Select((x) => new LessonStudent() { IsVisit = false, LessonId = lesson.Id, StudentId = x.StudentId }).ToList();
             await _context.LessonStudents.AddRangeAsync(students);
         }
+
+        await _context.SaveChangesAsync();
         #endregion
 
-        await _context.Lessons.AddAsync(lesson);
-        await _context.SaveChangesAsync();
         return lesson;
        
     }
