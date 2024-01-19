@@ -367,17 +367,18 @@ public class GroupService: IGroupService
 
                 foreach (var studentId in studentsId)
                 {
-
-                    var stud = await _context.Students.Include(x=>x.ApplicationUser).FirstOrDefaultAsync(x => x.Id == studentId);
-                    var groupNew = new Group() { Id = group.Id };//await _context.Groups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == group.Id);
-                    if (await _context.GroupStudents.FirstOrDefaultAsync(x => x.GroupId == group.Id && x.StudentId == studentId) != null) continue;
-                    var grSt = new GroupStudent() { GroupId = group.Id, StudentId = studentId };
-                    await _context.GroupStudents.AddAsync(grSt);
+                    if (!groupStudents.Select(x => x.Id).Contains(studentId))
+                    {
+                        var stud = await _context.Students.Include(x=>x.ApplicationUser).FirstOrDefaultAsync(x => x.Id == studentId);
+                        var groupNew = new Group() { Id = group.Id };//await _context.Groups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == group.Id);
+                        if (await _context.GroupStudents.FirstOrDefaultAsync(x => x.GroupId == group.Id && x.StudentId == studentId) != null) continue;
+                    
+                        var grSt = new GroupStudent() { GroupId = group.Id, StudentId = studentId };
+                        await _context.GroupStudents.AddAsync(grSt);
 
                     #region Create notification when user was added to group
 
-                    if (!groupStudents.Select(x => x.Id).Contains(studentId))
-                    {
+                    
 
                         var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = stud.ApplicationUser.Id } };
                         var message = " You was added to group " + group.Name;
@@ -387,9 +388,9 @@ public class GroupService: IGroupService
                         await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
                         await _context.NotificationMessages.AddAsync(notification);
                         await _context.SaveChangesAsync();
-
-                    }
                     #endregion
+                    }
+                    
 
 
                     await _context.SaveChangesAsync();
