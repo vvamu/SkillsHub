@@ -160,6 +160,7 @@ public class LessonController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(Lesson lesson)
     {
+        lesson.Id = Guid.Empty;
         Guid? grId = lesson.GroupId.HasValue ? lesson.GroupId.Value : lesson.Group?.Id;
         Group group = new Group();
         int previousCountLessons = 0;
