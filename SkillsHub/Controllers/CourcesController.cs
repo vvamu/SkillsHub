@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Helpers;
@@ -10,6 +11,8 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace SkillsHub.Controllers;
+
+[Authorize]
 
 public class CourcesController : Controller
 {

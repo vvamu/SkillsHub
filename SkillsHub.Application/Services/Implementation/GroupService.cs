@@ -102,6 +102,11 @@ public class GroupService: IGroupService
 
         await _context.Groups.AddAsync(item);
         await _context.SaveChangesAsync();
+
+
+        
+
+
         return item;
 
     }

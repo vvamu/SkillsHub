@@ -19,6 +19,8 @@ using static Viber.Bot.NetCore.Models.ViberResponse;
 
 namespace SkillsHub.Controllers;
 
+[Authorize]
+
 public class CRMController: Controller
 {
     private readonly IMailService _mailService;

@@ -148,7 +148,8 @@ public class LessonController : Controller
         bool isVerified = true;
         if (User.IsInRole("Teacher")) isVerified = false;
 
-        await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, 1, group , isVerified);
+        var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, 1, group , isVerified);
+        await _notificationService.СreateToUpdateCountLessonsInGroup(group,lessonsCount,lessonsCount+1,null);
 
 
 
@@ -160,9 +161,12 @@ public class LessonController : Controller
     public async Task<IActionResult> Create(Lesson lesson)
     {
         Guid? grId = lesson.GroupId.HasValue ? lesson.GroupId.Value : lesson.Group?.Id;
+        Group group = new Group();
+        int previousCountLessons = 0;
         if (grId != null)
         {
-            var group = await _groupService.GetAsync(grId.Value) ?? throw new Exception("Group not found");
+            group = await _groupService.GetAsync(grId.Value) ?? throw new Exception("Group not found");
+            previousCountLessons = group.Lessons.Count();
             var duration = group.LessonType.LessonTimeInMinutes;
 
             ViewBag.grId = group.Id;
@@ -174,6 +178,11 @@ public class LessonController : Controller
             await _lessonService.Create(lesson);
         }
         catch(Exception ex) { ModelState.AddModelError("", ex.Message); lesson.Id = Guid.Empty; return View("Item", lesson); }
+        #region Notification
+            await _notificationService.СreateToUpdateCountLessonsInGroup(group, previousCountLessons, previousCountLessons + 1, null);
+        #endregion
+
+
         return RedirectToAction("Item", "Group", new { id = lesson.GroupId });
     }
     #endregion
@@ -188,13 +197,18 @@ public class LessonController : Controller
     public async Task<IActionResult> Delete(Guid id)
     {
         var lesson = _context.Lessons.Include(x => x.Group).AsNoTracking().FirstOrDefault(x => x.Id == id) ?? throw new Exception("Lesson not found");
-        //var lastLessonValue = await _context.Lessons.FirstOrDefaultAsync(x => x.Id == lesson.Id);
 
+        #region Notification
         await _notificationService.СreateToEditLesson(lesson, null, null, 1);
         await _context.SaveChangesAsync();
+        #endregion
 
-        var group = lesson.Group;//await _groupService.GetAll().FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(id));
+        var group = lesson.Group;
+
+        #region Request
         await _requestService.DeletePreviousRequests(lesson);
+        #endregion
+        
         await _lessonService.DeleteLessonByGroup(group, lesson);
 
         return RedirectToAction("Item","Group",new { id = lesson.GroupId });
