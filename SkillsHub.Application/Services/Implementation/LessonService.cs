@@ -114,9 +114,10 @@ public class LessonService : ILessonService
                         try
                         {
                             _context.Students.ToList();
-                            _context.ApplicationUsers.ToList();
-                            var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = student.Student.ApplicationUser.Id } };
-                            var message = " You was removed lesson by group " + groupName + "; Time: "  + lesson.StartTime.ToShortDateString() + " " + lesson.EndTime.ToShortDateString();
+                            var user = await _context.ApplicationUsers.Include(x=>x.UserStudent).FirstOrDefaultAsync(x => x.UserStudent.Id == student.StudentId);
+
+                            var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = user.Id } };
+                            var message = " You was removed from lesson by group " + groupName + "; Time: "  + lesson.StartTime.ToShortDateString() + " " + lesson.EndTime.ToShortDateString();
                             var notification = new NotificationMessage() { Message = message, Users = usersToSend };
 
                             usersToSend.ForEach(x => x.NotificationMessage = notification);
@@ -134,7 +135,7 @@ public class LessonService : ILessonService
                             _context.ApplicationUsers.ToList();
                             if(student != null)
                             {
-                                var user = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.UserStudent.Id == student.Id);
+                                var user = await _context.ApplicationUsers.Include(x=>x.UserStudent).FirstOrDefaultAsync(x => x.UserStudent.Id == student.StudentId);
 
                                 var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = user.Id } };
                                 var message = " You was added to lesson in group " + groupName;
