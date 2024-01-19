@@ -180,15 +180,56 @@ public class GroupController : Controller
     {
         try
         {
-            
-            //need
             var group = await _groupService.GetAsync(item.Id);
             _context.Entry(group).State = EntityState.Detached;
+
+            #region Add notification to teacher
+
+            try
+            {
+                
+
+                    List<NotificationUser> usersToSend = new List<NotificationUser>();//{ new NotificationUser() { UserId =  } };
+
+                if (item.TeacherId != group.TeacherId && item.TeacherId !=  Guid.Empty)
+                {
+                    var userTeacher  =_context.Teachers.Include(x=>x.ApplicationUser).FirstOrDefault(x=>x.Id == item.TeacherId);
+                    //var message = " You was added to group " + group.Name + " like teacher";
+                    //var notification = new NotificationMessage() { Message = message, Users = usersToSend };
+                    _notificationService.Create("You was added to group "+group.Name + " like teacher", new List<ApplicationUser>() { userTeacher.ApplicationUser });
+
+                }
+                if (item.TeacherId != group.TeacherId && group.TeacherId != Guid.Empty)
+                {
+                    var userTeacher = _context.Teachers.Include(x => x.ApplicationUser).FirstOrDefault(x => x.Id == group.TeacherId);
+                    //var message = " You was renoved from group " + group.Name + " like teacher";
+                    //var notification = new NotificationMessage() { Message = message, Users = userTeacher };
+
+                    _notificationService.Create("You was removed from group"+group.Name+ " like teacher", new List<ApplicationUser>() { userTeacher.ApplicationUser});
+                }
+                
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex) { }
+
+            #endregion
+
+
+
+            //need
+            
             if (item.LessonTypeId == Guid.Empty) item.LessonTypeId = group.LessonTypeId;
             if(item.CourseNameId == Guid.Empty) item.CourseNameId = group.CourseNameId;
             if(item.TeacherId == Guid.Empty) item.TeacherId = group.TeacherId;
 
+
+
+            
+
             var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x => x.Id == item.LessonTypeId);
+
+           
+
 
             /*
             if (lessonType != null && ((item.DateStart < DateTime.Now.AddDays(1)

@@ -310,116 +310,90 @@ public class GroupService: IGroupService
 
         return item;
     }
-    
+
 
     public async Task<Group> UpdateGroupStudents(Group group, List<Guid> studentsId)
     {
+        if (group == null) throw new Exception("Group not found");
+
+
+        var groupStudents = group.GroupStudents;
+        if (groupStudents == null) groupStudents = new List<GroupStudent>();
+
+        //remove all
         try
         {
-            if (group != null && group.GroupStudents != null)
+            
+
+            foreach (var student in groupStudents)
             {
-                var groupStudents = group.GroupStudents.ToList();
-                       
-                foreach (var student in groupStudents)
+                if (studentsId.Contains(student.Id))
                 {
-                    
-                    
-                    if (studentsId.Contains(student.Id))
-                    {
-                        _context.GroupStudents.Remove(student);
+                    _context.GroupStudents.Remove(student);
 
-                        try
-                        {
-                            var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = student.Student.ApplicationUser.Id } };
-                            var message = " You was removed from group " + group.Name;
-                            var notification = new NotificationMessage() { Message = message, Users = usersToSend };
-
-                            usersToSend.ForEach(x => x.NotificationMessage = notification);
-                            await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
-                            await _context.NotificationMessages.AddAsync(notification);
-                            await _context.SaveChangesAsync();
-                        }catch { }
-
-                    }
+                    #region Create notification to remove from group
                     try
                     {
-                        if (!studentsId.Contains(student.Id))
-                    {
-                      
-                            var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = student.Student.ApplicationUser.Id } };
-                            var message = " You was added to group " + group.Name;
-                            var notification = new NotificationMessage() { Message = message, Users = usersToSend };
+                        var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = student.Student.ApplicationUser.Id } };
+                        var message = " You was removed from group " + group.Name;
+                        var notification = new NotificationMessage() { Message = message, Users = usersToSend };
 
-                            usersToSend.ForEach(x => x.NotificationMessage = notification);
-                            await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
-                            await _context.NotificationMessages.AddAsync(notification);
-                            await _context.SaveChangesAsync();
-                        
-                    }
+                        usersToSend.ForEach(x => x.NotificationMessage = notification);
+                        await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
+                        await _context.NotificationMessages.AddAsync(notification);
+                        await _context.SaveChangesAsync();
                     }
                     catch { }
+                    #endregion
 
-                    _context.Entry(student).State = EntityState.Detached;
 
-                   
-                   
-
-                    /*
-                    if (student2.Groups != null)
-                    {
-                        student2.Groups.Remove(group);
-                        group.GroupStudents.Remove(student2);
-
-                        _context.Students.Update(student2);
-                        _context.Groups.Update(group);
-                    }*/
                 }
-                //_context.Students.RemoveRange(groupStudents);
+
+                _context.Entry(student).State = EntityState.Detached;
                 await _context.SaveChangesAsync();
+
             }
+        }
+        catch (Exception ex) { }
 
 
-
-            //add all
-            foreach (var studentId in studentsId)
+        //add all
+        try
             {
-                ApplicationUser? userr;
 
-                var stud = await _context.Students.FirstOrDefaultAsync(x => x.Id == studentId);
-                var groupNew = new Group() { Id = group.Id };//await _context.Groups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == group.Id);
+                foreach (var studentId in studentsId)
+                {
 
-                if (await _context.GroupStudents.FirstOrDefaultAsync(x => x.GroupId == group.Id && x.StudentId == studentId) != null) continue;
+                    var stud = await _context.Students.Include(x=>x.ApplicationUser).FirstOrDefaultAsync(x => x.Id == studentId);
+                    var groupNew = new Group() { Id = group.Id };//await _context.Groups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == group.Id);
+                    if (await _context.GroupStudents.FirstOrDefaultAsync(x => x.GroupId == group.Id && x.StudentId == studentId) != null) continue;
+                    var grSt = new GroupStudent() { GroupId = group.Id, StudentId = studentId };
+                    await _context.GroupStudents.AddAsync(grSt);
 
-                var grSt = new GroupStudent() { GroupId = group.Id, StudentId = studentId };
-                /*
-                if (stud.Groups != null) stud.Groups.Add(group);
-                else  stud.Groups = new List<Group>() { group };
+                    #region Create notification when user was added to group
 
-                //if (group != null && group.GroupStudents != null) group.GroupStudents.Add(stud);
-                //else group.GroupStudents = new List<Student>() { stud };
-                */
-                await _context.GroupStudents.AddAsync(grSt);
+                    if (!groupStudents.Select(x => x.Id).Contains(studentId))
+                    {
 
-                //_context.Entry(grSt.Group).State = EntityState.Unchanged;
-                //_context.Entry(grSt.Student).State = EntityState.Unchanged;
-                //await _context.SaveChangesAsync();
-                /*
-                _context.Entry(stud.Groups).State = EntityState.Unchanged;
-                _context.Entry(group.GroupStudents).State = EntityState.Unchanged;
+                        var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = stud.ApplicationUser.Id } };
+                        var message = " You was added to group " + group.Name;
+                        var notification = new NotificationMessage() { Message = message, Users = usersToSend };
 
-                _context.Students.Update(stud);
-                _context.Groups.Update(group);
-                */
+                        usersToSend.ForEach(x => x.NotificationMessage = notification);
+                        await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
+                        await _context.NotificationMessages.AddAsync(notification);
+                        await _context.SaveChangesAsync();
 
-                
+                    }
+                    #endregion
 
-            }
 
-            
-            await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
+                }
             }
             catch (Exception ex) { }
-            return group;
+        
+        return group;
 
     }
 
