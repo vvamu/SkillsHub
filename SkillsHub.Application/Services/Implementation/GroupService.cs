@@ -323,18 +323,22 @@ public class GroupService: IGroupService
         //remove all
         try
         {
-            
 
+            var resGroupStudents = new List<GroupStudent>();
             foreach (var student in groupStudents)
             {
-                if (studentsId.Contains(student.Id))
+
+                //_context.Entry(student.Student).State = EntityState.Unchanged;
+                if (!studentsId.Contains(student.Id))
                 {
-                    _context.GroupStudents.Remove(student);
+
+                    //_context.GroupStudents.Remove(student);
 
                     #region Create notification to remove from group
                     try
                     {
-                        var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = student.Student.ApplicationUser.Id } };
+                        var stud = await _context.Students.Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.Id == student.StudentId);
+                        var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = stud.ApplicationUser.Id } };
                         var message = " You was removed from group " + group.Name;
                         var notification = new NotificationMessage() { Message = message, Users = usersToSend };
 
@@ -349,7 +353,6 @@ public class GroupService: IGroupService
 
                 }
 
-                _context.Entry(student).State = EntityState.Detached;
                 await _context.SaveChangesAsync();
 
             }
