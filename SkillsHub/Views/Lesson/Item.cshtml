@@ -47,9 +47,7 @@
                                     <div class="form-group">
                                         <label class=" col-form-label" for="val-skill">
                                             <h4>
-                                                Default duration by lesson type:
-                                                <span>@ViewBag.DefaultLessonTime</span>
-
+                                              
 
 
                                             </h4>
@@ -73,10 +71,6 @@
                                         <input type="text" asp-for="Topic" disabled />
                                     </div>
 
-                                    <li>Min count of students by type: -</li>
-                                    <li>Max count of students by type: -</li>
-
-
                                     <div class="form-group">
                                         <label class=" col-form-label" for="val-skill">
                                             <h4>Teacher<span class="text-danger">*</span></h4>
@@ -98,7 +92,7 @@
                                     <div class="form-group">
                                         <label class=" col-form-label" for="val-skill" style="display:flex;justify-content:space-between">
 
-                                            <h4>Arrived students<span class="text-danger">*</span></h4>
+                                            <h4>Arrived students (from @Model.Group.LessonType.MinimumStudents to @Model.Group.LessonType.MaximumStudents)<span class="text-danger">*</span></h4>
 
                                             @if (User.IsInRole("Student"))
                                             {
@@ -125,10 +119,11 @@
                                             <input type="url" asp-for="LinkToWebinar" class="form-control" value="@Model.LinkToWebinar" placeholder="Url link" disabled>
                                         </label>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group" style="display:flex">
                                         <label class=" col-form-label" for="val-skill">
-                                            <h4>Link to webinar<span class="text-danger">*</span></h4>
+                                            <h4>Completed<span class="text-danger">*</span></h4>
                                         </label>
+
                                         <input type="checkbox" asp-for="IsСompleted" class="form-control" disabled>
                                     </div>
 
