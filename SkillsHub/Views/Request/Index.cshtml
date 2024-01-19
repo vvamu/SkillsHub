@@ -47,10 +47,23 @@
         @{
             if (Model == null || Model.Count() == 0)
             {
+               
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
 
                 <div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
                     <h3>Request list is empty</h3>
                 </div>
+                </div>
+                </div>
+                </div>
+                    </div>
+                </div>
+
+
 
             }
 
@@ -59,6 +72,8 @@
 
                 var groups = Model.Select(x => x.LessonBefore).Select(x => x.Group);
                 groups = groups.DistinctBy(x => x.Id);
+
+                <div class="container-fluid">
                 @foreach (var i in groups)
                 {
                     var reqs = Model.Where(x => x.LessonBefore.Group.Id == i.Id);
@@ -222,7 +237,7 @@
 
                     </div>
                 }
-
+                </div>
             }
         }
 
@@ -230,7 +245,7 @@
     </div>
 
 </div>
-
+<!--
 <script src="~/plugins/common/common.min.js"></script>
 <script src="~/js/custom.min.js"></script>
 <script src="~/js/settings.js"></script>
@@ -240,6 +255,7 @@
 
 
 <div id="partialZone"></div>
-    
+
+    -->
 
 

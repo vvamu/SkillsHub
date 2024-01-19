@@ -56,8 +56,8 @@
                                 {
                                     var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
                                     var countLessons = item.Lessons.Count();
-                                    var priceByEndedLessons = item.LessonType.TeacherPrice * countEndedLessons;
-                                    var priceByLessons = item.LessonType.TeacherPrice * countLessons;
+                                    var priceByEndedLessons = item.LessonType.StudentPrice * countEndedLessons;
+                                    var priceByLessons = item.LessonType.StudentPrice * countLessons;
 
                                     var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
                                     var startTimes = item.DaySchedules.Select(x => x.WorkingStartTime).ToArray();
