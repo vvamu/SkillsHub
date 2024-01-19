@@ -1,10 +1,12 @@
-﻿@using Microsoft.EntityFrameworkCore;
+﻿@using Microsoft.AspNetCore.Identity;
+@using Microsoft.EntityFrameworkCore;
 @using SkillsHub.Application.DTO;
 @using SkillsHub.Domain.BaseModels
 @using SkillsHub.Domain.Models;
 @using SkillsHub.Persistence;
 
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
+@inject UserManager<ApplicationUser> _uM;
 
 
 @model Lesson?;
@@ -228,14 +230,17 @@
                                     <label class=" col-form-label" for="val-skill">
                                         <h4>Teacher<span class="text-danger">*</span></h4>
                                     </label>
+                                
+                                @if (User.IsInRole("Admin"))
+                                {
                                     <select asp-for="TeacherId" id="allTeachers" class="form-select">
-                                    
+
                                         @{
                                             _context.Teachers.ToList();
-                                        
-                                            var ii =  _context.ApplicationUsers.ToList();
+
+                                            var ii = _context.ApplicationUsers.ToList();
                                             var teacherUserId = Guid.Empty;
-                                       
+
                                         }
                                         @if (Model.Teacher != null && Model.Teacher.ApplicationUser != null)
                                         {
@@ -245,15 +250,45 @@
 
                                             <option selected class="text-info" value="@Model.Teacher.Id">@user.Login @user.FirstName @user.LastName </option>
 
-                                       
+
                                         }
-                                        @foreach (var teacher in _context.Teachers.Include(x=>x.ApplicationUser).Where(x => x.IsDeleted == false).Where(x=>x.ApplicationUser.Id != teacherUserId))
+                                        @foreach (var teacher in _context.Teachers.Include(x => x.ApplicationUser).Where(x => x.IsDeleted == false).Where(x => x.ApplicationUser.Id != teacherUserId))
                                         {
                                             <option value="@teacher.Id">@teacher.ApplicationUser.Login @teacher.ApplicationUser.FirstName @teacher.ApplicationUser.LastName</option>
                                         }
-                                    
+
                                     </select>
-                                </div>
+                                }
+                                else
+                                {
+                                    <select asp-for="TeacherId" id="allTeachers" class="form-select" disabled>
+
+                                        @{
+                                            _context.Teachers.ToList();
+
+                                            var ii = _context.ApplicationUsers.ToList();
+                                            var teacherUserId = Guid.Empty;
+
+                                        }
+                                        @if (Model.Teacher != null && Model.Teacher.ApplicationUser != null)
+                                        {
+                                            var user = Model.Teacher.ApplicationUser;
+                                            teacherUserId = user.Id;
+
+
+                                            <option selected class="text-info" value="@Model.Teacher.Id">@user.Login @user.FirstName @user.LastName </option>
+
+
+                                        }
+                                        @foreach (var teacher in _context.Teachers.Include(x => x.ApplicationUser).Where(x => x.IsDeleted == false).Where(x => x.ApplicationUser.Id != teacherUserId))
+                                        {
+                                            <option value="@teacher.Id">@teacher.ApplicationUser.Login @teacher.ApplicationUser.FirstName @teacher.ApplicationUser.LastName</option>
+                                        }
+
+                                    </select>
+                                }
+
+                            </div>
 
                                 <div class="form-group">
                                     <label class=" col-form-label" for="val-skill">
