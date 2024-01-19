@@ -328,11 +328,11 @@ public class GroupService: IGroupService
             foreach (var student in groupStudents)
             {
 
-                _context.Entry(student.Student).State = EntityState.Detached;
+                //_context.Entry(student.Student).State = EntityState.Unchanged;
                 if (!studentsId.Contains(student.Id))
                 {
 
-                    group.GroupStudents.Remove(student);
+                    //_context.GroupStudents.Remove(student);
 
                     #region Create notification to remove from group
                     try
