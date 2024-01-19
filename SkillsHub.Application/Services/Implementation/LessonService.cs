@@ -70,33 +70,6 @@ public class LessonService : ILessonService
         if (lesson.Group != null) groupName = lesson.Group.Name;
         List<LessonStudent> lessonStudentsByGroup = lesson.ArrivedStudents.ToList();
 
-        /* TEST
-        foreach (var studentId in studentsId)
-        {
-            //if (user != null) studentId = user.Id;
-
-       
-            var lessonStudent = _context.LessonStudents.
-                FirstOrDefault(x=>x.StudentId == studentId && x.LessonId == lesson.Id) 
-                ?? new LessonStudent() { StudentId = studentId, LessonId = lesson.Id };
-
-            try
-            {
-                _context.Entry(lessonStudent.Student).State = EntityState.Unchanged;
-                _context.Entry(lessonStudent.Lesson).State = EntityState.Unchanged;
-            }catch { }
-        
-
-            await _context.SaveChangesAsync();
-        
-
-            if (lessonStudent.Id != Guid.Empty) _context.LessonStudents.Update(lessonStudent);
-            else await _context.LessonStudents.AddAsync(lessonStudent);
-        
-
-            await _context.SaveChangesAsync();
-        }
-        */
 
         if (lesson.Group != null && lesson.Group.IsPermanentStaffGroup && lesson.IsСompleted) return lessonStudentsByGroup;
 
@@ -177,65 +150,6 @@ public class LessonService : ILessonService
 
         return lessonStudentsByGroup;
     }
-
-    /*
-    
-        public async Task<List<LessonStudent>> UpdateLessonStudents(Lesson lesson, List<Guid> studentIds)
-    {
-        List<LessonStudent> lessonStudents = new List<LessonStudent>();
-
-        try
-        {
-
-        for(int i = 0; i < studentIds.Count; i++)
-        {
-                
-            var user = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == studentIds[i]);
-            if (user != null)  studentIds[i] = user.Id;
-        }
-      
-        var groupStudentsIds = _context.Groups.Include(x => x.Lessons).FirstOrDefault(x => x.Lessons.Select(x => x.Id).Contains(lesson.Id)).GroupStudents.Select(x=>x.Id);
-
-        ////
-        if(lesson.ArrivedStudents != null &&  lesson.ArrivedStudents.Count() != 0)
-        {
-            foreach(var i in lesson.ArrivedStudents)
-            {
-                _context.LessonStudents.Remove(i);
-            }
-            await _context.SaveChangesAsync();
-        }
-    /////
-
-
-
-        foreach (var studentId in groupStudentsIds)
-        {
-            var student = _context.Students.FirstOrDefault(x => x.Id == studentId);
-            var lessonStudent = new LessonStudent() { Student = student , Lesson = lesson };
-
-            _context.Entry(lessonStudent.Student).State = EntityState.Unchanged;
-            _context.Entry(lessonStudent.Lesson).State = EntityState.Unchanged;
-
-            if (studentIds.Contains(studentId))
-                lessonStudent.IsVisit = true;
-            else
-                lessonStudent.IsVisit = false;
-
-            _context.LessonStudents.Add(lessonStudent);
-            lessonStudents.Add(lessonStudent);
-
-        }
-        await _context.SaveChangesAsync();
-
-            //----------------------------------------------------------------------------------------
-
-        }
-        catch (Exception ex) { }
-        return lessonStudents;
-    }
-        */
-
     public async Task DeleteLessonByGroup(Group group, Lesson lesson)
     {
         //_context.Entry(group.Lessons).State = EntityState.Unchanged;
@@ -248,40 +162,10 @@ public class LessonService : ILessonService
             _context.LessonStudents.Remove(student);
         }
 
-        //group.Lessons.Remove(lesson2);
         _context.Lessons.Remove(lesson);
-        //_context.Groups.Update(group);
-
         await _context.SaveChangesAsync();
     }
 
-    /*
-    public async Task DeleteLessonByGroup(Group group, Lesson lesson)
-    {
-        //_context.Entry(group.Lessons).State = EntityState.Unchanged;
-        var lesson2 = new Lesson() { Id = lesson.Id };
-        //if(group.Lessons != null)
-        //_context.Entry(group.Lessons).State = EntityState.Detached;
-
-        var students = lesson.ArrivedStudents;
-        if(students != null)
-        {
-            foreach (var student in students)
-            {
-                _context.Entry(student.Student).State = EntityState.Unchanged;
-                _context.LessonStudents.Remove(student);
-                await _context.SaveChangesAsync();
-
-            }
-        }
-
-        //group.Lessons.Remove(lesson2);
-        //_context.Groups.Update(group);
-        _context.Lessons.Remove(lesson2);
-
-        await _context.SaveChangesAsync();
-    }
-    */
 
     #endregion
 
