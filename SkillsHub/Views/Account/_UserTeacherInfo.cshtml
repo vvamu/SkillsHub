@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using SkillsHub.Domain.BaseModels;
 @inject UserManager<ApplicationUser> _userManager;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
 
 
 @model ApplicationUser;
@@ -87,7 +88,16 @@
             </div>
             <hr />
             <div>
-                Проведенные уроки: @teacher.PreparedLessons.Where(x=>x.IsСompleted).Count() / @teacher.PreparedLessons.Count() ; Цена: @teacher.CurrentCalculatedPrice BYN / @teacher.TotalCalculatedPrice BYN
+                @{
+                    _context.Groups.ToList();
+                    _context.Lessons.ToList();
+                    _context.Teachers.ToList();
+
+                    _context.ApplicationUsers.ToList();
+                    var visitedLessonsCount = _context.Lessons.Where(x => x.TeacherId == Model.UserTeacher.Id).Where(x => x.IsСompleted).Count();
+                    var arrivedLessonsCount = _context.Lessons.Where(x => x.TeacherId == Model.UserTeacher.Id).Count();
+                }
+                Проведенные уроки: @visitedLessonsCount / @arrivedLessonsCount ; Цена: @teacher.CurrentCalculatedPrice BYN / @teacher.TotalCalculatedPrice BYN
             </div>
             <div>
                 Выплачено: @teacher.PaidAmount BYN 
