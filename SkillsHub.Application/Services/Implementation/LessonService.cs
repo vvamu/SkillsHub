@@ -377,7 +377,7 @@ public class LessonService : ILessonService
             + " want to update current lesson with values: "
             + "\nStart time : " + lesson.StartTime.ToShortDateString() + " " + lesson.StartTime.ToShortTimeString()
             + "\nEnd time : " + lesson.EndTime.ToShortDateString() + " " + lesson.EndTime.ToShortTimeString();
-            //await CreateRequest(prevLesson, requestMessage, lesson, user);
+            await CreateRequest(prevLesson, requestMessage, lesson, user);
 
            
 
@@ -388,10 +388,10 @@ public class LessonService : ILessonService
 
 
 
-        //lesson.StartTime = prevLesson.StartTime;
-        //lesson.EndTime = prevLesson.EndTime;
-        //_context.Lessons.Update(lesson);
-        //await _context.SaveChangesAsync();
+        lesson.StartTime = prevLesson.StartTime;
+        lesson.EndTime = prevLesson.EndTime;
+        _context.Lessons.Update(lesson);
+        await _context.SaveChangesAsync();
 
         return lesson;
 
