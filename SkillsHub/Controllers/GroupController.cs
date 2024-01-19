@@ -104,11 +104,12 @@ public class GroupController : Controller
             //if (item.IsPermanentStaffGroup) item.IsLateDateStart = true;
 
             
-            if ((lessonType != null && (item.DateStart < DateTime.Now.AddDays(1) 
-                && (studentId.Count() >= lessonType.MaximumStudents)) || !item.IsLateDateStart))
-            {
-                ModelState.AddModelError("", "Not correct count of students to  start group."); return View("Create", item);
-            }
+            
+               if((studentId.Count() > lessonType.MaximumStudents) || (studentId.Count() < lessonType.MinimumStudents))
+                {
+                    if(!item.IsLateDateStart)
+                        ModelState.AddModelError("", "Not correct count of students to  start group."); return View("Create", item);
+                }
             
             group =  await _groupService.CreateAsync(item);
 

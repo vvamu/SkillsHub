@@ -306,10 +306,12 @@
                                                         <span class="nav-text">
                                                             Other
                                                         </span>
-                                                    
+                                                    @{
+                                                        var newReqs = "+ " + _context.RequestLessons.Count();
+                                                    }
                                                     </a>
                                                     <ul aria-expanded="false">
-                                                        <li><a asp-action="Index" asp-controller="Request">Requests</a></li>
+                                        <li><a asp-action="Index" asp-controller="Request">Requests  <span style="font-size:small">@newReqs</span></a></li>
                                                         <li><a asp-action="Index" asp-controller="Finances">Own bills</a></li>
                                                     </ul>
                                                 </li>

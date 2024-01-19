@@ -235,7 +235,7 @@
                                                                 if (item.Teacher != null && item.Teacher.ApplicationUser != null)
                                                                     teacher = item.Teacher.ApplicationUser;
                                                                 <div>
-                                                                    <strong>Group: </strong> @item.Group.Name - @item.Group.CourseName.Name - @item.Group.LessonType.Name <br />
+                                                                    <strong>Group: </strong> <a asp-action="Item" asp-controller="Group" asp-route-id="@item.Group.Id">@item.Group.Name - @item.Group.CourseName.Name - @item.Group.LessonType.Name </a> <br />
                                                                     <strong>Lesson topic: </strong>@(item.Topic ?? "-") <br />
 
 

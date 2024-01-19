@@ -115,6 +115,7 @@ public class LessonService : ILessonService
                         {
                             _context.Students.ToList();
                             _context.ApplicationUsers.ToList();
+
                             var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = student.Student.ApplicationUser.Id } };
                             var message = " You was removed lesson by group " + groupName + "; Time: "  + lesson.StartTime.ToShortDateString() + " " + lesson.EndTime.ToShortDateString();
                             var notification = new NotificationMessage() { Message = message, Users = usersToSend };
