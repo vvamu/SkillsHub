@@ -331,8 +331,9 @@ public class GroupService: IGroupService
                 //_context.Entry(student.Student).State = EntityState.Unchanged;
                 if (!studentsId.Contains(student.Id))
                 {
-
-                    //_context.GroupStudents.Remove(student);
+                    student.Student = null;
+                    student.Group = null;
+                    _context.GroupStudents.Remove(student);
 
                     #region Create notification to remove from group
                     try
