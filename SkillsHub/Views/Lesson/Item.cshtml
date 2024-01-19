@@ -200,14 +200,14 @@
                                                min="@DateTime.Now.AddYears(-1).ToString("s")"
                                                max="@DateTime.Now.AddYears(1).ToString("s")"
                                                class="form-control"
-                                               step="1"
+                                               step=".001"
                                                asp-for="StartTime" />
                                         <input type="datetime-local"
                                                id="meeting-time2"
                                                min="@DateTime.Now.AddYears(-1).ToString("s")"
                                                max="@DateTime.Now.AddYears(1).ToString("s")"
                                                class="form-control"
-                                               step="1"
+                                               step=".001"
                                                asp-for="EndTime" />
 
 

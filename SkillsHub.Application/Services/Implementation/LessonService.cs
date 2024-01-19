@@ -388,9 +388,11 @@ public class LessonService : ILessonService
         await _context.SaveChangesAsync();
 
 
-
-        lesson.StartTime = prevLesson.StartTime;
-        lesson.EndTime = prevLesson.EndTime;
+        if (await _userManager.IsInRoleAsync(user, "Teacher")) //условие для учителей
+        {
+            lesson.StartTime = prevLesson.StartTime;
+            lesson.EndTime = prevLesson.EndTime;
+        }
         _context.Lessons.Update(lesson);
         await _context.SaveChangesAsync();
 
