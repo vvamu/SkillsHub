@@ -29,18 +29,16 @@ namespace SkillsHub.Controllers;
 [Authorize]
 public class StudentController : Controller
 {
-    private readonly ICourcesService _courcesService;
     private readonly IUserService _userService;
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IGroupService _groupService;
     private readonly INotificationService _notificationService;
 
-    public StudentController(ICourcesService courcesService,
+    public StudentController(
         IUserService userService,ApplicationDbContext context, UserManager<ApplicationUser> userManager, 
         IGroupService groupService, INotificationService notificationService)
     {
-        _courcesService = courcesService;
         _userService = userService;
         _context = context;
         _userManager = userManager;
@@ -152,7 +150,7 @@ public class StudentController : Controller
             var userStudent = user.UserStudent ?? new Student();
             var userTeacher = user.UserTeacher ?? new Teacher();
 
-            if (userTeacher != null && user.UserTeacher.Groups != null)
+            if (userTeacher != null && user.UserTeacher.GroupTeachers != null)
             {
                // user.UserTeacher.Groups//.SelectMany(x => x.GroupStudents).Select(x => x.Student)
                    // .ToList().ForEach(x => students.Add(x));
@@ -224,9 +222,9 @@ public class StudentController : Controller
                 item = student;
                 user.UserStudent = item;
             }
-            if (student.PaymentAmount != 0 && student.PaymentAmount != item.PaymentAmount && !User.IsInRole("Admin"))
-            { 
-                var message = "User in student account " + User.Identity.Name + " tryed to change payment amout from " + student.PaymentAmount + " to " + item.PaymentAmount;
+            if (!User.IsInRole("Admin"))
+            {
+                var message = "User in student account " + User.Identity.Name + " tryed to change payment amout ";
                 await _notificationService.Create(message,null);
                 await _userService.SignOutAsync();
                 throw new Exception("An attempt was made to fix a field that is only accessible to the administrator. The request has been sent to the appropriate place");
@@ -240,7 +238,7 @@ public class StudentController : Controller
 
             item = await UpdateWorkingDays(item, workingDay);
 
-            item = await _userService.UpdateStudentWithCourcesNames(item, itemValue.ToList());
+            //item = await _userService.UpdateStudentWithCourcesNames(item, itemValue.ToList());
             await _context.SaveChangesAsync();
 
 

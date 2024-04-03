@@ -16,7 +16,6 @@ using System.Text;
 using static Viber.Bot.NetCore.Models.ViberResponse;
 
 namespace SkillsHub.Controllers;
-
 public class HomeController : Controller
 {
     private readonly IMailService _mailService;
@@ -39,6 +38,16 @@ public class HomeController : Controller
         {
             return RedirectToAction("Index","CRM");
         }
+        return View("UnauthorizedIndex");
+    }
+
+    [Route("thanks")]
+    public IActionResult Thanks()
+    {
+        if (User.Identity.IsAuthenticated)
+        {
+            return RedirectToAction("Index", "CRM");
+        }
         return View();
     }
 
@@ -50,7 +59,7 @@ public class HomeController : Controller
 
     [HttpPost]
 
-    public async Task<ViewResult> SendMessage(SendingMessage msg)
+    public async Task<IActionResult> SendMessage(SendingMessage msg)
     {
         #region ViberMessage
         /*
@@ -97,8 +106,7 @@ await _mailer.SendMessage();
 
         await _externalService.SaveMessage(message);
 
-
-        return View("Index");
+         return Redirect("~/thanks");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

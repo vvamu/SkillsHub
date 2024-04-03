@@ -1,66 +1,5 @@
 ﻿
 @model List<NotificationMessage>?;
-<style>
-    .chat-window {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 350px;
-        height: 500px;
-        background-color: white;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        overflow: auto;
-    }
-
-    .chat {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
-
-        .chat li {
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-        }
-
-            .chat li.left .chat-body {
-                margin-left: 60px;
-            }
-
-            .chat li.right .chat-body {
-                margin-right: 60px;
-            }
-
-
-            .chat li .chat-body p {
-                margin: 0;
-                color: #777777;
-            }
-
-        .panel .slidedown .glyphicon, .chat .glyphicon {
-            margin-right: 5px;
-        }
-
-    .panel-body {
-        overflow-y: scroll;
-        height: 370px;
-    }
-
-    ::-webkit-scrollbar-track {
-        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    }
-
-    ::-webkit-scrollbar {
-        width: 12px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-        background-color: #555;
-    }
-</style>
-
 
     <div class="chat-window" style="margin-right:8%">
         <div>
@@ -79,14 +18,14 @@
                 </div>
                 <div class="panel-collapse " id="collapseOne">
                     <!--collapse-->
-                    <div class="panel-body" style="padding:5%">
+                    <div class="panel-body" style="padding:0px 5%">
                     <ul class="chat" id="notifications">
-
+                       <!-- <li style="text-align:center"><a style="font-weight:600;text-align:center">Load all</a></li>-->
                         @if(Model != null && Model.Count() != 0)
                     {
                         @foreach(var not in Model)
                         {
-                            <li class="left clearfix" style="margin-top:15%">
+                            <li class="left clearfix" style="margin-bottom:15%">
                                 <span class="chat-img pull-left">
                                     <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
                                 </span>

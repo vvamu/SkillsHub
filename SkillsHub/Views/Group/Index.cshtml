@@ -64,7 +64,7 @@
                 <div class=" navbar-collapse" id="navbarSupportedContent" style="display:flex;">
 
                     <div class="row">
-                        <div class="col col-11">
+                        <div class="col col-10">
                             <div class="" style="display:flex;grid-gap:10px;flex-wrap:wrap">
                                <div class="" style="display:flex;grid-gap:10px;flex-wrap:wrap">
                                     <div class="nav-item">
@@ -80,11 +80,11 @@
                                     </div>
 
                                     <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Статус:</p>
+                                        <p style="white-space:nowrap">Status:</p>
                                         <select class="form-control search-select" id="filter-isDeleted" name="val-skill" onchange="getGroups()">
                                             <option selected></option>
-                                            <option value="Yes">Закрыты/Закончены</option>
-                                            <option value="No">Открыты</option>
+                                            <option value="Yes">Not active</option>
+                                            <option value="No">Active </option>
                                         </select>
                                     </div>
                                     <!--
@@ -107,11 +107,11 @@
                                     -->
 
                                     <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Время запуска:</p>
+                                        <p style="white-space:nowrap">Start time type:</p>
                                         <select class="form-control search-select" id="filter-time-start" name="val-skill" onchange="getGroups()">
                                             <option value="" selected></option>
-                                            <option value="Yes">Время запуска определено</option>
-                                            <option value="No">Время запуска не определено</option>
+                                            <option value="Yes">Time is defined</option>
+                                            <option value="No">Time not defined</option>
                                         </select>
                                     </div>
                                   
@@ -126,35 +126,16 @@
                                     </div>
 
                                     <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p>Lesson type:</p>
+                                        <p style="white-space:nowrap">Lesson type:</p>
 
                                         <select class="form-control search-select" id="filter-lesson-type-id" name="val-skill" onchange="getGroups()">
                                             <option value="" selected></option>
-                                            @if (_context.LessonTypes != null)
-                                            {
-                                                foreach (LessonType item in _context.LessonTypes.Where(x => x.IsDeleted == false))
-                                                {
-                                                    <option value="@item.Id">@item.Name</option>
-                                                }
-                                            }
+                                            
                                         </select>
                                     </div>
 
 
-                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p>Category:</p>
-
-                                        <select class="form-control search-select" id="filter-course-name-id" name="val-skill" onchange="getGroups()">
-                                            <option value="" selected></option>
-                                            @if (_context.CourseNames != null)
-                                            {
-                                                foreach (CourseName item in _context.CourseNames.Where(x => x.IsDeleted == false))
-                                                {
-                                                    <option value="@item.Id">@item.Name</option>
-                                                }
-                                            }
-                                        </select>
-                                    </div>
+                                    
 
                                     <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
                                         <p style="white-space:nowrap">Сортировать по:</p>

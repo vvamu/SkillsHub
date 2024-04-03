@@ -26,27 +26,27 @@
 
 
                             <div style="display:flex;justify-content:space-between">
-                                <h2 style="margin-bottom:5%">Group </h2>  
+                                <h2 style="margin-bottom:5%">Group </h2>
                                 @if (Model.IsDeleted)
                                 {
                                     <span>Not active</span>
                                 }
-                                @if(User.IsInRole("Admin"))
+                                @if (User.IsInRole("Admin"))
                                 {
                                     <div>
-                                        
-                                    <input type="submit" asp-action="Delete" asp-controller="Group" asp-route-id="@Model.Id" value="x" class="btn btn-outline-danger" title="The group can be restored" />
-                                        
-                                    <!--
-                                    <input type="submit" asp-action="HardDelete" asp-controller="Group" asp-route-id="Model.Id" value="x" class="btn btn-danger" title="Full delete with lessons" />
-                                        -->
+
+                                        <input type="submit" asp-action="Delete" asp-controller="Group" asp-route-id="@Model.Id" value="x" class="btn btn-outline-danger" title="The group can be restored" />
+
+                                        <!--
+                                        <input type="submit" asp-action="HardDelete" asp-controller="Group" asp-route-id="Model.Id" value="x" class="btn btn-danger" title="Full delete with lessons" />
+                                            -->
                                     </div>
-                                }      
+                                }
                             </div>
 
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    Name 
+                                    Name
                                 </label>
                                 <div class="col-lg-6">
                                     <p class=" col-form-label">@Model.Name</p>
@@ -54,38 +54,29 @@
                             </div>
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    CourseName
+                                    LessonType
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class="col-form-label">@Model.CourseName.Name</p>
+                                    <p class="col-form-label">@Model.Course.Name</p>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label class="col-lg-4 col-form-label">
-                                    Teacher 
-                                </label>
-                                <div class="col-lg-6">
-                                    <a asp-action="Item" asp-controller="Account" asp-route-itemid="@Group.Teacher.ApplicationUser.Id" class="col-form-label" style="font-weight:900;color:#7571f9">
-                                        @Group.Teacher.ApplicationUser.FirstName  @Group.Teacher.ApplicationUser.Surname @Group.Teacher.ApplicationUser.LastName
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-lg-4 col-form-label">
-                                    Lesson type
-                                </label>
-                                <div class="col-lg-6">
-                                    <p class="col-form-label">@Group.LessonType.Name -  @Group.LessonType.MinCountLessons lessons (@(Group.LessonType.MinCountLessons*@Group.LessonType.LessonTimeInMinutes) min)
-                                    </p>
-                                </div>
-                            </div>
+
+                            
+                           
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
                                     Staff type
                                 </label>
                                 <div class="col-lg-6">
                                     <p class="col-form-label">
-                                       @if(Group.IsPermanentStaffGroup) { <p class="col-form-label">With permanent staff</p>}else {<p class="col-form-label">Without permanent staff</p>}
+                                        @if (Group.IsPermanentStaffGroup)
+                                        {
+                                        <p class="col-form-label">With permanent staff</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="col-form-label">Without permanent staff</p>
+                                        }
                                     </p>
                                 </div>
                             </div>
@@ -95,11 +86,11 @@
                                 </label>
                                 <div class="col-lg-6">
                                     <p class="col-form-label">
-                                        @Group.LessonsCount lessons; 
+                                        @Group.LessonsCount lessons;
 
                                         @if (!Group.IsUnlimitedLessonsCount)
                                         {
-                                            <span title="Needed Lessons Time In Minutes">(@Group.NeededLessonsTimeInMinutes min)</span>
+                                            <span title="Needed Lessons Time In Minutes">(-------- min)</span>
                                         }
                                         else
                                         {
@@ -125,25 +116,31 @@
                                     Date start
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class="col-form-label">@if (!Group.IsLateDateStart && Group.DateStart != DateTime.MinValue)
+                                    <p class="col-form-label">
+                                        @if (!Group.IsLateDateStart && Group.DateStart != DateTime.MinValue)
                                         {
                                             <span>@Group.DateStart.ToLongDateString()</span>
-                                        }else
+                                        }
+                                        else
                                         {
                                             <span>Not decided</span>
                                         }
                                     </p>
                                 </div>
                             </div>
-                            
+
 
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
                                     Lessons count
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class="col-form-label"> Passed: @Group.Lessons.Where(x=>x.IsСompleted).Count() ; Created:
-                                        @if (Group.Lessons.Count() < Group.LessonsCount && !Group.IsUnlimitedLessonsCount) { <span style="color:red"> @Group.Lessons.Count()</span>}
+                                    <p class="col-form-label">
+                                        Passed: @Group.Lessons.Where(x => x.IsСompleted).Count() ; Created:
+                                        @if (Group.Lessons.Count() < Group.LessonsCount && !Group.IsUnlimitedLessonsCount)
+                                        {
+                                            <span style="color:red"> @Group.Lessons.Count()</span>
+                                        }
                                         <span title="Passed Lessons Time In Minutes">(@Group.PassedLessonsTimeInMinutes min</span> /  <span title="Assigned Lessons">@Group.ResultLessonsTimeInMinutes min)</span>
                                     </p>
                                 </div>
@@ -151,15 +148,17 @@
 
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    Students in group (@Group.GroupStudents.Count() / @Group.LessonType.MinimumStudents..@Group.LessonType.MaximumStudents)
+                                    Students in group (@Group.GroupStudents.Count() / @Group.GroupType.MaxCountStudents .. @Group.GroupType.MaxCountStudents)
                                 </label>
                                 <div class="col-lg-6">
                                     <ol>
                                         @foreach (var st in Group.GroupStudents.Select(x => x.Student))
                                         {
-                                            <li><a asp-action="Item" asp-controller="Account" asp-route-itemId="@st.ApplicationUser.Id" style="font-weight:900;color:#7571f9">
+                                            <li>
+                                                <a asp-action="Item" asp-controller="Account" asp-route-itemId="@st.ApplicationUser.Id" style="font-weight:900;color:#7571f9">
                                                     @st.ApplicationUser.FirstName @st.ApplicationUser.Surname @st.ApplicationUser.LastName
-                                                </a></li>
+                                                </a>
+                                            </li>
                                         }
 
                                     </ol>
@@ -175,10 +174,10 @@
                 <div class="col">
                     <div class="card">
                         <div class="card-body">
-                           
-                                <h4>SHEDULE</h4>
-                            
-                            
+
+                            <h4>SHEDULE</h4>
+
+
                             <div class="col">
                                 @foreach (var ds in Group.DaySchedules)
                                 {
@@ -196,12 +195,12 @@
                                         <!--<input type="hidden" asp-for="Model.Id" value="Model.Id"/>-->
 
                                         <input type="submit" value="Edit group" asp-action="Edit" asp-controller="Group" formmethod="get" asp-route-id="@Model.Id" class="btn btn-primary" />
-                                        
+
                                     </form>
-                                    
+
                                 }
-                               
-                               
+
+
 
 
                             </div>
@@ -222,13 +221,13 @@
                             </form>
                         </div>
                     }
-                    
+
                     @if (User.IsInRole("Admin"))
                     {
                         var countEndedLessons = Model.Lessons.Where(x => x.IsСompleted).Count();
                         var countLessons = Model.Lessons.Count();
-                        var priceByEndedLessons = Model.LessonType.TeacherPrice * countEndedLessons;
-                        var priceByLessons = Model.LessonType.TeacherPrice * countLessons;
+                        var priceByEndedLessons = Model.PaymentCategory.TeacherPrice * countEndedLessons;
+                        var priceByLessons = Model.PaymentCategory.TeacherPrice * countLessons;
                         var lessonStudents = Model.Lessons.Where(x => x.IsСompleted && x.ArrivedStudents != null).SelectMany(x => x.ArrivedStudents).Count();
 
                         <div class="card">
@@ -237,23 +236,23 @@
                                 <div class="col">
 
                                     <div class="form-group" style="display:flex">
-                                        <span>Current Teacher salary : @(Model.LessonType.TeacherPrice * countEndedLessons) BYN |  </span>
-                                        <span>Full Teacher salary :  @(Model.LessonType.TeacherPrice * countLessons) BYN</span>
+                                        <span>Current Teacher salary : @(Model.PaymentCategory.TeacherPrice * countEndedLessons) BYN |  </span>
+                                        <span>Full Teacher salary :  @(Model.PaymentCategory.TeacherPrice * countLessons) BYN</span>
                                     </div>
 
                                     <div class="form-group">
-                                        <span>Current Students price : @(Model.LessonType.StudentPrice * lessonStudents) BYN  |  </span>
-                                        <span>Min/Max Students price :  @(Model.LessonType.StudentPrice * Model.LessonType.MinCountLessons)/ @(Model.LessonType.StudentPrice * Model.LessonType.MaximumStudents) BYN</span>
+                                        <span>Current Students price : @(Model.PaymentCategory.StudentPrice * lessonStudents) BYN  |  </span>
+                                        <!--<span>Min/Max Students price :  (Model.PaymentCategory.StudentPrice * Model.PaymentCategory.MinCountLessons)/ (Model.PaymentCategory.StudentPrice * Model.PaymentCategory.MaximumStudents) BYN</span>-->
                                     </div>
 
                                     <div class="form-group">
-                                        <span>Current difference :  @((Model.LessonType.TeacherPrice * countEndedLessons) - (Model.LessonType.StudentPrice * lessonStudents)) BYN |  </span>
-                                        <span>Min/Max difference : @((Model.LessonType.TeacherPrice * countLessons) - (Model.LessonType.StudentPrice * Model.LessonType.MinCountLessons))/@((Model.LessonType.TeacherPrice * countLessons) - (Model.LessonType.StudentPrice * Model.LessonType.MaximumStudents)) BYN</span>
+                                        <span>Current difference :  @((Model.PaymentCategory.TeacherPrice * countEndedLessons) - (Model.PaymentCategory.StudentPrice * lessonStudents)) BYN |  </span>
+                                        <!--<span>Min/Max difference : ((Model.LessonType.TeacherPrice * countLessons) - (Model.LessonType.StudentPrice * Model.LessonType.MinCountLessons))/((Model.LessonType.TeacherPrice * countLessons) - (Model.LessonType.StudentPrice * Model.LessonType.MaximumStudents)) BYN</span>-->
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                     }
 
                 </div>
@@ -264,7 +263,7 @@
                 <div class="row">
                     <div style="display:flex; justify-content:space-between">
                         <h4>LESSONS</h4>
-                        <div style="display:flex;"/>
+                        <div style="display:flex;" />
 
                         @{
                             var lessonsCount = 0;
@@ -273,7 +272,7 @@
 
                         @if (User.IsInRole("Admin") && Model.IsVerified && !Model.IsLateDateStart && (Model.LessonsCount > lessonsCount))
                         {
-                            <input type="submit" asp-action="CreateBySchedule" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-outline-primary" title="Create by credule"/>
+                            <input type="submit" asp-action="CreateBySchedule" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-outline-primary" title="Create by credule" />
                             <input type="submit" asp-action="Create" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-primary" title="Create from zero info" />
                         }
                     </div>
@@ -295,7 +294,7 @@
                                             <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
                                         </div>
                                         <input type="search search-input" onchange="searchLessons() id="searchByTopic" class="form-control" placeholder="Search by topic" aria-label="Search by topic">
-                                       
+
                                     </div>
                                 </li>
                                 <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
@@ -393,7 +392,7 @@
 
 
 
-                <div id="lessonsList" >
+                <div id="lessonsList">
                     <!--await Html.PartialAsync("_LessonsList")-->
                     <div class="d-flex justify-content-center">
                         <div class="spinner-border text-primary" role="status">
@@ -410,7 +409,7 @@
 
 
 
-	
+
 
 
     <script>
@@ -434,7 +433,7 @@
             try {
 
                 filters = {
-                    GroupId : '@Model.Id',
+                    GroupId: '@Model.Id',
                     Topic: $('#searchByTopic').val(),
                     TeacherId: $('#searchByTeacher').val(),
                     StudentId: $('#searchByStudent').val(),
@@ -460,44 +459,44 @@
 
 
         $(document).ready(function () {
-           
+
             searchLessons();
-            
+
         });
 
 
-        
-
-        function CreateNewLesson() { 
-        var list = document.getElementById("allLessons");
-        var count = document.getElementsByClassName("lessonInGroup").count; //id of new element;
 
 
-        var appendLine = "<div class='col lessonInGroup"+ count + "+'><form method = 'post' ><div class='card' style = 'margin:1%' ><div class='card-body'>"
-        appendLine+= "<div style='display:flex; justify-content:space-between'>"
-        appendLine += "<div>" + count + ".  New not saved item  </div>"
-        appendLine += "<input type='button' onclick='DeleteNewLesson(" + count + ")' value='X' class='btn btn-danger' />"
-        appendLine += "</div>"
-        appendLine += "<div style='display:flex; justify-content:space-between'><div style='display:flex; grid-gap:5%'>"
-        appendLine += "<input type='time' name = 'startTime' asp-for='item.StartTime' /> -"
-        appendLine += "<input type='time' name = 'endTime' asp-for='item.EndTime' />"
-        appendLine += "</div>"
-        appendLine += "<input type = 'submit' asp-action='Create' asp-controller='Lessons'  value = 'Save' class='btn btn - primary' />"
-        appendLine += "</div>"
+        function CreateNewLesson() {
+            var list = document.getElementById("allLessons");
+            var count = document.getElementsByClassName("lessonInGroup").count; //id of new element;
 
-        appendLine += "</div></div></form></div>"
-        list.appendChild(appendLine);
+
+            var appendLine = "<div class='col lessonInGroup" + count + "+'><form method = 'post' ><div class='card' style = 'margin:1%' ><div class='card-body'>"
+            appendLine += "<div style='display:flex; justify-content:space-between'>"
+            appendLine += "<div>" + count + ".  New not saved item  </div>"
+            appendLine += "<input type='button' onclick='DeleteNewLesson(" + count + ")' value='X' class='btn btn-danger' />"
+            appendLine += "</div>"
+            appendLine += "<div style='display:flex; justify-content:space-between'><div style='display:flex; grid-gap:5%'>"
+            appendLine += "<input type='time' name = 'startTime' asp-for='item.StartTime' /> -"
+            appendLine += "<input type='time' name = 'endTime' asp-for='item.EndTime' />"
+            appendLine += "</div>"
+            appendLine += "<input type = 'submit' asp-action='Create' asp-controller='Lessons'  value = 'Save' class='btn btn - primary' />"
+            appendLine += "</div>"
+
+            appendLine += "</div></div></form></div>"
+            list.appendChild(appendLine);
 
         }
 
         function DeleteNewLesson(count) {
-        var elem = document.getElementsByClassName("lessonInGroup" + count);
-        elem.outerHTML = "";
+            var elem = document.getElementsByClassName("lessonInGroup" + count);
+            elem.outerHTML = "";
 
         }
 
         function RequestToChangeLesson(itemId) {
-        //Serialize the form datas.
+            //Serialize the form datas.
 
             var valdata = itemId;
             //var data = JSON.stringify($(itemId).serializeArray()); //  <-----------
@@ -509,16 +508,16 @@
 
             //to get alert popup
             $.ajax({
-            url: "/Request/Edit",
-            type: "POST",
-            dataType: 'json',
-            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-            data: valdata
+                url: "/Request/Edit",
+                type: "POST",
+                dataType: 'json',
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                data: valdata
 
             });
             alert("Request was send");
 
-        //$("<div>Saved</div>").insertAfter($("#lessonTypeForm"));
+            //$("<div>Saved</div>").insertAfter($("#lessonTypeForm"));
 
         }
 
@@ -526,7 +525,7 @@
             //Serialize the form datas.
 
             var valdata = { id: itemId.id };
-            
+
 
             //to get alert popup
             $.ajax({

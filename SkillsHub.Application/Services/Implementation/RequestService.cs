@@ -35,7 +35,7 @@ public class RequestService : IRequestService
     public async Task<RequestLesson> Create(Guid lessonId, string requestMessage = "", Lesson? newLesson = null)
     {
         var lesson = _context.Lessons
-            .Include(x => x.Group).ThenInclude(x => x.LessonType)
+            .Include(x => x.Group).ThenInclude(x => x.Course)
             .FirstOrDefault(x => x.Id == lessonId) ?? throw new Exception("Lesson not found");
 
         //CheckValid 
@@ -44,8 +44,8 @@ public class RequestService : IRequestService
         if (newLesson != null)
         {
             var duration = (newLesson.EndTime - newLesson.StartTime).TotalMinutes;
-            var defaultDuration = lesson.Group.LessonType.LessonTimeInMinutes;
-            requestMessage += "\n| Default time to lesson type " + lesson.Group.LessonType.Name + " : " + defaultDuration
+            var defaultDuration = lesson.Group.LessonTimeInMinutes;
+            requestMessage += "\n| Default time to lesson type " + lesson.Group.Name + " : " + defaultDuration
                 + "\n | New duration : " + duration
                 + "\n Difference : " + (defaultDuration - duration);
 

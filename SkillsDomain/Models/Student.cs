@@ -10,9 +10,9 @@ public class Student : BaseEntity
     public string? ParentName { get; set; }
     public string? ParentPhone { get; set; }
     //Payment
-    public decimal PaymentAmount { get; set; }
+    public List<FinanceElement>? FinanceElements { get; set; }
 
-    public List<CourseNameStudent>? PossibleCources { get; set; }
+    public List<PreferenceCourseStudent>? PossibleCources { get; set; }
 
     public List<GroupStudent>? Groups { get; set; }
     public List<LessonStudent>? Lessons { get; set; }

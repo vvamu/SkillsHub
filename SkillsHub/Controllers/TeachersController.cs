@@ -104,9 +104,9 @@ public class TeachersController : Controller
             }
             #region CheckPaidAmount
 
-            if (teacher.PaidAmount != 0 && teacher.PaidAmount != item.PaidAmount && !User.IsInRole("Admin"))
+            if (!User.IsInRole("Admin"))
             {
-                    var message = "User in teacher account " + User.Identity.Name + " tryed to change payment amout from " + teacher.PaidAmount + " to " + item.PaidAmount;
+                    var message = "User in teacher account " + User.Identity.Name + " tryed to change payment amout from ";
                     await _notificationService.Create(message, null);
                     throw new Exception("An attempt was made to fix a field that is only accessible to the administrator. The request has been sent to the appropriate place");
             }
@@ -122,8 +122,8 @@ public class TeachersController : Controller
             try
             {
                 var ff = new TimeSpan();
-                var res = await _userService.UpdateTeacherWithCourcesNames(item, itemValue.ToList());
-                item = res;
+                //var res = await _userService.UpdateTeacherWithCourcesNames(item, itemValue.ToList());
+                //item = res;
             }
             catch (Exception ex) { }
             #endregion

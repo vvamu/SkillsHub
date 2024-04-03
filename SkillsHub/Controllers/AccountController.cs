@@ -20,7 +20,6 @@ namespace SkillsHub.Controllers;
 public class AccountController : Controller
 {
     private readonly IUserService _userService;
-    private readonly ICourcesService _courcesService;
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IGroupService _groupService;
@@ -28,12 +27,11 @@ public class AccountController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILessonService _lessonService;
 
-    public AccountController(IUserService userService, ICourcesService courcesService,
+    public AccountController(IUserService userService,
         ApplicationDbContext context, IMapper mapper, IGroupService groupService, ISalaryService salaryService
         ,UserManager<ApplicationUser> userManager, ILessonService lessonService)
     {
         _userService = userService;
-        _courcesService = courcesService;
         _context = context;
         _mapper = mapper;
         _groupService = groupService;
@@ -54,16 +52,11 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> Item(Guid itemId, Guid id)
     {
-        ViewBag.CourcesNames = _courcesService.GetAllCourcesNames();
-        ViewBag.EnglishLevels = "";
-        ViewBag.LessonTypes = _courcesService.GetAllLessonType();
         ApplicationUser? user;
-        if (itemId == Guid.Empty)
-            itemId = id;
+        if (itemId == Guid.Empty) itemId = id;
 
         user = await _userService.GetUserByIdAsync(itemId);
-        if (user == null)
-            user = await _userService.GetCurrentUserAsync();
+        if (user == null) user = await _userService.GetCurrentUserAsync();
         HttpContext.Session.SetString("page", "item");
 
         if (user.UserTeacher != null)
@@ -144,7 +137,9 @@ public class AccountController : Controller
             {
                 try
                 {
-                    if (user.Password != userCreateModel.Password) throw new Exception("Password not equal");
+                    //var oo = SkillsHub.Application.Helpers.HashProvider.VerifyHash(userCreateModel.Password, user.PasswordHash);
+                    //if (!oo) throw new Exception("Password not equal");
+                    if(userCreateModel.Password != user.Password) throw new Exception("Password not equal");
                     //user = _mapper.Map<ApplicationUser>(userCreateModel);
                     user.FirstName = userCreateModel.FirstName;
                     user.LastName = userCreateModel.LastName;
@@ -154,12 +149,14 @@ public class AccountController : Controller
                     user.BirthDate = userCreateModel.BirthDate;
                     user.Sex = userCreateModel.Sex;
 
+
+
                     _context.ApplicationUsers.Update(user);
 
 
                     await _context.SaveChangesAsync();
                 }
-                catch(Exception ex) { }
+                catch(Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
                 
 
             }else
@@ -232,7 +229,7 @@ public class AccountController : Controller
     public async Task<IActionResult> GetNotifications()
     {
         var notifications = await _userService.GetCurrentUserNotifications();
-        return PartialView("_Chat", notifications.ToList());
+        return PartialView("_Chat", notifications.OrderByDescending(x=>x.DateCreated).ToList());
 
         //return Json(JsonSerializerToAjax.GetJsonByIQueriable(notifications));
     }
@@ -281,7 +278,7 @@ public class AccountController : Controller
 
         if (user.UserTeacher == null) return PartialView("_TeacherGroups", (user, res));
 
-        var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.Teacher.ApplicationUser.Id == id).ToList();
+        var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.GroupTeachers.Select(x=>x.Teacher).Select(x=>x.ApplicationUserId).Contains(user.Id)).ToList();
 
 
         //foreach (var group in teacherGroups)

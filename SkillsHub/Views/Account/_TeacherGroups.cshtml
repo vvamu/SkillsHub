@@ -58,8 +58,8 @@
                 {
                     var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
                     var countLessons = item.Lessons.Count();
-                    var priceByEndedLessons = item.LessonType.TeacherPrice * countEndedLessons;
-                    var priceByLessons = item.LessonType.TeacherPrice * countLessons;
+                    var priceByEndedLessons = item.PaymentCategory.TeacherPrice * countEndedLessons;
+                    var priceByLessons = item.PaymentCategory.TeacherPrice * countLessons;
 
                     var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
                     var startTimes = item.DaySchedules.Select(x => x.WorkingStartTime).ToArray();
@@ -69,9 +69,8 @@
                         <div class="card-body">
                             <div style="display:flex;justify-content:space-between">
                                 <div>
-                                    <h2><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a></h2>
-                                    <p><strong>Course</strong> : @item.CourseName.Name</p>
-                                    <p><strong>Lesson type</strong>: @item.LessonType.Name</p>
+                                    <h2><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a></h2>           
+                                    <p><strong>Lesson type</strong>: @item.Course.Name</p>
                                     <p>
                                         <strong>Schedule</strong> :
                                         @for (int a = 0; a < startTimes.Count(); a++)
@@ -92,7 +91,7 @@
                             <div style="display:flex;margin:20px;align-items:start;grid-gap:20px;flex-wrap:wrap">
                                 @if (item.Lessons != null && item.Lessons.Count() != 0)
                                 {
-                                    var teacherLessons = item.Lessons;//.Where(x=>x.Teacher != null).Where(x => x.Teacher.Id == @Model.user.Id).ToList();
+                                    var teacherLessons = item.Lessons.OrderBy(x => x.StartTime).ToArray();//.Where(x=>x.Teacher != null).Where(x => x.Teacher.Id == @Model.user.Id).ToList();
 
 
                                     @for (int i = 0; i < teacherLessons.Count(); i++)
@@ -219,23 +218,25 @@
                                                         <div class="col">
                                                             @{
                                                                 //Get variables to show teacher
+                                                                ApplicationUser teacher = new ApplicationUser();
+                                                                /*
                                                                 List
                                                                 <ApplicationUser>
                                                                 arrivedUsers = new List<ApplicationUser>();
                                                                 List<ApplicationUser> notArrivedUsers = new List<ApplicationUser>();
-                                                                ApplicationUser teacher = new ApplicationUser();
+
                                                                 if (item.ArrivedStudents != null)
                                                                 {
-                                                                    var users = item.ArrivedStudents.Where(x => x.IsVisit).Select(x => x.Student).Select(x => x.ApplicationUser);
-                                                                    arrivedUsers.AddRange(users);
-                                                                    var users2 = item.ArrivedStudents.Where(x => x.IsVisit == false).Select(x => x.Student).Select(x => x.ApplicationUser);
-                                                                    notArrivedUsers.AddRange(users2);
-                                                                }
+                                                                var users = item.ArrivedStudents.Where(x => x.IsVisit).Select(x => x.Student).Select(x => x.ApplicationUser);
+                                                                arrivedUsers.AddRange(users);
+                                                                var users2 = item.ArrivedStudents.Where(x => x.IsVisit == false).Select(x => x.Student).Select(x => x.ApplicationUser);
+                                                                notArrivedUsers.AddRange(users2);
+                                                                }*/
 
                                                                 if (item.Teacher != null && item.Teacher.ApplicationUser != null)
                                                                     teacher = item.Teacher.ApplicationUser;
                                                                 <div>
-                                                                    <strong>Group: </strong> <a asp-action="Item" asp-controller="Group" asp-route-id="@item.Group.Id">@item.Group.Name - @item.Group.CourseName.Name - @item.Group.LessonType.Name </a> <br />
+                                                                    <strong>Group: </strong> <a asp-action="Item" asp-controller="Group" asp-route-id="@item.Group.Id">@item.Group.Name - @item.Group.Course.Name </a> <br />
                                                                     <strong>Lesson topic: </strong>@(item.Topic ?? "-") <br />
 
 
@@ -263,26 +264,21 @@
                                                                     @if (User.IsInRole("Admin"))
                                                                     {
                                                                         <p>
-                                                                            Result price for student: @item.Group.LessonType.StudentPrice BYN
+                                                                            Result price for student: @item.Group.PaymentCategory.StudentPrice BYN
                                                                             <br />
-                                                                            Result price for teacher: @item.Group.LessonType.TeacherPrice BYN
+                                                                            Result price for teacher: @item.Group.PaymentCategory.TeacherPrice BYN
                                                                             <br />
-                                                                            Result price for admin: @(item.Group.LessonType.TeacherPrice - (item.Group.LessonType.StudentPrice * item.ArrivedStudents.Count())) BYN
+                                                                            Result price for admin: @(item.Group.PaymentCategory.TeacherPrice - (item.Group.PaymentCategory.StudentPrice * item.ArrivedStudents.Count())) BYN
                                                                         </p>
                                                                     }
-                                                                    @if (User.IsInRole("Teacher"))
+                                                                    @if (User.Identity.Name == us.Login)
                                                                     {
 
                                                                         <p>
-                                                                            Result price for teacher: @item.Group.LessonType.TeacherPrice BYN
+                                                                            Result price for teacher: @item.Group.PaymentCategory.TeacherPrice BYN
                                                                         </p>
                                                                     }
-                                                                    @if (User.IsInRole("Student"))
-                                                                    {
-                                                                        <p>
-                                                                            Result price for student: @item.Group.LessonType.StudentPrice BYN
-                                                                        </p>
-                                                                    }
+                                                                   
                                                                 </div>
                                                             }
                                                         </div>

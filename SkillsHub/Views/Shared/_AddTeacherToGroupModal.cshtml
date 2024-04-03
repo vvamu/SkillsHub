@@ -1,4 +1,5 @@
 ﻿<!-- Модальное окно для добавления группы учителю  -->
+
 @model SkillsHub.Domain.BaseModels.ApplicationUser;
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 
@@ -48,7 +49,7 @@
                                                             <option value="">Выберете одно</option>
                                                             @if (ViewBag.LessonTypes != null)
                                                             {
-
+                                                                /*
                                                                 @foreach (LessonType item in ViewBag.LessonTypes)
                                                                 {
                                                                     <option value="@item.Name">@item.Name</option>
@@ -56,6 +57,7 @@
                                                                     <p></p>
 
                                                                 }
+                                                                */
                                                             }
 
                                                         </select>
@@ -74,11 +76,12 @@
                                                             <option value="">Choose one</option>
                                                             @if (ViewBag.CourcesNames != null) //English for Organizations
                                                             {
+                                                                /*
                                                                 @foreach (CourseName item in ViewBag.CourcesNames)
                                                                 {
                                                                     <option value="@item.Name">@item.Name</option>
                                                                 }
-
+                                                                */
                                                             }
 
                                                         </select>
@@ -93,12 +96,14 @@
                                                                 <option value="">Choose one</option>
                                                                 @if (ViewBag.EnglishLevels != null)
                                                                 {
+                                                                    /*
                                                                     @foreach (EnglishLevel item in ViewBag.EnglishLevels) //A1
                                                                     {
                                                                         <option value="@item.Name">@item.Name</option>
 
                                                                     }
                                                                     <option value="">-</option>
+                                                                    */
                                                                 }
 
                                                             </select>

@@ -56,8 +56,8 @@
                                 {
                                     var countEndedLessons = item.Lessons.Where(x => x.IsСompleted).Count();
                                     var countLessons = item.Lessons.Count();
-                                    var priceByEndedLessons = item.LessonType.StudentPrice * countEndedLessons;
-                                    var priceByLessons = item.LessonType.StudentPrice * countLessons;
+                                    var priceByEndedLessons = item.PaymentCategory.StudentPrice * countEndedLessons;
+                            var priceByLessons = item.PaymentCategory.StudentPrice * countLessons;
 
                                     var scheduleDays = string.Join(",", item.DaySchedules.Select(x => Enum.GetName(typeof(DayOfWeek), x.DayName)));
                                     var startTimes = item.DaySchedules.Select(x => x.WorkingStartTime).ToArray();
@@ -68,8 +68,7 @@
                                             <div style="display:flex;justify-content:space-between">
                                                 <div>
                                                     <h2><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a></h2>
-                                                    <p><strong>Course</strong> : @item.CourseName.Name</p>
-                                                    <p><strong>Lesson type</strong>: @item.LessonType.Name</p>
+                                                    <p><strong>Lesson type</strong>: @item.Course.Name</p>
                                                     <p>
                                                         <strong>Schedule</strong> :
                                                         @for (int a = 0; a < startTimes.Count(); a++)
@@ -90,7 +89,7 @@
                                                          
                                                 @if (item.Lessons != null && item.Lessons.Count()!=0)
                                                 {
-                                                    var studentLessons = item.Lessons;//.Where(x => x.Teacher != null).Where(x => x.Teacher.Id == @Model.user.Id).ToList();
+                                                    var studentLessons = item.Lessons.OrderBy(x=>x.StartTime).ToArray();//.Where(x => x.Teacher != null).Where(x => x.Teacher.Id == @Model.user.Id).ToList();
                                                     
 
 
@@ -106,43 +105,50 @@
                                                
 
 
-                                                var studentLesson = studentsOnLesson.FirstOrDefault(x => x.Student.ApplicationUser.Id == user.Id && x.Lesson.Id == item.Lessons[i].Id);
-
+                                                var studentLesson = studentsOnLesson.FirstOrDefault(x => x.Student.ApplicationUserId == user.Id && x.Lesson.Id == studentLessons[i].Id);
+                                                //studentLesson = studentLessons[i].ArrivedStudents.FirstOrDefault(x => x.Student.ApplicationUserId == user.Id);
 
                                                         <div>
                                                             <div style="display:flex;justify-content:center;flex-wrap:wrap;align-items:center;grid-gap:2%">
                                                     
                                                                     <div>
-
                                                                     
 
-                                                                        @if(studentsOnLesson.Select(x=>x.Student.ApplicationUserId).Contains(user.Id))
+
+                                                            @if (studentLessons[i].ArrivedStudents.Select(x => x.Student.ApplicationUserId).Contains(user.Id) && studentLesson != null)
                                                                         {
-                                                                <span title="@item.Lessons[i].StartTime.ToShortTimeString()">@item.Lessons[i].StartTime.ToShortDateString()</span>
-                                                                <a asp-action="Item" asp-controller="Lesson" title="@item.Lessons[i].StartTime.ToShortTimeString()" asp-route-id="@item.Lessons[i].Id">
-                                                                    
-                                                                </a>
-                                                            }   
-                                                                        else if (studentLesson != null && studentLesson.IsVisit && studentLesson.Lesson.IsСompleted)
-                                                                        {
-                                                                <span style="color:green" title="@item.Lessons[i].StartTime.ToShortTimeString()">@item.Lessons[i].StartTime.ToShortDateString()</span>
-                                                                             <a asp-action="Item" asp-controller="Lesson" title="@item.Lessons[i].StartTime.ToShortTimeString()" asp-route-id="@item.Lessons[i].Id">
+                                                                            if (studentLesson.VisitStatus == 1 && studentLesson.Lesson.IsСompleted)
+                                                                            {
+                                                                                <a asp-action="Item" asp-controller="Lesson" title="@studentLessons[i].StartTime.ToShortTimeString()" asp-route-id="@studentLessons[i].Id">
+                                                                                <span style="color:#35bc00" title="@studentLessons[i].StartTime.ToShortTimeString()">@studentLessons[i].StartTime.ToShortDateString()
+                                                                                </span> </a>
+                                                                            }
+                                                                            else if((studentLesson.VisitStatus == 2) && studentLesson.Lesson.IsСompleted)
+                                                                            {
+                                                                                <a asp-action="Item" asp-controller="Lesson" title="@studentLessons[i].StartTime.ToShortTimeString()" asp-route-id="@studentLessons[i].Id">
+                                                                                <span style="color:red" title="@studentLessons[i].StartTime.ToShortTimeString()">@studentLessons[i].StartTime.ToShortDateString()</span> 
+                                                                                </a>
+                                                                            }
+                                                                            else if((studentLesson.VisitStatus == 3) && studentLesson.Lesson.IsСompleted)
+                                                                            {
+                                                                                <a asp-action="Item" asp-controller="Lesson" title="@studentLessons[i].StartTime.ToShortTimeString()" asp-route-id="@studentLessons[i].Id">
+                                                                                    <span style="color:#7e8382" title="@studentLessons[i].StartTime.ToShortTimeString()">@studentLessons[i].StartTime.ToShortDateString()</span>
+                                                                                </a>
+
+                                                                            }
+                                                                            else if(!studentLesson.Lesson.IsСompleted)
+                                                                            {
+                                                                                <a asp-action="Item" asp-controller="Lesson" title="@studentLessons[i].StartTime.ToShortTimeString()" asp-route-id="@studentLessons[i].Id">
+                                                                                 <span title="@studentLessons[i].StartTime.ToShortTimeString()">@studentLessons[i].StartTime.ToShortDateString()</span>
+                                                                                  </a>
+                                                                            }
                                                                             
-                                                                </a>
-                                                                        }
-                                                                        else if(studentLesson != null && !studentLesson.IsVisit && studentLesson.Lesson.IsСompleted)
-                                                                        {
-                                                                <span style="color:red" title="@item.Lessons[i].StartTime.ToShortTimeString()">@item.Lessons[i].StartTime.ToShortDateString()</span> 
-                                                                            <a asp-action="Item" asp-controller="Lesson" title="@item.Lessons[i].StartTime.ToShortTimeString()" asp-route-id="@item.Lessons[i].Id">
-                                                                                
-                                                                            </a>
                                                                         }
                                                                          else
                                                                         {
-                                                                <span style="color:#c4baff" title="@item.Lessons[i].StartTime.ToShortTimeString()">@item.Lessons[i].StartTime.ToShortDateString()</span>
-                                                                <a asp-action="Item" asp-controller="Lesson" title="@item.Lessons[i].StartTime.ToShortTimeString()" asp-route-id="@item.Lessons[i].Id">
-                                                                                
-                                                                            </a>
+                                                                            <a asp-action="Item" asp-controller="Lesson" title="@studentLessons[i].StartTime.ToShortTimeString()" asp-route-id="@studentLessons[i].Id">
+                                                                             <span style="color:#7e8382" title="@studentLessons[i].StartTime.ToShortTimeString()">@studentLessons[i].StartTime.ToShortDateString()</span>
+                                                                             </a>
                                                                         }
 
 
@@ -150,7 +156,7 @@
                                                            
                                                                     </div>
 
-                                                                    <input type="checkbox" asp-for="@item.Lessons[i].IsСompleted" disabled />
+                                                                    <input type="checkbox" asp-for="@studentLessons[i].IsСompleted" disabled />
 
                                                             </div>
                                                         </div>
@@ -237,7 +243,7 @@
                                                             </div>
                                                             <div class="row">
                                                                 <div style="display:flex; justify-content:space-between">
-                                                                    @if (User.IsInRole("Student"))
+                                                                    @if (true)
                                                                     {
                                                                         <div style="display:flex; grid-gap:5%" class="cs-form">
                                                                             <input type="time" name="startTime" asp-for="@item.StartTime" class="form-control" disabled /> -
@@ -245,13 +251,7 @@
                                                                         </div>
                                                                         <div></div>
                                                                     }
-                                                                    else
-                                                                    {
-                                                                        <div style="display:flex; grid-gap:5%">
-                                                                            <input type="time" asp-for="@item.StartTime" class="form-control" /> -
-                                                                            <input type="time" asp-for="@item.EndTime" class="form-control" />
-                                                                        </div>
-                                                                    }
+                                                                   
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -259,23 +259,25 @@
                                                         <div class="col">
                                                             @{
                                                                 //Get variables to show teacher
+                                                                ApplicationUser teacher = new ApplicationUser();
+                                                                /*
                                                                 List
                                                                 <ApplicationUser>
                                                                 arrivedUsers = new List<ApplicationUser>();
                                                                 List<ApplicationUser> notArrivedUsers = new List<ApplicationUser>();
-                                                                ApplicationUser teacher = new ApplicationUser();
+
                                                                 if (item.ArrivedStudents != null)
                                                                 {
-                                                                    var users = item.ArrivedStudents.Where(x => x.IsVisit).Select(x => x.Student).Select(x => x.ApplicationUser);
-                                                                    arrivedUsers.AddRange(users);
-                                                                    var users2 = item.ArrivedStudents.Where(x => x.IsVisit == false).Select(x => x.Student).Select(x => x.ApplicationUser);
-                                                                    notArrivedUsers.AddRange(users2);
+                                                                var users = item.ArrivedStudents.Where(x => x.IsVisit).Select(x => x.Student).Select(x => x.ApplicationUser);
+                                                                arrivedUsers.AddRange(users);
+                                                                var users2 = item.ArrivedStudents.Where(x => x.IsVisit == false).Select(x => x.Student).Select(x => x.ApplicationUser);
+                                                                notArrivedUsers.AddRange(users2);
                                                                 }
-
+                                                                */
                                                                 if (item.Teacher != null && item.Teacher.ApplicationUser != null)
                                                                     teacher = item.Teacher.ApplicationUser;
                                                                 <div>
-                                                                    <strong>Group: </strong> @item.Group.Name - @item.Group.CourseName.Name - @item.Group.LessonType.Name <br />
+                                                                    <strong>Group: </strong> @item.Group.Name - @item.Group.Course.Name <br />
                                                                     <strong>Lesson topic: </strong>@(item.Topic ?? "-") <br />
 
 
@@ -303,24 +305,18 @@
                                                                     @if (User.IsInRole("Admin"))
                                                                     {
                                                                         <p>
-                                                                            Result price for student: @item.Group.LessonType.StudentPrice BYN
+                                                                            Result price for student: @item.Group.PaymentCategory.StudentPrice BYN
                                                                             <br />
-                                                                            Result price for teacher: @item.Group.LessonType.TeacherPrice BYN
+                                                                            Result price for teacher:  BYN
                                                                             <br />
-                                                                            Result price for admin: @(item.Group.LessonType.TeacherPrice - (item.Group.LessonType.StudentPrice * item.ArrivedStudents.Count())) BYN
+                                                                            Result price for admin: ) BYN
                                                                         </p>
                                                                     }
-                                                                    @if (User.IsInRole("Teacher"))
-                                                                    {
 
-                                                                        <p>
-                                                                            Result price for teacher: @item.Group.LessonType.TeacherPrice BYN
-                                                                        </p>
-                                                                    }
-                                                                    @if (User.IsInRole("Student"))
+                                                                    @if (User.Identity.Name == user.Login)
                                                                     {
                                                                         <p>
-                                                                            Result price for student: @item.Group.LessonType.StudentPrice BYN
+                                                                            Result price for student: @item.Group.PaymentCategory.StudentPrice BYN
                                                                         </p>
                                                                     }
                                                                 </div>

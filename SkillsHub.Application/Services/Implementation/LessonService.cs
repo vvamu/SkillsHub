@@ -35,8 +35,8 @@ public class LessonService : ILessonService
     public IQueryable<Lesson> GetAll()
     {
         var items = _context.Lessons
-            .Include(x => x.Group).ThenInclude(x => x.LessonType)
-            .Include(x => x.Group).ThenInclude(x => x.CourseName)
+            .Include(x => x.Group).ThenInclude(x => x.Course)
+            .Include(x => x.Group)
             //.Include(x => x.Group).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
@@ -50,8 +50,8 @@ public class LessonService : ILessonService
     public async Task<Lesson> GetAsync(Guid id)
     {
         var lesson = _context.Lessons
-            .Include(x => x.Group).ThenInclude(x => x.LessonType)
-            .Include(x=> x.Group).ThenInclude(x=>x.Teacher).ThenInclude(x=>x.ApplicationUser)
+            .Include(x => x.Group).ThenInclude(x => x.Course)
+            .Include(x=> x.Group).ThenInclude(x=>x.GroupTeachers).ThenInclude(x=>x.Teacher).ThenInclude(x=>x.ApplicationUser)
             .Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser).AsNoTracking()
@@ -68,7 +68,8 @@ public class LessonService : ILessonService
     {
         var groupName = "";
         if (lesson.Group != null) groupName = lesson.Group.Name;
-        List<LessonStudent> lessonStudentsByGroup = lesson.ArrivedStudents.ToList();
+        List<LessonStudent> lessonStudentsByGroup = new List<LessonStudent>();
+        if(lesson.ArrivedStudents!=null) lessonStudentsByGroup = lesson.ArrivedStudents.ToList();
 
 
         if (lesson.Group != null && lesson.Group.IsPermanentStaffGroup && lesson.IsСompleted) return lessonStudentsByGroup;
@@ -106,19 +107,8 @@ public class LessonService : ILessonService
                         {
                             _context.Students.ToList();
                             _context.ApplicationUsers.ToList();
-                            if(student != null)
-                            {
-                                var user = await _context.ApplicationUsers.Include(x=>x.UserStudent).FirstOrDefaultAsync(x => x.UserStudent.Id == student.StudentId);
-
-                                var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = user.Id } };
-                                var message = " You was added to lesson in group " + groupName;
-                                var notification = new NotificationMessage() { Message = message, Users = usersToSend };
-
-                                usersToSend.ForEach(x => x.NotificationMessage = notification);
-                                await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
-                                await _context.NotificationMessages.AddAsync(notification);
-                                await _context.SaveChangesAsync();
-                            }
+                           
+                           
                            
 
                         }
@@ -139,8 +129,25 @@ public class LessonService : ILessonService
                 if (await _context.LessonStudents.FirstOrDefaultAsync(x => x.LessonId == lesson.Id && x.StudentId == studentId) != null) continue;
                 var grSt = new LessonStudent() { LessonId = lesson.Id, StudentId = studentId };
                 await _context.LessonStudents.AddAsync(grSt);
+
+                if (lessonStudentsByGroup == null || lessonStudentsByGroup.Count() == 0
+                    || (lessonStudentsByGroup != null && lessonStudentsByGroup.Count() != 0 && lessonStudentsByGroup.Select(x => x.StudentId) != null && !lessonStudentsByGroup.Select(x=>x.StudentId).Contains(studentId)))
+                {
+                    var user = await _context.ApplicationUsers.Include(x => x.UserStudent).FirstOrDefaultAsync(x => x.UserStudent.Id == studentId);
+
+                    var usersToSend = new List<NotificationUser>() { new NotificationUser() { UserId = user.Id } };
+                    var message = " You was added to lesson in group " + groupName;
+                    var notification = new NotificationMessage() { Message = message, Users = usersToSend };
+
+                    usersToSend.ForEach(x => x.NotificationMessage = notification);
+                    await _context.NotificationUsers.AddRangeAsync(usersToSend.AsEnumerable());
+                    await _context.NotificationMessages.AddAsync(notification);
+                    await _context.SaveChangesAsync();
+                }
             }
 
+               
+           
 
             await _context.SaveChangesAsync();
         }
@@ -186,7 +193,7 @@ public class LessonService : ILessonService
         if (lesson.Group != null) groupId = lesson.Group.Id;
         int duration = 0;
         var group = await GetGroupAsync(lesson.GroupId ?? groupId);
-        if (group != null) duration = group.LessonType.LessonTimeInMinutes;
+        if (group != null) duration = group.LessonTimeInMinutes;
         if (lesson.EndTime.Minute - lesson.StartTime.Minute > duration * 2 || lesson.EndTime < lesson.StartTime) throw new Exception("Not correct date");
 
         var lessonsByGroup = _context.Lessons.Include(x => x.Group).Where(x => x.Group.Id == groupId).OrderBy(x => x.StartTime);
@@ -209,7 +216,7 @@ public class LessonService : ILessonService
         if (group.IsPermanentStaffGroup)
         {
             // в идеале ассинхрон
-            var students = group.GroupStudents.Select((x) => new LessonStudent() { IsVisit = false, LessonId = lesson.Id, StudentId = x.StudentId }).ToList();
+            var students = group.GroupStudents.Select((x) => new LessonStudent() { VisitStatus = 2, LessonId = lesson.Id, StudentId = x.StudentId }).ToList();
             await _context.LessonStudents.AddRangeAsync(students);
         }
 
@@ -238,7 +245,7 @@ public class LessonService : ILessonService
         if (lesson.Group != null) groupId = lesson.Group.Id;
         int duration = 0;
         var group = await GetGroupAsync(lesson.GroupId ?? groupId);
-        if (group != null) duration = group.LessonType.LessonTimeInMinutes;
+        if (group != null) duration = group.LessonTimeInMinutes;
         if (lesson.EndTime.Minute - lesson.StartTime.Minute > duration * 2 || lesson.EndTime < lesson.StartTime) throw new Exception("Not correct date");
 
         var lessonsByGroup = _context.Lessons.Include(x => x.Group).Where(x => x.Group.Id == groupId).OrderBy(x => x.StartTime);
@@ -252,7 +259,7 @@ public class LessonService : ILessonService
         }*/
         #endregion
         var user = await _userService.GetCurrentUserAsync();
-        var prevLesson = await _context.Lessons.AsNoTracking().Include(x => x.Group).ThenInclude(x => x.LessonType).FirstOrDefaultAsync(x => x.Id == lesson.Id);
+        var prevLesson = await _context.Lessons.AsNoTracking().Include(x => x.Group).ThenInclude(x => x.Course).FirstOrDefaultAsync(x => x.Id == lesson.Id);
         _context.Entry(prevLesson).State = EntityState.Detached;
 
 
@@ -282,6 +289,7 @@ public class LessonService : ILessonService
             lesson.StartTime = prevLesson.StartTime;
             lesson.EndTime = prevLesson.EndTime;
         }
+
         _context.Lessons.Update(lesson);
         await _context.SaveChangesAsync();
 
@@ -295,8 +303,8 @@ public class LessonService : ILessonService
         if (newLesson != null)
         {
             var duration = (newLesson.EndTime - newLesson.StartTime).TotalMinutes;
-            var defaultDuration = prevLesson.Group.LessonType.LessonTimeInMinutes;
-            requestMessage += "\n| Default time to lesson type " + prevLesson.Group.LessonType.Name + " : " + defaultDuration
+            var defaultDuration = prevLesson.Group.LessonTimeInMinutes;
+            requestMessage += "\n| Default time to lesson type " + prevLesson.Group.Name + " : " + defaultDuration
                 + "\n | New duration : " + duration
                 + "\n Difference : " + (defaultDuration - duration);
 
@@ -328,14 +336,13 @@ public class LessonService : ILessonService
             .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
 
 
-            .Include(x => x.Lessons).Include(x => x.CourseName).Include(x => x.LessonType)
+            .Include(x => x.Lessons).Include(x => x.Course)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group)
             .Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
             .Include(x => x.DaySchedules)
-            .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
-            .Include(x => x.CourseName)
-            .Include(x => x.LessonType).ToListAsync();
+            .Include(x => x.GroupTeachers).ThenInclude(x=>x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.Course).ToListAsync();
         var item = groups.Find(x => x.Id == id);
         return item;
     }

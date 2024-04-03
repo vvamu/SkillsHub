@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using SkillsHub.Domain.BaseModels;
+@using SkillsHub.Domain.Models;
 @inject UserManager<ApplicationUser> _userManager;
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 
@@ -10,7 +11,7 @@
 
 @if (condition)
 {
-    var student = Model.UserStudent ?? new Student();
+    var student = Model.UserStudent ?? new SkillsHub.Domain.Models.Student();
     var visitedLessons = Model.UserStudent.VisitedLessons;
     var TotalLessons = Model.UserStudent.Lessons;
 
@@ -72,7 +73,7 @@
                     {
 
                         <ol>
-                            @foreach (var item in student.PossibleCources.Select(x => x.CourseName.Name))
+                            @foreach (var item in student.PossibleCources.Select(x => x.Course.Name))
                             {
                                 <li>@item</li>
                             }
@@ -103,12 +104,15 @@
             <div>
                 @{
                     var visitedLessonsCount = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id).Select(x => x.Lesson).Where(x => x.IsСompleted).Count();
+                    var missedLessonsCount = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id && (x.VisitStatus==2 || x.VisitStatus ==3)).Select(x => x.Lesson).Where(x => x.IsСompleted).Count();
+                    var missedLessonsCountWithoutWriteOff = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id && (x.VisitStatus == 3)).Select(x => x.Lesson).Where(x => x.IsСompleted).Count();
+
                     var arrivedLessonsCount = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id).Select(x => x.Lesson).Count();
                 }
-                Уроки ученика: посещено @visitedLessonsCount из @arrivedLessonsCount ; Цена: @Model.UserStudent.CurrentCalculatedPrice BYN из @Model.UserStudent.TotalCalculatedPrice BYN
+                Lessons: visited @visitedLessonsCount @if (@missedLessonsCount != 0) {<span>(missed @missedLessonsCount, without write - off @missedLessonsCountWithoutWriteOff)</span>} из @arrivedLessonsCount<br /> Payable now / for full courses: @Model.UserStudent.CurrentCalculatedPrice BYN / @Model.UserStudent.TotalCalculatedPrice BYN
             </div>
             <div>
-                Оплачено: @student.PaymentAmount BYN
+                Paid: --- BYN
             </div>
             <!--
             <div>

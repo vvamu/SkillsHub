@@ -1,6 +1,6 @@
 ﻿@using SkillsHub.Application.DTO;
 
-@model Teacher
+@model SkillsHub.Domain.Models.Teacher
 
     
 
@@ -140,16 +140,16 @@
                                         <hr />
                                         <label>Paid to teacher</label>
                                         <div style="display:flex;align-items:center">
-                                             @{
-                                                if(User.IsInRole("Admin"))
-                                            {
-                                            <input type="number" asp-for="PaidAmount" class="form-control" /> <span>BYN</span>
-                                        }else
-                                        {
-                                            {
-                                                <input type="number" asp-for="PaidAmount"  class="form-control" disabled/> <span>BYN</span>
-                                            }
-                                        }
+                                             @{/*
+                                        if(User.IsInRole("Admin"))
+        {
+        <input type="number" asp-for="PaidAmount" class="form-control" /> <span>BYN</span>
+        }else
+        {
+        {
+        <input type="number" asp-for="PaidAmount"  class="form-control" disabled/> <span>BYN</span>
+        }
+        }*/
                                     }
                                         </div>
 

@@ -41,16 +41,18 @@ public class UserService : IUserService
     {        
         var user = await _context.ApplicationUsers
             
-            .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
-            .Include(x=>x.UserTeacher.PossibleCources).ThenInclude(x=>x.CourseName)
-            .Include(x=>x.UserTeacher).ThenInclude(x=>x.Groups).ThenInclude(x=>x.GroupStudents)//.ThenInclude(x=>x.Student)
-            .Include(x => x.UserTeacher).ThenInclude(x => x.Groups).ThenInclude(x => x.Lessons)
+            .Include(x => x.UserTeacher)
+
+            .Include(x=>x.UserTeacher.PossibleCources).ThenInclude(x=>x.Course)
+            .Include(x=>x.UserTeacher).ThenInclude(x=>x.GroupTeachers).ThenInclude(x=>x.Group)//.ThenInclude(x=>x.Student)
+            .Include(x => x.UserTeacher).ThenInclude(x => x.GroupTeachers).ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
+            .Include(x => x.UserTeacher).ThenInclude(x => x.PossibleCources)
             .Include(x=>x.UserStudent)
             .Include(x=>x.UserStudent).ThenInclude(x=>x.Groups)//.ThenInclude(x=>x.Student)
             .Include(x => x.UserStudent).ThenInclude(x => x.Groups).ThenInclude(x => x.Group).ThenInclude(x=>x.Lessons)//.ThenInclude(x=>x.GroupStudents).ThenInclude(x => x.Student)
             .Include(x=>x.UserStudent)
             .Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
-            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.CourseName)
+            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.Course)
 
             .FirstOrDefaultAsync(x => x.Id == id);
         return user;
@@ -59,9 +61,9 @@ public class UserService : IUserService
     public async Task<UserCreateDTO> GetUserCreateDTOByIdAsync(Guid id)
     {
         var user = await _context.ApplicationUsers.Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
-            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.CourseName)
+            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.Course)
             .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
-            .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.CourseName)
+            .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.Course)
             .FirstOrDefaultAsync(x => x.Id == id);
         if (user == null) return null;
         var userCreateDTO = _mapper.Map<UserCreateDTO>(user);
@@ -90,7 +92,7 @@ public class UserService : IUserService
             .Include(x => x.ApplicationUser)
             .Include(x => x.PossibleCources)
             //.Include(x => x.WorkingDays)
-            .Include(x => x.Groups).OrderBy(on => on.Id);
+            .Include(x => x.GroupTeachers).OrderBy(on => on.Id);
 
         return items;
 
@@ -99,12 +101,12 @@ public class UserService : IUserService
     {
         return _context.Users
             .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
-            .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.CourseName)
-            .Include(x => x.UserTeacher).ThenInclude(x => x.Groups)
+            .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.Course)
+            .Include(x => x.UserTeacher).ThenInclude(x => x.GroupTeachers)
             .Include(x => x.UserStudent)
             .Include(x => x.UserStudent).ThenInclude(x => x.Groups)
             .Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
-            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.CourseName)
+            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.Course)
             .OrderBy(x => x.Id);
     }
 
@@ -121,6 +123,7 @@ public class UserService : IUserService
 
 
     #endregion
+
     #region Create 
     public async Task<Teacher> CreateTeacherAsync(ApplicationUser user, Teacher item)
     {
@@ -415,30 +418,31 @@ public class UserService : IUserService
 
     #endregion
 
+    /*
     public async Task<Teacher> UpdateTeacherWithCourcesNames(Teacher item, List<Guid> courcesId)
     {
         
         //VAR 2
 
         // Загрузите все существующие связи CourceNameTeacher для данного учителя
-        var existingCourceNames = _context.CourseNameTeachers
+        var existingCourceNames = _context.LessonTypeTeachers
             .Where(ct => ct.TeacherId == item.Id)
             .ToList();
 
         // Удалите все существующие связи
-        _context.CourseNameTeachers.RemoveRange(existingCourceNames);
+        _context.LessonTypeTeachers.RemoveRange(existingCourceNames);
         _context.SaveChanges();
 
         // Создайте новые связи с новыми курсами
         foreach (var courceName in courcesId)
         {
-            var courceNameTeacher = new CourseNameTeacher
+            var courceNameTeacher = new PossibleCourseTeacher
             {
                 TeacherId = item.Id,
-                CourseNameId = courceName
+                LessonTypeId = courceName
             };
 
-            _context.CourseNameTeachers.Add(courceNameTeacher);
+            _context.LessonTypeTeachers.Add(courceNameTeacher);
         }
 
         await _context.SaveChangesAsync();
@@ -448,30 +452,31 @@ public class UserService : IUserService
 
         return item;
     }
+    */
 
-
+    /*
 	public async Task<Student> UpdateStudentWithCourcesNames(Student item, List<Guid> courcesId)
     {//VAR 2
 
         // Загрузите все существующие связи CourceNameTeacher для данного учителя
-        var existingCourceNames = _context.CourseNameStudents
+        var existingCourceNames = _context.LessonTypeStudents
             .Where(ct => ct.StudentId == item.Id)
             .ToList();
 
         // Удалите все существующие связи
-        _context.CourseNameStudents.RemoveRange(existingCourceNames);
+        _context.LessonTypeStudents.RemoveRange(existingCourceNames);
         _context.SaveChanges();
 
         // Создайте новые связи с новыми курсами
         foreach (var courceName in courcesId)
         {
-            var courceNameTeacher = new CourseNameStudent
+            var courceNameTeacher = new LessonTypeStudent
             {
                 StudentId = item.Id,
-                CourseNameId = courceName
+                LessonTypeId = courceName
             };
 
-            _context.CourseNameStudents.Add(courceNameTeacher);
+            _context.LessonTypeStudents.Add(courceNameTeacher);
         }
 
         await _context.SaveChangesAsync();
@@ -479,12 +484,13 @@ public class UserService : IUserService
         
         return item;
 
-    }
+    }*/
 
     #region Delete
 
     public async Task<ApplicationUser> HardDeleteAsync(ApplicationUser item)
     {
+        if (item == null) throw new Exception("User not found");
         if(!item.IsDeleted)
             await SoftDeleteAsync(item);
 
@@ -503,10 +509,10 @@ public class UserService : IUserService
         if (teacher != null)
         {
             teacher.IsDeleted = true;
-            teacher.Groups = new List<Group>();
+            teacher.GroupTeachers = new List<GroupTeacher>();
 
 
-            teacher.PossibleCources = new List<CourseNameTeacher>();
+            teacher.PossibleCources = new List<PossibleCourseTeacher>();
 
             var scheduleTeacher = teacher.WorkingDays;
 
@@ -533,7 +539,7 @@ public class UserService : IUserService
             }
 
             student.Groups = new List<GroupStudent>();
-            student.PossibleCources = new List<CourseNameStudent>();
+            student.PossibleCources = new List<PreferenceCourseStudent>();
 
             
             student.Lessons = new List<LessonStudent>();
@@ -595,7 +601,9 @@ public class UserService : IUserService
         var user = await GetCurrentUserAsync();
         List<NotificationMessage> userNotification = new List<NotificationMessage>();
 
-        var notifications = _context.NotificationUsers.Include(x=>x.User).Include(x=>x.NotificationMessage).Where(x => x.User.Id == user.Id).Select(x=>x.NotificationMessage);
+        var notifications = _context.NotificationUsers.Include(x=>x.User)
+            .Include(x=>x.NotificationMessage)
+            .Where(x => x.User.Id == user.Id).Select(x=>x.NotificationMessage).OrderBy(x=>x.DateCreated);
 
         return notifications.AsQueryable();
     }

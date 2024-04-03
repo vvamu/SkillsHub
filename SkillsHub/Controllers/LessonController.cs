@@ -78,10 +78,10 @@ public class LessonController : Controller
     [Route("/Lessons/GetAllAsync")]
     public async Task<IActionResult> GetAllAsync()
     {
-        var items = _context.Lessons.Include(x=>x.Group).ThenInclude(x=>x.Teacher)
+        var items = _context.Lessons.Include(x=>x.Group).ThenInclude(x=>x.GroupTeachers)
             .Include(x=>x.Group).ThenInclude(x=>x.GroupStudents)
             .Include(x=>x.LessonTask)
-            .Include(x=>x.LessonType).AsQueryable();
+            .AsQueryable();
 
         try
         {
@@ -106,10 +106,10 @@ public class LessonController : Controller
     public async Task<IActionResult> Create(Guid id)
     {
         var group = await _groupService.GetAsync(id) ?? throw new Exception("Group not found");
-        var duration = group.LessonType.LessonTimeInMinutes;
+        var duration = group.LessonTimeInMinutes;
 
         ViewBag.grId = group.Id;
-        ViewBag.DefaultLessonTime = group.LessonType.LessonTimeInMinutes;
+        ViewBag.DefaultLessonTime = group.LessonTimeInMinutes;
 
         var item = new Lesson() { Group = group, GroupId = group.Id, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(duration) };
         return View("Item", item);
@@ -126,9 +126,10 @@ public class LessonController : Controller
         {
             if (group.LessonsCount <= group.Lessons.Count())
                 return PartialView("_MyError", "So much lessons");
-
+            /*
             if (group.NeededLessonsTimeInMinutes <= group.ResultLessonsTimeInMinutes)
                 return PartialView("_MyError", "So much working hours. Send message to administator to fix this problem");
+            */
         }
 
 
@@ -168,7 +169,7 @@ public class LessonController : Controller
         {
             group = await _groupService.GetAsync(grId.Value) ?? throw new Exception("Group not found");
             previousCountLessons = group.Lessons.Count();
-            var duration = group.LessonType.LessonTimeInMinutes;
+            var duration = group.LessonTimeInMinutes;
 
             ViewBag.grId = group.Id;
             ViewBag.GroupId = group.Id;
@@ -223,7 +224,7 @@ public class LessonController : Controller
         if (item.GroupId.HasValue)
         {
             var group = await _groupService.GetAsync(item.GroupId.Value) ?? throw new Exception("Group not found");
-            duration = group.LessonType.LessonTimeInMinutes;
+            duration = group.LessonTimeInMinutes;
 
             ViewBag.grId = group.Id;
             ViewBag.GroupId = await _context.Groups.FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(item.GroupId.Value));
@@ -235,6 +236,8 @@ public class LessonController : Controller
             var  ressss= await _lessonService.Edit(item);
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View("Item", item); }
+
+       
 
 
         #region CreateNotification
@@ -266,23 +269,23 @@ public class LessonController : Controller
     }
 
     [HttpPost]
-    public async Task ChangeArrivedStudentStatus(Guid id,  bool neededStatus)
+    public async Task ChangeArrivedStudentStatus(Guid id,  int neededStatus)
     {
         var item = await _context.LessonStudents.FirstOrDefaultAsync(x => x.Id == id);
         if (item == null) return;
-        if (neededStatus) item.IsVisit = true;
-        else item.IsVisit = false;
+        item.VisitStatus = neededStatus;
         _context.LessonStudents.Update(item);
         await _context.SaveChangesAsync();
 
     }
+    /*
     [HttpPost]
     public async Task SaveStudentsByLesson(Guid[] visitStudent, Guid[] passedStudent, Guid lessonId)
     {
         foreach(var i in visitStudent)
         {
             var ii = await _context.LessonStudents.Include(x=>x.Lesson).FirstOrDefaultAsync(x => x.Id == i && x.Lesson.Id == lessonId);
-            ii.IsVisit = true;
+            ii.VisitStatus = true;
             _context.LessonStudents.Update(ii);
         }
         foreach(var i in passedStudent)
@@ -294,6 +297,7 @@ public class LessonController : Controller
         await _context.SaveChangesAsync();
 
     }
+    */
 
     [HttpGet]
     public async Task<IActionResult> Item(Guid id)
@@ -385,15 +389,15 @@ public class LessonController : Controller
     }
 
 
-
+    //TODO
 
     [HttpPost]
-    public async Task<IActionResult> RemoveUserFromLesson(Guid id,string message)
+    public async Task<IActionResult> RequestFromStudentToMissLesson(Guid id,string message)
     {
         var lesson = await _lessonService.GetAsync(id);
         var user = await _userService.GetCurrentUserAsync();
         var lessonStudent = lesson.ArrivedStudents.FirstOrDefault(x => x.StudentId == user.UserStudent.Id);
-        lessonStudent.IsVisit = false;
+        //lessonStudent.IsVisit = false;
         _context.LessonStudents.Update(lessonStudent);
         return RedirectToAction("Item", new{ id = id });
 

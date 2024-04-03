@@ -25,9 +25,10 @@ public interface IUserService
     public Task<Teacher> CreateTeacherAsync(ApplicationUser user, Teacher item);
     public Task<Student> CreateStudentAsync(ApplicationUser user, Student item);
     public Task<ApplicationUser> CreateUserAsync(UserCreateDTO user);
+    /*
     public Task<Teacher> UpdateTeacherWithCourcesNames(Teacher item, List<Guid> courcesId);
     public Task<Student> UpdateStudentWithCourcesNames(Student item, List<Guid> courcesId);
-
+    */
 
     
     public Task<ApplicationUser> HardDeleteAsync(ApplicationUser item);

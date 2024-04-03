@@ -31,9 +31,11 @@ public static class FilterMaster
             if (!string.IsNullOrEmpty(filters.WorkingDay))
                 items = items.Where(x => x.WorkingDays != null)
                     .Where(x => x.WorkingDays.Contains(filters.WorkingDay));
+            /*
             if (!string.IsNullOrEmpty(filters.PossibleCourse))
                 items = items.Where(x => x.PossibleCources != null)
-                    .Where(x => x.PossibleCources.Select(x => x.CourseName.Name).Contains(filters.PossibleCourse));
+                    .Where(x => x.PossibleCources.Select(x => x.LessonType.Name).Contains(filters.PossibleCourse));
+            */
             if (filters.IsDeleted != -100)
                 items = items.Where(x => x.IsDeleted == Convert.ToBoolean(filters.IsDeleted));
             if (filters.MinDateCreated != null)
@@ -94,12 +96,15 @@ public static class FilterMaster
             if (filters.MaxSalary != 0)
                 items = items.Where(x => x.Salary <= filters.MaxSalary);
             */
+            /*
             if (!string.IsNullOrEmpty(filters.PossibleCourse))
                 items = items.Where(x => x.PossibleCources != null)
-                             .Where(x => x.PossibleCources.Select(c => c.CourseName.Name).Contains(filters.PossibleCourse));
+                             .Where(x => x.PossibleCources.Select(c => c.LessonType.Name).Contains(filters.PossibleCourse));
+            */
+            /*
             if (filters.GroupId != Guid.Empty)
                 items = items.Where(x => x.Groups != null)
-                             .Where(x => x.Groups.Select(g => g.Id).Contains(filters.GroupId));
+                             .Where(x => x.Groups.Select(g => g.Id).Contains(filters.GroupId));*/
             if (!string.IsNullOrEmpty(filters.WorkingDay))
                 items = items.Where(x => x.WorkingDays != null)
                              .Where(x => x.WorkingDays.Contains(filters.WorkingDay));
@@ -112,12 +117,15 @@ public static class FilterMaster
 
     public static async Task<IQueryable<Lesson>> GetAllLessons(IQueryable<Lesson> items, LessonFilterModel filters, OrderModel orders)
     {
+        if (items == null) return null;
+
         if (filters != null)
         {
             if (filters.GroupId != Guid.Empty)
                 items = items.Where(x => x.Group.Id == filters.GroupId);
+
             if (filters.TeacherId != Guid.Empty)
-                items = items.Where(x => x.Group.Teacher != null).Where(x => x.Group.Teacher.Id == filters.TeacherId);
+                items = items.Where(x => x.Group!= null && x.Group.GroupTeachers != null).Where(x => x.Group.GroupTeachers.Select(x=>x.Id).Contains(filters.TeacherId));
             if (filters.StudentId != Guid.Empty)
                 items = items.Where(x => x.Group.GroupStudents != null).Where(x => x.Group.GroupStudents.Select(x => x.Id).Contains(filters.StudentId));
             if (!string.IsNullOrEmpty(filters.Topic))
@@ -159,16 +167,19 @@ public static class FilterMaster
             {
                 items = items.Where(x => x.UserTeacher != null).Where(x => x.UserTeacher.WorkingDays.Contains(filters.TeacherWorkingDay));
             }
+            /*
             if (!string.IsNullOrEmpty(filters.StudentPossibleCource))
             {
                 var i = items.Where(x => x.UserStudent != null).Where(x => x.UserStudent.PossibleCources != null);
                 var ki = i.ToList();
-                items = i.Where(x => x.UserStudent.PossibleCources.Select(x => x.CourseName).Select(x => x.Id.ToString()).Contains(filters.StudentPossibleCource));
+                items = i.Where(x => x.UserStudent.PossibleCources.Select(x => x.LessonType).Select(x => x.Id.ToString()).Contains(filters.StudentPossibleCource));
             }
+            
+
             if (!string.IsNullOrEmpty(filters.TeacherPossibleCource))
             {
-                items = items.Where(x => x.UserTeacher != null).Where(x => x.UserTeacher.PossibleCources != null).Where(x => x.UserTeacher.PossibleCources.Select(x => x.CourseName).Select(x => x.Id.ToString()).Contains(filters.TeacherPossibleCource));
-            }
+                items = items.Where(x => x.UserTeacher != null).Where(x => x.UserTeacher.PossibleCources != null).Where(x => x.UserTeacher.PossibleCources.Select(x => x.LessonType).Select(x => x.Id.ToString()).Contains(filters.TeacherPossibleCource));
+            }*/
             if (!string.IsNullOrEmpty(filters.IsDeleted))
             {
                 if (filters.IsDeleted == "Yes")
@@ -193,16 +204,15 @@ public static class FilterMaster
             //BY FIO 
             if (!string.IsNullOrEmpty(filters.FIO))
             {
-                var concatenatedUsers = items
-                    .Select(x => $"{x.UserName.ToLower() ?? ""} - {x.Login.ToLower() ?? ""} - {x.FirstName.ToLower() ?? ""} - {x.LastName.ToLower() ?? ""} - {x.Surname.ToLower() ?? ""}")
-                    .ToList();
+                items = items.Where(x =>
+                (x.UserName != null && x.UserName.ToLower().Contains(filters.FIO.ToLower())) ||
+                (x.Login != null && x.Login.ToLower().Contains(filters.FIO.ToLower())) ||
+                (x.FirstName != null && x.FirstName.ToLower().Contains(filters.FIO.ToLower())) ||
+                (x.LastName != null && x.LastName.ToLower().Contains(filters.FIO.ToLower())) ||
+                (x.Surname != null && x.Surname.ToLower().Contains(filters.FIO.ToLower()))
+                );
 
-                items = concatenatedUsers
-                    .Where(u => u.Contains(filters.FIO.ToLower()))
-                    .Join(items, u => u, x => $"{x.UserName ?? ""} - {x.Login ?? ""} - {x.FirstName ?? ""} - {x.LastName ?? ""} - {x.Surname ?? ""}", (u, x) => x)
-                    .ToList()
-                    .AsAsyncQueryable();
-
+                var uuu = items.ToList();
             }
         }
         return items;
@@ -240,14 +250,7 @@ public static class FilterMaster
                 }
                 else if (filters.IsPermanentStaffGroup == "No") items = items.Where(x => x.IsPermanentStaffGroup == false);
             }
-            if (filters.LessonTypeId != Guid.Empty && filters.LessonTypeId != null)
-            {
-                items = items.Where(x=>x.LessonTypeId == filters.LessonTypeId);
-            }
-            if (filters.CourseNameId != Guid.Empty && filters.CourseNameId != null)
-            {
-                items = items.Where(x => x.CourseNameId == filters.CourseNameId);
-            }
+            
 
 
 
@@ -265,13 +268,20 @@ public static class FilterMaster
             {
                 items = items.OrderByDynamic(orders.OrderColumn, orders.OrderType);
             }
+            /*
+            foreach (var item in items)
+            {
+                item.Lessons = item.Lessons.OrderBy(x => x.StartTime).ToList();
+            }
+            */
         }
 
 
         return items;
 
     }
-}
+
+   }
 
 public static class IQueryableExtensions
 {

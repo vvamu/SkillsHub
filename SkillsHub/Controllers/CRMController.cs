@@ -26,17 +26,18 @@ public class CRMController: Controller
     private readonly IMailService _mailService;
     private readonly IUserService _userService;
     private readonly ApplicationDbContext _context;
-    private readonly ICourcesService _courcesService;
 
     public  CRMController(IMailService mailService, IUserService userService,
-     ApplicationDbContext context, ICourcesService courcesService)
+     ApplicationDbContext context )
     {
         _mailService = mailService;
         _userService = userService;
         _context = context;
-        _courcesService = courcesService;
     }
 
+    #region Get
+
+    #endregion
     public async Task<IActionResult> Index()
     {
         //await _courcesService.InitCources();
@@ -62,7 +63,11 @@ public class CRMController: Controller
 
     }
 
-
+    [HttpGet]
+    public async Task<IActionResult>  InstitutionSetting()
+    {
+        return View("InstitutionSettingPage");
+    }
     public IActionResult Classes()
     {
         var events = new List<Eventh>();
@@ -100,6 +105,7 @@ public class CRMController: Controller
 
         return View();
     }
+
 
     public JsonResult CreateNewEvent(EventDTO eventDto)
     {

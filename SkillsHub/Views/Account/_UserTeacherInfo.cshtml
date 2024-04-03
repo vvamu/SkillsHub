@@ -66,10 +66,10 @@
                 <b>Направления работы:</b> @{
                     if (teacher.PossibleCources != null)
                     {
-                        var res = String.Join(',', Model.UserTeacher.PossibleCources.Select(x => x.CourseName));
+                        var res = String.Join(',', Model.UserTeacher.PossibleCources.Select(x => x.Course));
 
                         <ol>
-                            @foreach (var item in Model.UserTeacher.PossibleCources.Select(x => x.CourseName))
+                            @foreach (var item in Model.UserTeacher.PossibleCources.Select(x => x.Course))
                             {
                                 <li>@item.Name</li>
                             }
@@ -100,7 +100,7 @@
                 Проведенные уроки: @visitedLessonsCount / @arrivedLessonsCount ; Цена: @teacher.CurrentCalculatedPrice BYN / @teacher.TotalCalculatedPrice BYN
             </div>
             <div>
-                Выплачено: @teacher.PaidAmount BYN 
+                Выплачено: --- BYN 
             </div>
             <!--
             <div>

@@ -8,9 +8,6 @@ namespace SkillsHub.Domain.Models;
 public class Lesson : BaseEntity
 {
     public string? Topic { get; set; }
-    //[Url]
-    public string? LinkToWebinar { get; set; }
-
     public Teacher? Teacher { get; set; }
     public Guid? TeacherId { get; set; } 
     public List<LessonStudent>? ArrivedStudents { get; set; }
@@ -19,6 +16,31 @@ public class Lesson : BaseEntity
 
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
+
+    
+    /*
+
+    public LessonType? LessonType { get; set; } //Group, Individual
+    public Guid? LessonTypeId { get; set; } 
+    */
+    public string? Location { get; set; } //Online Offline
+
+
+    //public LessonActivityType? LessonActivityType { get; set; } //Отработка Пробное убрать
+    public LessonTask? LessonTask { get; set; }
+    public Guid? LessonTaskId { get; set; }
+    //public ApplicationUser? Creator { get; set; }
+    //public Guid CreatorId { get; set; }
+
+    public string? Comment { get; set; } = "";
+    public string? AdditionalMaterials { get; set; } = "";
+
+    [NotMapped]
+    public bool IsСompleted { get; set; } = false;
+    public DateTime DateCompletedByTeacher { get; set; }
+
+    //public bool IsVerified { get; set; }
+    #region Helpers
 
     [NotMapped]
     public int Duration
@@ -30,26 +52,7 @@ public class Lesson : BaseEntity
         }
     }
 
-    public LessonType? LessonType { get; set; } //Group, Individual
-    public Guid? LessonTypeId { get; set; } //Group, Individual
-    public string? Location { get; set; } //Online Offline
-
-
-    public LessonActivityType? LessonActivityType { get; set; } //Отработка Пробное убрать
-
-    public LessonTask? LessonTask { get; set; }
-    public Guid? LessonTaskId { get; set; }
-    public ApplicationUser? Creator { get; set; }
-    public bool IsСompleted { get; set; } = false;
-
-    //public bool IsCompletedByTeacher { get; set; }
-
-
-    //When lesson "Completed" - From LessonType
-    public decimal TeacherPrice { get; set; }
-    public decimal StudentPrice {  get; set; }
-
-    public bool IsVerified { get; set; }
+    #endregion
 
 }
 

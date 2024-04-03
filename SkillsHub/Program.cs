@@ -13,6 +13,7 @@ using SkillsHub.Domain.BaseModels;
 using SkillsHub.Helpers;
 using SkillsHub.Persistence;
 using System.Security.Claims;
+using System.Security.Policy;
 using Viber.Bot.NetCore.Middleware;
 
 namespace SkillsHub;
@@ -33,14 +34,8 @@ public class Program
         builder.Services.AddSession(options => {
             options.IdleTimeout = TimeSpan.FromMinutes(30);
         });
-
-        
-
-
-        var services = builder.Services;
-
-
-        
+     
+        var services = builder.Services;  
         services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
         #region Options pattern
@@ -112,19 +107,20 @@ public class Program
         builder.Services.AddTransient<EmailProvider.Interfaces.IMailService, MailService>();
         builder.Services.AddTransient<IUserService,UserService>();
         builder.Services.AddTransient<IExternalService,ExternalService>();
-        builder.Services.AddTransient<ICourcesService, CourcesService>();
+        //builder.Services.AddTransient<ICourcesService, CourcesService>();
         builder.Services.AddTransient<IGroupService,GroupService>();
         builder.Services.AddTransient<IRequestService, RequestService>();
         builder.Services.AddTransient<INotificationService,NotificationService>();
         builder.Services.AddScoped<ILessonService, LessonService>();
         builder.Services.AddScoped<ISalaryService, SalaryService>();
 
+        builder.Services.AddScoped<ILessonTypeService, LessonTypeService>();
+        builder.Services.AddScoped<IPaymentCategoryService, PaymentCategoryService>();
+
         #endregion
 
-        services.AddControllers(options =>
-        {
-            options.Conventions.Add(new AuthorizedControllerConvention());
-        });
+        services.AddControllers()
+        .AddRazorRuntimeCompilation();
 
 
         builder.Services.AddCors();
@@ -139,7 +135,8 @@ public class Program
 
         if (app.Environment.IsDevelopment())
         {
-            app.UseExceptionHandler("/Home/Error");
+            //app.UseExceptionHandler("/Home/Error");\
+            app.UseDeveloperExceptionPage();
 
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
@@ -161,6 +158,21 @@ public class Program
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+        app.MapControllerRoute(
+        name: "ThanksRoute",
+        pattern: "{controller=Home}/{action=Thanks}",
+        defaults: new { controller = "Home", action = "Thanks" }
+        );
+
+
+        app.MapControllerRoute(name: "thanks",
+                pattern: "thanks/",
+                defaults: new { controller = "Home", action = "Thanks" });
+
+
+
 
 
         #region Roles

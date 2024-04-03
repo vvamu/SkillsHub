@@ -12,9 +12,9 @@
                         {
                             <h2>Edit group</h2>
                             var options = new System.Text.Json.JsonSerializerOptions
-                            {
-                                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
-                            };
+                {
+                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+                };
                             try
                             {
                                 <input type="hidden" id="studentsByGroup" value="@System.Text.Json.JsonSerializer.Serialize(@ViewBag.studentsByGroup, options)" />
@@ -36,6 +36,8 @@
                                 Please choose a name.
                             </div>
                         </div>
+                        <br />
+
                         <h4>Lessons count <span class="text-danger">*</span></h4>
                         <div style="display:flex;grid-gap:10px">
                             <input class="form-control" type="number" asp-for="LessonsCount" min="1" max="50" id="lessonsCount" style="margin-right:10%" />
@@ -45,21 +47,134 @@
                                 <span style="color:lightseagreen">For unlimited count lessons</span>
                             </div>
                         </div>
+                        <br />
                         <div class="form-group ">
                             <label class=" col-form-label" for="val-skill">
-                                <h4>Category <span class="text-danger">*</span></h4>
+                                <h3>Lesson type <span class="text-danger">*</span></h3>
                             </label>
-                            <select asp-for="LessonTypeId" class="form-control" id="lessonTypes"></select>
+
+                            <div style="display:flex;margin:10px">
+                                <select class="form-control" id="lessonType-select" onchange="GetLessonTypes()">
+                                </select>
+                                <button type="button" onclick="GetLessonTypes()" class="btn btn-primary" style="zoom:60%">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
+                        <div class="row" style="grid-gap:10%">            
+                            <div class="col">
+                                <div class="form-group ">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Subject <span class="text-danger">*</span></h4>
+                                    </label>
+
+                                    <div style="display:flex;margin:10px">
+                                        <select class="form-control" id="subject-select" onchange="GetSubjects()">
+                                        </select>
+                                        <button type="button" onclick="GetSubjects()" class="btn btn-primary" style="zoom:60%">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                </div>
+                                <div class="form-group ">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Course <span class="text-danger">*</span></h4>
+                                    </label>
+                                    <div style="display:flex;margin:10px">
+                                        <select class="form-control" id="course-select" onchange="GetCourses()">
+                                        </select>
+                                        <button type="button" onclick="GetCourses()" class="btn btn-primary" style="zoom:60%">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Group type <span class="text-danger">*</span></h4>
+                                    </label>
+                                    <div style="display:flex;margin:10px">
+                                        <select class="form-control" id="groupType-select" onchange="GetGroupTypes()">
+                                        </select>
+                                        <button type="button" onclick="GetGroupTypes()" class="btn btn-primary" style="zoom:60%">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                           <div class="col">
+                                <div class="form-group ">
+
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>English level <span class="text-danger">*</span></h4>
+                                    </label>
+
+                                    <div style="display:flex;margin:10px">
+                                        <select class="form-control" asp-for="EnglishLevel">
+                                            @{
+                                                var englishLevels = new List<string>() {"A1", "A1.2", "A2", "B1", "B2", "C1", "C2"};
+                                                foreach(var i in englishLevels)
+                                                {
+                                                    <option value="@i">@i</option>
+                                                }
+                                            }
+                                        </select>
+
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Location type <span class="text-danger">*</span></h4>
+                                    </label>
+
+                                    <select class="form-control" id="locationType-select" >
+                                        <option value="online">online</option>
+                                        <option value="offline">offline</option>
+                                    </select>
+                                </div>
+                                <div class="form-group ">
+
+                                    <label class=" col-form-label" for="val-skill">
+                                        <h4>Age type <span class="text-danger">*</span></h4>
+                                    </label>
+
+                                    <div style="display:flex;margin:10px">
+                                        <select class="form-control" id="ageType-select" onchange="GetAgeTypes()">
+                                        </select>
+                                        <button type="button" onclick="GetAgeTypes()" class="btn btn-primary" style="zoom:60%">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                           </div>
+                        </div>
+
+                        
+                        
+                        
+
+                        
+
+                       
+                        <!--
                         <div class="form-group ">
                             <label class=" col-form-label" for="val-skill">
-                                <h4>Cource name <span class="text-danger">*</span></h4>
-                            </label>
-                            <select asp-for="CourseNameId" class="form-control" id="courcesNames"></select>
-                        </div>
-                        <div class="form-group ">
-                            <label class=" col-form-label" for="val-skill">
-                                <div style="display:flex">
+                                <div style="display:flex;margin:10px">
                                     <h4>Group with permanent staff  <span class="text-danger">*</span></h4>
                                     (all students to all lessons)
                                 </div>
@@ -69,15 +184,8 @@
                                 <option value="@true">Yes</option>
                             </select>
                         </div>
-                        <div class="form-group ">
-                            <label class=" col-form-label" for="val-skill">
-                                <div style="display:flex">
-                                    <h4>Teacher  <span class="text-danger">*</span></h4>
-                                    (from All Teachers)
-                                </div>
-                            </label>
-                            <select asp-for="TeacherId" class="form-control" id="allTeachers" onclose="getTeachers()"></select>
-                        </div>
+                        -->
+                        <br />
                         <!--
                            <div class="form-group ">
                                <label class=" col-form-label" for="val-skill">
@@ -90,13 +198,13 @@
                            </div>-->
                         <div>
                             <label class=" col-form-label" for="val-skill">
-                                <div style="display:flex">
+                                <div style="display:flex;margin:10px">
                                     <h4>Students<span class="text-danger">*</span></h4>
                                     <p>(from All Students)</p>
                                 </div>
                             </label>
                             <ul id="studentsList" class="list-group col"></ul>
-                        </div>      
+                        </div>
                         <div class="form-group ">
                             <ul id="courcesList" class="list-group col"></ul>
                         </div>
@@ -178,6 +286,9 @@
 
    -->
 <script>
+    
+
+
     function CreateUnlimitedLessons(inp) {
         var checkbox = inp;
         var lessonsCountInput = document.querySelector('#lessonsCount');
@@ -224,212 +335,6 @@
         parent.remove();
     }
 
-    function getStudentsList() {
-
-        var studentsList = $("#studentsList");
-        studentsList.empty();
-
-
-        var studentsByGroup;
-        var studentsIds;
-
-        $.ajax({
-            url: "/Student/GetStudentListAsync",
-            type: "GET",
-            dataType: "json",
-
-            success: function (data) {
-                //console.log("students")
-
-                //console.log(data);
-                data = JSON.parse(data);
-
-                if (Array.isArray(data)) {
-                    //console.log(data);
-                    data.forEach(function (item, i, arr) {
-                        var user = item.ApplicationUser;
-                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
-
-                        var appendedLine = "<li class='list-group-item'>";
-
-
-                        if (studentsIds != undefined && studentsIds.includes(item.Id))
-                            appendedLine += "<input type='checkbox' name='studentId'  style='margin-right:5px;' value='" + item.Id + "' checked  /> ";
-                        else
-                            appendedLine += "<input type='checkbox' name='studentId'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-
-                        appendedLine += user.FirstName + " " + user.LastName + " " + user.Surname + "(" + user.Age + "years)";
-                        appendedLine += "</li>"
-
-                        studentsList.append(appendedLine);
-                    })
-                }
-            }
-        });
-
-    }
-
-    function getCourcesNamesList() {
-
-        var studentsList = $("#courcesNames");
-
-
-        var teacherId;
-        /*
-        try {
-
-
-            if (Model != null && Model.CourseName != null) {
-
-                teacherId = Model.CourseName.Id.ToString();//JSON.parse($("#studentsByGroup").val()).Id;
-                console.log("CourseName");
-                console.log(teacherId);
-            }
-        }
-        catch (e) { console.log(e); }
-        */
-
-        $.ajax({
-            url: "/Cource/GetCourcesNamesAsync",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                data = JSON.parse(data);
-                console.log(data);
-                if (Array.isArray(data)) {
-
-
-                    data.forEach(function (item, i, arr) {
-
-                        var appendedLine = "";
-
-                        if (teacherId != undefined && teacherId == item.CourseName.Id)
-                            appendedLine = "<option selected class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>" + item.Name;
-                        else
-                            appendedLine = "<option class='list-group-item' name='courceId' asp-for='CourceId' value='" + item.Id + "'>" + item.Name;
-
-                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-                        //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
-                        appendedLine += " (Min age:" + item.MinimumAge + ";Max age:" + item.MaximumAge + ")"
-                        appendedLine += "</option>"
-
-                        studentsList.append(appendedLine);
-                    })
-
-
-
-
-                }
-            }
-        });
-
-    }
-
-    function getLessonTypesList() {
-
-        var studentsList = $("#lessonTypes");
-        var teacherId;
-
-        /*
-    try {
-    if (Model != null && Model.LessonType != null) {
-
-    teacherId = Model.LessonType.Id.ToString();//JSON.parse($("#studentsByGroup").val()).Id;
-    console.log("LessonType");
-    console.log(teacherId);
-    }
-    } catch (e) => console.log(e);
-    */
-        $.ajax({
-            url: "/Cource/GetLessonTypesAsync",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                data = JSON.parse(data);
-                if (Array.isArray(data)) {
-                    console.log("efwerf");
-                    console.log(data);
-
-                    data.forEach(function (item, i, arr) {
-                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
-
-                        var appendedLine = "";
-                    
-                        appendedLine += "<option class='list-group-item' value='" + item.Id + "'>" + item.Name;
-
-                        
-                        appendedLine += " (MinumumLessonsToPay:" + item.MinumumLessonsToPay + "; LessonTimeInMinutes:" + item.LessonTimeInMinutes + "; Min/Max count students: " + item.MinimumStudents + "/" + item.MaximumStudents + ")"
-                        appendedLine += "</option>"
-
-                        studentsList.append(appendedLine);
-                    })
-
-
-
-
-                }
-            }
-        });
-
-    }
-
-    function getTeachers() {
-
-        var requiredTeachers = $("#allTeachers");
-        //requiredTeachers.val() = "";
-        requiredTeachers.empty();
-
-        var teacherId;
-        /*
-        try {
-
-
-            if (Model != null && Model.Teacher != null) {
-
-                teacherId = Model.Teacher.Id.ToString();//JSON.parse($("#studentsByGroup").val()).Id;
-                console.log("teacherId");
-                console.log(teacherId);
-            }
-        } catch (e) => console.log(e);
-
-        */
-        $.ajax({
-            url: "/Teachers/GetTeachersAsync",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                data = JSON.parse(data);
-                if (Array.isArray(data)) {
-                    console.log(data);
-                    if (data.length == 0) {
-                        var appendEmpty = "<li class='list-group-item' value='' >Teacher's list is empty</li>";
-                        requiredTeachers.append(appendEmpty);
-                    }
-                    data.forEach(function (item, i, arr) {
-
-                        var user = item.ApplicationUser;
-
-                        requiredTeachers.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
-
-                        if (teacherId != undefined && item.Teacher.Id == teacherId)
-                            var appendedLine = "<option class='list-group-item' selected name='teacherValue' value='" + item.Id + "'>";
-
-                        else
-                            var appendedLine = "<option class='list-group-item' name='teacherValue' value='" + item.Id + "'>";
-
-
-                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-                        appendedLine += user.FirstName + " " + user.LastName + " " + user.Surname;
-                        appendedLine += "</option>"
-
-                        requiredTeachers.append(appendedLine);
-
-                    })
-                }
-            }
-        });
-    }
-
     function CheckSchedule() {
         var checkSchedule = $("#checkSchedule");
         checkSchedule.empty();
@@ -459,13 +364,99 @@
 
     }
 
+    //---------------------------------------------------------------
+
+    var filters_LessonType = {
+            "filter-subjectId": $("#subject-select option:selected").val(),
+            "filter-courseId": $("#course-select option:selected").val(),
+            "filter-groupTypeId": $("#groupType-select option:selected").val(),
+            "filter-locationType": $("#locationType-select option:selected").val(),
+            "filter-ageTypeId": $("#ageType-select option:selected").val(),
+            "IsDeleted": '-'
+
+    }
+    var orders = {
+        OrderColumn: "Id",
+        OrderType: "asc",
+    }
+
+
+
+    function GetSubjects() {
+        console.log($("#subject-select option:selected").val());
+        console.log(typeof($("#subject-select option:selected").val())) 
+        
+        $("#subject-select").load("/Subject/OptionsList", { subjectId: $("#subject-select option:selected").val() }, function (responseTxt, statusTxt, xhr) {
+            if (statusTxt == "success")
+                console.log("External content loaded successfully!");
+            if (statusTxt == "error")
+                console.log("Error: " + xhr.status + ": " + xhr.statusText);
+        });
+        GetCourses();
+    }
+    GetSubjects();
+
+    function GetCourses() {
+       
+        $("#course-select").load("/Course/OptionsList", {subjectId: $("#subject-select option:selected").val(), courseId : $("#course-select option:selected").val() });
+    }
+
+    function GetGroupTypes() {
+
+        $("#groupType-select").load("/GroupType/OptionsList", { groupTypeId: $("#groupType-select option:selected").val() });
+    }
+    function GetAgeTypes() {
+
+        $("#ageType-select").load("/AgeType/OptionsList", { ageTypeId: $("#ageType-select option:selected").val() });
+    }
+    function GetLessonTypes() {
+
+        filters_LessonType = {
+                SubjectId: $("#subject-select option:selected").val(),
+                CourseId: $("#course-select option:selected").val(),
+                GroupTypeId: $("#groupType-select option:selected").val(),
+                LocationType: $("#locationType-select option:selected").val(),
+                AgeTypeId: $("#ageType-select option:selected").val(),
+                IsDeleted: '-'
+
+        }
+        orders = {
+            OrderColumn: "Id",
+            OrderType: "asc",
+        }
+
+
+
+        $("#lessonType-select").load("/LessonType/OptionsList", { filters: filters_LessonType, order: orders, lessonTypeId: $("#lessonType-select option:selected").val() });
+    }
+    
+
     $(document).ready(function () {
         //getDataByAjax("/Student/GetStudentListAsync")
-        getStudentsList();
-        getCourcesNamesList();
-        getLessonTypesList();
-        getTeachers();
         CreateScheduleDay();
+        //фильтры
+        GetSubjects();
+        GetSubjects();
+        GetCourses();
+        GetGroupTypes();
+        GetAgeTypes();
+
+        
+        
+       
+        $("#groupType-select").click(function () {
+            $("#groupType-data").load("/GroupType/OptionsList", { courseId: $("#course-select").val() }); //чтобы смотреть проводятся такие занятия  или нет!
+            $("#lessonType-select").load("/LessonType/OptionsList", { filters: filters_LessonType, order: orders });
+        })
+        $("#locationType-select").click(function () {
+            $("#groupType-data").load("/LocationType/OptionsList", { courseId: $("#course-select").val(), groupId: $("#groupType-select").val() }); //чтобы смотреть проводятся такие занятия  или нет!
+        })
+
+        $("ageType-select").click(function () {
+            $("#groupType-data").load("/AgeType/OptionsList", { courseId: $("#course-select").val() }); //чтобы смотреть проводятся такие занятия  или нет!
+            $("#lessonType-select").load("/LessonType/OptionsList", { filters: filters_LessonType, order: orders });
+        })
+
     });
 
 </script>

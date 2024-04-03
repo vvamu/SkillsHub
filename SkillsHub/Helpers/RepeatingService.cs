@@ -129,14 +129,19 @@ public class RepeatingService : BackgroundService
 
             List<ApplicationUser> usersToSend = new List<ApplicationUser>();
             var group = lessonR.Group;
-            var teacher = group.Teacher.ApplicationUser;
-            //var admins = _userManager.GetUsersInRoleAsync("Admin").Result; usersToSend.AddRange(admins);
-            usersToSend.Add(teacher);
-            var message = "In group " + group.Name + " lesson by time " +
-                lessonR.StartTime.ToShortTimeString() + " - " + lessonR.EndTime.ToShortTimeString() + " " + lessonR.StartTime.ToShortDateString()
-                + "was completed automatically. Check what students marked.";
 
-            await _notificationService.Create(message, usersToSend);
+            foreach(var teacher in group.GroupTeachers.Select(x=>x.Teacher).Select(x=>x.ApplicationUser))
+            {
+                usersToSend.Add(teacher);
+                var message = "In group " + group.Name + " lesson by time " +
+                    lessonR.StartTime.ToShortTimeString() + " - " + lessonR.EndTime.ToShortTimeString() + " " + lessonR.StartTime.ToShortDateString()
+                    + "was completed automatically. Check what students marked.";
+
+                await _notificationService.Create(message, usersToSend);
+            }
+
+            //var admins = _userManager.GetUsersInRoleAsync("Admin").Result; usersToSend.AddRange(admins);
+            
         }
     }
 

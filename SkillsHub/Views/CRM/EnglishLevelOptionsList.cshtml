@@ -1,0 +1,27 @@
+﻿@model (IQueryable<Course>?,Guid)
+@{
+    ViewData["Title"] = "Create";
+}
+
+@{
+    if (Model.Item1 == null || Model.Item1.Count() == 0)
+    {
+        <option>List is empty</option>
+    }
+
+    else
+    {
+        @foreach (var item in Model.Item1.Where(x => x.IsDeleted == false).ToList())
+        {
+            if (Model.Item2 == item.Id)
+            {
+                <option selected="selected" name="@item.Id">@item.Name</option>
+            }
+            else
+            {
+                <option name="@item.Id">@item.Name</option>
+            }
+
+        }
+    }
+}

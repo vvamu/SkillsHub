@@ -25,35 +25,22 @@
                 <ul>
                     @foreach (var i in ArrivedStudents)
                     {
-                        @if(i.IsVisit)
-                        {
-                            <input type="hidden" name="visitStudent" value="@i.Id" />
-                        }
-                        @if(i.IsVisit == false)
-                        {
-                            <input type="hidden" name="passedStudent" value="@i.Id" />
-                        }
+                         <input type="hidden" name="visitStudent" value="@i.Id" /><!--name not needed : name="passedStudent"-->
+                        
 
+                        
                         <li style="display:flex; grid-gap:5px">
-                            @if (i.IsVisit)
-                            {
-                                <select asp-for="@i.IsVisit" onchange="changeArrivedStudentStatus('@i.Id',false)">
-                                    <option value="@true" selected>Visit</option>
-                                    <option value="@false">Missed</option>
-                                </select>
-                            }
-                            else
-                            {
-                                <select asp-for="@i.IsVisit" onchange="changeArrivedStudentStatus('@i.Id',true)">
-                                    <option value="@true">Visit</option>
-                                    <option value="@false" selected>Missed</option>
-                                    </select>
-                            }
+                            <select id="select-visit-status" asp-for="@i.VisitStatus" onchange="changeArrivedStudentStatus('@i.Id',this.value)"> 
+                                <option value="1" selected="@(i.VisitStatus == 1)">Visited</option>
+                                    <option value="2" selected="@(i.VisitStatus == 2)">Missed with the lesson debited</option>
+                                    <option value="3" selected="@(i.VisitStatus == 3)">Missed without the lesson debited</option>
+                            </select>
 
                             @i.Student.ApplicationUser.FirstName @i.Student.ApplicationUser.LastName @i.Student.ApplicationUser.Surname
 
-                            <input type="button" class="btn btn-sm btn-danger" style="padding-bottom:3px" onclick="RemoveArrivedStudent('@i.Student.ApplicationUser.Id')" />
+                            <input type="button" class="btn btn-sm btn-danger" style="height:20px" onclick="RemoveArrivedStudent('@i.Student.ApplicationUser.Id')" />
                         </li>
+           
                     }
                 </ul>
                

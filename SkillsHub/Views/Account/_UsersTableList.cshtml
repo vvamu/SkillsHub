@@ -1,13 +1,14 @@
 ﻿@using SkillsHub.Domain.BaseModels;
 @model List<ApplicationUser>;
 @inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
 
 
     @if (Model == null || Model.Count() == 0)
         {
 
                 <div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
-                    <h3>Users list is empty</h3>
+                    <h3>Users list is empty</h3> 
                     
 
                 </div>
@@ -33,14 +34,13 @@
                                                     <th>Phone</th>
                                                     <th>Email</th>
                                                     <th>BirthDate and Age</th>
-                                                    <th>Total lessons student/teacher</th>
-                                                    <th>Month lessons student/teacher</th>
+                                                    <th>Lessons teacher/student</th>
+                                                    <th>Current groups teacher/student</th>
                                                     <th>Roles</th>
-                                                    <th>Cources</th
-                                                    <th>Working days</th>
+                                                    <th>Cources</th>
                                                     <th>Working days</th>
                                                     <th>Source Find Company</th>
-                                                    <th>Deleted</th>
+                                                    
                                                     <th>Soft delete</th>
                                                     <th>Hard delete (from database)</th>
 
@@ -73,40 +73,48 @@
                 var studentLessonsMonth = 0;
                 var teacherLessons = 0;
                 var studentLessons = 0;
+                var teacherGroups = 0;
+                var studentGroups =  0;
+                
+                var teacherExpected = 0;
+                var studentExpected = 0;
                 var currentMonth = DateTime.Now.Month;
 
                
                   // var ii = teacherLessonsMonth = item.UserTeacher.Groups;
-                  try{
 
-                  
-                     if (item.UserTeacher != null && item.UserTeacher.Groups != null &&  item.UserTeacher.Groups.SelectMany(x => x.Lessons) != null && item.UserTeacher.Groups.SelectMany(x => x.Lessons).Count() != null)
+                 _context.Lessons.ToList();
+                 _context.Groups.ToList();
+                 _context.LessonStudents.ToList();
+                 _context.GroupStudents.ToList();
+
+                     if (item.UserTeacher != null)
                     {
-                        teacherLessonsMonth = item.UserTeacher.Groups
-                       .SelectMany(x => x.Lessons)
-                        .Where(x => x.EndTime.Month == currentMonth)
-                        .Count();
-                        teacherLessons = item.UserTeacher.Groups
-                        .SelectMany(x => x.Lessons).Count();
+                        teacherExpected = _context.Lessons.Where(x=>x.TeacherId== item.UserTeacher.Id && x.IsСompleted ==  false).Count();
+                        var teacherLessonss = _context.Lessons.Where(x=>x.TeacherId== item.UserTeacher.Id && x.IsСompleted ==  true);
+                        teacherLessons = teacherLessonss.Count();
+                        teacherLessonsMonth = teacherLessonss.Where(x=>x.EndTime.Month == currentMonth).Count();
+                        teacherGroups = _context.GroupTeachers.Where(x=>x.TeacherId == item.UserTeacher.Id).Count();
+                       
+                       
                     }
-                    if (item.UserStudent != null)
-                    {
-                        /*
-                        studentLessonsMonth = item.UserStudent.Groups
-                        .SelectMany(x => x.Lessons)
-                        .Where(x => x.EndTime.Month == currentMonth)
-                        .Count();
-                        studentLessons = item.UserStudent.Groups
-                        .SelectMany(x => x.Lessons).Count();
-                        */
-                    }
-                    }catch (Exception ex){}
+                      if (item.UserStudent != null)
+                      {
+                          studentExpected = _context.LessonStudents.Where(x=>x.StudentId == item.UserStudent.Id && x.Lesson.IsСompleted ==  false).Count();
+                        var lessonStudents = _context.LessonStudents.Where(x=>x.StudentId == item.UserStudent.Id && x.Lesson.IsСompleted ==  true);
+                        studentLessons = lessonStudents.Count();
+                        studentLessonsMonth = lessonStudents.Where(x=>x.Lesson != null && x.Lesson.EndTime.Month == currentMonth).Count();
+                        studentGroups = _context.GroupStudents.Where(x=>x.StudentId == item.UserStudent.Id).Count();
+
+                      }
+                        
+                   
                
                 
 
             }
-            <td>@teacherLessons / @studentLessons</td>
-            <td>@teacherLessonsMonth / @studentLessonsMonth</td>
+            <td>total passed: @teacherLessons / @studentLessons;<br/> by month: @teacherLessonsMonth / @studentLessonsMonth;<br/>expected: @teacherExpected/@studentExpected</td>
+            <td>@teacherGroups / @studentGroups</td>
             <td>
                 @{
                     var roles = await _roleManager.UserManager.GetRolesAsync(item);
@@ -118,13 +126,13 @@
 
                 
                  @if(item.UserTeacher != null && item.UserTeacher.PossibleCources != null) { 
-                 var teacherCources = item.UserTeacher.PossibleCources.Select(x=>x.CourseName).Select(x=>x.Name).ToList();
+                 var teacherCources = item.UserTeacher.PossibleCources.Select(x=>x.Course).Select(x=>x.Name).ToList();
 
                  <p><strong>Teacher:</strong> @foreach(var cource in teacherCources){@cource}
                  </p> 
                  }
                  @if(item.UserStudent != null && item.UserStudent.PossibleCources != null) { 
-                 var studentrCources = item.UserStudent.PossibleCources.Select(x=>x.CourseName).Select(x=>x.Name).ToList();
+                 var studentrCources = item.UserStudent.PossibleCources.Select(x=>x.Course).Select(x=>x.Name).ToList();
 
                  <p><strong>Student:</strong> @foreach(var cource in studentrCources)
                      {
@@ -151,16 +159,9 @@
                  } 
                 </td>
             <td>@item.SourceFindCompany</td>
-            <td>@if (item.IsDeleted)
-                {
-                    <h3>+</h3>
-                }
-                else
-                {
-                    <h3>-</h3>
-                }</td>
-            <td><!--<a asp-action="SoftDelete" asp-controller="Account" asp-route-id="item.Id" class="btn btn-danger btn-sm">Soft delete</a>--></td>
-            <td><!--<a asp-action="HardDelete" asp-controller="Account" asp-route-id="item.Id" class="btn btn-warning btn-sm">Hard delete</a>--></td>
+            
+            <td><a asp-action="SoftDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Soft delete</a></td>
+            <td><a asp-action="HardDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Hard delete</a></td>
         </tr>
     }
                                     </tbody>
@@ -172,13 +173,13 @@
                                             <th>Phone</th>
                                             <th>Email</th>
                                             <th>BirthDate and Age</th>
-                                            <th>Total lessons student/teacher</th>
-                                            <th>Month lessons student/teacher</th>
+                                            <th>Lessons teacher/student</th>
+                                            <th>Current groups teacher/student</th>
                                             <th>Roles</th>
                                             <th>Cources</th>
                                             <th>Working days</th>
                                             <th>Source Find Company</th>
-                                            <th>Deleted</th>
+                                            
                                             <th>Soft delete</th>
                                             <th>Hard delete (from database)</th>
 
@@ -192,3 +193,7 @@
             </div>
         </div>
 }
+
+                                            <script src="~/plugins/tables/js/jquery.dataTables.min.js"></script>
+    <script src="~/plugins/tables/js/datatable/dataTables.bootstrap4.min.js"></script>
+    <script src="~/plugins/tables/js/datatable-init/datatable-basic.min.js"></script>

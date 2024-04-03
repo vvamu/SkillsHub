@@ -46,10 +46,10 @@
                                         <h5 class="mb-sm-0">
                                         @if(User.IsInRole("Admin"))
                                         {
-                                             <a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">@item.Name</a>
+                                        <a style="font-weight:600;font-size:x-large" asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">@item.Name</a>
                                         }
                                         else{
-                                            <span>@item.Name</span>
+                                        <span style="font-weight:600;font-size:x-large">@item.Name</span>
                                         }
                                        
                                         
@@ -85,8 +85,7 @@
                                     </div>
                                     <ul>
                                     
-                                    <li>Cource name: @item.CourseName.Name</li>
-                                     <li>Lesson type: @item.LessonType.Name</li>
+                                    
                                      <li>Status: @if(item.IsDeleted){<span>Completed</span>} else {<span>Not completed</span>} </li>
                                      
                                         <li>Lessons <!--by type-->passed, assigned, scheduled  : @item.Lessons.Where(x=>x.IsСompleted == true).Count() / @item.Lessons.Count() @if (!item.IsUnlimitedLessonsCount) { <span></span>} else{<span>Unlimited</span>}</li>
@@ -104,9 +103,13 @@
                                         <li>Date created: @item.DateCreated.ToShortDateString()</li>
 
                                         <li>
-                                            <strong>Teacher:</strong> @if (item.Teacher != null)
+                                            <strong>Teachers:</strong> @if (item.GroupTeachers != null )
                                             {
-                                                <span> @item.Teacher.ApplicationUser.FirstName @item.Teacher.ApplicationUser.LastName @item.Teacher.ApplicationUser.Surname</span>
+                                                foreach(var grT in item.GroupTeachers.Select(x=>x.Teacher).Select(x=>x.ApplicationUser))
+                                                {
+                                                    <span> @grT.FirstName @grT.LastName @grT.Surname</span>
+
+                                                }
                                             }
                                         </li>
                                         <li>
@@ -119,7 +122,7 @@
                                                     {
                                                         <span>0</span>
                                                     }
-                                                 / @item.LessonType.MinimumStudents..@item.LessonType.MaximumStudents )
+                                                 / @item.GroupType.MinCountStudents..@item.GroupType.MaxCountStudents )
                                         </strong> @if (item.GroupStudents != null && item.GroupStudents.Count() != 0 && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
                                             {
                                                 <span>:</span>

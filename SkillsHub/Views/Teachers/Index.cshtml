@@ -1,8 +1,11 @@
 ﻿@using SkillsHub.Application.Helpers;
 @using SkillsHub.Application.DTO;
+@using SkillsHub.Domain.BaseModels
 
 
-@model IQueryable<Teacher>?
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
+
+@model IQueryable<ApplicationUser>?
 
     <!-- Custom Stylesheet -->
 
@@ -142,142 +145,3 @@
         </div>
 
     </div>
-
-    <!--
-    <script src="/plugins/common/common.min.js"></script>
-    <script src="/js/custom.min.js"></script>
-    <script src="/js/settings.js"></script>
-    <script src="/js/gleek.js"></script>
-    <script src="/js/styleSwitcher.js"></script>
-
-    <script src="/plugins/tables/js/jquery.dataTables.min.js"></script>
-    <script src="/plugins/tables/js/datatable/dataTables.bootstrap4.min.js"></script>
-    <script src="/plugins/tables/js/datatable-init/datatable-basic.min.js"></script>
-    -->
-
-<script src="https://placehold.it/50/55C1E7/fff&text=U"></script>
-<script src="https://placehold.it/50/FA6F57/fff&text=ME"></script>
-
-
-<script src="~/plugins/common/common.min.js"></script>
-
-<script src="~/plugins/jqueryui/js/jquery-ui.min.js"></script>
-<script src="~/plugins/jquery/jquery.min.js"></script>
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-
-
-    <script>
-
-        function getTeachers() {
-  /*
-        var filters = {}
-        try {
-            const category = document.getElementById("courcesNames").value;
-            const parentName = document.getElementById("searchParentName").value;
-            const minDate = document.getElementById("minDate").value;
-            //const groupId = document.getElementById("group").value;
-
-            // Create the JavaScript object with selected values
-            filters = {
-                ParentName: parentName,
-                PossibleCourse: category,
-                MinDateCreated: minDate,
-                //GroupId = groupId
-            };
-
-
-            // Perform further actions with the selected values, such as filtering or sending a request
-            console.log(filters);
-        }
-        catch (ex) { console.log("err"); }
-
-
-        var data = {
-            StudentFilterModel: filters,
-            //orders: orders
-        };
-        */
-        
-        console.log("okkk");
-
-        var tableBody = $("#tableBody");
-
-        $.ajax({
-            url: "/Teachers/GetTeachersAsync",
-            type: "GET",
-            dataType: "json",
-            //data: JSON.stringify(data),
-            contentType: "application/json",
-
-            success: function (data) {
-                console.log(data)
-                data = JSON.parse(data);
-                if (!Array.isArray(data)) return;
-                    
-
-                var tableUsers = document.getElementById("tableBody");
-                tableUsers.innerHTML = "";
-
-                if (data.length === 0) {
-                    var row = "<div style='display:flex;flex;grid-gap:20px;justify-content:center '>"
-                    row += "<h3>Teacher`s list is empty</h3></div>"
-                    tableBody.append(row);
-                }
-
-                        
-                else {
-                        
-                    data.forEach(function (item, i, arr) {
-                            var student = item;
-
-                        tableBody.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
-
-                        var row = '<tr>' +
-                            '<td><a href="/Account/Item/' + student.ApplicationUser.Id + '" style="font-weight:900;color:#7571f9">' + student.ApplicationUser.Login + '</a></td>' +
-                            '<td>' + student.ApplicationUser.FirstName + ' ' + student.ApplicationUser.LastName + ' ' + student.ApplicationUser.Surname + '</td>' +
-                            '<td>' + student.ApplicationUser.Sex + '</td>' +
-                            '<td>' + student.ApplicationUser.Phone + '</td>' +
-                            '<td>' + student.ApplicationUser.Email + '</td>' +
-                            '<td>' + student.ApplicationUser.BirthDate + ' - ' + (new Date().getFullYear() - new Date(student.ApplicationUser.BirthDate).getFullYear()) + '</td>'
-                            //+ '<td>' + (student.Groups == null ? 'Not Studiet' : 'Studiet') + '</td>';
-
-                            if (student.Groups != null) {
-                                row += '<td>';
-                                student.Groups.forEach(function (group) {
-                                row += '<strong>' + (student.Groups.indexOf(group) + 1) + " " +  group.Name + '</strong>, ';
-                                });
-                                row += '</td>';
-                            } else {
-                                row += '<td></td>';
-                            }
-
-                        row += '<td>' + (student.Lessons == null ? '0' : student.Lessons.length) + '</td>' +
-                            '<td>' + (student.Lessons == null ? '0' : student.Lessons.length) + '</td>' +
-                            '<td>' + (student.Lessons == null ? '0' : student.Lessons.filter(function (lesson) {
-                                return new Date(lesson.StartTime).getMonth() == new Date().getMonth();
-                            }).length) + '</td>' +
-                            '<td>' + student.IsDeleted + '</td>' +
-                            '</tr>';
-
-                        tableBody.append(row);
-                    }); <!--foreach-->
-                } <!--else-->
-                    
-            }
-        });
-
-    }
-
-    $(document).ready(function () {
-
-            getTeachers();
-    });
-
-    </script>

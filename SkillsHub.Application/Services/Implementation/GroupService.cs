@@ -7,7 +7,6 @@ using SkillsHub.Application.Validators;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
 using SkillsHub.Persistence;
-using SkillsHub.Persistence.Migrations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -38,9 +37,9 @@ public class GroupService: IGroupService
         .Include(x => x.GroupStudents)//.ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
         //.Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x=>x.L)
         .Include(x => x.DaySchedules)
-        .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
-        .Include(x => x.CourseName)
-        .Include(x => x.LessonType)
+        .Include(x => x.GroupTeachers).ThenInclude(x=>x.Teacher).ThenInclude(x => x.ApplicationUser)
+        
+        .Include(x => x.Course)
         .AsQueryable();
     public async Task<Group> GetAsync(Guid id)
     {
@@ -50,14 +49,13 @@ public class GroupService: IGroupService
             .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
 
 
-            .Include(x => x.Lessons).Include(x => x.CourseName).Include(x => x.LessonType)
+            .Include(x => x.Lessons).Include(x => x.Course)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group)
             .Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x=>x.ApplicationUser)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
             .Include(x => x.DaySchedules)
-            .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
-            .Include(x => x.CourseName)
-            .Include(x => x.LessonType).ToListAsync();
+            .Include(x => x.GroupTeachers).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.Course).ToListAsync();
         var item = groups.Find(x => x.Id == id);
         return item;
     }
@@ -79,32 +77,38 @@ public class GroupService: IGroupService
             throw new Exception(errorsString);
         }
 
-        
+
 
         //if (_context.Groups.FirstOrDefault(x => x.Name == item.Name) != null) throw new Exception("Group with such name already exist");
-
-        var teacher = _context.Teachers.FirstOrDefault(x => x.Id == item.TeacherId);
-        ApplicationUser? userr;
-        if (teacher == null)
+        await _context.Teachers.ToListAsync();
+        await _context.Groups.ToListAsync();
+        foreach(var teacher in item.GroupTeachers.Select(x=>x.Teacher))
         {
-            userr = await _context.ApplicationUsers.Include(x => x.UserTeacher).FirstOrDefaultAsync(x => x.Id == item.TeacherId);
-            if (userr != null) teacher = userr.UserTeacher;
-        }
-
-        if (teacher != null)
-        {
-            var teacherGroups = teacher.Groups ?? new List<Group>();
-            teacherGroups.Add(item);
-            _context.Teachers.Update(teacher);
-            item.Teacher = teacher;
-
-        }
-
-        await _context.Groups.AddAsync(item);
-        await _context.SaveChangesAsync();
-
 
         
+            ApplicationUser? userr;
+            if (teacher == null)
+            {
+                userr = await _context.ApplicationUsers.Include(x => x.UserTeacher).FirstOrDefaultAsync(x => x.Id == teacher.Id);
+                //if (userr != null) teacher = await _context.GroupTeachers.FirstOrDefaultAsync(x=>x.TeacherId == userr.UserTeacher.Id && x.GroupId == item.Id);
+            }
+            else
+            {
+                var teacherGroups = teacher.GroupTeachers ?? new List<GroupTeacher>();
+
+                teacherGroups.Add(new GroupTeacher() { Group = item });
+                _context.Teachers.Update(teacher);
+                var grT = new GroupTeacher() { GroupId = item.Id, TeacherId = teacher.Id };
+                await    _context.GroupTeachers.AddAsync(grT);
+                    await _context.SaveChangesAsync();
+
+            }
+
+            await _context.Groups.AddAsync(item);
+            await _context.SaveChangesAsync();
+
+
+        }
 
 
         return item;
@@ -140,7 +144,7 @@ public class GroupService: IGroupService
                     
                     //ArrivedStudents = lessonStudents,
                     
-                    TeacherId = group.TeacherId
+                    //TeacherId = group.TeacherId
                 };
 
                 //_context.Entry(lesson.Teacher).State = EntityState.Unchanged;
@@ -243,8 +247,7 @@ public class GroupService: IGroupService
             }
 
 
-            var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x => x.Id == item.LessonTypeId) ?? throw new Exception("Lesson type not found");
-            var duration = lessonType.LessonTimeInMinutes;
+            var duration = item.LessonTimeInMinutes;
             var schedules = new List<WorkingDay>();
 
             
@@ -412,7 +415,7 @@ public class GroupService: IGroupService
         var group = await GetAsync(id);
         var groupStudents = group.GroupStudents;
         var lessons = group.Lessons;
-        var teacher = group.Teacher;
+        var teacher = group.GroupTeachers;
 
         foreach(var  i in lessons)
         {
@@ -425,15 +428,17 @@ public class GroupService: IGroupService
             _context.GroupStudents.Remove(i);
 
         }
-        if(teacher.Groups != null) 
+        /*
+        if(teacher.Gr != null) 
         {
-            teacher.Groups.Remove(new Group() { Id = id});
+            teacher.Groups.Remove(new GroupTeacher() { GroupId = id});
             _context.Teachers.Update(teacher);
             await _context.SaveChangesAsync();
 
-            group.Teacher = null;
+            //group.Teacher = null;
         }
         //_context.Entry(group.Teacher).State = EntityState.Unchanged;
+        */
         _context.Groups.Remove(group);
         await  _context.SaveChangesAsync();
 
