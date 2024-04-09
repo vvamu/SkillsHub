@@ -1,0 +1,37 @@
+﻿
+@model AgeType 
+
+<option>
+    <form  id="ageTypeForm">
+        <div style="display:flex">
+            Name | MinAge | MaxAge 
+        </div>
+        <div style="display:flex">
+            <input type="text" asp-for="Name" />
+            <input type="number" asp-for="MinimumAge" />
+            <input type="number" asp-for="MaximumAge" />
+            <input type="button" class="btn btn-primary" onclick="CreateAgeTypeAsync()" />
+        </div>
+        
+    </form>
+</option>
+
+<script>
+
+    function CreateAgeTypeAsync() {
+        var valdata = $("#ageTypeForm").serialize();
+        console.log(valdata);
+        $.ajax({
+            url: "/AgeType/CreateAsync",
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            data: valdata
+        }).then(
+            $("#last").html = "<input type='button' onclick='addNewRow()' value='create new ' />";
+        );
+
+
+    }
+
+</script>

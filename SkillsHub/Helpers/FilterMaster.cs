@@ -18,10 +18,12 @@ public static class FilterMaster
         {
             if (filters.ApplicationUserId != Guid.Empty)
                 items = items.Where(x => x.Id == filters.ApplicationUserId);
+            /*
             if (!string.IsNullOrEmpty(filters.ParentName))
                 items = items.Where(x => x.ParentName.Contains(filters.ParentName));
             if (!string.IsNullOrEmpty(filters.ParentPhone))
                 items = items.Where(x => x.ParentPhone.Contains(filters.ParentPhone));
+            */
             if (filters.MinCountPayedLessons != 0)
                 items = items.Where(x => x.CountPayedLessons != null).Where(x => x.CountPayedLessons >= filters.MinCountPayedLessons);
             if (filters.MinCountGroups != 0)

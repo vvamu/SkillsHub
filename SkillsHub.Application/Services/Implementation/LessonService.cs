@@ -35,11 +35,11 @@ public class LessonService : ILessonService
     public IQueryable<Lesson> GetAll()
     {
         var items = _context.Lessons
-            .Include(x => x.Group).ThenInclude(x => x.Course)
+            .Include(x => x.Group).ThenInclude(x => x.LessonType)
             .Include(x => x.Group)
             //.Include(x => x.Group).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
-            .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.Teacher).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             
             .Include(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
             
@@ -50,10 +50,10 @@ public class LessonService : ILessonService
     public async Task<Lesson> GetAsync(Guid id)
     {
         var lesson = _context.Lessons
-            .Include(x => x.Group).ThenInclude(x => x.Course)
-            .Include(x=> x.Group).ThenInclude(x=>x.GroupTeachers).ThenInclude(x=>x.Teacher).ThenInclude(x=>x.ApplicationUser)
+            .Include(x => x.Group).ThenInclude(x => x.LessonType)
+            .Include(x=> x.Group).ThenInclude(x=>x.Teacher).ThenInclude(x=>x.Teacher).ThenInclude(x=>x.ApplicationUser)
             .Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
-            .Include(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.Teacher).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser).AsNoTracking()
             .FirstOrDefault(x => x.Id == id);//?? throw new Exception("Lesson not found");
         return lesson;
@@ -332,17 +332,17 @@ public class LessonService : ILessonService
     {
         var groups = await _context.Groups
             .Include(x => x.Lessons)
-            .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
 
 
-            .Include(x => x.Lessons).Include(x => x.Course)
+            .Include(x => x.Lessons)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group)
             .Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
             .Include(x => x.DaySchedules)
-            .Include(x => x.GroupTeachers).ThenInclude(x=>x.Teacher).ThenInclude(x => x.ApplicationUser)
-            .Include(x => x.Course).ToListAsync();
+            .Include(x => x.Teacher).ThenInclude(x=>x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.LessonType).ToListAsync();
         var item = groups.Find(x => x.Id == id);
         return item;
     }

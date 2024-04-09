@@ -129,7 +129,7 @@ public class NotificationService : INotificationService
     {
         var groups = await _context.Groups
             .Include(x => x.Lessons)
-            .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Lessons).Include(x => x.Course)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group)

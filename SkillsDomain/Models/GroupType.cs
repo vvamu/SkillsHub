@@ -1,16 +1,12 @@
-﻿using System.ComponentModel;
+﻿using SkillsHub.Domain.BaseModels;
 
 namespace SkillsHub.Domain.Models;
 
-public class GroupType : BaseModels.BaseEntity
+public class GroupType : BaseEntity
 {
-	public string? Name { get; set; }
-	[DefaultValue("1")]
-	public int MinCountStudents { get; set; }
-	[DefaultValue("1")]
-	public int MaxCountStudents { get; set; }
-	public List<PossibleCourseTeacher>? PossibleCourseTeachers { get; set; }
-    public List<PreferenceCourseStudent>? PreferenceCourseStudents { get; set; }
-    public List<LessonTypeGroupType>? LessonTypeGroupTypes { get; set; }
-
+    public GroupType? Parent { get; set; }
+    public Guid? ParentId { get; set; }
+    public string? Name { get; set; }
+    public int MinimumStudents { get; set; }
+    public int MaximumStudents { get; set; }
 }

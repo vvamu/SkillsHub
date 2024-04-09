@@ -9,12 +9,14 @@ namespace SkillsHub.Domain.Models;
 
 public class AgeType : BaseEntity
 {
-    public string? Name { get; set; }
+    public GroupType? Parent { get; set; }
+    public Guid? ParentId { get; set; }
+    public string Name { get; set; }
 
-    public int MinAge { get; set; }
-    public int MaxAge { get; set; }
-    public List<LessonTypeAgeType>? LessonTypeAgeTypes { get; set; }
+    public int MinimumAge { get; set; }
+    public int MaximumAge { get; set; }
 
+    public List<LessonType>? LessonTypes { get; set; }
 
 }
 

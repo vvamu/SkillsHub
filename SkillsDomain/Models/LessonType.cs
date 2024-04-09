@@ -11,55 +11,28 @@ namespace SkillsHub.Domain.Models;
 
 public class LessonType : BaseEntity
 {
-    public string? Name { get; set; }
-    //public string? DisplayedName { get => Subject + " " + CourseName + " " + LocationType + " " + GroupType +}
     public LessonType? Parent { get; set; }
-    public Nullable<Guid> ParentId { get; set; }
-    public PaymentCategory? PaymentCategory { get; set; }
-    [ForeignKey("PaymentCategory")]
-    public Nullable<Guid> PaymentCategoryId { get; set; }
-
-    public List<LessonTypeCourse>? LessonTypeCourses { get; set; }
-    public List<LessonTypeLocationType>? LessonTypeLocationTypes { get; set; }
-    public List<LessonTypeAgeType>? LessonTypeAgeTypes { get; set; }
-    public List<LessonTypeGroupType>? LessonTypeGroupTypes { get; set; }
-    public bool IsActive { get; set; } = true;
-
-}
-
-
-public class LessonTypeCourse
-{
-    public Course Course { get; set; }
-    public Guid CourseId { get; set; }
-
-    public LessonType LessonType { get; set; }
-    public Guid LessonTypeId { get; set; }
-}
-
-public class LessonTypeLocationType
-{
-    public LocationType LocationType { get; set; }
-    public Guid LocationTypeId { get; set; }
-
-    public LessonType LessonType { get; set; }
-    public Guid LessonTypeId { get; set; }
-}
+    public Guid? ParentId { get; set; }
+    public string Name { get; set; } 
+	public int LessonTimeInMinutes { get; set; }
+	public int MinumumLessonsToPay { get; set; }
+	public decimal StudentPrice { get; set; }
+	public decimal TeacherPrice { get; set; }
+	
+    public Course? Course { get; set; } public Guid? CourseId { get; set; }
+    public GroupType? GroupType { get; set; } public Guid? GroupTypeId { get; set; }
+    public Location? Location { get; set; } public Guid? LocationId { get; set; }
+    public AgeType? AgeType { get; set; } public Guid? AgeTypeId { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime DateCreated { get; set; }
 
 
-public class LessonTypeAgeType
-{
-    public AgeType AgeType { get; set; }
-    public Guid AgeTypeId { get; set; }
+    public decimal StudentPricePerCource => StudentPrice * MinumumLessonsToPay;
 
-    public LessonType LessonType { get; set; }
-    public Guid LessonTypeId { get; set; }
-}
+    public decimal TeacherPricePerCource => TeacherPrice * MinumumLessonsToPay;
 
-public class LessonTypeGroupType
-{
-    public GroupType GroupType { get; set; }
-    public Guid GroupTypeId { get; set; }
+    public List<LessonTypeStudent>? LessonTypeStudents;
+    public List<LessonTypeTeacher>? LessonTypeTeachers;
 
     public LessonType LessonType { get; set; }
     public Guid LessonTypeId { get; set; }

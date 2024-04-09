@@ -34,8 +34,8 @@ public class Program
         builder.Services.AddSession(options => {
             options.IdleTimeout = TimeSpan.FromMinutes(30);
         });
-     
-        var services = builder.Services;  
+
+        var services = builder.Services;
         services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
         #region Options pattern
@@ -91,7 +91,7 @@ public class Program
                                                x.User.HasClaim(ClaimTypes.Role, "Admin"));
             });
 
-            
+
         });
 
         #endregion
@@ -105,23 +105,22 @@ public class Program
         //});
 
         builder.Services.AddTransient<EmailProvider.Interfaces.IMailService, MailService>();
-        builder.Services.AddTransient<IUserService,UserService>();
-        builder.Services.AddTransient<IExternalService,ExternalService>();
+        builder.Services.AddTransient<IUserService, UserService>();
+        builder.Services.AddTransient<IExternalService, ExternalService>();
         //builder.Services.AddTransient<ICourcesService, CourcesService>();
-        builder.Services.AddTransient<IGroupService,GroupService>();
+        builder.Services.AddTransient<IGroupService, GroupService>();
         builder.Services.AddTransient<IRequestService, RequestService>();
-        builder.Services.AddTransient<INotificationService,NotificationService>();
+        builder.Services.AddTransient<INotificationService, NotificationService>();
         builder.Services.AddScoped<ILessonService, LessonService>();
         builder.Services.AddScoped<ISalaryService, SalaryService>();
 
-        builder.Services.AddScoped<ILessonTypeService, LessonTypeService>();
-        builder.Services.AddScoped<IPaymentCategoryService, PaymentCategoryService>();
+        //builder.Services.AddScoped<ILessonTypeService, LessonTypeService>();
+        //builder.Services.AddScoped<IPaymentCategoryService, PaymentCategoryService>();
 
         #endregion
 
         services.AddControllers()
         .AddRazorRuntimeCompilation();
-
 
         builder.Services.AddCors();
         services.AddHostedService<RepeatingService>();
@@ -180,7 +179,7 @@ public class Program
         {
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
             var roles = roleManager.Roles.ToList();
-            string[] roleNames = { "Admin", "Teacher" ,"Student"};
+            string[] roleNames = { "Admin", "Teacher", "Student" };
             foreach (var roleName in roleNames)
             {
                 if (!await roleManager.RoleExistsAsync(roleName))

@@ -7,23 +7,27 @@ using System.Threading.Tasks;
 
 namespace SkillsHub.Domain.Models;
 
-public class Course : BaseEntity
+public class Course : BaseModels.BaseEntity
 {
-    public string? Name { get; set; }
-    public Nullable<Guid> ParentId { get; set; }
-    public Subject? Subject { get; set; }
-    public Nullable<Guid> SubjectId { get; set; }
+    public Course? Parent { get; set; }
+    public string Name { get; set; }
+    public string Subject { get; set; }
     public string? Description { get; set; }
 
-    public string? LocationType { get; set; }
-
-    public List<PossibleCourseTeacher>? PossibleCourseTeachers { get; set; }
-
-    public List<PreferenceCourseStudent>? PreferenceCourseStudents { get; set; }
-
-    public List<LessonTypeCourse>? LessonTypeCourses { get; set; }
-
-    //public List<CourseAgeType>? CourseAgeTypes { get; set; }
-
-
 }
+
+//Относится к одному занятию
+//Администратор создает курс.
+//Курс
+//Выбирает по чем занятие - английский для взрослых, программирование для детей и тд
+//Выбирает онлайн или оффлайн. +++ доделать возможность добавить добавлять кабинеты
+//Выбирает количество занятий, которое должно быть
+//Выбирает дни недели, в которое проводится занятие
+//Появляется Период 01.11, 02.11, 05.11. Можно редактировать
+//Выбирает размер оплаты
+//Выбирает преподавателя
+//Выбирает учеников/группу
+
+//Занятие
+//Онлайн или оффлайн
+//Тип

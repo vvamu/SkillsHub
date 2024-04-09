@@ -29,7 +29,7 @@ public class GroupService: IGroupService
 
     #region Get
     public IQueryable<Group> GetAll() => _context.Groups
-        .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+        .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x=>x.Teacher).ThenInclude(x => x.ApplicationUser)
         .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x=>x.ApplicationUser)
 
 
@@ -45,7 +45,7 @@ public class GroupService: IGroupService
     {
         var groups = await _context.Groups
             .Include(x=>x.Lessons)
-            .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
+            .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
 
 

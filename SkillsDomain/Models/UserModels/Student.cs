@@ -7,13 +7,10 @@ public class Student : BaseEntity
 {
     public ApplicationUser ApplicationUser { get; set; }
     public Guid ApplicationUserId { get; set; }
-    public string? ParentName { get; set; }
-    public string? ParentPhone { get; set; }
     //Payment
     public List<FinanceElement>? FinanceElements { get; set; }
 
-    public List<PreferenceCourseStudent>? PossibleCources { get; set; }
-
+    public List<LessonTypeStudent>? PossibleCources { get; set; }
     public List<GroupStudent>? Groups { get; set; }
     public List<LessonStudent>? Lessons { get; set; }
 
@@ -65,7 +62,3 @@ public class Student : BaseEntity
 
 }
 //?
-public class  PaymentType
-{
-
-}

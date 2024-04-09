@@ -69,8 +69,11 @@ public class MailService : IMailService
         var email = await CreateMessageForSkillsHub(mailrequest);
 
         var smtp = new SmtpClient();
-        smtp.Connect(_mailOptions.Host, _mailOptions.Port, SecureSocketOptions.StartTls);
-        smtp.Authenticate(_mailOptions.Email, _mailOptions.Password);
+        smtp.CheckCertificateRevocation = false;
+        //smtp.ServerCertificateValidationCallback = (sender, certificate, chain, errors) => true;
+
+        smtp.Connect(_mailOptions.Host, _mailOptions.Port, SecureSocketOptions.SslOnConnect);
+        smtp.Authenticate(_mailOptions.Email, _mailOptions.Password);  
         await smtp.SendAsync(email);
         smtp.Disconnect(true);
     }

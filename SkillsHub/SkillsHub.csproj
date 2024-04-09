@@ -36,4 +36,9 @@
 
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\PaymentCategory\" />
+    <Folder Include="Views\GroupType\" />
+  </ItemGroup>
+
 </Project>

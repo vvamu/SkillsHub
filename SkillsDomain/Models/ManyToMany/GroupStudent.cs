@@ -13,5 +13,7 @@ public class GroupStudent : BaseEntity
     public Group Group { get; set; }
     public Guid StudentId { get; set; }
     public Student Student { get; set; }
+    public DateTime DateAdd { get; set; }
+
 
 }

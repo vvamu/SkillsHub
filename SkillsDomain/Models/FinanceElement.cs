@@ -17,6 +17,8 @@ namespace SkillsHub.Domain.Models
 
         [Precision(15, 4)]
         public decimal? Budget { get; set; }
+        public DateTime? Date { get; set; }
+
 
     }
 }

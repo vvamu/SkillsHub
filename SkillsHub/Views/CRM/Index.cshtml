@@ -93,7 +93,13 @@
                                 if (newCourcess > 0)
                                     newCourcesString += "+" + newUsers + " by month";
                             }
-                           
+                            <div class="d-inline-block">
+                                <h2 class="text-white">@_context.Courses.Count() <span style="font-size:small"></span></h2>
+                            </div>
+                            <span class="float-right display-5 opacity-5"><i class="fa fa-heart"></i></span>
+                            </span>
+                            <br /><span>By year: @_context.Courses.Where(x => x.DateCreated.Year <= DateTime.Now.Year).Count() </span><br />
+                            <span>Last: @_context.Courses.OrderBy(x=>x.DateCreated).FirstOrDefault().Name</span>
                         </div>
                     </div>
                 </div>

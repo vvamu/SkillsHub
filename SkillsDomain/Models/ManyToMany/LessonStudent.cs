@@ -1,6 +1,7 @@
 ﻿using SkillsHub.Domain.BaseModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ public class LessonStudent : BaseEntity
     public string LessonType { get; set; } = "Default"; //Отработка/Занятие/Групповое/Trial
 
    public string? Comment { get; set; }
+
+    public DateTime DateAdd { get; set; }
+
 
 }
 

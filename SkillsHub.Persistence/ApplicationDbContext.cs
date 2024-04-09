@@ -22,17 +22,22 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
     {
     }
 
-    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    
     public DbSet<ExternalConnection> ExternalConnections { get; set; }
     public DbSet<WorkingDay> DaySchedules { get; set; }
-    public DbSet<Student> Students { get; set; }
-    public DbSet<Teacher> Teachers { get; set; }
+    
     public DbSet<Group> Groups { get; set; }
     public DbSet<Lesson> Lessons { get; set; }
 
-    //public DbSet<LessonActivityType> LessonActivityTypes { get; set; }
+    public DbSet<LessonType> LessonTypes { get; set; }
+    public DbSet<Course> Courses { get; set; }
+    public DbSet<GroupType> GroupTypes { get; set; }
+    public DbSet<AgeType> AgeTypes { get; set; }
+    public DbSet<Location> Locations { get; set; }
 
-    public DbSet<LessonStudent> LessonStudents { get; set; }
+    public DbSet<PaymentCategory> PaymentCategories { get; set; }
+
+
     public DbSet<LessonTask> LessonTasks { get; set; }
 
     public DbSet<EmailMessage> EmailMessages { get; set; }
@@ -42,10 +47,30 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
     public DbSet<WorkingDay> WorkingDays { get; set; }
     public DbSet<NotificationMessage> NotificationMessages { get; set; }
 
-    public DbSet<PossibleCourseTeacher> PossibleCourseTeacher { get; set; }
-    public DbSet<PreferenceCourseStudent> PreferenceCourseStudent { get; set; }
+    
+
     public DbSet<RequestLesson> RequestLessons { get; set; }
-    public DbSet<GroupStudent> GroupStudents { get; set; }
+
+    #region Users
+
+    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    public DbSet<BaseUserInfo> BaseUserInfo { get; set; }
+    public DbSet<Student> Students { get; set; }
+    public DbSet<Teacher> Teachers { get; set; }
+    
+
+    #region ManyToMany
+        public DbSet<GroupStudent> GroupStudents { get; set; }
+        public DbSet<GroupTeacher> GroupTeachers { get; set; }
+        public DbSet<LessonStudent> LessonStudents { get; set; }
+        public DbSet<LessonTeacher> LessonTeachers { get; set; }
+        public DbSet<LessonTypeTeacher> LessonTypeTeachers { get; set; }
+        public DbSet<LessonTypeStudent> LessonTypeStudents { get; set; }
+
+    #endregion
+    #endregion
+
+
     public DbSet<NotificationUser> NotificationUsers { get; set; }
     public DbSet<PaymentCategory> PaymentCategories { get; set; }
     public DbSet<Course> Courses { get; set; }
@@ -65,10 +90,46 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         builder.Ignore<IdentityUserClaim<Guid>>();
         builder.Ignore<IdentityRoleClaim<Guid>>();
 
-        builder.Entity<ApplicationUser>().HasOne(x=>x.UserTeacher).WithOne(x => x.ApplicationUser).HasForeignKey<Teacher>(x => x.ApplicationUserId).OnDelete(DeleteBehavior.Cascade);
+        #region User
+        builder.Entity<ApplicationUser>().HasOne(x => x.UserTeacher).WithOne(x => x.ApplicationUser).HasForeignKey<Teacher>(x => x.ApplicationUserId).OnDelete(DeleteBehavior.Cascade);
         builder.Entity<ApplicationUser>().HasOne(x => x.UserStudent).WithOne(x => x.ApplicationUser).HasForeignKey<Student>(x => x.ApplicationUserId).OnDelete(DeleteBehavior.Cascade);
 
+        #region ManyToMany
+        builder.Entity<GroupTeacher>().HasKey(ct => new { ct.GroupId, ct.TeacherId });
+        builder.Entity<GroupTeacher>().HasOne(x => x.Teacher).WithMany(x => x.Groups).HasForeignKey(x => x.TeacherId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<GroupTeacher>().HasOne(x => x.Group).WithOne(x => x.Teacher).OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<LessonTeacher>().HasKey(ct => new { ct.LessonId, ct.TeacherId });
+        builder.Entity<LessonTeacher>().HasOne(x => x.Teacher).WithMany(x => x.Lessons).HasForeignKey(x => x.TeacherId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<LessonTeacher>().HasOne(x => x.Lesson).WithOne(x => x.Teacher).OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<LessonStudent>().HasKey(ct => new { ct.LessonId, ct.StudentId });
+        builder.Entity<LessonStudent>().HasOne(x => x.Student).WithMany(x => x.Lessons).HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<LessonStudent>().HasOne(x => x.Lesson).WithMany(x => x.ArrivedStudents).HasForeignKey(x => x.LessonId).OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<GroupStudent>().HasKey(ct => new { ct.GroupId, ct.StudentId });
+        builder.Entity<GroupStudent>().HasOne(x => x.Student).WithMany(x => x.Groups).HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<GroupStudent>().HasOne(x => x.Group).WithMany(x => x.GroupStudents).HasForeignKey(x => x.GroupId).OnDelete(DeleteBehavior.Cascade);
+
+
+        builder.Entity<ApplicationUserBaseUserInfo>().HasOne(x=>x.ApplicationUser).WithMany(x => x.ConnectedUsersInfo).HasForeignKey(x=>x.ApplicationUserId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<ApplicationUserBaseUserInfo>().HasOne(x => x.BaseUserInfo).WithMany(x => x.ApplicationUserBaseUserInfo).HasForeignKey(x => x.BaseUserInfoId).OnDelete(DeleteBehavior.Cascade);
+
+
+
+        #endregion
+
+        #endregion
+
         builder.Entity<WorkingDay>().HasOne(x => x.Group).WithMany(x => x.DaySchedules).OnDelete(DeleteBehavior.NoAction);
+        //builder.Entity<WorkingDay>().HasOne(x => x.Student).WithMany(x => x.WorkingDays).OnDelete(DeleteBehavior.NoAction);
+        //builder.Entity<WorkingDay>().HasOne(x => x.Teacher).WithMany(x => x.WorkingDays).OnDelete(DeleteBehavior.NoAction);
+
+
+        //builder.Entity<Group>().HasOne(x => x.Teacher).WithMany(x => x.Groups).OnDelete(DeleteBehavior.SetNull);
+
+
+
         builder.Entity<Lesson>().HasMany(x => x.ArrivedStudents).WithOne(x => x.Lesson).OnDelete(DeleteBehavior.SetNull);
 
         builder.Entity<Course>().HasOne(x => x.Subject).WithMany(x => x.Courses).HasForeignKey(x => x.SubjectId).OnDelete(DeleteBehavior.NoAction);        
@@ -80,29 +141,40 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         builder.Entity<PossibleCourseTeacher>().HasOne(ct => ct.Teacher).WithMany(t => t.PossibleCources).HasForeignKey(ct => ct.TeacherId).OnDelete(DeleteBehavior.Cascade);
         builder.Entity<PossibleCourseTeacher>().HasOne(ct => ct.LocationType).WithMany(t => t.PossibleCourseTeachers).HasForeignKey(ct => ct.LocationTypeId).OnDelete(DeleteBehavior.Cascade);
 
-        builder.Entity<PreferenceCourseStudent>().HasKey(ct => new { ct.CourseId, ct.StudentId, ct.LocationTypeId });
-        builder.Entity<PreferenceCourseStudent>().HasOne(ct => ct.Course).WithMany(c => c.PreferenceCourseStudents).HasForeignKey(ct => ct.CourseId).OnDelete(DeleteBehavior.Cascade);
-        builder.Entity<PreferenceCourseStudent>().HasOne(ct => ct.Student).WithMany(t => t.PossibleCources).HasForeignKey(ct => ct.StudentId).OnDelete(DeleteBehavior.Cascade);
-        builder.Entity<PreferenceCourseStudent>().HasOne(ct => ct.LocationType).WithMany(t => t.PreferenceCourseStudents).HasForeignKey(ct => ct.LocationTypeId).OnDelete(DeleteBehavior.Cascade);
 
+        /*
+        builder.Entity<CourseNameTeacher>()
+       .HasKey(ct => new { ct.CourseNameId, ct.TeacherId });
 
-        //При удалении Teacher, Group удалится и GroupTeacher
-        builder.Entity<GroupTeacher>().HasKey(ct => new { ct.GroupId, ct.TeacherId });
-        builder.Entity<GroupTeacher>().HasOne(x => x.Teacher).WithMany(x => x.GroupTeachers).HasForeignKey(x=>x.TeacherId).OnDelete(DeleteBehavior.Cascade);
-        builder.Entity<GroupTeacher>().HasOne(x => x.Group).WithMany(x => x.GroupTeachers).HasForeignKey(x => x.GroupId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<CourseNameTeacher>()
+            .HasOne(ct => ct.CourseName)
+            .WithMany(c => c.Teachers)
+            .HasForeignKey(ct => ct.CourseNameId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete for CourceNameTeacher
 
+        builder.Entity<CourseNameTeacher>()
+            .HasOne(ct => ct.Teacher)
+            .WithMany(t => t.PossibleCources)
+            .HasForeignKey(ct => ct.TeacherId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete for CourceNameTeacher
 
+        builder.Entity<CourseStudent>()
+       .HasKey(ct => new { ct.CourseNameId, ct.StudentId });
 
-        builder.Entity<LessonStudent>().HasOne(x => x.Student).WithMany(x => x.Lessons).HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Cascade);
-        builder.Entity<LessonStudent>().HasOne(x => x.Lesson).WithMany(x => x.ArrivedStudents).HasForeignKey(x => x.LessonId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<CourseStudent>()
+            .HasOne(ct => ct.CourseName)
+            .WithMany(c => c.Students)
+            .HasForeignKey(ct => ct.CourseNameId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete for CourceNameTeacher
 
-        builder.Entity<GroupStudent>().HasOne(x => x.Student).WithMany(x => x.Groups).HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<CourseStudent>()
+            .HasOne(ct => ct.Student)
+            .WithMany(t => t.PossibleCources)
+            .HasForeignKey(ct => ct.StudentId)
+            .OnDelete(DeleteBehavior.Cascade); // Cascade delete for CourceNameTeacher
 
-        builder.Entity<GroupStudent>()
-            .HasOne(x => x.Group)
-            .WithMany(x => x.GroupStudents)
-            .HasForeignKey(x => x.GroupId)
-            .OnDelete(DeleteBehavior.Cascade);
+        */
+        
 
         builder.Entity<NotificationUser>()
             .HasOne(x => x.User)

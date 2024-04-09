@@ -135,7 +135,20 @@
                                     </div>
 
 
-                                    
+                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                        <p>Category:</p>
+
+                                        <select class="form-control search-select" id="filter-course-name-id" name="val-skill" onchange="getGroups()">
+                                            <option value="" selected></option>
+                                            @if (_context.Courses != null)
+                                            {
+                                                foreach (Course item in _context.Courses.Where(x => x.IsDeleted == false))
+                                                {
+                                                    <option value="@item.Id">@item.Name</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
 
                                     <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
                                         <p style="white-space:nowrap">Сортировать по:</p>

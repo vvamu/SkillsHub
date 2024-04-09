@@ -227,6 +227,7 @@ public class UserService : IUserService
     }
     public async Task<ApplicationUser> CreateUserAsync(UserCreateDTO item)
     {
+
         var user = _mapper.Map<ApplicationUser>(item);
         user.UserName = user.Login;
         var userRegisterValidator = new UserValidator();
@@ -238,13 +239,8 @@ public class UserService : IUserService
             throw new Exception(errorsString);
         }
 
-        //if (item.EnglishLevelId != Guid.Empty) item.EnglishLevel = await _context.EnglishLevels.FirstOrDefaultAsync(x => x.Id == item.EnglishLevelId);
-        
-         //if (_context.ApplicationUsers.FirstOrDefault(x => x.Email == user.Email) != null || user.Email == null) throw new Exception("User with such email alredy exists");
         if (_context.ApplicationUsers.FirstOrDefault(x => x.Login == user.Login) != null) throw new Exception("User with such login alredy exists");
-        //if (_context.ApplicationUsers.FirstOrDefault(x => x.Phone == user.Phone) != null) throw new Exception("User with such phone alredy exists");
         
-
         string hashedPassword = HashProvider.ComputeHash(user.Password.Trim());
         user.OwnHashedPassword = hashedPassword;
         var result = await _userManager.CreateAsync(user);
@@ -262,6 +258,49 @@ public class UserService : IUserService
         return user;
 
     }
+    public async Task<ApplicationUser> UpdateUserAsync(UserCreateDTO item)
+    {
+
+        var user = _mapper.Map<ApplicationUser>(item);
+        user.UserName = user.Login;
+        var userRegisterValidator = new UserValidator();
+        var validationResult = await userRegisterValidator.ValidateAsync(user);
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors;
+            var errorsString = string.Concat(errors);
+            throw new Exception(errorsString);
+        }
+
+        if (user.OwnHashedPassword != HashProvider.ComputeHash(user.Password.Trim())) throw new Exception("Password not equal");
+
+        user.Login = item.Login;
+        var userInfo = new BaseUserInfo();
+        //user = _mapper.Map<ApplicationUser>(item);
+        userInfo.FirstName = item.FirstName;
+        userInfo.LastName = item.LastName;
+        userInfo.Email = item.Email;
+        userInfo.Phone = item.Phone;
+        userInfo.BirthDate = item.BirthDate;
+        userInfo.Sex = item.Sex;
+        user.UserInfo = userInfo;
+
+        _context.BaseUserInfo.Update(userInfo);
+        _context.ApplicationUsers.Update(user);
+
+        await _context.SaveChangesAsync();
+
+
+        if (item.IsStudent == true && user.UserStudent == null) user.UserStudent = new Student() { ApplicationUser = user, IsDeleted = true };
+        if (item.IsTeacher == true && user.UserTeacher == null) user.UserTeacher = new Teacher() { ApplicationUser = user, IsDeleted = true };
+
+
+        return user;
+
+    }
+
+
+
     #endregion
 
     #region HZ - Update
@@ -389,25 +428,40 @@ public class UserService : IUserService
     {
         var result = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Login == "AdminLogin");
         if (result != null) return;
-        var admin = new ApplicationUser()
+
+        var adminI = new ApplicationUser()
         {
             Login = "AdminLogin",
             UserName = "AdminLogin",
-            FirstName = "AdminFirstName",
-            LastName = "AdminLastName",
-            Surname = "AdminSurname",
-            Sex = "Male",
             Password = "AdminPassword123",
             OwnHashedPassword = HashProvider.ComputeHash("AdminPassword123"),
             IsDeleted = false,
             SecurityStamp = Guid.NewGuid().ToString()
         };
 
-        await _context.ApplicationUsers.AddAsync(admin);
-        await _userManager.CreateAsync(admin, admin.Password.Trim());
+        var admin = new BaseUserInfo()
+        {
+            
+            FirstName = "AdminFirstName",
+            LastName = "AdminLastName",
+            Surname = "AdminSurname",
+            Sex = "Male",
+           
+        };
+
+        await _context.BaseUserInfo.AddAsync(admin);
+        await _context.SaveChangesAsync();
+        adminI.UserInfo = admin;
+
+        await _context.ApplicationUsers.AddAsync(adminI);
+        await _userManager.CreateAsync(adminI, adminI.Password.Trim());
         await _context.SaveChangesAsync();
 
-        var re = await _userManager.AddToRoleAsync(admin, "Admin");
+       
+
+        var re = await _userManager.AddToRoleAsync(adminI, "Admin");
+
+
         if (re.Succeeded)
 
 

@@ -76,83 +76,115 @@
 
                                             <input type="search" onkeypress="getGroups()" id="filter-name" class="form-control search-input" placeholder="Search by group name" />
 
-                                        </div>
+                            <div class="form-group ">
+                                <label class=" col-form-label" for="val-skill">
+                                    <h4>Total lessons count (from @Model.PaymentCategory.MinCountLessonsToPay , passed: @Model.PassedLessonsCount)<span class="text-danger">*</span></h4>
+                                </label>
+                                <div style="display:flex;grid-gap:10px">
+                                    <input class="form-control" type="number" asp-for="LessonsCount" min="1" max="50" id="lessonsCount" style="margin-right:10%" class="form-control"  />
+                                    <div class="validate"></div>
+                                    <div>
+                                        <input type="checkbox" asp-for="IsUnlimitedLessonsCount" onclick="CreateUnlimitedLessons()" />
+                                        <span style="color:lightseagreen">For unlimited count lessons</span>
                                     </div>
+                                </div>
+                            </div>
 
-                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Status:</p>
-                                        <select class="form-control search-select" id="filter-isDeleted" name="val-skill" onchange="getGroups()">
-                                            <option selected></option>
-                                            <option value="Yes">Not active</option>
-                                            <option value="No">Active </option>
-                                        </select>
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <h4>Category <span class="text-danger">*</span></h4>
+                            </label>
+                            <select asp-for="LessonTypeId" class="form-select" id="lessonTypes"  disabled="disabled">
+                              
+
+                            </select>
+                            <ul>
+                                        @{
+                                            _context.LessonTypes.ToList();
+                                            int min = 0;
+                                            if (Model.LessonType != null) min = @Model.PaymentCategory.MinCountLessonsToPay;
+
+                                    <li>Min count of students by type: @Model.PaymentCategory.MinCountLessonsToPay</li>
+                                    <li>Max count of students by type: ---</li>
+                                        }
+                            </ul>
+                        </div>
+
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <div style="display:flex">
+                                    <h4>Group with permanent staff <span class="text-danger">*</span></h4>
+                                    (all students to all lessons)
+                                </div>
+                            </label>
+                                
+                                @if (Model.IsPermanentStaffGroup)
+                            {
+                                <select asp-for="IsPermanentStaffGroup" >
+                                    <option value="@true" selected>Yes</option>
+                                    <option value="@false">false</option>
+                                </select>
+                            }
+                            else
+                            {
+                                <select asp-for="IsPermanentStaffGroup">
+                                    <option value="@true">Yes</option>
+                                    <option value="@false" selected>false</option>
+                                    </select>
+                            }
+                         </div>
+                        
+                            
+
+                       
+
+
+                        @*<div class="form-group ">
+                        <label class=" col-form-label" for="val-skill">
+                        Teacher <span class="text-danger">*</span>
+                        </label>
+
+                        <select class="form-control" id="requiredTeachers"></select>
+                        </div>*@
+
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <div style="display:flex"><h4>Teacher  <span class="text-danger">*</span></h4> (from All Teachers)</div>
+                            </label>
+                                <select asp-for="TeacherId" class="form-control" id="allTeachers">
+                                </select> 
+                        </div>
+
+                        <!--
+                                        <div class="form-group ">
+                                            <label class=" col-form-label" for="val-skill">
+                                                Online/Offline (delete)<span class="text-danger">*</span>
+                                            </label>
+                                            <select name="Term" asp-for="Term" class="form-control" id="val-skill">
+                                                <option value="Online" >Online</option>
+                                                <option value="Offline" selected>Offline</option>
+                                            </select>
+                        </div>-->
+
+
+
+                                <div class="form-group ">
+                                    <label class=" col-form-label" for="val-skill">
+                                            <div style="display:flex">
+                                                <h4>Students<span class="text-danger">*</span>(from @Model.LessonType.GroupType.MinimumStudents to @Model.LessonType.GroupType.MaximumStudents)</h4>
+                                                <input type="button" onclick="getStudents()" class="btn btn-sm btn-primary" value="(get all)">
+
+                                            </div>
+                                    </label>
+                                    <div id="studentsList" class="list-group col">
+                                            <div class="d-flex justify-content-center">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
                                     </div>
-                                    <!--
-                                    <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Тип по набору в группу:</p>
-                                        <select class="form-control" id="val-skill" name="val-skill">
-                                            <option value=""></option>
-                                            <option value="">Набор открыт</option>
-                                            <option value="">Набор закрыт</option>
-                                            <option value="">С учителем</option>
-                                            <option value="">Без учителя</option>
-                                        </select>
-                                    </li>
-                                     <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Подобрать группу:</p>
-                                        <select class="form-control" id="val-skill" name="val-skill">
-
-                                        </select>
-                                    </li>
-                                    -->
-
-                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Start time type:</p>
-                                        <select class="form-control search-select" id="filter-time-start" name="val-skill" onchange="getGroups()">
-                                            <option value="" selected></option>
-                                            <option value="Yes">Time is defined</option>
-                                            <option value="No">Time not defined</option>
-                                        </select>
-                                    </div>
-                                  
-                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Состав группы:</p>
-                                        <select class="form-control search-select" id="filter-permanent-staff" name="val-skill" onchange="getGroups()">
-                                            <!--<option value="IsVerified">Запросы на создание от учителей</option>-->
-                                            <option value="" selected></option>
-                                            <option value="Yes">Группы с постоянным составом</option>
-                                            <option value="No">Группы с непостоянным составом</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Lesson type:</p>
-
-                                        <select class="form-control search-select" id="filter-lesson-type-id" name="val-skill" onchange="getGroups()">
-                                            <option value="" selected></option>
-
-                                           
-                                        </select>
-                                    </div>
-
-
-                                    
-
-                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Сортировать по:</p>
-                                        <select class="form-control search-select" id="sort-select" name="val-skill" onchange="getGroups()">
-                                            <option value="" selected></option>
-                                            <option value="DateCreated">Времени создания</option>
-                                            <option value="DateStart">Времени запуска</option>
-                                        </select>
-                                    </div>
-                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Order type:</p>
-                                        <select class="form-control  search-select " id="sort-select-type" onchange="getGroups()">
-                                            <option value="asc" selected>↑</option>
-                                            <option value="desc">↓</option>
-                                        </select>
-                                    </div>
+                                </div>
+                            </div>
 
                                 </div>
                             </div>
@@ -225,21 +257,111 @@
         var value2 = select.options[select.selectedIndex].value;
 
 
+                        studentsList.append(appendedLine);
+                    })
+                }
+            }
+        });
+
+    }
+
+
+    function getLessonTypesList() {
+
+        var studentsList = $("#lessonTypes");
+
+            var teacherId = '@(Model.LessonType != null ? Model.LessonType.ToString() : "")'
+
         $.ajax({
-            url: "/Group/IndexByFilters",
+            url: "/Cource/GetLessonTypesAsync",
             type: "GET",
             dataType: "json",
-            data: { 'filterStr': value1, 'filterCourseId': value2 },
             success: function (data) {
                 data = JSON.parse(data);
                 if (Array.isArray(data)) {
-                    console.log(data)
+
+
+                    data.forEach(function (item, i, arr) {
+                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
+
+                        var appendedLine = "";
+
+                        if (teacherId != undefined && teacherId == item.Id)
+                            appendedLine += "<option class='list-group-item' selected style='color:blue'  value='" + item.Id + "'>" + item.Name;
+                        else
+                            appendedLine += "<option class='list-group-item' value='" + item.Id + "'>" + item.Name;
+
+
+                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        //appendedLine += item.FirstName + " " + item.LastName + " " + item.Surname;
+                        appendedLine += " (MinumumLessonsToPay:" + item.MinumumLessonsToPay + "; LessonTimeInMinutes:" + item.LessonTimeInMinutes + "; Min/Max count students: " + item.MinimumStudents + "/" +  item.MaximumStudents + ")"
+                        appendedLine += "</option>"
+
+                        studentsList.append(appendedLine);
+                    })
+
+
+
 
                 }
             }
         });
+
     }
-    function GetCreateModal() {
-        $("#partialZone").load("/Group/GetCreateModal");
+
+    function getTeachers() {
+
+        var requiredTeachers = $("#allTeachers");
+        //requiredTeachers.val() = "";
+        requiredTeachers.empty();
+
+            var teacherId = '@(Model.Teacher != null ? @Model.Teacher.Id.ToString() : "")'
+
+        
+        $.ajax({
+            url: "/Teachers/GetTeachersAsync",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                data = JSON.parse(data);
+                if (Array.isArray(data)) {
+
+                    if (data.length == 0) {
+                        var appendEmpty = "<li class='list-group-item' value='' >Teacher's list is empty</li>";
+                        requiredTeachers.append(appendEmpty);
+                    }
+                    data.forEach(function (item, i, arr) {
+
+                        var user = item.ApplicationUser;
+                        console.log("--"+user);
+                        
+                        requiredTeachers.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
+                        var appendedLine = "";
+
+                        if (teacherId != undefined && item.Id.toString() == teacherId)
+                            appendedLine += "<option class='list-group-item' style='color:blue' selected name='teacherValue' value='" + item.Id + "'>";
+
+                        else
+                            appendedLine += "<option class='list-group-item' name='teacherValue' value='" + item.Id + "'>";
+
+
+                        //appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
+                        appendedLine += user.Login + " - " + user.FirstName + " " + user.LastName + " " + user.Surname;
+                        appendedLine += "</option>"
+
+                        requiredTeachers.append(appendedLine);
+
+                    })
+                }
+            }
+        });
+    }
+
+    function CheckSchedule() {
+        var checkSchedule = $("#checkSchedule");
+        checkSchedule.empty();
+
+
+
     }
 </script>

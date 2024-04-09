@@ -40,12 +40,7 @@ public class GroupController : Controller
 
     }
     public async Task<IActionResult> Index()
-    {
-        
-        ViewBag.Students = await _userService.GetAllStudentsAsync();
-        ViewBag.Teachers =  _userService.GetAllTeachers();
-
-        
+    {   
         var groups = await _groupService.GetAll().ToListAsync();
 
         return View(groups);
@@ -99,16 +94,15 @@ public class GroupController : Controller
 
             //if (item.IsPermanentStaffGroup) item.IsLateDateStart = true;
 
-            //3 < 10
-            var isNormalCountStudentsInGroupByLessonType = (studentId.Count() >= groupType.MinCountStudents);
-
-            if (!isNormalCountStudentsInGroupByLessonType && !item.IsLateDateStart)//(!item.IsPermanentStaffGroup || !item.IsLateDateStart))
-            {
-                if (!item.IsLateDateStart)
-                    ModelState.AddModelError("", "Not correct count of students to  start group. You can create group with late date start. Min count students: " + groupType.MinCountStudents); return View("Create", item);
-            }
-
-            group = await _groupService.CreateAsync(item);
+            
+            
+               if (lessonType.GroupType != null  && (studentId.Count() > lessonType.GroupType.MaximumStudents) || (studentId.Count() < lessonType.GroupType.MinimumStudents))
+                {
+                    if(!item.IsLateDateStart)
+                        ModelState.AddModelError("", "Not correct count of students to  start group."); return View("Create", item);
+                }
+            
+            group =  await _groupService.CreateAsync(item);
 
             if (!item.IsVerified)
             {
@@ -220,6 +214,7 @@ public class GroupController : Controller
             //need
             
             if (item.LessonTypeId == Guid.Empty) item.LessonTypeId = group.LessonTypeId;
+            //if(item.CourseNameId == Guid.Empty) item.CourseNameId = group.CourseNameId;
             if(item.TeacherId == Guid.Empty) item.TeacherId = group.TeacherId;
 
 

@@ -52,6 +52,8 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> Item(Guid itemId, Guid id)
     {
+        
+        
         ApplicationUser? user;
         if (itemId == Guid.Empty) itemId = id;
 
@@ -135,28 +137,7 @@ public class AccountController : Controller
 
             if (user != null)
             {
-                try
-                {
-                    //var oo = SkillsHub.Application.Helpers.HashProvider.VerifyHash(userCreateModel.Password, user.PasswordHash);
-                    //if (!oo) throw new Exception("Password not equal");
-                    if(userCreateModel.Password != user.Password) throw new Exception("Password not equal");
-                    //user = _mapper.Map<ApplicationUser>(userCreateModel);
-                    user.FirstName = userCreateModel.FirstName;
-                    user.LastName = userCreateModel.LastName;
-                    user.Email = userCreateModel.Email;
-                    user.Phone = userCreateModel.Phone;
-                    user.Login = userCreateModel.Login;
-                    user.BirthDate = userCreateModel.BirthDate;
-                    user.Sex = userCreateModel.Sex;
-
-
-
-                    _context.ApplicationUsers.Update(user);
-
-
-                    await _context.SaveChangesAsync();
-                }
-                catch(Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
+                user = await _userService.UpdateUserAsync(userCreateModel);
                 
 
             }else
@@ -164,6 +145,7 @@ public class AccountController : Controller
                 user = await _userService.CreateUserAsync(userCreateModel);
 
                 //return RedirectToAction("Item", new { itemId = user.Id });
+
                 if (userCreateModel.IsStudent)
                 {
                     if (userCreateModel.IsTeacher) HttpContext.Session.SetString("isTeacher", "true");
@@ -278,7 +260,7 @@ public class AccountController : Controller
 
         if (user.UserTeacher == null) return PartialView("_TeacherGroups", (user, res));
 
-        var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.GroupTeachers.Select(x=>x.Teacher).Select(x=>x.ApplicationUserId).Contains(user.Id)).ToList();
+        var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.Teacher.Teacher.ApplicationUser.Id == id).ToList();
 
 
         //foreach (var group in teacherGroups)

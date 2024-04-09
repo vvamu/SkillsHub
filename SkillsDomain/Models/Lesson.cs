@@ -1,5 +1,6 @@
 ﻿using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models.NotInUse;
+using SkillsHub.Persistence;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,7 +9,10 @@ namespace SkillsHub.Domain.Models;
 public class Lesson : BaseEntity
 {
     public string? Topic { get; set; }
-    public Teacher? Teacher { get; set; }
+    //[Url]
+    public string? LinkToWebinar { get; set; }
+
+    public LessonTeacher? Teacher { get; set; }
     public Guid? TeacherId { get; set; } 
     public List<LessonStudent>? ArrivedStudents { get; set; }
     public Group? Group { get; set; }

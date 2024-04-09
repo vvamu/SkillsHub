@@ -1,4 +1,5 @@
 ﻿using SkillsHub.Domain.BaseModels;
+using SkillsHub.Persistence;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SkillsHub.Domain.Models;
@@ -8,18 +9,15 @@ public class Teacher : BaseEntity
     public Guid ApplicationUserId { get; set; }
     public ApplicationUser ApplicationUser { get; set; }
 
-    public List<GroupTeacher>? GroupTeachers { get; set; }
+    public List<GroupTeacher>? Groups { get; set; }
+    public List<LessonTeacher>? Lessons { get; set; }
+    public List<LessonTypeTeacher>? PossibleCources { get; set; }
 
     public string? WorkingDays { get; set; }
-
-    public List<PossibleCourseTeacher>? PossibleCources { get; set; }
-
-    public List<FinanceElement>? FinanceElements { get; set; }
+    public decimal PaidAmount { get; set; }
 
     [NotMapped]
     public decimal CurrentCalculatedPrice {  get; set; }
-    
-
     [NotMapped]
     public decimal TotalCalculatedPrice { get; set; }
     
@@ -56,17 +54,17 @@ public class Teacher : BaseEntity
     {
         get
         {
-           
-            List<Lesson> lessons = new List<Lesson>(); /*
+            
+            List<Lesson> lessons = new List<Lesson>();
             if (this.Groups == null || this.Groups.Select(x=>x.Group).Where(x => x.Lessons != null).Count() == 0) return lessons;
-            lessons = this.Groups.Select(x => x.Group).Where(x => x.Lessons != null).SelectMany(x => x.Lessons).ToList();//.Where(x => x.Teacher != null && x.Teacher == this).ToList();
+            lessons = this.Groups.Select(x=>x.Group).Where(x => x.Lessons != null).SelectMany(x => x.Lessons).ToList();//.Where(x => x.Teacher != null && x.Teacher == this).ToList();
             
             List<Lesson> lessonsf = new List<Lesson>();
             //if (this.Groups == null || this.Groups.Where(x => x.Lessons != null).Count() == 0) return lessons;
 
-            foreach (var group in this.Groups)
+            foreach (var group in this.Groups.Select(x => x.Group))
             {
-                foreach (var lesson in group.Group.Lessons.Where(x => x.Teacher == this))
+                foreach (var lesson in group.Lessons.Select(x=>x.Teacher).Where(x => x.Teacher == this).Select(x=>x.Lesson))
                 {
                         lessons.Add(lesson);
                 }

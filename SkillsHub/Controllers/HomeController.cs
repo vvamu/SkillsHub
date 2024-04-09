@@ -32,6 +32,16 @@ public class HomeController : Controller
         _userService = userService;
     }
 
+    [Route("thanks")]
+    public IActionResult Thanks()
+    {
+        if (User.Identity.IsAuthenticated)
+        {
+            return RedirectToAction("Index", "CRM");
+        }
+        return View();
+    }
+
     public IActionResult Index()
     {
         if(User.Identity.IsAuthenticated)
@@ -100,7 +110,7 @@ await _mailer.SendMessage();
         #endregion
 
         //if (!ModelState.IsValid) return View("Index",msg);
-        
+
         await _mailService.SendEmailAsync(msg);
         var message = new SkillsHub.Domain.Models.EmailMessage() { Data = msg.Data, Email = msg.Email, Date = msg.Date, Name = msg.Name, Phone = msg.Phone };
 
