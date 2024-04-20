@@ -72,14 +72,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
 
 
     public DbSet<NotificationUser> NotificationUsers { get; set; }
-    public DbSet<PaymentCategory> PaymentCategories { get; set; }
-    public DbSet<Course> Courses { get; set; }
-    public DbSet<AgeType> AgeTypes { get; set; }
-    public DbSet<GroupTeacher> GroupTeachers { get; set; }
-    public DbSet<GroupType> GroupTypes { get; set; }
 
-    public DbSet<Subject> Subjects { get; set; }
-    public DbSet<LocationType> LocationTypes { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -97,7 +90,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         #region ManyToMany
         builder.Entity<GroupTeacher>().HasKey(ct => new { ct.GroupId, ct.TeacherId });
         builder.Entity<GroupTeacher>().HasOne(x => x.Teacher).WithMany(x => x.Groups).HasForeignKey(x => x.TeacherId).OnDelete(DeleteBehavior.Cascade);
-        builder.Entity<GroupTeacher>().HasOne(x => x.Group).WithOne(x => x.Teacher).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<GroupTeacher>().HasOne(x => x.Group).WithMany(x => x.GroupTeachers).OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<LessonTeacher>().HasKey(ct => new { ct.LessonId, ct.TeacherId });
         builder.Entity<LessonTeacher>().HasOne(x => x.Teacher).WithMany(x => x.Lessons).HasForeignKey(x => x.TeacherId).OnDelete(DeleteBehavior.Cascade);
@@ -110,12 +103,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         builder.Entity<GroupStudent>().HasKey(ct => new { ct.GroupId, ct.StudentId });
         builder.Entity<GroupStudent>().HasOne(x => x.Student).WithMany(x => x.Groups).HasForeignKey(x => x.StudentId).OnDelete(DeleteBehavior.Cascade);
         builder.Entity<GroupStudent>().HasOne(x => x.Group).WithMany(x => x.GroupStudents).HasForeignKey(x => x.GroupId).OnDelete(DeleteBehavior.Cascade);
-
-
-        builder.Entity<ApplicationUserBaseUserInfo>().HasOne(x=>x.ApplicationUser).WithMany(x => x.ConnectedUsersInfo).HasForeignKey(x=>x.ApplicationUserId).OnDelete(DeleteBehavior.Cascade);
-        builder.Entity<ApplicationUserBaseUserInfo>().HasOne(x => x.BaseUserInfo).WithMany(x => x.ApplicationUserBaseUserInfo).HasForeignKey(x => x.BaseUserInfoId).OnDelete(DeleteBehavior.Cascade);
-
-
 
         #endregion
 
@@ -132,14 +119,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
 
         builder.Entity<Lesson>().HasMany(x => x.ArrivedStudents).WithOne(x => x.Lesson).OnDelete(DeleteBehavior.SetNull);
 
-        builder.Entity<Course>().HasOne(x => x.Subject).WithMany(x => x.Courses).HasForeignKey(x => x.SubjectId).OnDelete(DeleteBehavior.NoAction);        
         #region Many-to-many
 
-             // Cascade delete for CourceNameTeacher
-        builder.Entity<PossibleCourseTeacher>().HasKey(ct => new { ct.CourseId, ct.TeacherId , ct.LocationTypeId});
-        builder.Entity<PossibleCourseTeacher>().HasOne(ct => ct.Course).WithMany(c => c.PossibleCourseTeachers).HasForeignKey(ct => ct.CourseId).OnDelete(DeleteBehavior.Cascade);
-        builder.Entity<PossibleCourseTeacher>().HasOne(ct => ct.Teacher).WithMany(t => t.PossibleCources).HasForeignKey(ct => ct.TeacherId).OnDelete(DeleteBehavior.Cascade);
-        builder.Entity<PossibleCourseTeacher>().HasOne(ct => ct.LocationType).WithMany(t => t.PossibleCourseTeachers).HasForeignKey(ct => ct.LocationTypeId).OnDelete(DeleteBehavior.Cascade);
 
 
         /*

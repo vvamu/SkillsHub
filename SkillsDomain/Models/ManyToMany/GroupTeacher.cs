@@ -7,7 +7,6 @@ public class GroupTeacher  : BaseEntity
 {
     public Guid GroupId { get; set; }
     public Group Group { get; set; }
-    public Guid GroupId { get; set; }
     public Teacher Teacher { get; set; }
     public Guid TeacherId { get; set; }
 

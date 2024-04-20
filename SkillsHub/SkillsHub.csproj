@@ -41,4 +41,11 @@
     <Folder Include="Views\GroupType\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Views\BaseUserInfo\Index.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

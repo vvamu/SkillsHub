@@ -1,0 +1,116 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using SkillsHub.Domain.BaseModels
+
+@inject SignInManager<ApplicationUser> _signInManager;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
+
+
+@model Guid;
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<!-- Section: Design Block -->
+<section class=" text-center " style="padding:0.7%">
+   <link href="~/css/style.css" rel="stylesheet">
+   <style>
+      .rounded-t-5 {
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+      }
+      .rounded-bl-lg-5 {
+      border-bottom-left-radius: 0.5rem;
+      }
+      .my-background {
+      background-color:#F3F3F9 !important;
+      }
+      .col-form-label {
+      text-align:start;
+      }
+   </style>
+   <div class="login-form-bg h-100">
+   <div class="container h-100">
+      <div class="row justify-content-center h-100" >
+         <div class="col-xl-10">
+            <div class="form-input-content">
+               <div class="card login-form mb-0">
+                  <div class="card-body pt-5">
+                     <div class="text-center"> <h4>
+                                  
+                        }
+                                        <b>Дополнительные контакты</b>
+                        </h4>
+                                    <div class="col-lg-6">
+                                        <button id="add-btn" class="btn btn-info " style="width:100%">+</button>
+                                    </div>
+                     </div>
+
+                           </div>
+                            <div id="list-container" style="zoom:70%;margin-bottom:10px;padding-left:2.3%">
+                                <!-- Сюда будут добавляться элементы списка -->
+                            </div>
+
+
+
+                            <form>
+                                <input type="submit" asp-action="Next" asp-controller="BaseUserInfo" asp-route-userId="@Model" class="btn login-form__btn submit w-100" value="@resText" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+
+    $(document).ready(function () {
+        // Добавление элемента в список
+        $("#add-btn").click(function () {
+            $.get("/BaseUserInfo/AddListItem", { userId: @Model}, function (data) {
+                var newItem = $(data); // Преобразование в jQuery объект
+                // Добавление кнопки "X" после элемента с id="first-col"
+                //newItem.find("#first-col").after('<input type="button" class="btn btn-danger col-lg-1 delete-btn" value="X"/>');
+                //newItem.find("#first-col").after('<input type="button" class="btn btn-danger col-lg-1 delete-btn" value="X"/>');
+                // Добавление нового элемента в контейнер
+                $("#list-container").append(newItem);
+            });
+        });
+
+        $(document).on("click", ".delete-btn", function () {
+            var id = $(this).closest(".item").find("input[type=hidden]").data("id");
+            var deleteButton = $(this);
+
+            $.post("/BaseUserInfo/DeleteListItem", { id: id })
+                .done(function (response) {
+                    if (response && response.success) {
+
+                        RemoveScheduleDay(deleteButton);
+                        console.log("deleted 1")
+
+                        deleteButton.closest(".item").remove();
+                        console.log("deleted 2")
+
+                    } else {
+                        alert("Failed to delete item. Please try again.");
+                    }
+                })
+                .fail(function () {
+                    alert("Error occurred while deleting the item.");
+                });
+        });
+    });
+
+    
+
+    function RemoveScheduleDay(btn) {
+        let parent = btn.closest(".item"); // Находим родительский элемент с классом "item"
+        parent.remove();
+    }
+
+</script>
+
+
+

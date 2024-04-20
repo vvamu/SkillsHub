@@ -66,10 +66,10 @@
                 <b>Направления работы:</b> @{
                     if (teacher.PossibleCources != null)
                     {
-                        var res = String.Join(',', Model.UserTeacher.PossibleCources.Select(x => x.Course));
+                        var res = String.Join(',', Model.UserTeacher.PossibleCources.Select(x => x.LessonType));
 
                         <ol>
-                            @foreach (var item in Model.UserTeacher.PossibleCources.Select(x => x.Course))
+                            @foreach (var item in Model.UserTeacher.PossibleCources.Select(x => x.LessonType))
                             {
                                 <li>@item.Name</li>
                             }

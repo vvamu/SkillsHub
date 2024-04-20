@@ -1,6 +1,7 @@
 ﻿using SkillsHub.Domain.BaseModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,18 @@ public class AgeType : BaseEntity
     public int MaximumAge { get; set; }
 
     public List<LessonType>? LessonTypes { get; set; }
+
+    [NotMapped]
+    public string? DisplayName 
+    {
+      get
+        {
+            var res = Name;
+            if (MinimumAge == MaximumAge) res += " (" + MinimumAge + " years)";
+            else res += " (" + MinimumAge + " - " + MaximumAge + " years)";
+            return res;
+        }
+    }
 
 }
 

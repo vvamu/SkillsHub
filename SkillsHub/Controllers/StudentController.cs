@@ -150,7 +150,7 @@ public class StudentController : Controller
             var userStudent = user.UserStudent ?? new Student();
             var userTeacher = user.UserTeacher ?? new Teacher();
 
-            if (userTeacher != null && user.UserTeacher.GroupTeachers != null)
+            if (userTeacher != null && user.UserTeacher.Groups != null)
             {
                // user.UserTeacher.Groups//.SelectMany(x => x.GroupStudents).Select(x => x.Student)
                    // .ToList().ForEach(x => students.Add(x));
@@ -249,15 +249,12 @@ public class StudentController : Controller
         var isTeacher = HttpContext.Session.GetString("isTeacher");
         if (isTeacher == "true")
             return RedirectToAction("Create", "Teachers", new { id = user.Id });
+        else
+            return RedirectToAction("Create", "BaseUserIngo", new {userId = user.Id});
 
 
 
-        if (!User.Identity.IsAuthenticated)
-        {
-            user = await _userService.SignInAsync(user);
-        }
-
-        return RedirectToAction("Item", "Account", new { itemId = item.ApplicationUserId, id = item.ApplicationUserId });
+        
     }
 
     #endregion

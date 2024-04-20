@@ -57,7 +57,7 @@
                                     LessonType
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class="col-form-label">@Model.Course.Name</p>
+                                    <p class="col-form-label">@Model.LessonType.Name</p>
                                 </div>
                             </div>
 
@@ -148,7 +148,7 @@
 
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    Students in group (@Group.GroupStudents.Count() / @Group.GroupType.MaxCountStudents .. @Group.GroupType.MaxCountStudents)
+                                    Students in group (@Group.GroupStudents.Count() / @Group.LessonType.GroupType.DisplayName)
                                 </label>
                                 <div class="col-lg-6">
                                     <ol>

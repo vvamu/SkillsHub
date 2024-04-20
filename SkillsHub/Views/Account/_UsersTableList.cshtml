@@ -7,7 +7,7 @@
     @if (Model == null || Model.Count() == 0)
         {
 
-                <div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
+                <div style=" display:flex;grid-gap:20px;justify-content:center;min-height:200px;align-items:center ">
                     <h3>Users list is empty</h3> 
                     
 
@@ -62,12 +62,22 @@
                     <a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.Id" style="font-weight:900;color:red">  @item.Login </a>
                 }
             </td>
-            <td>@item.FirstName @item.LastName @item.Surname</td>
-            <td>@item.Sex</td>
-            <td>@item.Phone</td>
-            <td>@item.Email</td>
-            <td>@(DateOnly.FromDateTime(item.BirthDate).ToShortDateString()) - @item.Age year</td>
 
+            @{var birhDateToString = "";}
+            @if(item!= null && item.UserInfo != null)
+            {
+                DateTime birthDate = DateTime.Now;
+                birhDateToString = birthDate.ToString();
+                if(birthDate == DateTime.Now) 
+                birhDateToString = (DateOnly.FromDateTime(birthDate).ToShortDateString());
+            }
+            
+                <td>@item?.FirstName @item?.LastName @item?.Surname</td>
+                <td>@item?.Sex</td>
+                <td>@item?.Phone</td>
+                <td>@item?.Email</td>
+
+                <td> @(DateOnly.FromDateTime(item.BirthDate).ToShortDateString()) - @item?.Age year</td>
             @{
                 var teacherLessonsMonth = 0;
                 var studentLessonsMonth = 0;
@@ -126,13 +136,13 @@
 
                 
                  @if(item.UserTeacher != null && item.UserTeacher.PossibleCources != null) { 
-                 var teacherCources = item.UserTeacher.PossibleCources.Select(x=>x.Course).Select(x=>x.Name).ToList();
+                 var teacherCources = item.UserTeacher.PossibleCources.Select(x=>x.LessonType).Select(x=>x.Name).ToList();
 
                  <p><strong>Teacher:</strong> @foreach(var cource in teacherCources){@cource}
                  </p> 
                  }
                  @if(item.UserStudent != null && item.UserStudent.PossibleCources != null) { 
-                 var studentrCources = item.UserStudent.PossibleCources.Select(x=>x.Course).Select(x=>x.Name).ToList();
+                 var studentrCources = item.UserStudent.PossibleCources.Select(x=>x.LessonType).Select(x=>x.Name).ToList();
 
                  <p><strong>Student:</strong> @foreach(var cource in studentrCources)
                      {

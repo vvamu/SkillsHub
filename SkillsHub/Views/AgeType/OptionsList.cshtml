@@ -15,8 +15,8 @@
 
         @foreach (var item in Model.Item1.Where(x => x.IsDeleted == false).ToList())
         {
-            var min = item.MinAge;
-            var max = item.MaxAge;
+            var min = item.MinimumAge;
+            var max = item.MaximumAge;
 
             if (Model.Item2 == item.Id)
             {

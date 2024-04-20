@@ -39,7 +39,6 @@ public class GroupService: IGroupService
         .Include(x => x.DaySchedules)
         .Include(x => x.GroupTeachers).ThenInclude(x=>x.Teacher).ThenInclude(x => x.ApplicationUser)
         
-        .Include(x => x.Course)
         .AsQueryable();
     public async Task<Group> GetAsync(Guid id)
     {
@@ -49,13 +48,13 @@ public class GroupService: IGroupService
             .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
 
 
-            .Include(x => x.Lessons).Include(x => x.Course)
+            .Include(x => x.Lessons)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group)
             .Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x=>x.ApplicationUser)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
             .Include(x => x.DaySchedules)
             .Include(x => x.GroupTeachers).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
-            .Include(x => x.Course).ToListAsync();
+            .ToListAsync();
         var item = groups.Find(x => x.Id == id);
         return item;
     }
@@ -94,7 +93,7 @@ public class GroupService: IGroupService
             }
             else
             {
-                var teacherGroups = teacher.GroupTeachers ?? new List<GroupTeacher>();
+                var teacherGroups = teacher.Groups ?? new List<GroupTeacher>();
 
                 teacherGroups.Add(new GroupTeacher() { Group = item });
                 _context.Teachers.Update(teacher);
@@ -247,7 +246,7 @@ public class GroupService: IGroupService
             }
 
 
-            var duration = item.LessonTimeInMinutes;
+            var duration = item.LessonType.LessonTimeInMinutes;
             var schedules = new List<WorkingDay>();
 
             

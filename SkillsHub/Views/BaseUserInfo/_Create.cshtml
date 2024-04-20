@@ -1,0 +1,152 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using SkillsHub.Domain.BaseModels
+
+@inject SignInManager<ApplicationUser> _signInManager;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
+
+
+@model BaseUserInfo;
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+@{
+    var formId = "form-";
+    if (Model != null) formId += Model.Id.ToString();
+}
+@{
+    var resText = "Редактировать";
+    if (Model == null) resText = "Создать";
+}
+
+<form id="@formId" class="item" style="margin-top:10px" >
+
+    <!-- Section: Design Block -->
+    <link href="~/css/style.css" rel="stylesheet">
+    <style>
+        .rounded-t-5 {
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+
+        .rounded-bl-lg-5 {
+            border-bottom-left-radius: 0.5rem;
+        }
+
+        .my-background {
+            background-color: #F3F3F9 !important;
+        }
+
+        .col-form-label {
+            text-align: start;
+        }
+    </style>
+
+
+    @if (Model != null)
+    {
+        <input type="hidden" asp-for="@Model.Id" data-id="@Model.Id" name="@Model.Id" />
+
+    }
+    <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
+
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Имя<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6" id="first-col">
+            <input type="text" asp-for="FirstName" name="FirstName" class="form-control" placeholder="Имя*" required>
+        </div>
+
+    </div>
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Фамилия<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6">
+            <input type="text" asp-for="LastName" name="LastName" class="form-control" placeholder="Фамилия*" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Отчество<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6">
+            <input type="text" asp-for="Surname" name="Surname" class="form-control" placeholder="Отчество*" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Пол<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6">
+            <select asp-for="Sex" name="Sex" class="form-select">
+                <option selected>Мужской</option>
+                <option>Женский</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Телефон<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6">
+            <input type="text" asp-for="Phone" name="Phone" class="form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Почта
+        </label>
+        <div class="col-lg-6">
+            <input type="email" asp-for="Email" name="Email" class="form-control" placeholder="Почта">
+            <div class="validate"></div>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Дата рождения<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6">
+            <input type="date" asp-for="BirthDate" name="BirthDate" class="form-control" placeholder="День рождения*" required>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <button id="add-btn" class="btn btn-danger" style="width:100%">Удалить</button>
+    </div>
+    <div class="col-lg-6">
+        <button id="add-btn" class="btn btn-success" style="width:100%" onclick="SubmitForms('@formId')">Сохранить</button>
+    </div>
+    <hr />
+
+</form>
+<script>
+function SubmitForms(formId) {
+
+        var data = $('#'+formId).serialize();
+        console.log(data);
+
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("Create", "BaseUserInfo")",
+            data: { model:data },
+            dataType: "json",
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                alert("good")
+            },
+            error: function (result) {
+                alert("bad")
+            }
+        });
+
+    }
+
+</script>
+
+

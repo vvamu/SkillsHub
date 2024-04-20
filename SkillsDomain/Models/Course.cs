@@ -1,11 +1,4 @@
-﻿using SkillsHub.Domain.BaseModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SkillsHub.Domain.Models;
+﻿namespace SkillsHub.Domain.Models;
 
 public class Course : BaseModels.BaseEntity
 {
@@ -14,6 +7,7 @@ public class Course : BaseModels.BaseEntity
     public string Subject { get; set; }
     public string? Description { get; set; }
 
+    
 }
 
 //Относится к одному занятию

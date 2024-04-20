@@ -14,6 +14,8 @@ using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Interfaces;
 using Azure.Core;
 using Spire.Xls.Charts;
+using Spire.Xls.Core;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace SkillsHub.Application.Services.Implementation;
 
@@ -43,17 +45,17 @@ public class UserService : IUserService
             
             .Include(x => x.UserTeacher)
 
-            .Include(x=>x.UserTeacher.PossibleCources).ThenInclude(x=>x.Course)
-            .Include(x=>x.UserTeacher).ThenInclude(x=>x.GroupTeachers).ThenInclude(x=>x.Group)//.ThenInclude(x=>x.Student)
-            .Include(x => x.UserTeacher).ThenInclude(x => x.GroupTeachers).ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
+            .Include(x=>x.UserTeacher.PossibleCources).ThenInclude(x=>x.LessonType)
+            .Include(x=>x.UserTeacher).ThenInclude(x=>x.Groups)//.ThenInclude(x=>x.Student)
+            .Include(x => x.UserTeacher).ThenInclude(x => x.Groups)
             .Include(x => x.UserTeacher).ThenInclude(x => x.PossibleCources)
             .Include(x=>x.UserStudent)
             .Include(x=>x.UserStudent).ThenInclude(x=>x.Groups)//.ThenInclude(x=>x.Student)
             .Include(x => x.UserStudent).ThenInclude(x => x.Groups).ThenInclude(x => x.Group).ThenInclude(x=>x.Lessons)//.ThenInclude(x=>x.GroupStudents).ThenInclude(x => x.Student)
             .Include(x=>x.UserStudent)
             .Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
-            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.Course)
-
+            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.LessonType)
+            .Include(x=>x.ConnectedUsersInfo)
             .FirstOrDefaultAsync(x => x.Id == id);
         return user;
     }
@@ -61,9 +63,9 @@ public class UserService : IUserService
     public async Task<UserCreateDTO> GetUserCreateDTOByIdAsync(Guid id)
     {
         var user = await _context.ApplicationUsers.Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
-            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.Course)
+            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.LessonType)
             .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
-            .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.Course)
+            .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.LessonType)
             .FirstOrDefaultAsync(x => x.Id == id);
         if (user == null) return null;
         var userCreateDTO = _mapper.Map<UserCreateDTO>(user);
@@ -92,7 +94,7 @@ public class UserService : IUserService
             .Include(x => x.ApplicationUser)
             .Include(x => x.PossibleCources)
             //.Include(x => x.WorkingDays)
-            .Include(x => x.GroupTeachers).OrderBy(on => on.Id);
+            .OrderBy(on => on.Id);
 
         return items;
 
@@ -101,12 +103,13 @@ public class UserService : IUserService
     {
         return _context.Users
             .Include(x => x.UserTeacher)//.ThenInclude(x => x.Lessons)
-            .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.Course)
-            .Include(x => x.UserTeacher).ThenInclude(x => x.GroupTeachers)
+            .Include(x => x.UserTeacher.PossibleCources).ThenInclude(x => x.LessonType)
+            .Include(x => x.UserTeacher)
             .Include(x => x.UserStudent)
             .Include(x => x.UserStudent).ThenInclude(x => x.Groups)
             .Include(x => x.UserStudent).ThenInclude(x => x.Lessons)
-            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.Course)
+            .Include(x => x.UserStudent.PossibleCources).ThenInclude(x => x.LessonType)
+            .Include(x => x.ConnectedUsersInfo)
             .OrderBy(x => x.Id);
     }
 
@@ -283,7 +286,6 @@ public class UserService : IUserService
         userInfo.Phone = item.Phone;
         userInfo.BirthDate = item.BirthDate;
         userInfo.Sex = item.Sex;
-        user.UserInfo = userInfo;
 
         _context.BaseUserInfo.Update(userInfo);
         _context.ApplicationUsers.Update(user);
@@ -426,46 +428,48 @@ public class UserService : IUserService
 
     public async Task CreateAdminAsync()
     {
-        var result = await _context.ApplicationUsers.FirstOrDefaultAsync(x => x.Login == "AdminLogin");
-        if (result != null) return;
+        var resultAdmin = _context.ApplicationUsers.FirstOrDefault(x => x.Login == "AdminLogin");
+        var resultAdminInfo = _context.BaseUserInfo.FirstOrDefault(x => x.FirstName == "AdminFirstName");
+        if (resultAdmin != null && resultAdminInfo != null) return;
 
-        var adminI = new ApplicationUser()
+        if(resultAdmin == null)
         {
-            Login = "AdminLogin",
-            UserName = "AdminLogin",
-            Password = "AdminPassword123",
-            OwnHashedPassword = HashProvider.ComputeHash("AdminPassword123"),
-            IsDeleted = false,
-            SecurityStamp = Guid.NewGuid().ToString()
-        };
-
-        var admin = new BaseUserInfo()
-        {
-            
-            FirstName = "AdminFirstName",
-            LastName = "AdminLastName",
-            Surname = "AdminSurname",
-            Sex = "Male",
-           
-        };
-
-        await _context.BaseUserInfo.AddAsync(admin);
-        await _context.SaveChangesAsync();
-        adminI.UserInfo = admin;
-
-        await _context.ApplicationUsers.AddAsync(adminI);
-        await _userManager.CreateAsync(adminI, adminI.Password.Trim());
-        await _context.SaveChangesAsync();
-
-       
-
-        var re = await _userManager.AddToRoleAsync(adminI, "Admin");
-
-
-        if (re.Succeeded)
-
-
+            resultAdmin = new ApplicationUser()
+            {
+                Login = "AdminLogin",
+                UserName = "AdminLogin",
+                //Password = "AdminPassword123",
+                OwnHashedPassword = HashProvider.ComputeHash("AdminPassword123"),
+                IsDeleted = false,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+            var res = await _context.ApplicationUsers.AddAsync(resultAdmin);
             await _context.SaveChangesAsync();
+            resultAdmin = res.Entity;
+            try
+            {
+                var re = await _userManager.AddToRoleAsync(resultAdmin, "Admin");
+                await _context.SaveChangesAsync();
+            } catch { }
+
+        }
+
+        if (resultAdminInfo == null)
+        {
+            resultAdminInfo = _context.BaseUserInfo.FirstOrDefault(x => x.FirstName == "AdminFirstName") ?? new BaseUserInfo()
+            {
+
+                FirstName = "AdminFirstName",
+                LastName = "AdminLastName",
+                Surname = "AdminSurname",
+                Sex = "Male",
+                IsBase = true,
+                ApplicationUserId = resultAdmin.Id
+
+            };
+            await _context.BaseUserInfo.AddAsync(resultAdminInfo);
+            await _context.SaveChangesAsync();
+        }
     }
 
 
@@ -563,10 +567,10 @@ public class UserService : IUserService
         if (teacher != null)
         {
             teacher.IsDeleted = true;
-            teacher.GroupTeachers = new List<GroupTeacher>();
+            teacher.Groups = new List<GroupTeacher>();
 
 
-            teacher.PossibleCources = new List<PossibleCourseTeacher>();
+            teacher.PossibleCources = new List<LessonTypeTeacher>();
 
             var scheduleTeacher = teacher.WorkingDays;
 
@@ -593,7 +597,7 @@ public class UserService : IUserService
             }
 
             student.Groups = new List<GroupStudent>();
-            student.PossibleCources = new List<PreferenceCourseStudent>();
+            student.PossibleCources = new List<LessonTypeStudent>();
 
             
             student.Lessons = new List<LessonStudent>();

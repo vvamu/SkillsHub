@@ -68,7 +68,7 @@
                                             <div style="display:flex;justify-content:space-between">
                                                 <div>
                                                     <h2><a asp-action="Item" asp-controller="Group" asp-route-id="@item.Id">Group @item.Name</a></h2>
-                                                    <p><strong>Lesson type</strong>: @item.Course.Name</p>
+                                                    <p><strong>Lesson type</strong>: @item.LessonType.Name</p>
                                                     <p>
                                                         <strong>Schedule</strong> :
                                                         @for (int a = 0; a < startTimes.Count(); a++)
@@ -274,10 +274,10 @@
                                                                 notArrivedUsers.AddRange(users2);
                                                                 }
                                                                 */
-                                                                if (item.Teacher != null && item.Teacher.ApplicationUser != null)
-                                                                    teacher = item.Teacher.ApplicationUser;
+                                                                if (item.Teacher != null && item.Teacher.Teacher.ApplicationUser != null)
+                                                                    teacher = item.Teacher.Teacher.ApplicationUser;
                                                                 <div>
-                                                                    <strong>Group: </strong> @item.Group.Name - @item.Group.Course.Name <br />
+                                                                    <strong>Group: </strong> @item.Group.Name - @item.Group.LessonType.Name <br />
                                                                     <strong>Lesson topic: </strong>@(item.Topic ?? "-") <br />
 
 

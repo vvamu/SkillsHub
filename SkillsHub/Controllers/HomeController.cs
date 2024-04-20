@@ -51,16 +51,6 @@ public class HomeController : Controller
         return View("UnauthorizedIndex");
     }
 
-    [Route("thanks")]
-    public IActionResult Thanks()
-    {
-        if (User.Identity.IsAuthenticated)
-        {
-            return RedirectToAction("Index", "CRM");
-        }
-        return View();
-    }
-
     public IActionResult Test()
     {
         return View();

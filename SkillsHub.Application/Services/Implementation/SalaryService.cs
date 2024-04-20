@@ -59,10 +59,10 @@ public class SalaryService : ISalaryService
     public async Task<decimal> GetTeacherSalaryAsync(Teacher teacher, bool withNotCompletedLessons = false, bool byMonth = false)
     {
         decimal res = 0;
-        if (teacher.GroupTeachers == null || teacher.GroupTeachers.Count() == 0) return res;
+        if (teacher.Groups == null || teacher.Groups.Count() == 0) return res;
 
         List<Group> groups = new List<Group>();
-        foreach (var gr in teacher.GroupTeachers)
+        foreach (var gr in teacher.Groups)
         {
             //var g = _context.Groups
             //.Include(x => x.Lessons).ThenInclude(x => x.Teacher).Where(x=>x.Lessons != null).Where(x=>x.Lessons.Select(x=>x.Teacher.Id) == teacher.Id);

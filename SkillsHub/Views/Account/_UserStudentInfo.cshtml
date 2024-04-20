@@ -73,7 +73,7 @@
                     {
 
                         <ol>
-                            @foreach (var item in student.PossibleCources.Select(x => x.Course.Name))
+                            @foreach (var item in student.PossibleCources.Select(x => x.LessonType.Name))
                             {
                                 <li>@item</li>
                             }

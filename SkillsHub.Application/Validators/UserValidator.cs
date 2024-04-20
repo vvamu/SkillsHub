@@ -16,7 +16,7 @@ public class UserValidator : AbstractValidator<ApplicationUser>
         RuleFor(x => x.FirstName).NotEmpty().WithMessage("FirstName is required.");
         RuleFor(x => x.LastName).NotEmpty().WithMessage("LastName is required.");
         RuleFor(x => x.Surname).NotEmpty().WithMessage("Surname is required.");
-        RuleFor(x => x.BirthDate.Year).LessThan((DateTime.Now).Year - 3).GreaterThan(1900).NotEmpty().WithMessage("Birthday not correct.");
+        //RuleFor(x => x.BirthDate.Year).LessThan((DateTime.Now).Year - 3).GreaterThan(1900).NotEmpty().WithMessage("Birthday not correct.");
 
 
         //if (item.EnglishLevelId != Guid.Empty) item.EnglishLevel = await _context.EnglishLevels.FirstOrDefaultAsync(x => x.Id == item.EnglishLevelId);

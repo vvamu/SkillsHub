@@ -4,7 +4,7 @@
 @using SkillsHub.Domain.BaseModels
 
 
-@model List<Group>
+@model Group
 @inject UserManager<ApplicationUser> _userManager;
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 
@@ -315,7 +315,7 @@
         //requiredTeachers.val() = "";
         requiredTeachers.empty();
 
-            var teacherId = '@(Model.Teacher != null ? @Model.Teacher.Id.ToString() : "")'
+            var teacherId = '@(Model.GroupTeacher != null ? @Model.GroupTeacher.TeacherId.ToString() : "")'
 
         
         $.ajax({

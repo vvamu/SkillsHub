@@ -109,7 +109,15 @@ else
 
                                                                     if (item.ArrivedStudents != null && item.ArrivedStudents.Count() != 0)
                                                                     {
-                                                                        <span>@item.ArrivedStudents.Count() @if (item.Group != null && item.Group.GroupType != null) { <span>; Minimum for a lesson @item.Group.GroupType.MinCountStudents</span>}</span>
+                                                                        <span>@item.ArrivedStudents.Count() 
+                                                                        @if (item.Group != null && item.Group.LessonType != null)
+                                                                            {
+                                                                                var grTypeId = item.Group.LessonType.GroupTypeId;
+                                                                                var grType =  _context.GroupTypes.Find(grTypeId)  ?? new GroupType() {MinimumStudents = 1};
+
+
+                                                                                <span>; Minimum for a lesson @grType.MinimumStudents</span>
+                                                                            }</span>
                                                                     }
                                                                    
                                                            if (User.IsInRole("Teacher") || User.IsInRole("Admin"))

@@ -122,7 +122,7 @@
                                                     {
                                                         <span>0</span>
                                                     }
-                                                 / @item.GroupType.MinCountStudents..@item.GroupType.MaxCountStudents )
+                                                 / @item.LessonType.GroupType.DisplayName)
                                         </strong> @if (item.GroupStudents != null && item.GroupStudents.Count() != 0 && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
                                             {
                                                 <span>:</span>

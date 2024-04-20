@@ -34,8 +34,6 @@ public class LessonType : BaseEntity
     public List<LessonTypeStudent>? LessonTypeStudents;
     public List<LessonTypeTeacher>? LessonTypeTeachers;
 
-    public LessonType LessonType { get; set; }
-    public Guid LessonTypeId { get; set; }
 }
 
 

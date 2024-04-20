@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillsHub.Persistence;
 
@@ -11,9 +12,11 @@ using SkillsHub.Persistence;
 namespace SkillsHub.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240411131343_remove_ApplicationUserBaseUserInfo")]
+    partial class removeApplicationUserBaseUserInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace SkillsHub.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ApplicationUserBaseUserInfo", b =>
+                {
+                    b.Property<Guid>("ApplicationUsersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ConnectedUsersInfoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ApplicationUsersId", "ConnectedUsersInfoId");
+
+                    b.HasIndex("ConnectedUsersInfoId");
+
+                    b.ToTable("ApplicationUserBaseUserInfo");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
                 {
@@ -251,9 +269,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<string>("AdditionalInfo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("BirthDate")
                         .HasColumnType("datetime2");
 
@@ -289,8 +304,6 @@ namespace SkillsHub.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("BaseUserInfo");
                 });
@@ -1158,6 +1171,21 @@ namespace SkillsHub.Persistence.Migrations
                     b.ToTable("LessonTeachers");
                 });
 
+            modelBuilder.Entity("ApplicationUserBaseUserInfo", b =>
+                {
+                    b.HasOne("SkillsHub.Domain.BaseModels.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ApplicationUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SkillsHub.Domain.BaseModels.BaseUserInfo", null)
+                        .WithMany()
+                        .HasForeignKey("ConnectedUsersInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -1207,15 +1235,6 @@ namespace SkillsHub.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("SkillsHub.Domain.BaseModels.BaseUserInfo", b =>
-                {
-                    b.HasOne("SkillsHub.Domain.BaseModels.ApplicationUser", "ApplicationUser")
-                        .WithMany("ConnectedUsersInfo")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.AgeType", b =>
@@ -1560,8 +1579,6 @@ namespace SkillsHub.Persistence.Migrations
 
             modelBuilder.Entity("SkillsHub.Domain.BaseModels.ApplicationUser", b =>
                 {
-                    b.Navigation("ConnectedUsersInfo");
-
                     b.Navigation("ExternalConnections");
 
                     b.Navigation("Notifications");

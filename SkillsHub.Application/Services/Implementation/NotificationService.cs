@@ -131,13 +131,13 @@ public class NotificationService : INotificationService
             .Include(x => x.Lessons)
             .Include(x => x.Lessons).ThenInclude(x => x.Teacher).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser)
             .Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
-            .Include(x => x.Lessons).Include(x => x.Course)
+            .Include(x => x.Lessons).Include(x => x.LessonType)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group)
             .Include(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser)
             //.Include(x => x.GroupStudents).ThenInclude(x => x.Group).ThenInclude(x => x.Lessons)
             .Include(x => x.DaySchedules)
             .Include(x => x.GroupTeachers).ThenInclude(x => x.Teacher).ThenInclude(x=>x.ApplicationUser)
-            .Include(x => x.Course).ToListAsync();
+            .Include(x => x.LessonType).ToListAsync();
         var item = groups.Find(x => x.Id == id);
         return item;
     }

@@ -133,10 +133,11 @@ public class TeachersController : Controller
 
 
             //user = await _userService.GetUserByIdAsync(item.ApplicationUserId);
-            if (!User.Identity.IsAuthenticated)
-            {
-                user = await _userService.SignInAsync(user);
-            }
+            return RedirectToAction("Create", "BaseUserIngo", new { userId = user.Id });
+
+
+
+   
         }catch (Exception ex) { Console.Write(ex.ToString()); }
         
 

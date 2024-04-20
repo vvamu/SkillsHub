@@ -43,7 +43,7 @@ public class CourseController : Controller
         var subjId = Guid.TryParse(subjectId?.ToString(), out var result) ? result : Guid.Empty;
         var coursId = Guid.TryParse(courseId?.ToString(), out var resultC) ? resultC : Guid.Empty;
 
-        if (subjId != Guid.Empty) courses = courses.Where(x => x.SubjectId == subjId);
+       // if (subjId != Guid.Empty) courses = courses.Where(x => x.SubjectId == subjId);
 
         return PartialView((courses, coursId));    
     }

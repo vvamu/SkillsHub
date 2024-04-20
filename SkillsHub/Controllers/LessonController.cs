@@ -106,10 +106,10 @@ public class LessonController : Controller
     public async Task<IActionResult> Create(Guid id)
     {
         var group = await _groupService.GetAsync(id) ?? throw new Exception("Group not found");
-        var duration = group.LessonTimeInMinutes;
+        var duration = group.LessonType.LessonTimeInMinutes;
 
         ViewBag.grId = group.Id;
-        ViewBag.DefaultLessonTime = group.LessonTimeInMinutes;
+        ViewBag.DefaultLessonTime = group.LessonType.LessonTimeInMinutes;
 
         var item = new Lesson() { Group = group, GroupId = group.Id, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(duration) };
         return View("Item", item);
@@ -169,7 +169,7 @@ public class LessonController : Controller
         {
             group = await _groupService.GetAsync(grId.Value) ?? throw new Exception("Group not found");
             previousCountLessons = group.Lessons.Count();
-            var duration = group.LessonTimeInMinutes;
+            var duration = group.LessonType.LessonTimeInMinutes;
 
             ViewBag.grId = group.Id;
             ViewBag.GroupId = group.Id;
@@ -224,7 +224,7 @@ public class LessonController : Controller
         if (item.GroupId.HasValue)
         {
             var group = await _groupService.GetAsync(item.GroupId.Value) ?? throw new Exception("Group not found");
-            duration = group.LessonTimeInMinutes;
+            duration = group.LessonType.LessonTimeInMinutes;
 
             ViewBag.grId = group.Id;
             ViewBag.GroupId = await _context.Groups.FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(item.GroupId.Value));

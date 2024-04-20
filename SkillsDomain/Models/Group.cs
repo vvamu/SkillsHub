@@ -24,7 +24,7 @@ public class Group : BaseEntity
     public DurationType? DurationType { get; set; }
     public int LessonsCount { get; set; }
 
-    
+    public bool IsVerified { get; set; }
 
     public bool IsUnlimitedLessonsCount { get; set; }
 
@@ -51,7 +51,7 @@ public class Group : BaseEntity
             else
                 return 0;
         }
-    }*/
+    }
 
     [NotMapped]
     public int ResultLessonsTimeInMinutes
@@ -88,7 +88,11 @@ public class Group : BaseEntity
 
     public bool IsLateDateStart { get; set; }
 
-    public GroupTeacher? Teacher { get; set; }
+    public List<GroupTeacher>? GroupTeachers { get; set; }
+
+    [NotMapped]
+    public GroupTeacher? GroupTeacher { get => GroupTeachers.FirstOrDefault(); }
+    [NotMapped]
 
     public Guid TeacherId { get; set; }
 

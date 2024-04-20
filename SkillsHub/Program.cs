@@ -57,7 +57,7 @@ public class Program
         services.AddDbContext<ApplicationDbContext>(
         options =>
         {
-            options.UseSqlServer(connectionString);
+            options.UseSqlServer(connectionString,options => options.EnableRetryOnFailure());
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             options.EnableSensitiveDataLogging();
         },

@@ -81,17 +81,23 @@ public class AccountController : Controller
 
     public async Task<IActionResult> UsersTableList(UserFilterModel filters, OrderModel order)
     {
+        _context.BaseUserInfo.ToList();
         var users = await _userService.GetAllAsync();
         users = await FilterMaster.FilterUsers(users, filters,order);
         List<ApplicationUser> list = new List<ApplicationUser>();
+        
 
-        if(!string.IsNullOrEmpty(filters.UserRole))
+
+        if (!string.IsNullOrEmpty(filters.UserRole))
         {
             foreach(var i in users)
             {
+                var userInfo = await _context.BaseUserInfo.FirstOrDefaultAsync(x => x.ApplicationUserId == i.Id);
                 if ((await _userManager.IsInRoleAsync(i, filters.UserRole)))
-                    //users = users.Where(x=>x.Id !=  i.Id);
-                    list.Add(await _userService.GetUserByIdAsync(i.Id));
+                {
+                    var us = await _userService.GetUserByIdAsync(i.Id);
+                    list.Add(us);
+                }
             }
 
         }
@@ -124,9 +130,10 @@ public class AccountController : Controller
 
     }
     [HttpPost]
-    public async Task<IActionResult> Create(UserCreateDTO userCreateModel)
+    public async Task<IActionResult> Create(UserCreateDTO userCreateModel,List<BaseUserInfo>? listInfo)
     {
         ApplicationUser user;
+        
         try
         {
             //if (!ModelState.IsValid) { ModelState.AddModelError("", ModelState.Values.ToString()); return View(); }
@@ -156,7 +163,8 @@ public class AccountController : Controller
             }
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
-
+        
+        
         return RedirectToAction("Item", new { itemId = user.Id });
         //return View();
     }
@@ -260,7 +268,7 @@ public class AccountController : Controller
 
         if (user.UserTeacher == null) return PartialView("_TeacherGroups", (user, res));
 
-        var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.Teacher.Teacher.ApplicationUser.Id == id).ToList();
+        var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.GroupTeacher.Teacher.ApplicationUser.Id == id).ToList();
 
 
         //foreach (var group in teacherGroups)

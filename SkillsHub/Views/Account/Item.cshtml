@@ -107,7 +107,7 @@
 
                         <h3>Об аккаунте</h3>
                         <ul class="card-profile__info">
-                            <li class="mb-1"><strong class="text-dark mr-4">День рождения</strong> <span>@Model.BirthDate.ToShortDateString() - @(DateTime.Today.Year - Model.BirthDate.Year) year</span></li>
+                            <li class="mb-1"><strong class="text-dark mr-4">День рождения</strong> <span>@Model.UserInfo?.BirthDate.ToShortDateString() - @(DateTime.Today.Year - Model.BirthDate.Year) year</span></li>
                             <hr />
                             <li class="mb-1"><strong class="text-dark mr-4">Мобильный</strong> <span>@Model.Phone</span></li>
                             <li><strong class="text-dark mr-4">Почта</strong> <span>@Model.Email</span></li>

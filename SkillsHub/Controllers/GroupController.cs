@@ -89,11 +89,11 @@ public class GroupController : Controller
             if (!User.IsInRole("Admin")) item.IsVerified = false;
 
 
-            var groupType = await _context.GroupTypes.FirstOrDefaultAsync(x=>x.Id == item.GroupTypeId);
+            var groupType = await _context.GroupTypes.FirstOrDefaultAsync(x=>x.Id == item.LessonType.GroupTypeId);
             item.IsPermanentStaffGroup = true;
 
             //if (item.IsPermanentStaffGroup) item.IsLateDateStart = true;
-
+            var lessonType = item.LessonType;
             
             
                if (lessonType.GroupType != null  && (studentId.Count() > lessonType.GroupType.MaximumStudents) || (studentId.Count() < lessonType.GroupType.MinimumStudents))

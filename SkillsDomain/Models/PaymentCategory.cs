@@ -16,8 +16,9 @@ public class PaymentCategory : BaseEntity
     public decimal StudentPrice { get; set; }
     [Precision(15, 4)]
     public decimal TeacherPrice { get; set; }
-    public int LessonTime { get; set; }
+    public int LessonTimeInMinutes { get; set; }
     public int MinCountLessonsToPay { get; set; }
+
 
 
 }

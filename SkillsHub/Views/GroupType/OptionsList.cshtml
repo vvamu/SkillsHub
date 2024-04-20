@@ -14,41 +14,14 @@
         @foreach (var item in Model.Item1.Where(x => x.IsDeleted == false).ToList())
         {
             
-            var min = @item.MinCountStudents;
-            var max = @item.MaxCountStudents;
-            
-             
-
-
             if (Model.Item2 == item.Id)
             {
-                <option selected="selected"  value="@item.Id">@item.Name
-                    @{
-                        if (min == max)
-                        {
-                            <span>(@min human)</span>
-                        }
-                        else
-                        {
-                            <span>(@min - @max)</span>
-                        }
-                    }
-               </option>
+                <option selected="selected"  value="@item.Id">@item.DisplayName </option>
             }
             else
             {
-                <option  value="@item.Id">@item.Name
-                    @{
-                        if (min == max)
-                        {
-                            <span>(@min human)</span>
-                        }
-                        else
-                        {
-                            <span>(@min - @max)</span>
-                        }
-                    } 
-                </option>
+                <option value="@item.Id">@item.DisplayName </option>
+
             }
 
         }

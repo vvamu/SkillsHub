@@ -100,8 +100,7 @@
                                     <div class="form-group">
                                         <label class=" col-form-label" for="val-skill" style="display:flex;justify-content:space-between">
 
-                                            <h4>Arrived students (from @Model.Group.GroupType.MinCountStudents to @Model.Group.GroupType.MaxCountStudents)<span class="text-danger">*</span></h4>
-
+                                            <h4>Arrived students @Model.Group.LessonType.GroupType.DisplayName
                                             @if (User.IsInRole("Student"))
                                             {
 
@@ -216,10 +215,10 @@ else if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
 
                                     <label class=" col-form-label" for="val-skill" style="display:flex">
                                         <h4>Start time | End time<span class="text-danger">*</span></h4>
-                                        @if(Model != null && Model.Group != null && Model.Group.Course != null)
+                                        @if(Model != null && Model.Group != null && Model.Group.LessonType != null)
                                         {
                                             <p>
-                                                (Default by lesson type: <span id="defaultLessonTime">@Model.Group.LessonTimeInMinutes</span> min)
+                                            (Default by lesson type: <span id="defaultLessonTime">@Model.Group.LessonType.LessonTimeInMinutes</span> min)
                                             </p>
                                         }
                                     </label>
@@ -279,9 +278,9 @@ else if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
                                             var teacherUserId = Guid.Empty;
 
                                         }
-                                        @if (Model!= null && Model.Teacher != null && Model.Teacher.ApplicationUser != null)
+                                        @if (Model!= null && Model.Teacher != null && Model.Teacher.Teacher.ApplicationUser != null)
                                         {
-                                            var user = Model.Teacher.ApplicationUser;
+                                            var user = Model.Teacher.Teacher.ApplicationUser;
                                             
                                             if(user!= null)
                                             {
@@ -296,8 +295,8 @@ else if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
                                             {
 
 
-                                                List<Course> possibleCources = new List<Course>();
-                                                if (teacher.PossibleCources != null) possibleCources = teacher.PossibleCources.Where(x => x.Course != null).Select(x => x.Course).ToList();
+                                                List<LessonType> possibleCources = new List<LessonType>();
+                                                if (teacher.PossibleCources != null) possibleCources = teacher.PossibleCources.Where(x => x.LessonType != null).Select(x => x.LessonType).ToList();
                                             //if(Model!= null && Model.Group != null && Model.Group.CourseName!= null &&possibleCources.Contains(Model.Group.CourseName))
                                             //{
                                                 <option value="@teacher.Id">@teacher.ApplicationUser.Login - @teacher.ApplicationUser.FirstName @teacher.ApplicationUser.LastName @teacher.ApplicationUser.Surname</option>
@@ -312,11 +311,11 @@ else if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
                                 else
                                 {
                                     <select asp-for="TeacherId" id="allTeachers" class="form-select" disabled>                                    
-                                        @if (Model != null && Model.Teacher != null && Model.Teacher.ApplicationUser != null)
+                                        @if (Model != null && Model.Teacher != null && Model.Teacher.Teacher.ApplicationUser != null)
                                         {
                                             _context.Teachers.ToList();
                                             _context.ApplicationUsers.ToList();
-                                            var user = Model.Teacher.ApplicationUser;
+                                            var user = Model.Teacher.Teacher.ApplicationUser;
 
 
                                             <option selected class="text-info" value="@Model.Teacher.Id">@user.Login @user.FirstName @user.LastName @user.Surname</option>
