@@ -22,8 +22,7 @@
 	<div class="row page-titles mx-0">
 		<div class="col p-md-0">
 			<ol class="breadcrumb" style="display:flex;align-items:center">
-				<li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-				<li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
+				<li class="breadcrumb-item"><a href="javascript:void(0)">Курсы</a></li>
 			</ol>
 		</div>
 	</div>
@@ -44,11 +43,12 @@
 
 
 											<li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px; margin-right:5%">
-												<p style="white-space:nowrap">Activity type:</p>
+												<p style="white-space:nowrap">Вкладка:</p>
 												<select class="form-select" id="page-select" name="val-skill">
-													<option value="page-lessonTypes" selected>Lesson types</option>
-													<option value="page-courseNames">Payment categories</option>
-													<option value="page-ageTypes">Age types</option>
+													<option value="page-lessonTypes" selected>Категории занятий</option>
+													<option value="page-courseNames">Абонементы</option>
+													<option value="page-ageTypes">Групповые категории</option>
+													<option value="page-ageTypes">Возрастные категории</option>
 												</select>
 											</li>
 										</ul>
@@ -67,13 +67,16 @@
 			
 			<div id="page-data">
 				<div id="lessonTypes-all">
-					
+					<div class="d-flex justify-content-center">
+						<div class="spinner-border text-primary" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
 				</div>
-				
+				<!--
 				<div id="courseNames-all">
-					
-				</div>
-			</div>
+
+				</div>-->
 			
 
 		</div>
@@ -86,11 +89,14 @@
 
 	
 		$(document).ready(function () {
-			$("#lessonTypes-all").load("/LessonType/Index");
+			$("#lessonTypes-all").load("/LessonType/Index"); 
+			$("#courseNames-all").hide();
+			$("#lessonTypes-all").show();
 		})
 
 
-		$("#choose-view").change(() => {
+		$("#page-select").change(() => {
+				var selectedOption = $(this).val();
 
 			if (selectedOption === "page-lessonTypes") {
 				console.log("ok1")
@@ -109,32 +115,6 @@
 			}
 		})
 
-
-		$("#page-select").change(function () {
-            var selectedOption = $(this).val();
-
-            $("#lessonTypes-all").hide();
-			$("#courseNames-all").hide();
-
-			if (selectedOption === "page-lessonTypes") {
-                console.log("ok1")
-				$("#lessonTypes-all").show();
-
-			} else if (selectedOption === "page-courseNames") {
-                console.log("ok2")
-				$("#courseNames-all").show();
-            }
-        });
-
-		$(document).ready(function () {
-			$("#courseNames-all").hide();
-			$("#lessonTypes-all").show();
-
-		});
-		
-
-
-		
 		function SaveCourcesNames(itemId) {
 			//Serialize the form datas.
 			var valdata = $("#coureName" + itemId).serialize();
@@ -149,30 +129,6 @@
 			});
 			alert("Saved")
 		}
-
-
-
-
-		const exampleModal = document.getElementById('exampleModal')
-		exampleModal.addEventListener('show.bs.modal', event => {
-			// Кнопка, которая активировала модальное окно
-			const button = event.relatedTarget
-			// Извлекает информацию из атрибутов data-bs-*
-			const recipient = button.getAttribute('data-bs-whatever')
-			// При необходимости вы можете инициировать запрос AJAX здесь,
-			// а затем выполнить обновление в обратном вызове.
-			//
-			// Обновляет содержимое модального окна.
-			const modalTitle = exampleModal.querySelector('.modal-title')
-			const modalBodyInput = exampleModal.querySelector('.modal-body input')
-
-			modalTitle.textContent = `New message to ${recipient}`
-			modalBodyInput.value = recipient
-		})
-
-		
-
-
 	</script>
 	
 	

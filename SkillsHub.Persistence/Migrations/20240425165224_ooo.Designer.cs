@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillsHub.Persistence;
 
@@ -11,9 +12,11 @@ using SkillsHub.Persistence;
 namespace SkillsHub.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240425165224_ooo")]
+    partial class ooo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -166,6 +169,9 @@ namespace SkillsHub.Persistence.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DateCreated")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -251,6 +257,9 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<string>("AdditionalInfo")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ApplicationUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
 
@@ -264,6 +273,9 @@ namespace SkillsHub.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsBase")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -271,14 +283,8 @@ namespace SkillsHub.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ParentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Phones")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("RegistrationDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Sex")
                         .IsRequired()
@@ -290,7 +296,7 @@ namespace SkillsHub.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("BaseUserInfo");
                 });
@@ -325,39 +331,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("AgeTypes");
-                });
-
-            modelBuilder.Entity("SkillsHub.Domain.Models.ApplicationUserBaseUserInfo", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BaseUserInfoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsBase")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Role")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("BaseUserInfoId");
-
-                    b.ToTable("ApplicationUserBaseUserInfo");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Course", b =>
@@ -1244,12 +1217,11 @@ namespace SkillsHub.Persistence.Migrations
 
             modelBuilder.Entity("SkillsHub.Domain.BaseModels.BaseUserInfo", b =>
                 {
-                    b.HasOne("SkillsHub.Domain.BaseModels.BaseUserInfo", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("SkillsHub.Domain.BaseModels.ApplicationUser", "ApplicationUser")
+                        .WithMany("ConnectedUsersInfo")
+                        .HasForeignKey("ApplicationUserId");
 
-                    b.Navigation("Parent");
+                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.AgeType", b =>
@@ -1259,25 +1231,6 @@ namespace SkillsHub.Persistence.Migrations
                         .HasForeignKey("ParentId");
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("SkillsHub.Domain.Models.ApplicationUserBaseUserInfo", b =>
-                {
-                    b.HasOne("SkillsHub.Domain.BaseModels.ApplicationUser", "ApplicationUser")
-                        .WithMany("ConnectedUsersInfo")
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SkillsHub.Domain.BaseModels.BaseUserInfo", "BaseUserInfo")
-                        .WithMany("ApplicationUsers")
-                        .HasForeignKey("BaseUserInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-
-                    b.Navigation("BaseUserInfo");
                 });
 
             modelBuilder.Entity("SkillsHub.Domain.Models.Course", b =>
@@ -1626,8 +1579,6 @@ namespace SkillsHub.Persistence.Migrations
 
             modelBuilder.Entity("SkillsHub.Domain.BaseModels.BaseUserInfo", b =>
                 {
-                    b.Navigation("ApplicationUsers");
-
                     b.Navigation("ExternalConnections");
                 });
 

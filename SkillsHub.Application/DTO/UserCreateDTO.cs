@@ -8,6 +8,7 @@ public class UserCreateDTO
 {
     public Guid Id { get; set; }
 
+    public Guid BaseUserInfoId { get; set; }
 
     public string? PasswordChanged { get; set; }
     public string? PasswordChangedConfirm { get; set; }
@@ -23,8 +24,8 @@ public class UserCreateDTO
     //[DataType(DataType.Date)]
     //[DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     public DateTime BirthDate { get; set; }
-    public string? Phone { get; set; }
-    public string? Email { get; set; }
+    public string[] PhonesArray { get; set; } = new string[5];
+    public string[] EmailsArray { get; set; } = new string[5];
     public string? SourceFindCompany { get; set; }
     public string Password { get; set; } //?
 
@@ -39,6 +40,7 @@ public class UserCreateDTO
     public bool EnglishLevelConfirmed { get; set; } = false;
 
     public bool IsVerified { get; set; } = false;
+    public bool IsBase { get; set; }
 
 }
 

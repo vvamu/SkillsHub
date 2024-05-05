@@ -113,9 +113,12 @@ public class Program
         builder.Services.AddTransient<INotificationService, NotificationService>();
         builder.Services.AddScoped<ILessonService, LessonService>();
         builder.Services.AddScoped<ISalaryService, SalaryService>();
+        builder.Services.AddScoped<IBaseUserInfoService, BaseUserInfoService>();
+        builder.Services.AddScoped<IApplicationUserBaseUserInfoService, ApplicationUserBaseUserInfoService> ();
 
-        //builder.Services.AddScoped<ILessonTypeService, LessonTypeService>();
-        //builder.Services.AddScoped<IPaymentCategoryService, PaymentCategoryService>();
+
+        builder.Services.AddScoped<ILessonTypeService, LessonTypeService>();
+        builder.Services.AddScoped<IPaymentCategoryService, PaymentCategoryService>();
 
         #endregion
 

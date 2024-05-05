@@ -16,17 +16,23 @@ public class ApplicationUser : IdentityUser<Guid>
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 
-    public List<BaseUserInfo>? ConnectedUsersInfo { get; set; }
+    public List<ApplicationUserBaseUserInfo>? ConnectedUsersInfo { get; set; }
     [DefaultValue("A1")]
     public string? EnglishLevel { get; set; } = "A1";
 
+    
 
+    public string? SourceFindCompany { get; set; }
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     [DefaultValue("CONVERT(date, GETDATE())")]
-    public DateTime? RegistrationDate { get; set; } = DateTime.Now;
+    public DateTime? RegistrationDate { get; set; }
+    public List<ExternalConnection>? ExternalConnections { get => UserInfo?.ExternalConnections; }
+    public List<NotificationUser>? Notifications { get; set; }
 
-    public string? SourceFindCompany { get; set; }
+
+    #region NotMapped
+
 
     [NotMapped]
     public string? Password { get; set; } //?
@@ -39,12 +45,12 @@ public class ApplicationUser : IdentityUser<Guid>
     public bool IsVerified { get; set; } = false; //need to del
 
     [NotMapped]
-    public int Age {get{ if (UserInfo != null) return (UserInfo.Age); else return 0;}}
+    public int Age { get { if (UserInfo != null) return (UserInfo.Age); else return 0; } }
 
     [NotMapped]
     public BaseUserInfo? UserInfo
     {
-        get => ConnectedUsersInfo?.FirstOrDefault(x => x.IsBase == true);
+        get => ConnectedUsersInfo?.FirstOrDefault(x => x.IsBase == true)?.BaseUserInfo;
         /*
         set
         {
@@ -53,8 +59,8 @@ public class ApplicationUser : IdentityUser<Guid>
         }*/
     }
 
-
-    #region MyRegion
+    [NotMapped]
+    public string? FullName { get => $"{UserInfo?.FullName}";}
 
     //-----
     [NotMapped]
@@ -69,15 +75,20 @@ public class ApplicationUser : IdentityUser<Guid>
     public DateTime BirthDate { get { if (UserInfo == null) return DateTime.Now; else return UserInfo.BirthDate; }  }
 
     [NotMapped]
-    public string? Phone { get => UserInfo?.Phone; }
-    [NotMapped]
-    public string? Email { get => UserInfo?.Email; }
-    public List<ExternalConnection>? ExternalConnections { get => UserInfo?.ExternalConnections; }
+    public string? Phones { get => UserInfo?.Phones; }
 
-    //----
+    [NotMapped]
+    public string[] PhonesArray { get => UserInfo?.PhonesArray; }
+    [NotMapped]
+    public string[] EmailsArray { get => UserInfo?.EmailsArray; }
+
+    [NotMapped]
+    public string? Email { get => UserInfo?.Email; set { var one = UserInfo?.EmailsArray.First(); one = value; } }
+    [NotMapped]
+    public string? Phone { get => UserInfo?.Phone; set { var one = UserInfo?.PhonesArray.First(); one = value; } }
 
     #endregion
-    public List<NotificationUser>? Notifications { get; set; }
+    
 
 }
 

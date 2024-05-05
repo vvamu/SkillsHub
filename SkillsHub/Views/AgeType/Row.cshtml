@@ -1,0 +1,17 @@
+﻿@model AgeType;
+
+@{
+	var item = Model;
+}
+
+<form>
+	<tr>
+				<td><input type="text" value="@item.Name" class="form-control" /></td>
+				<td><input type="number" disabled value="@item.MinimumAge"/></td>
+				<td><input type="date" class="form-control" /></td>
+				<td>
+					<button asp-route-id="@item.Id" asp-action="DeleteElement" asp-controller="Finances" class="btn-danger btn btn-sm">X</button>
+					<button asp-route-id="@item.Id" asp-action="DeleteElement" asp-controller="Finances" class="btn-danger btn btn-sm">X</button>
+				</td>
+	</tr>
+</form>

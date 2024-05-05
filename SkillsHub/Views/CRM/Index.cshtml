@@ -18,6 +18,7 @@
                             <h3 class="card-title text-white">Users </h3>
                             @{
                                 string newUserString = "";
+                                _context.BaseUserInfo.ToList();
                                 var newUsers = _context.ApplicationUsers.Where(x => (DateTime.Now.Day - x.RegistrationDate.Value.Day) <= 10 && x.RegistrationDate.Value.Year == DateTime.Now.Year && x.RegistrationDate.Value.Month == DateTime.Now.Month).Count();
                                 if (newUsers > 0)
                                     newUserString += "+" + newUsers + " by month";

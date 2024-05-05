@@ -18,14 +18,14 @@ using System.Text;
 using static Viber.Bot.NetCore.Models.ViberResponse;
 
 namespace SkillsHub.Controllers;
-public class BaseUserInfoController : Controller
+public class ApplicationUserBaseUserInfoController : Controller
 {
     private readonly IUserService _userService;
 	private readonly ApplicationDbContext _context;
     private readonly IBaseUserInfoService _baseUserInfoService;
     private readonly IApplicationUserBaseUserInfoService _applicationUserBaseUserInfoService;
 
-    public BaseUserInfoController(IUserService userService, ApplicationDbContext context, IBaseUserInfoService baseUserInfoService
+    public ApplicationUserBaseUserInfoController(IUserService userService, ApplicationDbContext context, IBaseUserInfoService baseUserInfoService
         , IApplicationUserBaseUserInfoService applicationUserBaseUserInfoService)
     {
         _userService = userService;
@@ -36,26 +36,21 @@ public class BaseUserInfoController : Controller
 
     }
 
-    /*
-    public PartialViewResult AddListItem(Guid userId)
+    [HttpGet]
+    [Authorize("Admin")]
+    public async Task<IActionResult> Index()
     {
-        return PartialView("_Create", new BaseUserInfo () { Id = Guid.NewGuid(), ApplicationUserId = userId});
+        var items = await _applicationUserBaseUserInfoService.GetApplicationUserBaseUserInfo(null, null)?.Where(x=>x.BaseUserInfo.ParentId == Guid.Empty).ToListAsync();
+      
+        return View("~/Views/BaseUserInfo/Index.cshtml", items);
     }
 
-    [HttpPost]
-    public ActionResult DeleteListItem(Guid id)
-    {
-        // Логика удаления элемента из списка по id
-        // Вернуть PartialView или JSON с результатом удаления
-        return Json(new { success = true });
-    }*/
-
     [HttpGet]
-    public async Task<IActionResult> Edit(Guid? baseUserInfoId)
+    public async Task<IActionResult> Edit(Guid userId, Guid? baseUserInfoId)
     {
         var userInfo = await _context.BaseUserInfo.FirstOrDefaultAsync(x=>x.Id == baseUserInfoId);
-        var listUsers = _context.ApplicationUserBaseUserInfo.Where(x=>x.BaseUserInfoId == baseUserInfoId).ToList();
-        if (userInfo == null) userInfo = new BaseUserInfo() { ApplicationUsers = listUsers };
+        var listUsers = new List<ApplicationUserBaseUserInfo>() { new ApplicationUserBaseUserInfo() { ApplicationUserId = userId } };
+        if (userInfo == null) userInfo = new BaseUserInfo() { ApplicationUsers = listUsers, ApplicationUserId =userId };
 
         return View("Create",userInfo);
     }
@@ -69,6 +64,32 @@ public class BaseUserInfoController : Controller
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
 
         return RedirectToAction("Item", new { itemId = model.ApplicationUserId });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AddToUser(ApplicationUserBaseUserInfo model)
+    {
+        try
+        {
+            var applicationUserBaseUserInfo = await _applicationUserBaseUserInfoService.AddInfoToUserAsync(model);
+        }
+        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
+
+        return RedirectToAction("Item", new { itemId = model.ApplicationUserId });
+    }
+
+
+
+    [HttpPost]
+    public async Task<IActionResult> RemoveFromUser(Guid userId, Guid baseUserInfoId)
+    {
+        try
+        {
+            var applicationUserBaseUserInfo = await _applicationUserBaseUserInfoService.RemoveInfoByUserAsync(userId, baseUserInfoId);
+        }
+        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
+
+        return RedirectToAction("Item", new { itemId = userId });
     }
 
     [HttpGet]
@@ -95,7 +116,21 @@ public class BaseUserInfoController : Controller
         return RedirectToAction("Item", new { itemId = model.ApplicationUserId });
     }
 
+    [HttpPost]
+    public async Task<IActionResult> Next(Guid userId, bool complete = true)
+    {
+        /*
+        var user = await _context.ApplicationUsers.FindAsync(userId);
+        if (!User.Identity.IsAuthenticated)
+        {
+            user = await _userService.SignInAsync(user);
+        }
 
+        return RedirectToAction("Item", "Account", new { itemId = user.Id, id = user.Id });*/
+        if (complete) return RedirectToAction("SignIn", "Account");
+        else return RedirectToAction("Create", userId);
+
+    }
 
 
     #region Ajax - get

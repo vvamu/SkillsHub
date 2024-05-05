@@ -14,6 +14,22 @@
     var individualProgPaymentCategory = progPaymentCategory.FirstOrDefault(x => x.Name.ToLower().Contains("individual")) ?? new PaymentCategory() { StudentPrice = 50m, LessonTimeInMinutes = 60 };
 
 
+
+
+    var engToddlersIndivid = _context.LessonTypes.FirstOrDefault();
+    var engAdultsIndivid = _context.LessonTypes.FirstOrDefault();
+    var engOrganizIndivid = _context.LessonTypes.FirstOrDefault();
+    var engExpressIndivid = _context.LessonTypes.FirstOrDefault();
+    var engSpeakingClubIndivid = _context.LessonTypes.FirstOrDefault();
+    var progChildrenIndivid = _context.LessonTypes.FirstOrDefault();
+
+    var engToddlersGroup = _context.LessonTypes.FirstOrDefault();
+    var engAdultsGroup = _context.LessonTypes.FirstOrDefault();
+    var engOrganizGroup = _context.LessonTypes.FirstOrDefault();
+    var engExpressGroup = _context.LessonTypes.FirstOrDefault();
+    var engSpeakingClubGroup = _context.LessonTypes.FirstOrDefault();
+    var progChildrenGroup = _context.LessonTypes.FirstOrDefault();
+
 }
 
 

@@ -35,6 +35,9 @@
             <link href="~/plugins/fullcalendar/css/fullcalendar.min.css" rel="stylesheet">
             <link href="~/css/style.css" rel="stylesheet">
 
+
+
+
             <style>
 
 
@@ -197,7 +200,7 @@
                                         {
                                             <img class="mr-3" src="~/images/anastasia@1x.jpg" height="40" width="40" alt="">
                                         }
-                                        else if (user.Sex == "Woman")
+                                    else if (user.Sex == "Woman" || user.Sex == "Женский")
                                         {
                                             <img class="mr-3" src="~/images/womanIcon.jpg" height="40" width="40" alt="">
                                         }
@@ -291,11 +294,12 @@
                                             <path d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM609.3 512H471.4c5.4-9.4 8.6-20.3 8.6-32v-8c0-60.7-27.1-115.2-69.8-151.8c2.4-.1 4.7-.2 7.1-.2h61.4C567.8 320 640 392.2 640 481.3c0 17-13.8 30.7-30.7 30.7zM432 256c-31 0-59-12.6-79.3-32.9C372.4 196.5 384 163.6 384 128c0-26.8-6.6-52.1-18.3-74.3C384.3 40.1 407.2 32 432 32c61.9 0 112 50.1 112 112s-50.1 112-112 112z" />
                                         </svg>
                                         <span class="nav-text">
-                                            Users
+                                            Пользователи
                                         </span>
                                     </a>
                                     <ul aria-expanded="false">
-                                        <li><a asp-action="Index" asp-controller="Account">Users</a></li>
+                                        <li><a asp-action="Index" asp-controller="Account">Пользователи</a></li>
+                                        <li><a asp-action="Index" asp-controller="ApplicationUserBaseUserInfo">Дополнительные контакты</a></li>
                                         <!--
                                            <li><a asp-action="Index" asp-controller="Teachers">Teachers</a></li>
                                            <li><a asp-action="Index" asp-controller="Student">Students</a></li>
@@ -309,16 +313,16 @@
                                             <path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z" />
                                         </svg>
                                         <span class="nav-text">
-                                            Courses
+                                            Курсы
                                         </span>
                                     </a>
                                     <ul aria-expanded="false">
                                         @if (User.IsInRole("Admin"))
                                         {
-                                            <li><a asp-action="InstitutionSetting" asp-controller="CRM">Institution settings</a></li>
+                                            <li><a asp-action="InstitutionSetting" asp-controller="CRM">Настройка курсов</a></li>
                                         }
                                         <!--<li><a asp-action="Index" asp-controller="Classes">Сourses</a></li> -->
-                                        <li><a asp-action="Index" asp-controller="Group">Groups/Recruitments</a></li>
+                                        <li><a asp-action="Index" asp-controller="Group">Группы/Наборы</a></li>
                                         <!--
                                            <li><a asp-action="Index" asp-controller="Group">--------</a></li>
                                            <li><a asp-action="Index" asp-controller="Classes">Lessons</a></li>
@@ -339,15 +343,15 @@
                                                 </g>
                                             </svg>
                                             <span class="nav-text">
-                                                Other
+                                                Другое
                                             </span>
                                             @{
                                                 var newReqs = "+ " + _context.RequestLessons.Count();
                                             }
                                         </a>
                                         <ul aria-expanded="false">
-                                            <li><a asp-action="Index" asp-controller="Request">Requests  <span style="font-size:small">@newReqs</span></a></li>
-                                            <li><a asp-action="Index" asp-controller="Finances">Own bills</a></li>
+                                            <li><a asp-action="Index" asp-controller="Request">Запросы на изменение  <span style="font-size:small">@newReqs</span></a></li>
+                                            <li><a asp-action="Index" asp-controller="Finances">Финансы</a></li>
                                         </ul>
                                     </li>
                                 }
@@ -362,6 +366,8 @@
                 <script src="~/js/settings.js"></script>
                 <script src="~/js/gleek.js"></script>
                 <script src="~/js/styleSwitcher.js"></script>
+
+
 
 
                 <div class="content-body">

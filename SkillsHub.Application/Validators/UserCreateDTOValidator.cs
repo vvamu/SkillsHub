@@ -1,18 +1,21 @@
 ﻿using FluentValidation;
+using SkillsHub.Application.DTO;
 using SkillsHub.Domain.BaseModels;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace SkillsHub.Application.Validators;
 
-public class UserValidator : AbstractValidator<ApplicationUser>
+public class UserCreateDTOValidator : AbstractValidator<UserCreateDTO>
 {
-    public UserValidator()
+    public UserCreateDTOValidator()
     {
-        RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required.").EmailAddress().WithMessage("Invalid email format.");
-        RuleFor(x => x.Phone).NotEmpty().WithMessage("Phone is required.");
+        RuleFor(x => x.EmailsArray).NotEmpty().WithMessage("Email is required.").Must(x => x.Any(email => !string.IsNullOrEmpty(email))).WithMessage("Email is required.").Must(x => x.All(email => new EmailAddressAttribute().IsValid(email))).WithMessage("Invalid email format.");
+        RuleFor(x => x.PhonesArray).NotEmpty().WithMessage("Phone is required.").Must(x => x.Any(email => !string.IsNullOrEmpty(email))).WithMessage("Phone is required.").Must(x => x.All(email => new PhoneAttribute().IsValid(email))).WithMessage("Invalid phone format.");
 
         RuleFor(x => x.Login).NotEmpty().WithMessage("Login is required.");
         RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required.");
+
 
         RuleFor(x => x.FirstName).NotEmpty().WithMessage("FirstName is required.");
         RuleFor(x => x.LastName).NotEmpty().WithMessage("LastName is required.");

@@ -8,12 +8,18 @@
 @model SkillsHub.Application.DTO.UserCreateDTO;
 
 @{
-    ViewData["Title"] = "Create";
+    var resText = "Создать";
+    if (Model != null && Model.Id != Guid.Empty) resText = "Редактировать";
+
+    ViewData["Title"] = resText + " пользователя ";
 }
-@{
-    var resText = "Редактировать";
-    if (Model == null) resText = "Создать";
-}
+<style>
+
+    .form-select {
+        padding: 0px; font-size : inherit
+    }
+
+</style>
 
 <!-- Section: Design Block -->
 <section class=" text-center " style="padding:0.7%">
@@ -32,7 +38,7 @@
       .col-form-label {
       text-align:start;
       }
-   </style>
+   </style> 
    <div class="login-form-bg h-100">
    <div class="container h-100">
       <div class="row justify-content-center h-100" >
@@ -42,13 +48,16 @@
                   <div class="card-body pt-5">
 
                    <form class="mt-5 mb-5 login-input" method="post" name="userCreateModel">
-                     <div class="text-center"> <h4>
+                   <input type="hidden" asp-for="IsBase" value="@true" />
+
+                     <div class="text-center" style="min-height:80px"> <h3>
                         @if(Model !=null)
                         {
                         <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
+                        <input type="hidden" asp-for="@Model.BaseUserInfoId" value="@Model.BaseUserInfoId"/>
                         }
-                        <b>@resText пользователя</b>
-                        </h4>
+                        @resText пользователя
+                        </h3>
                      </div>
                    
                         <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
@@ -100,31 +109,105 @@
     </div>
     <div class="form-group row">
         <label class="col-lg-4 col-form-label" for="val-skill">
-            Телефон<span class="text-danger">*</span>
-        </label>
-        <div class="col-lg-6">
-            <input type="text" asp-for="Phone" name="Phone" class="form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
-        </div>
-    </div>
-
-    <div class="form-group row">
-        <label class="col-lg-4 col-form-label" for="val-skill">
-            Почта
-        </label>
-        <div class="col-lg-6">
-            <input type="email" asp-for="Email" name="Email" class="form-control" placeholder="Почта">
-            <div class="validate"></div>
-        </div>
-    </div>
-
-    <div class="form-group row">
-        <label class="col-lg-4 col-form-label" for="val-skill">
             Дата рождения<span class="text-danger">*</span>
         </label>
         <div class="col-lg-6">
-            <input type="date" asp-for="BirthDate" name="BirthDate" class="form-control" placeholder="День рождения*" required>
+          @{
+              var minDate = DateTime.Today.AddYears(-100).ToString("yyyy-MM-dd");
+              var maxDate = DateTime.Today.AddYears(-1).ToString("yyyy-MM-dd");
+          }
+            <input type="date" asp-for="BirthDate" name="BirthDate" class="form-control" placeholder="День рождения*" min="@minDate" max="@maxDate" required> 
         </div>
     </div>
+    
+        @if(Model?.PhonesArray !=null && !Model.PhonesArray.All(s => string.IsNullOrEmpty(s)))
+        {
+            <div class="form-group row" id="phones">
+                <label class="col-lg-4 col-form-label">
+                    Телефон<span class="text-danger">*</span>
+                </label>
+               @foreach (var item in Model?.PhonesArray)
+               {
+                   if (Array.IndexOf(Model.PhonesArray, item) == 0)
+                   {
+                      <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                          <input type="text" name="PhonesArray[0]" class="col-lg-11 form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required value="@item">
+                          <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addPhone()" />
+                          <div class="validate"></div>
+                      </div>
+                   }
+                   else{
+                       <label class="col-lg-4 col-form-label" for="val-skill"></label>
+                       <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                          <input type="text" name="PhonesArray[0]" class="col-lg-11 form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required value="@item">
+                          <input type="button" class="col-lg-1 btn btn-danger" value="Х" onclick="removePhone()" />
+                          <div class="validate"></div>
+                      </div>
+                   }
+               }
+             </div>
+        }
+        else{
+            <div class="form-group row" id="phones">
+                <label class="col-lg-4 col-form-label">
+                    Телефон<span class="text-danger">*</span>
+                </label>
+                 <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+            <input type="text" name="PhonesArray[0]" class="col-lg-11 form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
+            <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addPhone()"/>
+            <div class="validate"></div>
+                </div>
+            </div>
+        }
+       
+   
+    <div id="phoneList"></div>
+
+    
+
+
+      @if(Model?.EmailsArray !=null && !Model.EmailsArray.All(s => string.IsNullOrEmpty(s)))
+        {
+            <div class="form-group row" id="emails">
+                <label class="col-lg-4 col-form-label">
+                    Почта
+                </label>
+               @foreach (var item in Model?.EmailsArray)
+               {
+                   if (Array.IndexOf(Model.EmailsArray, item) == 0)
+                   {
+                      <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                          <input type="email" name="EmailsArray[0]" class="col-lg-11 form-control" placeholder="Почта" pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{{|}}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" value="@item">
+                          <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addEmail()" />
+                          <div class="validate"></div>
+                      </div>
+                   }
+                   else{
+                           <label class="col-lg-4 col-form-label" for="val-skill"></label>
+                           <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                           <input type="email" name="EmailsArray[@Array.IndexOf(Model.EmailsArray, item)]" class="col-lg-11 form-control" placeholder="Почта"   pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{{|}}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" value="@item">
+                              <input type="button" class="col-lg-1 btn btn-danger" value="Х" onclick="removePhone()" />
+                              <div class="validate"></div>
+                          </div>
+                   }
+               }
+             </div>
+        }
+      else{
+              <div class="form-group row" id="emails">
+                <label class="col-lg-4 col-form-label">
+                    Почта
+                </label>
+                <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                    <input type="email" name="EmailsArray[0]" class="col-lg-11 form-control" placeholder="Почта"   pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{{|}}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$">
+                    <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addEmail()"/>
+                    <div class="validate"></div>
+                </div>
+            </div>
+      }
+      <div id="emailList"></div>
+
+    
 
 
                            <div class="form-group row">
@@ -146,11 +229,11 @@
                                     {
                                         if (item == selectedEnglishLevel)
                                         {
-                                                    <option selected>@item</option>
+                                                        <option selected>@item</option>
                                         }
                                         else
                                         {
-                                                    <option>@item</option>
+                                                        <option>@item</option>
                                         }
                                     }
                                     }
@@ -176,7 +259,9 @@
                               </div>
                            </div>
 
+                           @if (User.Identity.Name == Model?.Login || User.IsInRole("Admin")){
 
+                           
                            <div class="form-group row">
                               <label class="col-lg-4 col-form-label" for="val-skill">
                               Пароль<span class="text-danger">*</span>
@@ -185,6 +270,7 @@
                                  <input type="password" asp-for="Password" name="Password" class="form-control" placeholder="Пароль" required>
                               </div>
                            </div>
+                                    }
                            @if (Model != null && Model.Id != Guid.Empty && false)
                            {
                            <div class="form-group row">
@@ -256,17 +342,17 @@
                      @{
                      if (User.Identity.IsAuthenticated)
                      {
-                                 <div>                                                    .
-                                 </div>
+                                     <div>                                                    .
+                                     </div>
                      }
                      else
                      {
-                                 <p class="mt-5 login-form__footer">
-                                 Уже есть аккаунт?
-                                 </p>
-                                 <div>
-                                 <input type="submit" asp-action="SignIn" asp-controller="Account" class="text-primary" value="Войти"></input>
-                                 </div>
+                                     <p class="mt-5 login-form__footer">
+                                     Уже есть аккаунт?
+                                     </p>
+                                     <div>
+                                     <input type="submit" asp-action="SignIn" asp-controller="Account" class="text-primary" value="Войти"></input>
+                                     </div>
                      }
                      }
                      </form>
@@ -277,19 +363,60 @@
          </div>
       </div>
    </div>
-   <!--**********************************
-      Scripts
-      ***********************************-->
-   <script src="~/plugins/common/common.min.js"></script>
-   <script src="~/js/custom.min.js"></script>
-   <script src="~/js/settings.js"></script>
-   <script src="~/js/gleek.js"></script>
-   <script src="~/js/styleSwitcher.js"></script>
-
-
    <script>
 
-        
+        let phoneIndex = @Model?.PhonesArray.Length - 1;
+        let emailIndex = @Model?.EmailsArray.Length - 1;
+
+        function addPhone() {
+            if (phoneIndex > 5) return;
+            phoneIndex++;
+
+            const phoneList = document.getElementById('phoneList');
+
+            const newPhone = document.createElement('div');
+            newPhone.className = 'form-group row';
+            newPhone.innerHTML = `
+                    <label class="col-lg-4 col-form-label" for="val-skill"></label>
+                    <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                        <input type="text"  name="PhonesArray[${phoneIndex}]" class="col-lg-11 form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
+                        <input type="button" class="col-lg-1 btn btn-danger" value="X" onclick="removePhone(this)">
+                        <div class="validate"></div>
+                    </div>
+                `;
+
+            phoneList.appendChild(newPhone);
+        }
+
+        function removePhone(element) {
+            phoneIndex--;
+            element.parentNode.parentNode.remove();
+        }
+
+        function addEmail() {
+            if (emailIndex > 5) return;
+            emailIndex++;
+
+            const phoneList = document.getElementById('emailList');
+
+            const newPhone = document.createElement('div');
+            newPhone.className = 'form-group row';
+            newPhone.innerHTML = `
+                            <label class="col-lg-4 col-form-label" for="val-skill"></label>
+                            <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                                <input type="email"  name="EmailsArray[${emailIndex}]" class="col-lg-11 form-control" placeholder="Почта" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
+                                <input type="button" class="col-lg-1 btn btn-danger" value="X" onclick="removeEmail(this)">
+                                <div class="validate"></div>
+                            </div>
+                        `;
+
+            phoneList.appendChild(newPhone);
+        }
+
+        function removeEmail(element) {
+            emailIndex--;
+            element.parentNode.parentNode.remove();
+        }
 
 
       function changePassword()

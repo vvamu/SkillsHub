@@ -3,6 +3,10 @@
 @using SkillsHub.Domain.BaseModels
 @inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
 
+
+@{
+ViewData["Title"] = "Пользователи ";
+}
 @model IQueryable<ApplicationUser>?
     <!-- Custom Stylesheet -->
     <link href="/plugins/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
@@ -131,15 +135,17 @@
                                         <option>Yes</option>
                                     </select>
                                 </div>
+
+                                <!--
                                 <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
                                     <p style="white-space:nowrap">Order by:</p>
                                     <select class="form-control  search-select " id="sort-select" >
                                         <option value="" selected></option>
-                                        @{
+                                        {
                                             var i = "Sex BirthDate RegistrationDate Phone Email SourceFindCompany".Split(" ");
                                             foreach(var a in i)
                                             {
-                                                        <option value="@a">@a</option>
+                                                        <option value="a">a</option> !!
                                             }
                                         }
                                     </select>
@@ -151,7 +157,7 @@
                                         <option value="asc"  selected>↑</option>
                                         <option value="desc">↓</option>
                                     </select>
-                                </div>
+                                </div>-->
                         
                                  <div class="nav-item"><input type="button" onclick="getStudents()" value="Search" class="form-control btn btn-primary search" /></div>
 

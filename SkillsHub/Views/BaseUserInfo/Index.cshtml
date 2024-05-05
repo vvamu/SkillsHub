@@ -1,116 +1,134 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using SkillsHub.Domain.BaseModels
-
-@inject SignInManager<ApplicationUser> _signInManager;
+﻿@using SkillsHub.Domain.BaseModels;
+@model List<ApplicationUserBaseUserInfo>;
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 
-
-@model Guid;
-
 @{
-    ViewData["Title"] = "Create";
+    var items = Model.GroupBy(x => x.BaseUserInfoId).ToList();
 }
 
+@if (Model == null || Model.Count() == 0)
+{
 
-<!-- Section: Design Block -->
-<section class=" text-center " style="padding:0.7%">
-   <link href="~/css/style.css" rel="stylesheet">
-   <style>
-      .rounded-t-5 {
-      border-top-left-radius: 0.5rem;
-      border-top-right-radius: 0.5rem;
-      }
-      .rounded-bl-lg-5 {
-      border-bottom-left-radius: 0.5rem;
-      }
-      .my-background {
-      background-color:#F3F3F9 !important;
-      }
-      .col-form-label {
-      text-align:start;
-      }
-   </style>
-   <div class="login-form-bg h-100">
-   <div class="container h-100">
-      <div class="row justify-content-center h-100" >
-         <div class="col-xl-10">
-            <div class="form-input-content">
-               <div class="card login-form mb-0">
-                  <div class="card-body pt-5">
-                     <div class="text-center"> <h4>
-                                  
-                        }
-                                        <b>Дополнительные контакты</b>
-                        </h4>
-                                    <div class="col-lg-6">
-                                        <button id="add-btn" class="btn btn-info " style="width:100%">+</button>
-                                    </div>
-                     </div>
+    <div style=" display:flex;grid-gap:20px;justify-content:center;min-height:200px;align-items:center ">
+        <h3>Дополнительные контакты отсутствуют</h3>
+    </div>
 
-                           </div>
-                            <div id="list-container" style="zoom:70%;margin-bottom:10px;padding-left:2.3%">
-                                <!-- Сюда будут добавляться элементы списка -->
-                            </div>
+}
 
+else
+{
 
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Users</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered zero-configuration">
+                                <thead>
+                                    <tr>
 
-                            <form>
-                                <input type="submit" asp-action="Next" asp-controller="BaseUserInfo" asp-route-userId="@Model" class="btn login-form__btn submit w-100" value="@resText" />
-                            </form>
+                                        <th>Полное имя</th>
+                                        <th>Пол</th>
+                                        <th>Дата рождения - Возраст</th>
+                                        <th>Телефон</th>
+                                        <th>Почта</th>
+                                        <th>Ссылки - Роли</th>
+                                        <th>Дополнительная информация</th>
+                                        <th>Дата последнего обновления</th>
+                                        <th>Дата создания</th>
+                                        <th>Удаление</th>
+                                        <th>Полное удаление</th>
+
+                                        <!--
+                                        <th>FullName</th>
+                                        <th>Sex</th>
+                                        <th>BirthDate - Age</th>
+                                        <th>PhonesArray</th>
+                                        <th>EmailsArray</th>
+                                        <th>Refs - Roles</th>
+                                        <th>AdditionalInfo</th>
+                                        <th>RegistrationDate</th>
+                                        <th>DateLastUpdate</th>
+                                        <th>DateCreate</th>
+
+                                        <th>Soft delete</th>
+                                        <th>Hard delete (from database)</th>-->
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @foreach (var item in items)
+                                    {
+                                        var user = item?.FirstOrDefault()?.BaseUserInfo;
+                                        // Инициализируем переменную для хранения суммы UserAndRole
+                                        string sumUserAndRole = "";
+
+                                        
+                                            // Проходим по каждому элементу в группе
+                                            foreach (var i in item)
+                                            {
+                                                // Формируем строку UserAndRole для текущего элемента
+                                                string userAndRole = $"{i.ApplicationUser.FullName} - {i.Role}\n";
+
+                                                // Добавляем текущий UserAndRole к текущей сумме sumUserAndRole
+                                                sumUserAndRole += userAndRole + " ";
+                                            }
+                                        
+
+                                        <tr>
+                                            <td>
+                                                @if (user.IsDeleted == false)
+                                                {
+                                                    <a asp-action="Edit" asp-controller="BaseUserInfo" asp-route-itemId="@user.Id" style="font-weight:900;color:#7571f9">  @user.FullName </a>
+
+                                                }
+                                                else
+                                                {
+                                                    <a asp-action="Edit" asp-controller="BaseUserInfo" asp-route-itemId="@user.Id" style="font-weight:900;color:red"> @user.FullName </a>
+                                                }
+                                            </td>
+
+                                            <td>@user.Sex</td>
+                                            <td>@user.BirthDate.ToShortDateString() - @user.Age years</td>
+                                            <td>@user.Phones</td>
+                                            <td>@user.Emails</td>
+                                            <td>@sumUserAndRole</td>
+                                            <td>@user.AdditionalInfo</td>
+                                            <td>@user.DateCreated</td>
+                                            <td>@user.RegistrationDate</td>
+                                            <td><a asp-action="SoftDelete" asp-controller="BaseUserInfo" asp-route-id="@user.Id" class="btn btn-danger btn-sm">Soft delete</a></td>
+                                            <td><a asp-action="HardDelete" asp-controller="BaseUserInfo" asp-route-id="@user.Id" class="btn btn-warning btn-sm">Hard delete</a></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Полное имя</th>
+                                        <th>Пол</th>
+                                        <th>Дата рождения - Возраст</th>
+                                        <th>Телефон</th>
+                                        <th>Почта</th>
+                                        <th>Ссылки - Роли</th>
+                                        <th>Дополнительная информация</th>
+                                        <th>Дата последнего обновления</th>
+                                        <th>Дата создания</th>
+                                        <th>Удаление</th>
+                                        <th>Полное удаление</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+}
 
-<script>
-
-    $(document).ready(function () {
-        // Добавление элемента в список
-        $("#add-btn").click(function () {
-            $.get("/BaseUserInfo/AddListItem", { userId: @Model}, function (data) {
-                var newItem = $(data); // Преобразование в jQuery объект
-                // Добавление кнопки "X" после элемента с id="first-col"
-                //newItem.find("#first-col").after('<input type="button" class="btn btn-danger col-lg-1 delete-btn" value="X"/>');
-                //newItem.find("#first-col").after('<input type="button" class="btn btn-danger col-lg-1 delete-btn" value="X"/>');
-                // Добавление нового элемента в контейнер
-                $("#list-container").append(newItem);
-            });
-        });
-
-        $(document).on("click", ".delete-btn", function () {
-            var id = $(this).closest(".item").find("input[type=hidden]").data("id");
-            var deleteButton = $(this);
-
-            $.post("/BaseUserInfo/DeleteListItem", { id: id })
-                .done(function (response) {
-                    if (response && response.success) {
-
-                        RemoveScheduleDay(deleteButton);
-                        console.log("deleted 1")
-
-                        deleteButton.closest(".item").remove();
-                        console.log("deleted 2")
-
-                    } else {
-                        alert("Failed to delete item. Please try again.");
-                    }
-                })
-                .fail(function () {
-                    alert("Error occurred while deleting the item.");
-                });
-        });
-    });
-
-    
-
-    function RemoveScheduleDay(btn) {
-        let parent = btn.closest(".item"); // Находим родительский элемент с классом "item"
-        parent.remove();
-    }
-
-</script>
-
-
-
+<script src="~/plugins/tables/js/jquery.dataTables.min.js"></script>
+<script src="~/plugins/tables/js/datatable/dataTables.bootstrap4.min.js"></script>
+<script src="~/plugins/tables/js/datatable-init/datatable-basic.min.js"></script>

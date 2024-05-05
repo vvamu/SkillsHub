@@ -14,26 +14,31 @@
 </script>
 
 <div>
-
-    <div class="row page-titles mx-0">
-        <div class="col p-md-0">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
-            </ol>
+    @if(Model != null)
+    {
+        <form>
+        <div class="row page-titles mx-0">
+            <div class="col p-md-0">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Item" asp-controller="Account" asp-route-id="@Model.Id">Пользователь @Model.FullName</a></li>
+                    <!--<li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>-->
+                </ol>
+            </div>
         </div>
-    </div>
+        </form>
+    }
+    
     <!-- row -->
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-6 col-xl-4">
+            <div class="col-lg-6 col-xl-5">
                 <div class="card">
                     <div class="card-body">
 
                         <div class="media align-items-center mb-4 ">
                             @{
-                                if (Model.Sex == "Woman")
+                                if (Model.Sex == "Woman" || Model.Sex == "Женский")
                                 {
                                     <img class="mr-3" src="~/images/womanIcon.jpg" width="80" height="80" alt="">
                                 }
@@ -44,22 +49,24 @@
                             }
 
                             <div class="media-body">
-                                <h3 class="mb-0">@Model.FirstName @Model.LastName @Model.Surname - @Model.Sex</h3>
-                                <p class="text-muted mb-0">Login: @Model.Login</p>
-                                <p class="text-muted mb-0">Status: @if (Model.IsDeleted == true)
+                                <h3 class="mb-0">@Model.FullName <span>- @Model.Sex</span></h3>
+                                <p class="text-muted mb-0">Логин: <span>@Model.Login</span></p>
+                                <p class="text-muted mb-0">Статус: @if (Model.IsDeleted == true)
                                     {
-                                        <span>Deleted</span>
+                                        <span>Не активен. Дата отключения: </span>
                                     }
                                     else
                                     {
-                                        <span>Active</span>
+                                        <span>Активный</span>
                                     }</p>
-                                <p class="mb-0">
-                                    Roles:
+                                <p class="mb-0 text-muted"> 
+                                    Текущие роли: 
                                     @{
+                                        string result = "";
                                         var roles = await _roleManager.UserManager.GetRolesAsync(Model);
-                                        string result = string.Join(",", roles.ToArray());
-                                        @result
+                                        if (roles.Count == 0) result = " нет ролей";
+                                        else result = string.Join(",", roles.ToArray());
+                                        <span>@result</span>
                                     }
                                 </p>
 
@@ -103,43 +110,86 @@
                         }
 
 
-
-
-                        <h3>Об аккаунте</h3>
-                        <ul class="card-profile__info">
-                            <li class="mb-1"><strong class="text-dark mr-4">День рождения</strong> <span>@Model.UserInfo?.BirthDate.ToShortDateString() - @(DateTime.Today.Year - Model.BirthDate.Year) year</span></li>
-                            <hr />
-                            <li class="mb-1"><strong class="text-dark mr-4">Мобильный</strong> <span>@Model.Phone</span></li>
-                            <li><strong class="text-dark mr-4">Почта</strong> <span>@Model.Email</span></li>
-                            <li><strong class="text-dark mr-4">Дата добавления</strong> <span>@Model.RegistrationDate</span></li>
-                            <hr />
-
-
+                        <div>
+                            <div style="display:flex; justify-content:space-between">
+                            <h3>Об аккаунте</h3>
                             @if (User.Identity.Name == Model.UserName || User.IsInRole("Admin"))
-                            {
-                                <li><strong class="text-dark mr-4"><a asp-action="Create" style="color:cornflowerblue" asp-controller="Account" asp-route-id="@Model.Id">Edit</a></strong></li>
-                            }
-                            @if (false)
-                            {
-
-
-                                @if (Model.IsDeleted == false)
                                 {
-                                    <li><strong class="text-dark mr-4"><a asp-action="SoftDelete" style="color:orange" asp-controller="Account" asp-route-id="@Model.Id">Soft delete</a></strong></li>
-
+                                    <form>
+                                <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Account" asp-route-id="@Model.Id">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+                                    </svg>
+                                </button>
+                                    </form>
                                 }
-                                else
+                            </div>
+                            <ul class="card-profile__info">
+                                <li class="mb-1"><strong class="text-dark mr-4">День рождения</strong> <span>@Model.UserInfo?.BirthDate.ToShortDateString() - @(DateTime.Today.Year - Model.BirthDate.Year) year</span></li>
+                                <hr />
+                                <li class="mb-1"><strong class="text-dark mr-4">Мобильный</strong> <span>@Model.Phone</span></li>
+                                <li><strong class="text-dark mr-4">Почта</strong> <span>@Model.Email</span></li>
+                                <li><strong class="text-dark mr-4">Дата добавления</strong> <span>@Model.RegistrationDate</span></li>
+                                @if (User.Identity.Name == Model.UserName || User.IsInRole("Admin"))
                                 {
-                                    <li><strong class="text-dark mr-4"><a asp-action="Restore" style="color:green" asp-controller="Account" asp-route-id="@Model.Id">Restore</a></strong></li>
-
+                                   <li><strong class="text-dark mr-4">Дата последнего изменения</strong> <span>@Model.UserInfo.DateCreated</span></li>
                                 }
-                                @if (User.IsInRole("Admin"))
+
+                                @if (false)
                                 {
-                                    <li><strong class="text-dark mr-4"><a asp-action="HardDelete" style="color:orangered" asp-controller="Account" asp-route-id="@Model.Id">Hard delete</a></strong></li>
 
+
+                                    @if (Model.IsDeleted == false)
+                                    {
+                                        <li><strong class="text-dark mr-4"><a asp-action="SoftDelete" style="color:orange" asp-controller="Account" asp-route-id="@Model.Id">Soft delete</a></strong></li>
+
+                                    }
+                                    else
+                                    {
+                                        <li><strong class="text-dark mr-4"><a asp-action="Restore" style="color:green" asp-controller="Account" asp-route-id="@Model.Id">Restore</a></strong></li>
+
+                                    }
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><strong class="text-dark mr-4"><a asp-action="HardDelete" style="color:orangered" asp-controller="Account" asp-route-id="@Model.Id">Hard delete</a></strong></li>
+
+                                    }
                                 }
-                            }
-                        </ul>
+                            </ul>
+                        </div>
+                            <hr />
+
+                            <div>
+                                <div style="display:flex; justify-content:space-between">
+                                    <h3>Дополнительные сведения</h3>
+                                    <form>
+                                        <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="BaseUserInfo" asp-route-userId="@Model.Id">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    </div>
+                                    
+                                    <ul class="card-profile__info" style="zoom:80% ; background-color:aliceblue">
+                                        @foreach(var item in Model?.ConnectedUsersInfo.Where(x=>!x.IsBase).Select(x=>x.BaseUserInfo))
+                                        {
+                                            <form>
+                                            <input type="hidden" name="userId" value="@Model.Id" />
+                                            <input type="hidden" name="baseUserInfoId" value="@item.Id" />
+
+                                            <li class="mb-1"><strong class="text-dark mr-4">Полное имя</strong> <div style="display:flex"><span>@item.FullName - @item.Sex</span> <input type="submit" class="btn btn-danger" asp-action="RemoveFromUser" asp-controller="BaseUserInfo"/></div></li>
+                                            <li class="mb-1"><strong class="text-dark mr-4">День рождения</strong> <span>@item.BirthDate.ToShortDateString() - @item.Age year</span></li>
+                                            <li class="mb-1"><strong class="text-dark mr-4">Мобильный</strong> <span>@item.Phone</span></li>
+                                            <li><strong class="text-dark mr-4">Почта</strong> <span>@item.Email</span></li>
+                                            <li><strong class="text-dark mr-4">Дата добавления</strong> <span>@item.DateCreated</span></li>
+                                            <hr/>
+                                    </form>
+                                        }
+                                </ul>
+                        </div>
+                            
+                           
 
                         <div class="mt-5 mt-xl-6">
                             <ul class="list-unstyled list-inline mb-0">
@@ -180,7 +230,7 @@
 
 
             </div>
-            <div class="col-lg-6 col-xl-8">
+            <div class="col-lg-6 col-xl-7">
                 <nav class="navbar navbar-expand-lg bg-light">
                     <div class="container-fluid">
                         <div class=" navbar-collapse" id="navbarSupportedContent">

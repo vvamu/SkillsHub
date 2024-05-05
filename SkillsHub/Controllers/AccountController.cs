@@ -26,10 +26,11 @@ public class AccountController : Controller
     private readonly ISalaryService _salaryService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILessonService _lessonService;
+    private readonly IApplicationUserBaseUserInfoService _applicationUserBaseUserInfoService;
 
     public AccountController(IUserService userService,
         ApplicationDbContext context, IMapper mapper, IGroupService groupService, ISalaryService salaryService
-        ,UserManager<ApplicationUser> userManager, ILessonService lessonService)
+        ,UserManager<ApplicationUser> userManager, ILessonService lessonService, IApplicationUserBaseUserInfoService applicationUserBaseUserInfoService)
     {
         _userService = userService;
         _context = context;
@@ -38,6 +39,8 @@ public class AccountController : Controller
         _salaryService = salaryService;
         _userManager = userManager;
         _lessonService = lessonService;
+        _applicationUserBaseUserInfoService = applicationUserBaseUserInfoService;
+
     }
     #region Get
 
@@ -76,6 +79,9 @@ public class AccountController : Controller
         return View(user);
     }
 
+
+
+
     [HttpPost]
     [Route("/Account/UsersTableList")]
 
@@ -92,7 +98,6 @@ public class AccountController : Controller
         {
             foreach(var i in users)
             {
-                var userInfo = await _context.BaseUserInfo.FirstOrDefaultAsync(x => x.ApplicationUserId == i.Id);
                 if ((await _userManager.IsInRoleAsync(i, filters.UserRole)))
                 {
                     var us = await _userService.GetUserByIdAsync(i.Id);
@@ -125,50 +130,45 @@ public class AccountController : Controller
     public async Task<IActionResult> Create(Guid id)
     {
         var user = await _userService.GetUserCreateDTOByIdAsync(id);
-        if (user == null) return View();
+        if (user == null) return View(new UserCreateDTO()); 
         return View(user);
 
     }
     [HttpPost]
-    public async Task<IActionResult> Create(UserCreateDTO userCreateModel,List<BaseUserInfo>? listInfo)
+    public async Task<IActionResult> Create(UserCreateDTO userCreateModel)
     {
         ApplicationUser user;
         
         try
         {
-            //if (!ModelState.IsValid) { ModelState.AddModelError("", ModelState.Values.ToString()); return View(); }
-
-            user = await _userService.GetUserByIdAsync(userCreateModel.Id);
-            if(user!=null)
-            _context.Entry(user).Reload();
-
-            if (user != null)
+            var u = await _applicationUserBaseUserInfoService.UpdateAsync(userCreateModel, null);
+            var c = await u.FirstOrDefaultAsync(x=>x.ApplicationUser.Login == userCreateModel.Login);
+            user = c?.ApplicationUser;
+        }
+        catch (Exception ex) {
+            try
             {
-                user = await _userService.UpdateUserAsync(userCreateModel);
-                
-
-            }else
-            {
-                user = await _userService.CreateUserAsync(userCreateModel);
-
-                //return RedirectToAction("Item", new { itemId = user.Id });
-
+                var u = await _applicationUserBaseUserInfoService.CreateAsync(userCreateModel, null);
+                user = u.ApplicationUser;
                 if (userCreateModel.IsStudent)
                 {
                     if (userCreateModel.IsTeacher) HttpContext.Session.SetString("isTeacher", "true");
                     return RedirectToAction("Create", "Student", new { id = user.Id });
                 }
                 if (userCreateModel.IsTeacher) return RedirectToAction("Create", "Teachers", new { id = user.Id });
-
             }
-        }
-        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
-        
-        
+            catch { ModelState.AddModelError("", ex.Message); return View(); }}
+                
         return RedirectToAction("Item", new { itemId = user.Id });
         //return View();
     }
+    /*
+    [HttpPost]
+    public async Task<IActionResult> UpdateMainBaseUserInfo(BaseUserInfo baseUserInfo)
+    {
 
+    }
+    */
     public async Task<IActionResult> Restore(Guid id)
     {
         var user = await _userService.GetUserByIdAsync(id);

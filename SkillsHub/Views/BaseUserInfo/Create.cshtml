@@ -1,0 +1,272 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using SkillsHub.Domain.BaseModels
+
+@inject SignInManager<ApplicationUser> _signInManager;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
+
+
+@model BaseUserInfo;
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+@{
+    var formId = "form-";
+    if (Model != null) formId += Model.Id.ToString();
+}
+@{
+    var resText = "Редактировать";
+    if (Model == null) resText = "Создать";
+}
+
+<form id="@formId" class="item" style="margin-top:10px" >
+    <!-- Section: Design Block -->
+    <link href="~/css/style.css" rel="stylesheet">
+    <style>
+        .rounded-t-5 {
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+
+        .rounded-bl-lg-5 {
+            border-bottom-left-radius: 0.5rem;
+        }
+
+        .my-background {
+            background-color: #F3F3F9 !important;
+        }
+
+        .col-form-label {
+            text-align: start;
+        }
+    </style>
+
+    @if (Model != null)
+    {
+        <input type="hidden" asp-for="@Model.Id" data-id="@Model.Id" name="userId" />
+
+    }
+    <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
+
+
+    <div style="display:flex;justify-content:center;align-items:center;margin:20%">
+        <input type="button" class="btn-primary" value="Выбрать из существующего" />
+        <input type="button" class="btn-primary" value="Создать" />
+    </div>
+
+    <div id="baseUser-choose">
+        <div class="form-group row">
+            <label class="col-lg-4 col-form-label" for="val-skill">
+                Выбрать пользователя<span class="text-danger">*</span>
+            </label>
+        
+            <div class="form-group row">
+                <label class="col-lg-4 col-form-label" for="val-skill">
+                    Роль <span class="text-danger">*</span>
+                </label>
+                <div class="col-lg-6" id="first-col">
+                    <input type="text" asp-for="Role" class="form-control" placeholder="Мама, брат*" required>
+                </div>
+
+            </div>
+
+            <div class="col-lg-6">
+            <input class="form-control" list="datalistOptions" placeholder="Алексей ... "/>
+            <datalist>
+                    @await Html.PartialAsync("_OptionsList.cshtml", _context.BaseUserInfo.AsQueryable())
+            </datalist>
+            </div>
+
+            <div class="col-lg-6">
+                <input class="btn btn-success" style="width:100%" type="submit" value="Сохранить" asp-action="AddToUser" asp-controller="BaseUserInfo" />
+            </div>
+
+        </div>
+    </div>
+
+    
+   <div>
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Роль <span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6" id="first-col">
+            <input type="text" asp-for="Role" class="form-control" placeholder="Мама, брат*" required>
+        </div>
+
+    </div>
+
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Имя<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6" id="first-col">
+            <input type="text" asp-for="FirstName" name="FirstName" class="form-control" placeholder="Имя*" required>
+        </div>
+
+    </div>
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Фамилия<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6">
+            <input type="text" asp-for="LastName" name="LastName" class="form-control" placeholder="Фамилия*" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Отчество<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6">
+            <input type="text" asp-for="Surname" name="Surname" class="form-control" placeholder="Отчество*" required>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Пол<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6">
+            <select asp-for="Sex" name="Sex" class="form-select">
+                <option selected>Мужской</option>
+                <option>Женский</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row" id="phones">
+        <label class="col-lg-4 col-form-label">
+            Телефон<span class="text-danger">*</span>
+        </label>
+        <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+            <input type="text" name="PhonesArray[0]" class="col-lg-11 form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
+            <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addPhone()" />
+            <div class="validate"></div>
+        </div>
+    </div>
+    <div id="phoneList"></div>
+
+    <div class="form-group row" id="emails">
+        <label class="col-lg-4 col-form-label">
+            Почта
+        </label>
+        <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+            <input type="email" name="EmailArray[0]" class="col-lg-11 form-control" placeholder="Почта" pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{{|}}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$">
+            <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addEmail()" />
+            <div class="validate"></div>
+        </div>
+    </div>
+    <div id="emailList"></div>
+
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Дата рождения<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6">
+            <input type="date" asp-for="BirthDate" name="BirthDate" class="form-control" placeholder="День рождения*" required>
+        </div>
+    </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Дополнительная информация <span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6" id="first-col">
+            <input type="text" asp-for="AdditionalInfo" name="AdditionalInfo" class="form-control" placeholder="Мама, брат*" required>
+        </div>
+
+    </div>
+
+    <!--
+    <div class="col-lg-6">
+        <button id="add-btn" class="btn btn-danger" style="width:100%">Удалить</button>
+    </div>-->
+    <div class="col-lg-6">
+        <input id="add-btn" class="btn btn-success" style="width:100%" type="submit" value="Сохранить"  asp-action="Create" asp-controller="BaseUserInfo"/>
+    </div>
+    <hr />
+
+</form>
+<script>
+
+    let phoneIndex = 0;
+    let emailIndex = 0;
+
+    function addPhone() {
+        if (phoneIndex > 5) return;
+        phoneIndex++;
+
+        const phoneList = document.getElementById('phoneList');
+
+        const newPhone = document.createElement('div');
+        newPhone.className = 'form-group row';
+        newPhone.innerHTML = `
+                        <label class="col-lg-4 col-form-label" for="val-skill"></label>
+                        <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                            <input type="text"  name="PhonesArray[${phoneIndex}]" class="col-lg-11 form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
+                            <input type="button" class="col-lg-1 btn btn-danger" value="X" onclick="removePhone(this)">
+                        </div>
+                    `;
+
+        phoneList.appendChild(newPhone);
+    }
+
+    function removePhone(element) {
+        phoneIndex--;
+        element.parentNode.parentNode.remove();
+    }
+
+    function addEmail() {
+        if (emailIndex > 5) return;
+        phoneIndex++;
+
+        const phoneList = document.getElementById('emails');
+
+        const newPhone = document.createElement('div');
+        newPhone.className = 'form-group row';
+        newPhone.innerHTML = `
+                                <label class="col-lg-4 col-form-label" for="val-skill"></label>
+                                <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                                    <input type="email"  name="EmailsArray[${emailIndex}]" class="col-lg-11 form-control" placeholder="Почта" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
+                                    <input type="button" class="col-lg-1 btn btn-danger" value="X" onclick="removeEmail(this)">
+                                </div>
+                            `;
+
+        phoneList.appendChild(newPhone);
+    }
+
+    function removeEmail(element) {
+        phoneIndex--;
+        element.parentNode.parentNode.remove();
+    }
+
+    function getBaseUsersInfo(){
+        
+
+        filters_LessonType = {
+            SubjectId: $("#subject-select option:selected").val(),
+            CourseId: $("#course-select option:selected").val(),
+            GroupTypeId: $("#groupType-select option:selected").val(),
+            LocationType: $("#locationType-select option:selected").val(),
+            AgeTypeId: $("#ageType-select option:selected").val(),
+            IsDeleted: '-'
+
+        }
+        orders = {
+            OrderColumn: "Id",
+            OrderType: "asc",
+        }
+
+
+
+        $("#baseUsersInfo-select").load("/LessonType/OptionsList", { filters: filters_LessonType, order: orders, lessonTypeId: $("#lessonType-select option:selected").val() });
+
+    }
+
+
+    function changePassword() {
+
+    }
+</script>
+</section>
+

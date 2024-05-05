@@ -66,6 +66,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         public DbSet<LessonTeacher> LessonTeachers { get; set; }
         public DbSet<LessonTypeTeacher> LessonTypeTeachers { get; set; }
         public DbSet<LessonTypeStudent> LessonTypeStudents { get; set; }
+        public DbSet<ApplicationUserBaseUserInfo> ApplicationUserBaseUserInfo { get; set; }
 
     #endregion
     #endregion
@@ -120,8 +121,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         builder.Entity<Lesson>().HasMany(x => x.ArrivedStudents).WithOne(x => x.Lesson).OnDelete(DeleteBehavior.SetNull);
 
         #region Many-to-many
-
-
+        builder.Entity<ApplicationUserBaseUserInfo>().HasOne(x => x.ApplicationUser).WithMany(x => x.ConnectedUsersInfo).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<ApplicationUserBaseUserInfo>().HasOne(x => x.BaseUserInfo).WithMany(x => x.ApplicationUsers).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<BaseUserInfo>().HasOne(b => b.Parent).WithMany().HasForeignKey(b => b.ParentId).OnDelete(DeleteBehavior.Cascade);
 
         /*
         builder.Entity<CourseNameTeacher>()
@@ -155,7 +157,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
             .OnDelete(DeleteBehavior.Cascade); // Cascade delete for CourceNameTeacher
 
         */
-        
+
 
         builder.Entity<NotificationUser>()
             .HasOne(x => x.User)

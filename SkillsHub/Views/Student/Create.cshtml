@@ -1,21 +1,25 @@
 ﻿@model Student
 
 
+@if (@Model != null && Model.ApplicationUser != null)
+{
+    <div class="row page-titles mx-0">
+        <div class="col p-md-0">
+            <form>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                 
+                    
+                           <a asp-action="Item" asp-controller="Account" asp-route-id="@Model.ApplicationUserId">Пользователь @Model.ApplicationUser.FullName</a>
 
-<div class="row page-titles mx-0">
-    <div class="col p-md-0">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                @if (@Model != null && Model.ApplicationUserId!= null)
-                {
-                    <form><a asp-action="Item" asp-controller="Account" asp-route-id="@Model.ApplicationUserId">Account</a></form>
-
-                }
-            </li>
-            <li class="breadcrumb-item active"><a href="javascript:void(0)">Student edit</a></li>
-        </ol>
+                    
+                    </li>
+                    <li class="breadcrumb-item active"><a href="javascript:void(0)">Student edit</a></li>
+                </ol>
+            </form>
+        </div>
     </div>
-</div>
+}
 <!-- row -->
 <form class="mt-1 mb-5 login-input" method="post">
     <div class="container-fluid">

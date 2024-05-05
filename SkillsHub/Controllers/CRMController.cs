@@ -35,9 +35,6 @@ public class CRMController: Controller
         _context = context;
     }
 
-    #region Get
-
-    #endregion
     public async Task<IActionResult> Index()
     {
         //await _courcesService.InitCources();
