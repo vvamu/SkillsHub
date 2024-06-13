@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EmailProvider.Models;
 
@@ -17,6 +19,11 @@ public class SendingMessage : Mailrequest
 
     [EmailAddress]
     public string Email { get; set; } = "-";
+
+    [NotMapped]
+    public Guid? SenderId { get; set; }
+
+
 
 
 }

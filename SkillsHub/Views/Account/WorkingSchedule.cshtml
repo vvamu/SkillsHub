@@ -1,0 +1,242 @@
+﻿@using SkillsHub.Application.Helpers;
+@using SkillsHub.Application.DTO;
+@using SkillsHub.Domain.BaseModels
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
+
+@model ApplicationUser
+
+@{
+    var item = Model ?? new ApplicationUser();
+    var userSchedule = item.UserWorkingDays;
+
+}
+    <!-- Custom Stylesheet -->
+    <link href="/plugins/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+
+    <!--**********************************
+        Main wrapper start
+    ***********************************-->
+
+<div class="mt-1 mb-5 login-input">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row page-titles mx-0">
+                            <div class="col p-md-0">
+                                <ol class="breadcrumb" style="display:flex;align-items:center">
+                                    <li class="breadcrumb-item"><a href="javascript:void(0)">Назад к пользователю</a></li>
+                                    
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="row card">
+                    <div class="card-body">
+                        <div style="display:flex; justify-content:space-between">
+                            <h3>Расписание</h3>
+                           
+                                @if (Model != null && Model.UserWorkingDays != null && Model.UserWorkingDays.Count() > 0)
+                                {
+                                 <button type="button" onclick="CreateScheduleDayDb()" class="btn btn-primary" style="zoom:60%">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                    </svg>
+                                </button>
+                                }
+                                @if (User.IsInRole("Admin"))
+                                {
+                                <input type="button" value="+" onclick="CreateScheduleDay()" class="btn btn-outline-primary" />
+
+                                }
+                        </div>
+                       
+                        <div id="schedule_d">
+                            <div class="d-flex justify-content-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Загрузка...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                       
+
+
+                        <div style="display:flex; justify-content:space-between">
+                            <!--
+                               <input type="button" onclick="CheckSchedule()" class="btn login-form__btn submit w-100" value="Check schedule"/>
+                               -->
+                            @if (User.IsInRole("Admin"))
+                            {
+                                @if (Model != null)
+                                {
+                                    <input type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100" value="Edit group" />
+                                }
+                                else
+                                {
+                                    <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" onclick="CheckCorrect()" value="Create new group" />
+                                }
+                            }
+                            @if (User.IsInRole("Teacher"))
+                            {
+                                @if (Model != null)
+                                {
+                                    <input type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100" value="Request to edit group" />
+                                }
+                                else
+                                {
+                                    <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" value="Request to create new group" />
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+                <!--
+                   <div class="card-body">
+                       <div id="checkSchedule"></div>
+                   </div>
+                           --->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function resetSearch() {
+
+        $('.search-input').val('');
+        // Reset select elements
+        $('.search-select').prop('selectedIndex', 0);
+
+        // Trigger the search
+        getStudents();
+    }
+
+
+
+        function CreateScheduleDay() {
+            let schedule = $("#schedule_d")[0];
+
+            var div = document.createElement('div');
+            var elementValue = '<div><div id="insert" class="card-body">'
+            elementValue += '<label>Введите день недели</label><select class="form-control" name="dayName">'
+
+
+
+
+            daysOfWeek.forEach(day => {
+                elementValue += `<option value="${day}" ${day === "Monday" ? 'selected' : ''}>${day}</option>`;
+            });
+            elementValue += '</select>'
+            elementValue += '<label>Введите время начала</label><input class="form-control" type="time" name="startTime" placeholder="Введите..." value="10:00" />'
+            //elementValue += '<label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />'
+            elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>'
+            elementValue += '</div></div>';
+            elementValue += '<hr/></div>'
+            div.innerHTML = elementValue;
+            schedule.appendChild(div);
+        }
+
+        function CreateScheduleDayDb() {
+
+            var workingDays = [];
+            var valData = { groupId: '@Model?.Id' };
+
+
+            $.ajax({
+                url: '/Group/ScheduleDays',  // Update this with the actual endpoint URL on your server
+                type: 'GET',
+                data: valData,
+                success: function (data) {
+                    workingDays = data;
+                },
+                error: function (error) {
+
+                    console.error('Error fetching Students:', error);
+                }
+            }).then(() => {
+                $("#schedule_d").empty();
+
+
+                var schedule = document.getElementById('schedule_d');
+
+                workingDays.forEach(function (workingDay) {
+                    let div = document.createElement('div');
+                    let elementValue = '<div><div id="insert" class="card-body">';
+                    elementValue += '<label>Введите день недели</label>';
+                    elementValue += '<select class="form-control" name="dayName">';
+                    console.log("workingDay")
+                    console.log(workingDay)
+                    daysOfWeek.forEach(day => {
+                        elementValue += `<option value="${day}" ${workingDay.dayNameString === day.toLowerCase() ? 'selected' : ''}>${day}</option>`;
+                    });
+
+                    elementValue += '</select>';
+
+                    elementValue += '<label>Введите время начала</label>';
+                    elementValue += '<input class="form-control" type="time" name="startTime" placeholder="Введите..." value="' + convertTimeSpanToString(workingDay.workingStartTime) + '" />';
+
+                    elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>';
+                    elementValue += '</div></div>';
+                    elementValue += '<hr/></div>';
+
+                    div.innerHTML = elementValue;
+                    schedule.appendChild(div);
+                });
+
+            })
+
+
+
+
+        }
+
+    function RemoveScheduleDay(btn) {
+        let parent = btn.parentElement;
+        parent = parent.parentElement;
+        parent = parent.parentElement;
+
+        parent.remove();
+    }
+    function CheckSchedule() {
+        var checkSchedule = $("#checkSchedule");
+        checkSchedule.empty();
+
+    }
+
+    function CheckCorrect() {
+
+        (() => {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            const forms = document.querySelectorAll('.needs-validation')
+
+            // Loop over them and prevent submission
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+
+    }
+
+
+    $(document).ready(function () {
+
+    });
+
+</script>

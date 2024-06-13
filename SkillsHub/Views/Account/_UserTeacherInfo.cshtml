@@ -23,18 +23,12 @@
                     <form style="display:flex; justify-content:space-between">
                         <input type="hidden" asp-for="@teacher.Id" value="@teacher.Id" />
                         <input type="hidden" asp-for="@teacher.ApplicationUserId" value="@Model.Id" />
-                        @if (!(await _userManager.IsInRoleAsync(Model, "Teacher")))
-                        {
-
-                            <h3 style="color:dimgray">Статистика учителя - UnActive</h3>
-                        }
-                        else
-                        {
-                            <h3>Статистика учителя - Active</h3>
-                        }
+                       
+                        <h3>Статистика учителя - @Model.UserTeacher.Status</h3>
+                       
                         @if (User.IsInRole("Admin"))
                         {
-                            <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-action="Activate" asp-controller="Teachers" asp-route-id="@teacher.Id" asp-route-userId="@Model.Id" />
+                           <!-- <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-action="Activate" asp-controller="Teachers" asp-route-id="teacher.Id" asp-route-userId="Model.Id" />-->
                         }
                     </form>
 
@@ -42,7 +36,10 @@
 
             </div>
 
-
+            @if (!User.IsInRole("Admin") && !User.IsInRole("Teacher") && !User.IsInRole("Student"))
+            {
+                
+           
             <div style="display:flex; justify-content:space-between">
                 <b>Working schedule: </b>
                 @if (teacher.WorkingDays != null)
@@ -61,28 +58,29 @@
 
 
             </div>
+            }
             <div style="display:flex; justify-content:space-between">
 
                 <b>Направления работы:</b> @{
-                    if (teacher.PossibleCources != null)
+                    if (teacher.PossibleCources != null && teacher.CurrentPossibleCourses != null)
                     {
                         var res = String.Join(',', Model.UserTeacher.PossibleCources.Select(x => x.LessonType));
 
-                        <ol>
-                            @foreach (var item in Model.UserTeacher.PossibleCources.Select(x => x.LessonType))
+                       
+                            @foreach (var item in Model?.UserTeacher?.CurrentPossibleCourses?.Select(x => x.LessonType))
                             {
-                                <li>@item.Name</li>
+                                <div>@item.Name</div>
                             }
-                        </ol>
+                       
                     }
                     else
                     {
-                        <p>EMPTY</p>
+                        <span>Отсутствуют</span>
                     }
                 }
 
                 <b></b>
-                <b></b>
+                 <hr />
 
 
             </div>
@@ -94,15 +92,18 @@
                     _context.Teachers.ToList();
 
                     _context.ApplicationUsers.ToList();
-                    var visitedLessonsCount = _context.Lessons.Where(x => x.TeacherId == Model.UserTeacher.Id).Where(x => x.IsСompleted).Count();
-                    var arrivedLessonsCount = _context.Lessons.Where(x => x.TeacherId == Model.UserTeacher.Id).Count();
+                    var visitedLessonsCount = _context.Lessons.Where(x=>x.ParentId == null).Where(x => x.TeacherId == Model.UserTeacher.Id).Where(x => x.IsСompleted).Count();
+                    var arrivedLessonsCount = _context.Lessons.Where(x => x.ParentId == null).Where(x => x.TeacherId == Model.UserTeacher.Id).Count();
                 }
-                Проведенные уроки: @visitedLessonsCount / @arrivedLessonsCount ; Цена: @teacher.CurrentCalculatedPrice BYN / @teacher.TotalCalculatedPrice BYN
+                <div>Проведенные уроки: @visitedLessonsCount / @arrivedLessonsCount</div> 
+                <div>>Цена: @teacher.CurrentCalculatedPrice BYN / @teacher.TotalCalculatedPrice BYN</div>
             </div>
+
+            <!--
             <div>
                 Выплачено: --- BYN 
             </div>
-            <!--
+            
             <div>
                 Проведено групповых английский / индивидуальных английский / групповых программирование:
             </div>

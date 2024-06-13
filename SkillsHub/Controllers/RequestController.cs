@@ -71,10 +71,12 @@ public class RequestController : Controller
 
     #endregion
 
-    public async Task<IActionResult> ApplyRequest(Guid id, Lesson lesson) //in button value apply or no apply
+    public async Task<IActionResult> ApplyRequest(Guid id, RequestLesson item) //in button value apply or no apply
     {
 
         var req = await _context.RequestLessons.Include(x=>x.LessonBefore).ThenInclude(x => x.Group).FirstOrDefaultAsync(x => x.Id == id);
+        req.NewStart = item.NewStart;
+        req.NewEnd = item.NewEnd;
         await _requestService.ApplyLessonRequest(req, 1);
         //var gr = await _context.Lessons.FirstOrDefaultAsync(x => x.Id == id);
 

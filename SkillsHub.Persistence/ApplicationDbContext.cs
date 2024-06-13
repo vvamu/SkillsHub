@@ -36,15 +36,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
     public DbSet<Location> Locations { get; set; }
 
     public DbSet<PaymentCategory> PaymentCategories { get; set; }
-
-
     public DbSet<LessonTask> LessonTasks { get; set; }
 
     public DbSet<EmailMessage> EmailMessages { get; set; }
-    //public DbSet<ScheduleDay> ScheduleDays { get; set; }
     public DbSet<FinanceElement> Finances { get; set; }
+    public DbSet<GroupWorkingDay> GroupWorkingDays { get; set; }
+    public DbSet<UserWorkingDay> UserWorkingDays { get; set; }
 
-    public DbSet<WorkingDay> WorkingDays { get; set; }
+
     public DbSet<NotificationMessage> NotificationMessages { get; set; }
 
     
@@ -68,6 +67,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         public DbSet<LessonTypeStudent> LessonTypeStudents { get; set; }
         public DbSet<ApplicationUserBaseUserInfo> ApplicationUserBaseUserInfo { get; set; }
 
+        public DbSet<LessonTypePaymentCategory> LessonTypePaymentCategories { get; set; }
+
+    
+
     #endregion
     #endregion
 
@@ -87,6 +90,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         #region User
         builder.Entity<ApplicationUser>().HasOne(x => x.UserTeacher).WithOne(x => x.ApplicationUser).HasForeignKey<Teacher>(x => x.ApplicationUserId).OnDelete(DeleteBehavior.Cascade);
         builder.Entity<ApplicationUser>().HasOne(x => x.UserStudent).WithOne(x => x.ApplicationUser).HasForeignKey<Student>(x => x.ApplicationUserId).OnDelete(DeleteBehavior.Cascade);
+        /*
+        builder.Entity<Teacher>().HasOne(x=>x.ApplicationUser).WithOne(x => x.UserTeacher).HasForeignKey<ApplicationUser>(x=>x.UserTeacherId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<Student>().HasOne(x => x.ApplicationUser).WithOne(x => x.UserStudent).HasForeignKey<St(x => x.UserStudentId).OnDelete(DeleteBehavior.Cascade);
+        */
 
         #region ManyToMany
         builder.Entity<GroupTeacher>().HasKey(ct => new { ct.GroupId, ct.TeacherId });
@@ -109,13 +116,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
 
         #endregion
 
-        builder.Entity<WorkingDay>().HasOne(x => x.Group).WithMany(x => x.DaySchedules).OnDelete(DeleteBehavior.NoAction);
+        builder.Entity<GroupWorkingDay>().HasOne(x => x.Group).WithMany(x => x.DaySchedules).OnDelete(DeleteBehavior.NoAction);
         //builder.Entity<WorkingDay>().HasOne(x => x.Student).WithMany(x => x.WorkingDays).OnDelete(DeleteBehavior.NoAction);
         //builder.Entity<WorkingDay>().HasOne(x => x.Teacher).WithMany(x => x.WorkingDays).OnDelete(DeleteBehavior.NoAction);
 
 
         //builder.Entity<Group>().HasOne(x => x.Teacher).WithMany(x => x.Groups).OnDelete(DeleteBehavior.SetNull);
-
 
 
         builder.Entity<Lesson>().HasMany(x => x.ArrivedStudents).WithOne(x => x.Lesson).OnDelete(DeleteBehavior.SetNull);
@@ -168,7 +174,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         builder.Entity<NotificationUser>()
             .HasOne(x => x.NotificationMessage)
             .WithMany(x => x.Users)
-            .HasForeignKey(x => x.NotificationId)
+            .HasForeignKey(x => x.NotificationMessageId)
             .OnDelete(DeleteBehavior.Cascade);
 
 

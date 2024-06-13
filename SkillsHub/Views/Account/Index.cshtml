@@ -9,7 +9,8 @@ ViewData["Title"] = "Пользователи ";
 }
 @model IQueryable<ApplicationUser>?
     <!-- Custom Stylesheet -->
-    <link href="/plugins/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="~/plugins/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
+<link href="~/css/style.css" rel="stylesheet">
 
 
     <!--**********************************
@@ -28,40 +29,13 @@ ViewData["Title"] = "Пользователи ";
     <div>
 
         <div >
-
-            <div class="row page-titles mx-0">
-                <div class="col p-md-0">
-                    <ol class="breadcrumb" style="display:flex;align-items:center">
-                        <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                        <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
-                    <li>
-                        <div>
-                            <a style="margin-left:20px" class="btn btn-secondary" asp-action="Create" asp-controller="Account">
-                                Create new
-                            </a>
-                            
-                            <ul class="dropdown-menu">
-                                <form>
-                                <li><a class="dropdown-item" href="#">Invite via email</a></li>
-                                <li>
-
-                                    <a class="dropdown-item" asp-action="Create" asp-controller="Account">Create new</a>
-                                    
-                                </li>
-                                </form>
-                                </ul>
-                            </div>
-                    </li>
-                    
-                    </ol>
-                </div>
-            </div>
         <!-- NAVBAR - Search, Filter, Sort -->
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
-                <div class=" navbar-collapse" id="navbarSupportedContent" style="display:flex;">
+                <div class=" navbar-collapse" id="navbarSupportedContent" style="display:flex;justify-content:space-between">
                     
-                    <div class="row">
+                   
+                    
                         <div class="col">
                             <div class="" style="display:flex;grid-gap:10px;flex-wrap:wrap">
                                 <!--
@@ -80,59 +54,63 @@ ViewData["Title"] = "Пользователи ";
                                 </div>
                                 -->
                                 <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Role:</p>
+                                    <p style="white-space:nowrap">Роль:</p>
                                     <select class="form-control search-select userRole" id="userRole" onchange="getStudents()">
                                         <option selected></option>
-                                        <option>Admin</option>
-                                        <option>Student</option>
-                                        <option>Teacher</option>
+                                        <option value="Admin">Администратор</option>
+                                        <option value="Student">Студент</option>
+                                        <option value="Teacher">Учитель</option>
                                     </select>
                                 </div>
                                 <br/>
 
                                 <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Student cource:</p>
-                                    <select class="form-control search-select courceStudent" id="courcesNames" onchange="getStudents()">
+                                    <p style="white-space:nowrap">Курс студента:</p>
+                                    <select class="form-control search-select courceStudent" id="lessonType-select" onchange="getStudents()">
                                         <option value="" selected></option>
                                     </select>
                                 </div>
 
                                 <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Teacher cource:</p>
-                                    <select class="form-control search-select courceTeacher" id="courcesNames2" onchange="getStudents()">
+                                    <p style="white-space:nowrap">Курс учителя:</p>
+                                    <select class="form-control search-select courceTeacher" id="lessonType2-select" onchange="getStudents()">
                                         <option value="" selected></option>
                                     </select>
                                 </div>
+                                <!--
                                 <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Student working day:</p>
+                                    <p style="white-space:nowrap">Рабочее время:</p>
                                     <select class="form-control search-select" id="studentDayName" name="dayName" onchange="getStudents()">
                                         <option></option>
-                                        @{
+                                        {
                                             var days = Enum.GetValues(typeof(DayOfWeek));
                                             foreach(var day in days)
                                             {
-                                                        <option value="@day">@day</option>
+                                                        <option value="day">day</option>
                                             }
                                         }
                                     </select>
                                 </div>
+                            
                                 <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Teacher working day:</p>
+                                    <p style="white-space:nowrap">Рабочее время:</p>
                                     <select class="form-control search-select" id="teacherDayName" name="dayName" onchange="getStudents()">
                                         <option></option>
-                                        @{
+                                        {
                                             foreach (var day in days)
                                             {
-                                                        <option>@day</option>
+                                                        <option>day</option>
                                             }
                                         }
                                     </select>
                                 </div>
+                                -->
+
                                 <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Deleted:</p>
+                                    <p style="white-space:nowrap">Удален:</p>
                                     <select class="form-control search-select " id="search-deleted" onchange="getStudents()">
-                                        <option selected>No</option>
-                                        <option>Yes</option>
+                                        <option selected value="No">Нет</option>
+                                        <option value="Yes">Да</option>
                                     </select>
                                 </div>
 
@@ -159,19 +137,35 @@ ViewData["Title"] = "Пользователи ";
                                     </select>
                                 </div>-->
                         
-                                 <div class="nav-item"><input type="button" onclick="getStudents()" value="Search" class="form-control btn btn-primary search" /></div>
+                                 <div class="nav-item"><input type="button" onclick="getStudents()" value="Поиск" class="form-control btn btn-primary search" /></div>
 
                                 <!--
                                 <li class="nav-item">
                                     <input type="text" class="form-control search-input" placeholder="2017-06-04" id="minDate" />
                                 </li>
                                 -->
-                       
+                                </div>
                             </div>
-                        </div>
-                        
-                    </div>
+                        <div>
+                            <a style="margin-left:20px" class="btn btn-secondary" asp-action="Create" asp-controller="Account">
+                               Создать
+                            </a>
+                            
+                            <ul class="dropdown-menu">
+                                <form>
+                                <li><a class="dropdown-item" href="#">Invite via email</a></li>
+                                <li>
+
+                                    <a class="dropdown-item" asp-action="Create" asp-controller="Account">Создать </a>
+                                    
+                                </li>
+                                </form>
+                                </ul>
+                            </div>
                 </div>
+                        
+                   
+                
             </div>
         </nav>
 
@@ -194,6 +188,11 @@ ViewData["Title"] = "Пользователи ";
         </div>
 
     </div>
+
+
+<script src="~/plugins/tables/js/jquery.dataTables.min.js"></script>
+<script src="~/plugins/tables/js/datatable/dataTables.bootstrap4.min.js"></script>
+<script src="~/plugins/tables/js/datatable-init/datatable-basic.min.js"></script>
 
 
 <script>
@@ -222,8 +221,8 @@ ViewData["Title"] = "Пользователи ";
                 FIO: $("#searchByFIO").val(),
                 StudentWorkingDay: $('#studentDayName').val(),
                 TeachertWorkingDay: $('#teacherDayName').val(),
-                StudentPossibleCource: $('#courcesNames').val(),
-                TeacherPossibleCource: $('#courcesNames2').val(),
+                StudentPossibleCource: $('#lessonType-select').val(),
+                TeacherPossibleCource: $('#lessonType2-select').val(),
                 IsDeleted: $('#search-deleted').val(),
                 UserRole: $('#userRole').val()
 
@@ -270,7 +269,7 @@ ViewData["Title"] = "Пользователи ";
         }
 
         //------------------------------------------------------------------
-
+        
         $("#usersList").load("/Account/UsersTableList", { filters: filters, order: orders });
 
     }
@@ -314,11 +313,72 @@ ViewData["Title"] = "Пользователи ";
 
     }
 
+    function GetLessonTypes() {
 
+       
+
+        filters_LessonType = {
+            SubjectId: $("#subject-select option:selected").val(),
+            CourseId: $("#course-select option:selected").val(),
+            GroupTypeId: $("#groupType-select option:selected").val(),
+            LocationType: $("#locationType-select option:selected").val(),
+            AgeTypeId: $("#ageType-select option:selected").val(),
+            IsDeleted: '-'
+
+        }
+        orders = {
+            OrderColumn: "Id",
+            OrderType: "asc",
+        }
+
+        var valData = { filters: filters_LessonType, order: orders };
+        $.ajax({
+            url: '/LessonType/OptionsList',
+            type: 'GET',
+            data: valData,
+            success: function (data) {
+                $("#lessonType-select").empty(); // Clear the select element
+                $("#lessonType2-select").empty();
+                
+                var emptyOption = $('<option value=""></option>')
+                var emptyClonedOption = emptyOption.clone();
+                $("#lessonType-select").append(emptyOption);
+                $("#lessonType2-select").append(emptyClonedOption);
+
+                data.forEach(function (item) {
+                    if (item.displayName && item.displayName.indexOf(';') !== -1) { // Check if DisplayName is defined before extracting substring
+
+                        var option = $('<option ' + 'title="' + item.displayName + '" ' + 'value="' + item.id + '" >').text(item.status + " - " + item.name + " - " + item.durationText + " - " + item.check);
+                        
+                        // Check if displayName includes "Не активен" before disabling the option
+                        if (item.displayName.includes("Не активен")) {
+                            option.prop('disabled', true);
+                        }
+                        var clonedOption = option.clone(); // Клонируем элемент
+                        $("#lessonType-select").append(option);
+                        $("#lessonType2-select").append(clonedOption);
+                    
+                    } else {
+                        console.error("Missing or invalid displayName for item:", item);
+                    }
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        }).then(() => {
+           
+        })
+
+
+
+        //$("#lessonType-select").load("/LessonType/OptionsList", { filters: filters_LessonType, order: orders, lessonTypeId: $("#lessonType-select option:selected").val() });
+    }
+    GetLessonTypes();
     $(document).ready(function () {
 
         getStudents();
-        getCourcesNamesList();
+        //getCourcesNamesList();
     });
 
 </script>

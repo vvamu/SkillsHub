@@ -97,49 +97,53 @@ public class RequestService : IRequestService
     //А отправляет запрос на удаление. 
     public async Task<RequestLesson> ApplyLessonRequest(RequestLesson item, int answer = 1)
     {
-        item.IsDeleted = true;
         
+        item.IsDeleted = true;
+        var dbLesson = await _context.Lessons.Where(x => x.ParentId == null).FirstOrDefaultAsync(x => x.Id == item.LessonBeforeId);
+        if (dbLesson == null) throw new Exception("Lesson not found");
 
         if (answer > 0)
         {
-            var lastLesson = new Lesson() { StartTime = item.LessonBefore.StartTime, EndTime = item.LessonBefore.EndTime, GroupId = item.LessonBefore.GroupId };
+            var students = _context.LessonStudents.AsNoTracking().Where(x => x.LessonId == dbLesson.Id).AsNoTracking();
+            var studentsIds = students.Select(x => x.StudentId).ToArray();
+            var visitStatuses = students.Select(x => x.VisitStatus).ToArray();
+
+            var newLesson = dbLesson.Clone();
+            newLesson.StartTime = item.NewStart;
+            newLesson.EndTime = item.NewEnd;
 
             await DeletePreviousRequests(item);
+            await _lessonService.Edit(newLesson, studentsIds, visitStatuses, true);
+            await _notificationService.СreateToEditLesson(dbLesson, newLesson, null, answer);
+            //await _context.SaveChangesAsync();           
 
-            item.LessonBefore.StartTime = item.NewStart;
-            item.LessonBefore.EndTime = item.NewEnd;
-
-            _context.Lessons.Update(item.LessonBefore);
-
-            await _notificationService.СreateToEditLesson(lastLesson, item.LessonBefore, null, answer);
+            _context.RequestLessons.Remove(item);
             await _context.SaveChangesAsync();
-            
+
         }
         
-        _context.RequestLessons.Remove(item);
         
-        await _context.SaveChangesAsync();
         return item;
     }
     public async Task<RequestLesson> ApplyLessonDeleteRequest(RequestLesson item, int answer = 1)
     {
 
         item.IsDeleted = true;
+        var dbLesson = await _context.Lessons.Where(x => x.ParentId == null).Include(x => x.ArrivedStudents).FirstOrDefaultAsync(x => x.Id == item.LessonBefore.Id);
+        if (dbLesson == null) throw new Exception("Lesson not found");
+
 
         if (answer > 0)
         {
-            var lastLesson = new Lesson() { StartTime = item.LessonBefore.StartTime, EndTime = item.LessonBefore.EndTime, GroupId = item.LessonBefore.GroupId };
-
+            var newLessonValue = dbLesson;
+            newLessonValue.StartTime = item.NewStart;
+            newLessonValue.EndTime = item.NewEnd;
             await DeletePreviousRequests(item);
-
-            var l = item.LessonBefore;
-
             _context.RequestLessons.Remove(item);
 
+            await _lessonService.Delete(dbLesson,true);
             await _context.SaveChangesAsync();
-            _context.Lessons.Remove(l);
-
-            await _notificationService.СreateToEditLesson(lastLesson, item.LessonBefore, null, answer);
+            await _notificationService.СreateToEditLesson(dbLesson, newLessonValue, null, answer);
             await _context.SaveChangesAsync();
 
         }

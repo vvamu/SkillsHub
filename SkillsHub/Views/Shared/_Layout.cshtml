@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using SkillsHub.Domain.BaseModels;
 @inject SignInManager<ApplicationUser> _signInManager;
+@inject UserManager<ApplicationUser> _userManager;
+
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
@@ -19,6 +21,13 @@
             font-family: "Ubuntu", "Trebuchet MS", times, roman, serif !important;
             font-weight: 300;
             font-style: normal;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px; /* Example margin */
+            padding-top: 15px;
+            padding-left: 5px;
+            background-color: #5da6d6;
         }
     </style>
 
@@ -184,17 +193,35 @@
                         </div>
 
                         <div class="header-right" style="display:flex;align-items:center">
-
+                            @{
+                                var user = _context.ApplicationUsers.FirstOrDefault(x => x.Login == User.Identity.Name) ?? new ApplicationUser() { Login = "empty" };
+                                var userRolesList = await _userManager.GetRolesAsync(user);
+                                var translatedRoles = userRolesList.Select(role =>
+                                {
+                                    switch (role)
+                                    {
+                                        case "Student":
+                                            return "Студент";
+                                        case "Teacher":
+                                            return "Учитель";
+                                        case "Admin":
+                                            return "Администратор";
+                                        default:
+                                            return role;
+                                    }
+                                }).ToList();
+                                var userRoles = String.Join(";", translatedRoles);
+                            }
                             <span style="padding-top:-5px; margin-right:5%">
                                 <!--<i class="icon-user"></i>-->
-                                <a asp-action="Item" asp-controller="Account" style="zoom:120%">@User.Identity.Name</a>
+                                <a asp-action="Item" asp-controller="Account" style="zoom:120%;text-wrap:nowrap">@userRoles - @User.Identity.Name</a>
                             </span>
 
 
                             <div class="user-img c-pointer position-relative" data-toggle="dropdown">
                                 <!--<span class="activity active"></span>-->
                                 @{
-                                    var user = _context.ApplicationUsers.FirstOrDefault(x => x.Login == User.Identity.Name) ?? new ApplicationUser() { Login = "empty" };
+                                    
                                    
                                         @if (User.IsInRole("Admin"))
                                         {
@@ -212,16 +239,18 @@
                                     
                                 }
                             </div>
-                            >
+                            <span style="font-size:initial;color:#ad71ff;font-weight:900"></span>
+                            
                             <div class="drop-down dropdown-profile animated fadeIn dropdown-menu">
                                 <div class="dropdown-content-body">
                                     <ul style="margin-bottom:5px">
                                         <li>
-                                            <a asp-action="Item" asp-controller="Account"><i class="icon-user"></i> <span>Profile</span></a>
+                                            <a asp-action="Item" asp-controller="Account"><i class="icon-user"></i> <span>Профиль</span></a>
                                         </li>
+                                        <!--
                                         <li>
                                             <a href="javascript:void()">
-                                                <i class="icon-envelope-open"></i> <span>Inbox</span> <div class="badge gradient-3 badge-pill gradient-1">3</div>
+                                                <i class="icon-envelope-open"></i> <span>Уведомления</span> <div class="badge gradient-3 badge-pill gradient-1">3</div>
                                             </a>
                                         </li>
 
@@ -229,18 +258,19 @@
                                         <li>
                                             <a href="page-lock.html"><i class="icon-lock"></i> <span>Lock Screen</span></a>
                                         </li>
-                                        <li> <a asp-action="SignOut" asp-controller="Account"><i class="icon-key"></i> <span>Logout</span></a></li>
+                                        -->
+                                        <li> <a asp-action="SignOut" asp-controller="Account"><i class="icon-key"></i> <span>Выйти</span></a></li>
 
                                         <hr action="my-2" />
-                                        @if (User.IsInRole("Teacher"))
+                                        @if (!User.IsInRole("Teacher") && !User.IsInRole("Student") && !User.IsInRole("Admin"))
                                         {
-                                            <li style="text-wrap:nowrap;margin:5px"><span>Balance: - lessons</span></li>
+                                            <li style="text-wrap:nowrap;margin:5px"><span>Баланс: - lessons</span></li>
                                         }
-                                        @if (User.IsInRole("Student"))
+                                        @if (!User.IsInRole("Teacher") && !User.IsInRole("Student") && !User.IsInRole("Admin"))
                                         {
                                             <li style="text-wrap:nowrap;margin:5px"><span>Student Balance: - BYN</span></li>
                                         }
-                                        @if (User.IsInRole("Admin"))
+                                        @if (!User.IsInRole("Teacher") && !User.IsInRole("Student") && !User.IsInRole("Admin"))
                                         {
                                             <li style="text-wrap:nowrap;margin:5px"><span>Balance: - BYN</span></li>
                                         }
@@ -262,7 +292,16 @@
                     <a onclick="toggleCollapse()" id="countNotifications" type="button" class="chat-window"
                        style="width:90px;height:90px;
                                background-color:deeppink;border-color:white;border-width:15px;border-radius: 30px;
-                               text-align:center;color:white;font-size:30px">
+                               text-align:center;color:white;font-size:30px;padding-top:8px">
+                    </a>
+                </div>
+
+
+                <div class="container" style="z-index:100;">
+                    <a onclick="toggleCollapseAdmin()" id="countNotificationsAdmin" type="button" class="chat-window"
+                       style="width:90px;height:90px;margin-right:95px;
+                                   background-color:black;border-color:white;border-width:15px;border-radius: 30px;
+                                   text-align:center;color:white;font-size:30px;padding-top:8px">
                     </a>
                 </div>
                 <!--
@@ -270,6 +309,10 @@
                    </div>-->
                 <div class="container panel-collapse collapse" style="z-index:10;margin-right:5%;border-radius: 30px;" id="kuku">
                 </div>
+
+                 <div class="container panel-collapse collapse" style="z-index:10;margin-right:5%;border-radius: 30px;" id="kukuAdmin">
+                </div>
+
 
 
                 @if (User.IsInRole("Admin"))
@@ -367,6 +410,9 @@
                 <script src="~/js/gleek.js"></script>
                 <script src="~/js/styleSwitcher.js"></script>
 
+             
+
+
 
 
 
@@ -391,6 +437,45 @@
                         toggleCollapse();
                         toggleCollapse();
 
+                        function toggleCollapseAdmin() {
+                            var lessonsCountInput = document.querySelector('#kukuAdmin')
+
+
+                            console.log("ok2222");
+                            $('#kukuAdmin').toggleClass('show'); // Toggle the collapse state of the div
+
+                            $("#kukuAdmin").load("/Account/GetEmails", function () {
+                                var notificationCount = $("#notificationsAdmin").children().length;
+                                $("#countNotificationsAdmin").text(notificationCount);
+
+                            });
+                        }
+                        toggleCollapseAdmin();
+                        toggleCollapseAdmin();
+
+                        function SendMessage() {
+                            var valData = $("#sendMessage").serialize(); // Serialize form data
+                            console.log(valData);
+
+                            $.ajax({
+                                url: "/Account/SendMessage",
+                                type: "POST",
+                                data: valData, // Sending serialized form data
+                                success: function (data) {
+                                    alert("Сообщение было отправлено!")
+                                    toggleCollapseAdmin();
+                                    toggleCollapseAdmin();
+                                    if (Array.isArray(data)) {
+                                        // Handle response data if it's an array
+                                    } else {
+                                        // Handle response data if it's not an array
+                                    }
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    alert("Сообщение некорректно.")
+                                }
+                            });
+                        }
                     </script>
 
 
@@ -560,6 +645,7 @@
                 <div class="text-center p-3" style="background-color: #091E40; border-top:1px solid rgba(255, 255, 255, 0.1)">
                     © 2023 Copyright:
                     <a asp-controller="Home" asp-action="Index" style="color: #5da6d6;">Skills Hub</a>
+                    <div> <a href="https://www.linkedin.com/in/nadezhda-bichun-319608264/">Developer</a></div>
                 </div>
             </footer>
 
@@ -591,13 +677,14 @@
                -->
         }
     }
-    <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+    
+    <!--<script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>-->
     <script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
 
     <script type="text/javascript">
 
         function googleTranslateElementInit() {
-            new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element');
+            new google.translate.TranslateElement({ pageLanguage: 'ru', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element');
         }
 
         //CHECK COUNT GOOGLE-TRANSLATE ELEMENTS

@@ -14,18 +14,32 @@
 </script>
 
 <div>
-    @if(Model != null)
+    <!--
+    if(Model != null)
     {
         <form>
         <div class="row page-titles mx-0">
             <div class="col p-md-0">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a asp-action="Item" asp-controller="Account" asp-route-id="@Model.Id">Пользователь @Model.FullName</a></li>
-                    <!--<li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>-->
+                    <li class="breadcrumb-item"><a asp-action="Item" asp-controller="Account" asp-route-id="Model.Id">Пользователь Model.FullName</a></li>
+                    <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
                 </ol>
             </div>
         </div>
         </form>
+    }
+    -->
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="row page-titles mx-0">
+            <div class="col p-md-0">
+                <ol class="breadcrumb" style="display:flex;align-items:center">
+                    <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Account" style="font-weight:900;color:#7571f9">Ко всем пользователям</a></li>
+                    <li></li>
+
+                </ol>
+            </div>
+        </div>
     }
     
     <!-- row -->
@@ -35,228 +49,251 @@
             <div class="col-lg-6 col-xl-5">
                 <div class="card">
                     <div class="card-body">
+                        <div>
+                            <div class="media align-items-center mb-4 ">
+                                @{
+                                    if (Model.Sex == "Woman" || Model.Sex == "Женский")
+                                    {
+                                        <img class="mr-3" src="~/images/womanIcon.jpg" width="80" height="80" alt="">
+                                    }
+                                    else
+                                    {
+                                        <img class="mr-3" src="~/images/manIcon.jpg" width="80" height="80" alt="">
+                                    }
+                                }
 
-                        <div class="media align-items-center mb-4 ">
-                            @{
-                                if (Model.Sex == "Woman" || Model.Sex == "Женский")
-                                {
-                                    <img class="mr-3" src="~/images/womanIcon.jpg" width="80" height="80" alt="">
-                                }
-                                else
-                                {
-                                    <img class="mr-3" src="~/images/manIcon.jpg" width="80" height="80" alt="">
-                                }
+                                <div class="media-body">
+                                    <h3 class="mb-0">@Model.FullName <span>- @Model.Sex</span></h3>
+                                    <p class="text-muted mb-0">Логин: <span>@Model.Login</span></p>
+                                    <p class="text-muted mb-0">Статус: @if (Model.IsDeleted == true)
+                                        {
+                                            <span>Не активен</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Активен</span>
+                                        }</p>
+                                    <p class="mb-0 text-muted"> 
+                                        Текущие роли: 
+                                        @{
+                                            string result = "";
+                                            var roles = await _roleManager.UserManager.GetRolesAsync(Model);
+                                            var translatedRoles = roles.Select(role =>
+                                            {
+                                                switch (role)
+                                                {
+                                                    case "Student":
+                                                        return "Студент";
+                                                    case "Teacher":
+                                                        return "Учитель";
+                                                    case "Admin":
+                                                        return "Администратор";
+                                                    default:
+                                                        return role;
+                                                }
+                                            }).ToList();
+                                            if (roles.Count == 0) result = " нет ролей";
+                                            else result = string.Join(",", translatedRoles.ToArray());
+                                            <span>@result</span>
+                                        }
+                                    </p>
+
+                                </div>
+
+
+                                <!--
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                                </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Action</a></li>
+                                        <li><a class="dropdown-item" href="#">Another action</a></li>
+                                        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                    </ul>
+                                </div>
+                                -->
+                            </div>
+                        
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <form>
+                                    <input type="hidden" name="id" value="@Model.Id" />
+                                    <input type="hidden" name="isEdit" value="true" />
+
+                                    <div class="row mb-3">
+                               
+                                        @{
+                                         var classActiveTeacher = Model != null && Model.UserTeacher != null && !Model.UserTeacher.IsDeleted ? "background-color:#d1e3ff" : "";
+                                            var classActiveStudent = Model != null && Model.UserStudent != null && !Model.UserStudent.IsDeleted ? "background-color:#d1e3ff" : "";
+                                        }
+                                        <div class="col card" style="display:flex;justify-content:center;border:2px solid #f3f9ff">
+                                            <a asp-action="Create" asp-controller="Teachers" type="submit" class="btn" asp-route-id="@Model.Id" asp-route-isEdit="true">
+                                                <div class="card card-profile text-center" style="display:flex;align-items:center; padding:10px; @classActiveTeacher">
+                                                <img style="max-width:40px" src="~/icons/teacher-svg.svg" />
+                                                <h3 class="mb-0"></h3>
+                                                Учитель
+                                            </div>
+                                            </a>
+                                        </div>
+
+
+                                        <div class="col card" style="display:flex;justify-content:center;border:2px solid #f3f9ff">
+                                            <a asp-action="Create" asp-controller="Student" asp-route-id="@Model.Id" asp-route-isEdit="true" type="submit" class="btn">
+                                                <div class="card card-profile text-center" style="display:flex;align-items:center; padding:10px; @classActiveStudent">
+                                                <img style="max-width:40px" src="~/icons/student-svg.svg" />
+                                                <h3 class="mb-0"></h3>
+                                                 Ученик
+                                            </div>
+                                        </a>
+                                        </div>
+                                    
+                                    </div>
+                                </form>
                             }
 
-                            <div class="media-body">
-                                <h3 class="mb-0">@Model.FullName <span>- @Model.Sex</span></h3>
-                                <p class="text-muted mb-0">Логин: <span>@Model.Login</span></p>
-                                <p class="text-muted mb-0">Статус: @if (Model.IsDeleted == true)
-                                    {
-                                        <span>Не активен. Дата отключения: </span>
-                                    }
-                                    else
-                                    {
-                                        <span>Активный</span>
-                                    }</p>
-                                <p class="mb-0 text-muted"> 
-                                    Текущие роли: 
-                                    @{
-                                        string result = "";
-                                        var roles = await _roleManager.UserManager.GetRolesAsync(Model);
-                                        if (roles.Count == 0) result = " нет ролей";
-                                        else result = string.Join(",", roles.ToArray());
-                                        <span>@result</span>
-                                    }
-                                </p>
-
-                            </div>
-
-
-                            <!--
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                            </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Action</a></li>
-                                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                                    <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                </ul>
-                            </div>
-                            -->
-                        </div>
-
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <form>
-                                <div class="row mb-5">
-                                    <div class="col">
-                                        <div class="card card-profile text-center">
-                                            <span class="mb-1 text-primary"><i class="icon-people"></i></span>
-                                            <h3 class="mb-0"></h3>
-                                            <input asp-action="Create" asp-controller="Teachers" asp-route-id="@Model.Id" type="submit" class="text-muted px-4 btn btn-light" value="Teacher Account" />
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="card card-profile text-center">
-                                            <span class="mb-1 text-warning"><i class="icon-user-follow"></i></span>
-                                            <h3 class="mb-0"></h3>
-                                            <input asp-action="Create" asp-controller="Student" asp-route-id="@Model.Id" type="submit" class="text-muted btn btn-light" value="Student Account" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        }
-
-
-                        <div>
-                            <div style="display:flex; justify-content:space-between">
-                            <h3>Об аккаунте</h3>
-                            @if (User.Identity.Name == Model.UserName || User.IsInRole("Admin"))
-                                {
-                                    <form>
-                                <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Account" asp-route-id="@Model.Id">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-                                        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
-                                    </svg>
-                                </button>
-                                    </form>
-                                }
-                            </div>
-                            <ul class="card-profile__info">
-                                <li class="mb-1"><strong class="text-dark mr-4">День рождения</strong> <span>@Model.UserInfo?.BirthDate.ToShortDateString() - @(DateTime.Today.Year - Model.BirthDate.Year) year</span></li>
-                                <hr />
-                                <li class="mb-1"><strong class="text-dark mr-4">Мобильный</strong> <span>@Model.Phone</span></li>
-                                <li><strong class="text-dark mr-4">Почта</strong> <span>@Model.Email</span></li>
-                                <li><strong class="text-dark mr-4">Дата добавления</strong> <span>@Model.RegistrationDate</span></li>
-                                @if (User.Identity.Name == Model.UserName || User.IsInRole("Admin"))
-                                {
-                                   <li><strong class="text-dark mr-4">Дата последнего изменения</strong> <span>@Model.UserInfo.DateCreated</span></li>
-                                }
-
-                                @if (false)
-                                {
-
-
-                                    @if (Model.IsDeleted == false)
-                                    {
-                                        <li><strong class="text-dark mr-4"><a asp-action="SoftDelete" style="color:orange" asp-controller="Account" asp-route-id="@Model.Id">Soft delete</a></strong></li>
-
-                                    }
-                                    else
-                                    {
-                                        <li><strong class="text-dark mr-4"><a asp-action="Restore" style="color:green" asp-controller="Account" asp-route-id="@Model.Id">Restore</a></strong></li>
-
-                                    }
-                                    @if (User.IsInRole("Admin"))
-                                    {
-                                        <li><strong class="text-dark mr-4"><a asp-action="HardDelete" style="color:orangered" asp-controller="Account" asp-route-id="@Model.Id">Hard delete</a></strong></li>
-
-                                    }
-                                }
-                            </ul>
-                        </div>
-                            <hr />
 
                             <div>
                                 <div style="display:flex; justify-content:space-between">
-                                    <h3>Дополнительные сведения</h3>
-                                    <form>
-                                        <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="BaseUserInfo" asp-route-userId="@Model.Id">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
-                                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                    </div>
-                                    
-                                    <ul class="card-profile__info" style="zoom:80% ; background-color:aliceblue">
-                                        @foreach(var item in Model?.ConnectedUsersInfo.Where(x=>!x.IsBase).Select(x=>x.BaseUserInfo))
+                                <h3>Об аккаунте</h3>
+                                @if (User.Identity.Name == Model.UserName || User.IsInRole("Admin"))
+                                    {
+                                        <form>
+                                    <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Account" asp-route-id="@Model.Id">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+                                        </svg>
+                                    </button>
+                                        </form>
+                                    }
+                                </div>
+                                <ul class="card-profile__info">
+                                    <li class="mb-1"><strong class="text-dark mr-4">День рождения</strong> <span>@Model.UserInfo?.BirthDate.ToShortDateString() - @(DateTime.Today.Year - Model.BirthDate.Year) year</span></li>
+                                    <hr />
+                                    <li class="mb-1"><strong class="text-dark mr-4">Мобильный</strong> <span>@Model.Phone</span></li>
+                                    <li><strong class="text-dark mr-4">Почта</strong> <span>@Model.Email</span></li>
+                                    @if(Model.UserInfo == null || Model.UserInfo?.DateCreated == null) {} else {<li><strong class="text-dark mr-4">Дата добавления</strong> <span>@Model.UserInfo?.DateCreated</span></li>}
+                                    @if(false) {<li><strong class="text-dark mr-4"><form><a asp-action="WorkingSchedule" asp-controller="Account" asp-route-id="Model.Id" style="font-weight:900;color:#7571f9">Расписание</a></form></strong></li>}
+
+                                    @if (true)
+                                    {
+
+
+                                        @if (Model.IsDeleted == false)
                                         {
-                                            <form>
-                                            <input type="hidden" name="userId" value="@Model.Id" />
-                                            <input type="hidden" name="baseUserInfoId" value="@item.Id" />
+                                            <li><strong class="text-dark mr-4"><a asp-action="SoftDelete" class="btn btn-warning" asp-controller="Account" asp-route-id="@Model.Id">Удалить</a></strong></li>
 
-                                            <li class="mb-1"><strong class="text-dark mr-4">Полное имя</strong> <div style="display:flex"><span>@item.FullName - @item.Sex</span> <input type="submit" class="btn btn-danger" asp-action="RemoveFromUser" asp-controller="BaseUserInfo"/></div></li>
-                                            <li class="mb-1"><strong class="text-dark mr-4">День рождения</strong> <span>@item.BirthDate.ToShortDateString() - @item.Age year</span></li>
-                                            <li class="mb-1"><strong class="text-dark mr-4">Мобильный</strong> <span>@item.Phone</span></li>
-                                            <li><strong class="text-dark mr-4">Почта</strong> <span>@item.Email</span></li>
-                                            <li><strong class="text-dark mr-4">Дата добавления</strong> <span>@item.DateCreated</span></li>
-                                            <hr/>
-                                    </form>
                                         }
+                                        else
+                                        {
+                                            <li><strong class="text-dark mr-4"><a asp-action="Restore"  class="btn btn-success" asp-controller="Account" asp-route-id="@Model.Id">Восстановить</a></strong></li>
+
+                                        }
+                                        @if (false && User.IsInRole("Admin"))
+                                        {
+                                            <li>
+                                                <div>
+                                                    <a asp-action="HardDelete" class="btn btn-danger" asp-controller="Account" asp-route-id="@Model.Id">Полностью удалить</a>
+                                                </div>
+                                                <div>Полностью удалить возможно только пользователя, у которого нет</div>
+                                           </li>
+
+                                        }
+
+                                    }
                                 </ul>
-                        </div>
-                            
-                           
+                            </div>
+                            <hr />
+                            <div>
+                                    <div style="display:flex; justify-content:space-between">
+                                        <h3>Дополнительные сведения</h3>
+                                        <form>
+                                            <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="BaseUserInfo" asp-route-userId="@Model.Id">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                        </div>
+                                    
+                                        <ul class="card-profile__info" style="zoom:80% ; background-color:aliceblue">
+                                            @foreach(var item in Model?.ConnectedUsersInfo.Where(x=>!x.IsBase).Select(x=>x.BaseUserInfo))
+                                            {
+                                                <form>
+                                                    <input type="hidden" name="userId" value="@Model.Id" />
+                                                    <input type="hidden" name="baseUserInfoId" value="@item.Id" />
 
-                        <div class="mt-5 mt-xl-6">
-                            <ul class="list-unstyled list-inline mb-0">
-                                <li class="list-inline-item me-3">
-                                    <a class="text-decoration-none" href="https://www.facebook.com/skills.hub2021">
-                                        <svg class="bi bi-facebook text-facebook" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                            <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"></path>
-                                        </svg>
-                                    </a>
-                                </li>
-                                <li class="list-inline-item me-3">
-                                    <a href="https://www.instagram.com/skills__hub/">
-                                        <svg class="bi bi-instagram text-instagram text-youtube" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                            <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"> </path>
-                                        </svg>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                                                    <li class="mb-1"><strong class="text-dark mr-4">Полное имя</strong> <div style="display:flex"><span>@item.FullName - @item.Sex</span> <input type="submit" class="btn btn-danger" asp-action="RemoveFromUser" asp-controller="BaseUserInfo"/></div></li>
+                                                    <li class="mb-1"><strong class="text-dark mr-4">День рождения</strong> <span>@item.BirthDate.ToShortDateString() - @item.Age year</span></li>
+                                                    <li class="mb-1"><strong class="text-dark mr-4">Мобильный</strong> <span>@item.Phone</span></li>
+                                                    <li><strong class="text-dark mr-4">Почта</strong> <span>@item.Email</span></li>
+                                                    <li><strong class="text-dark mr-4">Дата добавления</strong> <span>@item.DateCreated</span></li>
+                                                    <hr/>
+                                                </form>
+                                            }
+                                    </ul>
+                            </div>
+                        
+                            <div class="mt-5 mt-xl-6">
+                                <ul class="list-unstyled list-inline mb-0">
+                                    <li class="list-inline-item me-3">
+                                        <a class="text-decoration-none" href="https://www.facebook.com/skills.hub2021">
+                                            <svg class="bi bi-facebook text-facebook" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"></path>
+                                            </svg>
+                                        </a>
+                                    </li>
+                                    <li class="list-inline-item me-3">
+                                        <a href="https://www.instagram.com/skills__hub/">
+                                            <svg class="bi bi-instagram text-instagram text-youtube" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"> </path>
+                                            </svg>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
 
+                        </div>
+                    </div>
+
+                    <div>
+                        @await Html.PartialAsync("_UserStudentInfo", Model)
+                    </div>
+
+                    <div>
+                        @await Html.PartialAsync("_UserTeacherInfo", Model)
                     </div>
                 </div>
-
-
-
-                <div>
-                    @await Html.PartialAsync("_UserStudentInfo", Model)
-                </div>
-
-                <div>
-                    @await Html.PartialAsync("_UserTeacherInfo", Model)
-
-                </div>
-
-
-
-
-
-
             </div>
+        
+    
             <div class="col-lg-6 col-xl-7">
                 <nav class="navbar navbar-expand-lg bg-light">
                     <div class="container-fluid">
                         <div class=" navbar-collapse" id="navbarSupportedContent">
                             <ul style="display:inline-flex">
                                 <li class="nav-item">
-                                    <a type="button" class="nav-link active my-link" onclick="getAllGrops()" style="color:cornflowerblue">All</a>
+                                    <a type="button" class="nav-link active my-link" onclick="getAllGrops()" style="color:cornflowerblue">Все группы</a>
 
                                 </li>
                                 @if (Model.UserTeacher != null)
                                 {
                                     <li class="nav-item">
-                                        <a type="button" class="nav-link my-link" onclick="GetTeacherGroupsByUser()" style="color:cornflowerblue">Teacher</a>
+                                        <button class="nav-link my-link" onclick="GetTeacherGroupsByUser()" style="color:cornflowerblue">Учитель</button>
                                     </li>
                                 }
                                 @if (Model.UserStudent != null)
                                 {
                                     <li class="nav-item">
-                                        <a type="button" class="nav-link my-link" onclick="GetStudentGroupsByUser()" style="color:cornflowerblue">Student</a>
+                                        <button class="nav-link my-link" onclick="GetStudentGroupsByUser()" style="color:cornflowerblue">Ученик</button>
 
                                     </li>
                                 }
                                 <li>
                                     <select class="form-select" id="filterGroup">
                                         <option></option>
-                                        <option value="Yes">Completed</option>
-                                        <option value="No">Current</option>
+                                        <option value="Yes">Завершенные</option>
+                                        <option value="No">Текущие</option>
                                     </select>
                                 </li>
                             </ul>
@@ -310,35 +347,26 @@
 
                         <div class="d-flex justify-content-center">
                             <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                                <span class="visually-hidden">Загрузка...</span>
                             </div>
                         </div>
                     }
                 </div>
 
 
-                <div>
-
-
-
+                
 
                     <div id="teacherGroups">
                         @if (Model.UserTeacher != null)
                         {
                             <div class="d-flex justify-content-center">
                                 <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
+                                    <span class="visually-hidden">Загрузка...</span>
                                 </div>
                             </div>
                         }
                     </div>
-
-
-
-
-
-
-
+                
                     <!--
                           <div class="card">
                                   <div class="card-body">
@@ -436,12 +464,15 @@
                         </div>
                     </div>
                     -->
-                </div>
+                
             </div>
             <!-- #/ container -->
+        
         </div>
+    </div>
 
-        @await Html.PartialAsync("_AddTeacherToGroupModal", @Model)
+</div>
+        <!--await Html.PartialAsync("_AddTeacherToGroupModal", Model) -->
 
 
 
@@ -490,8 +521,6 @@
 
             getAllGrops();
 
-
-
             function getStudentsList() {
                 var studentsList = $("#studentSelect");
                 $.ajax({
@@ -514,8 +543,6 @@
                     }
                 });
             }
-
-
             function getFreeGroupsList() {
                 var studentsList = $("#groupsFreeList");
                 $.ajax({
@@ -542,7 +569,6 @@
                     }
                 });
             }
-
             function getCourcesList() {
                 var studentsList = $("#courcesList");
                 $.ajax({
@@ -565,7 +591,6 @@
                     }
                 });
             }
-
             function SaveLessonTypes() {
                 //Serialize the form datas.
                 var valdata = $("#lessonTypesForm").serialize();
@@ -579,8 +604,6 @@
                     data: valdata
                 });
             }
-
-
 
             const myModal = document.getElementById('myModal')
             const myInput = document.getElementById('myInput')

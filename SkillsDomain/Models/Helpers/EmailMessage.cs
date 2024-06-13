@@ -19,6 +19,8 @@ public class EmailMessage : BaseEntity
     [EmailAddress]
     public string? Email { get; set; } = "-";
 
+    public ApplicationUser? Sender { get; set; } public Guid? SenderId { get; set; }
+
     public DateTime DateCreated { get; set; }
 
 

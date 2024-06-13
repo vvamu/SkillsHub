@@ -1,0 +1,18 @@
+﻿@* @model List<LessonType>?
+@{
+    ViewData["Title"] = "Create";
+    var items = _context.LessonTypes.Where(x => !x.IsDeleted && x.IsActive && x.ParentId == null);
+}
+
+@foreach (var item in items.ToList())
+{
+    <li style="display:flex;align-items:center">
+        <div class="col-lg-2">
+            <input type='checkbox' class="form-control" name='itemValue' style='margin-right:5px;' value='@item.Id' />
+        </div>
+        <div class="col-lg-10">
+            <span>@item.DisplayName</span>
+        </div>
+    </li>
+    <hr />
+}   *@

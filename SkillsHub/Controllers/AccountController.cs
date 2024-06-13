@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using EmailProvider.Interfaces;
+using EmailProvider.Models;
 using MailKit.Search;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -27,10 +29,11 @@ public class AccountController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILessonService _lessonService;
     private readonly IApplicationUserBaseUserInfoService _applicationUserBaseUserInfoService;
+    private readonly IMailService _mailService;
 
     public AccountController(IUserService userService,
         ApplicationDbContext context, IMapper mapper, IGroupService groupService, ISalaryService salaryService
-        ,UserManager<ApplicationUser> userManager, ILessonService lessonService, IApplicationUserBaseUserInfoService applicationUserBaseUserInfoService)
+        ,UserManager<ApplicationUser> userManager, ILessonService lessonService, IApplicationUserBaseUserInfoService applicationUserBaseUserInfoService, IMailService mailService)
     {
         _userService = userService;
         _context = context;
@@ -40,6 +43,7 @@ public class AccountController : Controller
         _userManager = userManager;
         _lessonService = lessonService;
         _applicationUserBaseUserInfoService = applicationUserBaseUserInfoService;
+        _mailService = mailService;
 
     }
     #region Get
@@ -49,6 +53,7 @@ public class AccountController : Controller
     {
         //var users = await _userService.GetAllAsync();
         HttpContext.Session.SetString("page", "index");
+
         return View();
 
     }
@@ -64,17 +69,20 @@ public class AccountController : Controller
         if (user == null) user = await _userService.GetCurrentUserAsync();
         HttpContext.Session.SetString("page", "item");
 
-        if (user.UserTeacher != null)
+        try
         {
-            user.UserTeacher.CurrentCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher);
-            user.UserTeacher.TotalCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher, true);
+            if (user.UserTeacher != null)
+            {
+                user.UserTeacher.CurrentCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher);
+                user.UserTeacher.TotalCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher, true);
+            }
+            if (user.UserStudent != null)
+            {
+                user.UserStudent.CurrentCalculatedPrice = await _salaryService.GetStudentSalaryAsync(user.UserStudent);
+                user.UserStudent.TotalCalculatedPrice = await _salaryService.GetStudentSalaryAsync(user.UserStudent, true);
+            }
         }
-        if(user.UserStudent != null)
-        {
-            user.UserStudent.CurrentCalculatedPrice = await _salaryService.GetStudentSalaryAsync(user.UserStudent);
-            user.UserStudent.TotalCalculatedPrice = await _salaryService.GetStudentSalaryAsync(user.UserStudent,true);
-        }
-
+        catch (Exception ex) { }
 
         return View(user);
     }
@@ -87,7 +95,6 @@ public class AccountController : Controller
 
     public async Task<IActionResult> UsersTableList(UserFilterModel filters, OrderModel order)
     {
-        _context.BaseUserInfo.ToList();
         var users = await _userService.GetAllAsync();
         users = await FilterMaster.FilterUsers(users, filters,order);
         List<ApplicationUser> list = new List<ApplicationUser>();
@@ -141,12 +148,13 @@ public class AccountController : Controller
         
         try
         {
-            var u = await _applicationUserBaseUserInfoService.UpdateAsync(userCreateModel, null);
-            var c = await u.FirstOrDefaultAsync(x=>x.ApplicationUser.Login == userCreateModel.Login);
-            user = c?.ApplicationUser;
-        }
-        catch (Exception ex) {
-            try
+            if(userCreateModel.Id != Guid.Empty)
+            {
+                var u = await _applicationUserBaseUserInfoService.UpdateAsync(userCreateModel, null);
+                var c = await u.FirstOrDefaultAsync(x => x.ApplicationUser.Login == userCreateModel.Login);
+                user = c?.ApplicationUser;
+            }
+            else
             {
                 var u = await _applicationUserBaseUserInfoService.CreateAsync(userCreateModel, null);
                 user = u.ApplicationUser;
@@ -157,7 +165,9 @@ public class AccountController : Controller
                 }
                 if (userCreateModel.IsTeacher) return RedirectToAction("Create", "Teachers", new { id = user.Id });
             }
-            catch { ModelState.AddModelError("", ex.Message); return View(); }}
+            
+        }
+        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(userCreateModel); }
                 
         return RedirectToAction("Item", new { itemId = user.Id });
         //return View();
@@ -169,6 +179,28 @@ public class AccountController : Controller
 
     }
     */
+    public async Task<IActionResult> WorkingSchedule(Guid? id)
+    {
+        if (id == null) return View(await _context.Users.FirstOrDefaultAsync());
+        
+        var user = await _userService.GetUserByIdAsync((Guid)id);
+        return View(user);
+        
+    }
+
+    [Route("/Account/GetWorkingScheduleAsync")]
+
+    public async Task<IActionResult> GetWorkingScheduleAsync(Guid? id)
+    {
+        if (id == null) return View(await _context.Users.FirstOrDefaultAsync());
+
+        var user = await _userService.GetUserByIdAsync((Guid)id);
+        return Ok(user.UserWorkingDays ?? new List<UserWorkingDay>());
+
+    }
+
+
+
     public async Task<IActionResult> Restore(Guid id)
     {
         var user = await _userService.GetUserByIdAsync(id);
@@ -224,38 +256,84 @@ public class AccountController : Controller
         //return Json(JsonSerializerToAjax.GetJsonByIQueriable(notifications));
     }
 
+    [HttpGet]
+    [Route("/Account/GetEmails")]
+    public async Task<IActionResult> GetEmails(Guid? id)
+    {
+        List<EmailMessage> emails = new List<EmailMessage>();
+        List<SendingMessage> sending = new List<SendingMessage>();
+        var user = await _userService.GetCurrentUserAsync();
+
+
+        if (!User.IsInRole("Admin")) id = user.Id;
+        try
+        {
+
+
+            if (id != null && id != Guid.Empty)
+            {
+                emails = await _context.EmailMessages.Where(x => x.SenderId == id).ToListAsync();
+
+            }
+            else
+            {
+                emails = await _context.EmailMessages.ToListAsync();
+            }
+            if (emails.Count() == 0)
+            {
+                emails.Add(new SkillsHub.Domain.Models.EmailMessage() { SenderId = user.Id });
+            }
+        }
+        catch (Exception ex) { }
+        emails = emails.OrderByDescending(x => x.DateCreated).ToList();
+
+
+        return PartialView("_ChatAdmin", emails ?? new List<EmailMessage>());
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SendMessage(SendingMessage msg)
+    {
+        //await _mailService.SendEmailAsync(msg);
+        var user = await _userService.GetCurrentUserAsync();
+        var message = new SkillsHub.Domain.Models.EmailMessage() { Data = msg.Data, Email = msg.Email, Date = msg.Date, Name = msg.Name, Phone = msg.Phone, SenderId = user.Id };
+        if (message == null) throw new ArgumentNullException(nameof(message));
+        await _context.EmailMessages.AddAsync(message);
+        await _context.SaveChangesAsync();
+        return Ok(msg);
+    }
+
+
 
 
 
     [HttpPost]
     public async Task<IActionResult> GetStudentGroupsByUser(Guid id, GroupFilterModel filters, OrderModel order)
     {
-        var gr = _groupService.GetAll();
-        List<Group> res = new List<Group>();
-
-
         var user = await _userService.GetUserByIdAsync(id);
-        if (user.UserStudent == null) return PartialView("_StudentGroups", (user, res));
-       
-        var studentGroups = _groupService.GetAll().SelectMany(x=>x.GroupStudents)
-            .Where(x=>x.Student.ApplicationUser.Id == user.Id).Select(x=>x.Group).ToList();
-        
+        if (user.UserStudent == null) return PartialView("_StudentGroups", (user, new List<Group>(),new List<Lesson>()));
+
+        var groups = _context.GroupStudents.Where(x=>x.ParentId == null).Where(x=>x.StudentId == user.UserStudent.Id).Include(x=>x.Group).Where(x=>x.Group != null && !x.Group.IsDeleted).ToList();
+        List<Group> studentGroups = new List<Group>();
+        foreach(var gro in groups)
+        {
+            var group = await _groupService.GetAsync(gro.GroupId);
+            studentGroups.Add(group);
+        }
+
+
 
         var ress = await FilterMaster.FilterGroups(studentGroups.AsQueryable(), filters, order);
         var rerer = ress.ToList();
 
-        foreach (var group in rerer)
-            res.Add(await _groupService.GetAsync(group.Id));
-
-
-        var otherLessons = _lessonService.GetAll()
-            .Where(x => x.ArrivedStudents.Select(x => x.Id).Contains(user.UserStudent.Id))
-            .Where(x => !studentGroups.Select(x => x.Id).Contains(x.Group.Id));
+        var otherLessons = _context.LessonStudents.Where(x => x.ParentId != null).Where(x => x.StudentId == user.UserStudent.Id);//.Where(x=>)
+        /*var otherLessons = _lessonService.GetAll()
+            .Where(x => x.ArrivedStudents.Select(x => x.StudentId).Contains(user.UserStudent.Id))
+            .Where(x => !studentGroups.Select(x => x.Id).Contains(x.GroupId));*/
 
 
 
-
-        return PartialView("_StudentGroups", (user, res, otherLessons.ToList()));
+        return PartialView("_StudentGroups", (user, rerer, new List<Lesson>()));
 
     }
 
@@ -264,25 +342,27 @@ public class AccountController : Controller
     {
         var gr = _groupService.GetAll();
         var user = await _userService.GetUserByIdAsync(id);
-        List<Group> res = new List<Group>();
 
-        if (user.UserTeacher == null) return PartialView("_TeacherGroups", (user, res));
+        if (user.UserTeacher == null) return PartialView("_TeacherGroups", (user, new List<Group>(), new List<Lesson>()));
 
-        var teacherGroups = _groupService.GetAll().Include(x => x.Lessons).ThenInclude(x => x.ArrivedStudents).Where(x => x.GroupTeacher.Teacher.ApplicationUser.Id == id).ToList();
+        var groups = _context.GroupTeachers.Where(x => x.ParentId == null).Where(x => x.TeacherId == user.UserTeacher.Id).Include(x => x.Group).Where(x => x.Group != null && !x.Group.IsDeleted).ToList();
+        List<Group> teacherGroups = new List<Group>();
+        foreach (var gro in groups)
+        {
+            var group = await _groupService.GetAsync(gro.GroupId);
+            teacherGroups.Add(group);
+        }
 
-
-        //foreach (var group in teacherGroups)
-        //  res.Add(await _groupService.GetAsync(group.Id));
 
         var ress = await FilterMaster.FilterGroups(teacherGroups.AsQueryable(), filters, order);
         var result = ress.ToList();
-
+        /*
         var otherLessons = _lessonService.GetAll()
            .Where(x => x.Teacher.Id == user.UserTeacher.Id)
-           .Where(x => !teacherGroups.Select(x => x.Id).Contains(x.Group.Id)).ToList();
+           .Where(x => !teacherGroups.Select(x => x.Id).Contains(x.Group.Id)).ToList();*/
 
 
-        return PartialView("_TeacherGroups", (user, ress.ToList(), otherLessons));
+        return PartialView("_TeacherGroups", (user, result, new List<Lesson>()));
 
     }
 

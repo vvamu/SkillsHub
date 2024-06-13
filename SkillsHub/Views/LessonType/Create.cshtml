@@ -1,0 +1,423 @@
+﻿@using SkillsHub.Domain.BaseModels;
+@using SkillsHub.Domain.Models;
+@model LessonType;
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
+
+@{
+
+    var item = Model ?? new LessonType() ;
+    var formId = "form"+ item.Id.ToString();
+
+    var resText = "Создать";
+    bool isEdit = false;
+    if (item != null && item.Id != Guid.Empty) { resText = "Редактировать"; isEdit = true; }
+    resText += " тип занятия";
+}
+<style>
+
+    input[type="checkbox"] {
+        margin-right: 5px !important; /* Example margin */
+        margin-left: 0px !important;
+        padding-top: 15px !important;
+        padding-left: 12px !important;
+        background-color: #5da6d6 !important;
+    }
+
+        input[type="checkbox"]:disabled {
+            margin-right: 5px !important; /* Example margin */
+            margin-left: 0px !important;
+            padding-top: 15px !important;
+            padding-left: 12px !important;
+            background-color: #b2b2b2 !important;
+        }
+</style>
+
+<section class=" text-center " style="padding:0.7%">
+   <link href="~/css/style.css" rel="stylesheet">
+   <style>
+      .rounded-t-5 { 
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+      }
+      .rounded-bl-lg-5 {
+      border-bottom-left-radius: 0.5rem;
+      }
+      .my-background {
+      background-color:#F3F3F9 !important;
+      }
+      .col-form-label {
+      text-align:start;
+      }
+      .bootstrap-select{
+          width:100%
+      }
+
+
+
+
+        body {
+            padding: 15px;
+        }
+
+        .checkbox-menu li label {
+            display: block;
+            padding: 3px 10px;
+            clear: both;
+            font-weight: normal;
+            line-height: 1.42857143;
+            color: #333;
+            white-space: nowrap;
+            margin: 0;
+            transition: background-color .4s ease;
+        }
+
+        .checkbox-menu li input {
+            margin: 0px 5px;
+            top: 2px;
+            position: relative;
+        }
+
+        .checkbox-menu li.active label {
+            background-color: #cbcbff;
+            font-weight: bold;
+        }
+
+        .checkbox-menu li label:hover,
+        .checkbox-menu li label:focus {
+            background-color: #f5f5f5;
+        }
+
+        .checkbox-menu li.active label:hover,
+        .checkbox-menu li.active label:focus {
+            background-color: #b8b8ff;
+        }
+   </style> 
+   <div class="login-form-bg h-100">
+   <div class="container h-100">
+      <div class="row justify-content-center h-100" >
+         <div class="col-xl-10">
+            <div class="form-input-content">
+               <div class="card login-form mb-0">
+                  <div class="card-body pt-5">
+                  <form method="post">
+
+                  @if(Model !=null)
+                                    {
+                     <input type="hidden" asp-for="@item.Id" value="@item.Id" />
+                     <input type="hidden" asp-for="@item.IsDeleted" value="@item.IsDeleted" />
+
+                     <div class="text-center" style="min-height:80px; display:flex;justify-content:space-between"> 
+                        <h3>@resText  
+                        </h3>
+                        
+                        <div>
+                             
+                            <a asp-action="InstitutionSetting" asp-controller="CRM" style="font-weight:900;color:#7571f9">Назад</a>
+                            @if(isEdit)
+                            {
+                               <span>Последнее обновление: @item.DateCreated ;</span>
+                               <span>Группы: @item.GroupsCount </span>
+                               <span> | </span> 
+                               <input type="submit" class='@(item.IsDeleted ? "btn btn-info" : "btn btn-danger") ' asp-action="Remove" asp-controller="LessonType"  value="@(item.IsDeleted ? '◯' : 'Х')" style="height:50%;"/>
+                            }
+                       </div>
+                     </div>
+                  }
+                  else
+                  {
+                      <div class="text-center" style="min-height:80px; display:flex;justify-content:space-between"> 
+                      <h3>
+                        @resText 
+                        </h3>
+                        <a asp-action="InstitutionSetting" asp-controller="CRM" >Назад</a>
+                     </div>
+                  }
+                                    <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
+
+
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Активность<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                        <select asp-for="@item.IsActive" class="form-select">
+                                            @if(item.IsActive)
+                                            {
+                                                        <option value="true" selected>Активен</option> <!--'(!item.IsActive ? "Активен" : "Неактивен")' -->
+                                                        <option value="false">Неактивен</option>
+                                            }
+                                            else 
+                                            {
+                                                        <option value="true">Активен</option>
+                                                        <option value="false" selected>Неактивен</option>
+                                            }
+                                       
+                                        </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Курс<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <select class="form-select" asp-for="@item.CourseId">
+                                            @foreach(var course in _context.Courses.Where(x => !x.IsDeleted && x.ParentId == null).ToList())
+                                                {
+                                                    <option value="@course.Id">@course.DisplayName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Возрастная категория<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <select class="form-select" asp-for="@item.AgeTypeId">
+                                            @foreach(var course in _context.AgeTypes.Where(x => !x.IsDeleted && x.ParentId == null).ToList())
+                                                {
+                                                    <option value="@course.Id">@course.DisplayName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Групповая категория<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <select class="form-select" asp-for="@item.GroupTypeId">
+                                             @foreach(var course in _context.GroupTypes.Where(x => !x.IsDeleted && x.ParentId == null).ToList())
+                                                {
+                                                    <option value="@course.Id">@course.DisplayName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Место проведения<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <select class="form-select" asp-for="@item.LocationId">
+                                            @foreach(var course in _context.Locations.Where(x => !x.IsDeleted && x.ParentId == null).ToList())
+                                                {
+                                                    <option value="@course.Id">@course.DisplayName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Время 1 занятия в минутах<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <input class="form-control" asp-for="@item.LessonTimeInMinutes" min="10"  required />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Длительность курса<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-4">
+                                            <input class="form-control" asp-for="@item.DurationTypeValue" min="1"  required />
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <select class="form-select" asp-for="@item.DurationTypeName">
+                                                <option value="lesson" selected>Занятие</option>
+                                                <!--<option value="month" selected>Месяц</option>-->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Частота занятий<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-4" style="display:flex;align-content:center;justify-content:center">
+                                            <input class="form-control" asp-for="@item.FrequencyValue" min="1"  required />       
+                                        </div>
+                                        
+                                        <div class="col-lg-4">    
+                                            <select class="form-select" asp-for="@item.FrequencyName">
+                                                <option value="week" selected>В неделю</option>
+                                                <!--<option value="month" selected>Месяц</option>-->
+                                            </select>
+                                        </div>
+                                    </div>
+                                 <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Абонементы<span class="text-danger">*</span>
+                                        </label>
+                                       
+                                    
+                                    <div class="col-lg-6 col-form-label">
+                                         <div class="dropdown" >
+                                            <button class="btn btn-default dropdown-toggle" type="button"
+                                                    id="dropdownMenu1" data-toggle="dropdown"
+                                                    aria-haspopup="true" aria-expanded="true">
+                                                Выберите абонементы
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu checkbox-menu allow-focus" aria-labelledby="dropdownMenu1">
+                                                
+                                            @foreach (var pCat in _context.PaymentCategories.Where(x => !x.IsDeleted && x.ParentId == null).ToList())
+                                            {
+                                                <li>
+                                                    <label>
+                                                    @if(item.LessonTypePaymentCategory != null && item.LessonTypePaymentCategory.Select(x=>x.PaymentCategoryId).ToList().Contains(pCat.Id))
+                                                    {
+                                                        <input type="checkbox" name="paymentCategories" onclick="UpdateSelectValues()" value="@pCat.Id"  checked>
+                                                    }
+                                                    else{
+                                                        <input type="checkbox" name="paymentCategories" onclick="UpdateSelectValues()" value="@pCat.Id">
+                                                    }
+                                                        @pCat.DisplayName
+                                                    </label>
+                                                </li>                                 
+                                            }  
+                                            </ul>
+                                        </div>
+                                    </div>
+                                 </div>
+
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Название
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <input class="form-control" type="text" asp-for="@item.Name" placeholder="Взрослые - А1" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Описание
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <input class="form-control" type="text" asp-for="@item.Description" placeholder="Обучающиеся смогут начать читать, понимать и ..." />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Проверять при создании группы
+                                        </label>
+                                        
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-lg-4"> </div>
+                                        <div class="col-lg-1">
+                                            <input class="form-control" type="checkbox" asp-for="@item.CheckCountScheduleDays" />
+                                        </div>
+                                        <div class="col-lg-3">
+                                            Количество занятий в неделю 
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-lg-4"> </div>
+                                        <div class="col-lg-1">
+                                            <input class="form-control" type="checkbox" asp-for="@item.CheckGroupType" />
+                                        </div>
+                                        <div class="col-lg-3">
+                                           Количество учеников
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-lg-4"> </div>
+                                        <div class="col-lg-1">
+                                            <input class="form-control" type="checkbox" asp-for="@item.CheckAgeType" />
+                                        </div>
+                                        <div class="col-lg-3">
+                                            Возраст учеников
+                                        </div>
+                                    </div>
+
+                                    <input type="submit" asp-action="Create" asp-controller="LessonType" formmethod="post" class="btn login-form__btn submit w-100" value="@resText" />
+                                 </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@if (isEdit && Model.Parents != null && Model.Parents?.Count() != 0)
+{
+    <section style="padding-top:0%">
+        <div class="login-form-bg h-100">
+            <div class="container h-100">
+                <div class="row justify-content-center h-100">
+                    <div class="col-xl-10">
+                        <div class="form-input-content">
+                            <div class="card login-form mb-0">
+                                <div class="card-body pt-5">
+                                    @foreach (var par in Model.Parents)
+                                    {
+                                        <div class="col" style="background-color:rgb(117 113 249 / 30%)">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div>
+                                                        <!--HEADER LESSON-->
+                                                        <div class="row">
+                                                            @{
+                                                                string modifiedString = par.DisplayName.Replace(";", ";\n") + "\n" + @par.DateCreated;
+                                                             }
+                                                            <div>@modifiedString</div>
+                                                           
+                                                        </div>
+                                                        @{
+                                                            var payments = @par?.LessonTypePaymentCategory?.Select(x=>x.PaymentCategory).ToList();
+                                                        }
+                                                        <div>Абонементы:</div>
+                                                        @if(payments != null && payments.Count() > 0)
+                                                        {
+                                                            @foreach (var pay in payments)
+                                                            {
+                                                                <div>@pay.DisplayName</div>
+                                                            }
+                                                        }
+
+                                                        <div>Группы: @par.GroupsCount</div>
+                                                        
+                                                       
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<script>
+    $(".checkbox-menu").on("change", "input[type='checkbox']", function () {
+        $(this).closest("li").toggleClass("active", this.checked);
+    });
+
+    $(document).on('click', '.allow-focus', function (e) {
+        e.stopPropagation();
+    });
+
+    function UpdateSelectValues() {
+        let selectedCategories = "";
+        $("input[name='paymentCategories']:checked").each(function () {
+            let categoryDisplayName = $(this).closest('li').find('label').text().trim();
+            selectedCategories += categoryDisplayName + "\n";
+        });
+
+        // If no items are selected, display the default text
+        if (selectedCategories === "") {
+            $("#dropdownMenu1").text("Выберите абонементы");
+        } else {
+            $("#dropdownMenu1").text(selectedCategories);
+        }
+    }
+    UpdateSelectValues();
+</script>

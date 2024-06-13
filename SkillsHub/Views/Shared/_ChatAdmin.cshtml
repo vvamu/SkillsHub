@@ -1,0 +1,93 @@
+﻿
+
+@model List<EmailMessage>?;
+
+    <div class="chat-window" style="margin-right:10%">
+        <div>
+            <div class="panel panel-primary">
+                <div class="panel-heading" id="accordion" style="display:flex;justify-content:space-between;padding:5%">
+                    <h3>Почта</h3>
+
+                    <!--
+                    <div class="btn-group">
+                        <a type="button" class="btn btn-primary" onclick="toggleCollapse()">
+                          collapse 
+                            <span class="glyphicon glyphicon-chevron-down"></span>
+                        </a>
+                    </div>
+                    -->
+                </div>
+                <div class="panel-collapse " id="collapseOne">
+                    <!--collapse-->
+                    <div class="panel-body" style="padding:0px 5%">
+                    <ul class="chat" id="notificationsAdmin">
+                       <!-- <li style="text-align:center"><a style="font-weight:600;text-align:center">Load all</a></li>-->
+                        @if(Model != null && Model.Count() != 0)
+                    {
+                        @foreach(var not in Model)
+                        {
+                            <li class="left clearfix" style="margin-bottom:15%">
+                                <span class="chat-img pull-left">
+                                    <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
+                                </span>
+                                <div class="chat-body clearfix">
+                                    <div>
+                                        <strong class="primary-font">Administator</strong> <small class="pull-right text-muted">
+                                            <span class="glyphicon glyphicon-time"></span>@not.DateCreated.ToShortTimeString() @if(not.DateCreated.Date != DateTime.Now.Date) {<span>@not.DateCreated.ToShortDateString()</span>}
+                                        </small>
+                                    </div>
+                                    <p>
+                                        @not.Data
+                                    </p>
+                                </div>
+                            </li>
+                        }
+                    }
+                    </ul>
+                        <div class="panel-footer">
+                            <div class="input-group">
+                                <form method="post" role="form" class="php-email-form" data-aos="fade-up" data-aos-delay="100" id="sendMessage">
+                                    
+                                    <div class="row gy-4">
+                                        <div>
+                                            <input type="text" class="form-control" name="Name"  placeholder="Ваше имя*" data-rule="minlen:4" data-msg="Please enter at least 4 chars" required>
+                                            <div class="validate"></div>
+                                        </div>
+                                        <div >
+                                            <input type="text" class="form-control"  name="Phone"  placeholder="Ваш телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
+                                            <div class="validate"></div>
+                                        </div>
+                                        <div >
+                                            <input type="email" class="form-control"  name="Email" placeholder="Ваша почта">
+                                            <div class="validate"></div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mt-3">
+                                        <textarea class="form-control" name="Data" rows="5"  placeholder="Сообщение*" data-rule="minlen:4" data-msg="Please enter at least 4 chars" rows="4" cols="50" style="max-height:400px" required></textarea>
+                                        <div class="validate"></div>
+                                    </div>
+                                    <div class="text-center " style="margin-top: 10%; align-items:start; display:flex;gap:10px; ">
+                                        <input type="button" onclick="SendMessage()" value="Отправить сообщение" class="btn btn-primary"/>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    <!--await Html.PartialAsync("_EmailMessage.cshtml" )-->
+                       
+
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+<script>
+    
+
+        
+</script>

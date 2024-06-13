@@ -26,15 +26,21 @@ public class TeachersController : Controller
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly INotificationService _notificationService;
+    private readonly IUserRoleModelService<Teacher> _teacherService;
+    private readonly IGroupService _groupService;
 
     public TeachersController(IUserService userService, 
         ApplicationDbContext context, UserManager<ApplicationUser> userManager
-        ,INotificationService notificationService)
+        ,INotificationService notificationService
+        ,IUserRoleModelService<Teacher> teacherService
+        ,IGroupService groupService)
     {
         _userService = userService;
         _context = context;
         _userManager = userManager;
         _notificationService = notificationService;
+        _teacherService = teacherService;
+        _groupService = groupService;
     }
 
     [Authorize(Roles = "Admin")]
@@ -59,6 +65,7 @@ public class TeachersController : Controller
         return item;
     }
 
+    /*
 
     [HttpGet]
     public async Task<IActionResult> Create(Guid id)
@@ -72,24 +79,24 @@ public class TeachersController : Controller
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null) throw new Exception("We can't create Teacher without User. User not found."); //if (user == null) user = await _userService.GetCurrentUserAsync();
 
-            var teacher = _context.Teachers.Include(x=>x.ApplicationUser).Include(x=>x.PossibleCources).FirstOrDefault(x=>x.ApplicationUser.Id==id) ?? new Teacher();
-            var possibleCourses = await _context.Teachers.Where(x => x.ApplicationUserId == user.Id).SelectMany(x => x.PossibleCources).ToArrayAsync();
-            ViewBag.PossibleCourses = possibleCourses;
+            var possibleCourses = await _context.Teachers.Where(x => x.ApplicationUserId == user.Id).SelectMany(x => x.PossibleCources).ToListAsync();
+            var teacher = _context.Teachers.Include(x => x.ApplicationUser).Include(x => x.PossibleCources).FirstOrDefault(x => x.ApplicationUser.Id == id) 
+                ?? new Teacher() { ApplicationUserId = id , PossibleCources = possibleCourses};
             teacher.ApplicationUserId = id;
-            return View(teacher);
+            
+            return View(teacher ?? new Teacher() { ApplicationUserId = id});
         }
         catch (Exception ex) {
             var a = HttpContext.Request.PathBase;
             var user = await _userService.GetCurrentUserAsync();
 
             if(user == null) return View("Index");
-            return View();
-
+            return View(new Teacher() { ApplicationUserId = id });
         }
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Teacher item, Guid[] itemValue, string[] workingDay)
+    public async Task<IActionResult> Create(Teacher item, Guid[] lessonTypeId) //, string[] workingDay
     {
         try
         {
@@ -113,7 +120,7 @@ public class TeachersController : Controller
             #endregion
 
             #region WorkingDays
-            item.WorkingDays = String.Join("-", workingDay);
+            //item.WorkingDays = String.Join("-", workingDay);
             _context.Teachers.Update(item);
             await _context.SaveChangesAsync();
             #endregion
@@ -143,87 +150,102 @@ public class TeachersController : Controller
 
         return RedirectToAction("Item", "Account", new { itemId = item.ApplicationUserId, id = item.ApplicationUserId });
     }
-    public IActionResult Edit()
-    {
-        return View();
-    }
-    public IActionResult Delete()
-    {
-        return RedirectToAction("Index");
-    }
+    */
 
     [HttpGet]
-    [Route("/Teachers/GetTeachersAsync")]
-    public async Task<IActionResult> GetAllTeachers()
+    public async Task<IActionResult> Create(Guid id, bool isEdit = false)
     {
-        var items = _userService.GetAllTeachers().ToList().AsQueryable().Where(x=>x.IsDeleted == false).ToList();
-
-        var res = new List<Teacher>();
-        foreach(var i in items)
-        {
-            if (await _userManager.IsInRoleAsync(i.ApplicationUser, "Teacher"))
-                res.Add(i);
-        }
-        
-
         try
         {
-            var p = HttpContext.Request.QueryString.Value ?? "";
-            p = p.Substring(1); // Remove '?'
-            var queryString = System.Web.HttpUtility.UrlDecode(p);
+            var user = await _context.ApplicationUsers.FindAsync(id) ?? await _userService.GetCurrentUserAsync();
+            Teacher teacher = new Teacher();
+            HttpContext.Session.SetInt32("isEdit", Convert.ToInt16(isEdit));
+            var dbTeacher2 = await _context.Teachers.FirstOrDefaultAsync(x => x.ApplicationUserId == user.Id);
 
-            // Deserialize the JSON string
-            var jsonObject = JObject.Parse(queryString);
-            var filterModel = jsonObject["TeachersFilterModel"].ToObject<TeacherFilterModel>();
-            var orderModel = jsonObject["TeachersOrderModel"].ToObject<TeacherOrderModel>();
-            var a = "";
+            if (user.UserTeacher == null && dbTeacher2 == null) { teacher = await _teacherService.CreateAsync(new Teacher() { ApplicationUserId = user.Id }, new Guid[0]); return View(teacher);}
+             teacher = await _teacherService.GetAsync(dbTeacher2.Id);
+            return View(teacher);
+        }
+        catch (Exception)
+        {
+            var user = await _userService.GetCurrentUserAsync();
 
-            //items = await FilterMaster.GetAllTeachers(items, filterModel, orderModel);
-
-            // Convert the values to StudentFilterModel object
-            /*
-            var filterModel = new StudentFilterModel
-            {
-                ParentName = jsonObject.filters.ParentName ?? string.Empty,
-                PossibleCourse = jsonObject.filters.PossibleCourse ?? string.Empty,
-                MinDateCreated = jsonObject.filters.MinDateCreated ?? default(DateTime)
-            };
-            */
-
-            //var result = ParseQueryString(p);
+            if (user == null) return View("Index");
+            return View(new Teacher() { ApplicationUserId = id });
 
 
         }
-        catch (Exception ex) { }
-
-        return Json(JsonSerializerToAjax.GetJsonByIQueriable(res.AsQueryable()));
     }
 
-    
-
-
-        public async Task<IActionResult> Activate(Guid id,Guid userId)
+    [HttpPost]
+    public async Task<IActionResult> Create(Teacher item, Guid[] lessonTypeId) // string[]? workingDay , itemValue = courceName
     {
-        var currentUser = _context.ApplicationUsers.FirstOrDefault(x => x.UserName == User.Identity.Name);
-        if (id == Guid.Empty) RedirectToAction("Create", new { id = currentUser.Id });
-        var item = await _context.Teachers.Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.Id == id) ?? new Teacher() { ApplicationUserId = id};
-        
-        if (await _userManager.IsInRoleAsync(item.ApplicationUser, "Teacher"))
+        Teacher teacher = await _context.Teachers.FindAsync(item.Id);
+        ApplicationUser user = await _context.ApplicationUsers.FindAsync(item.ApplicationUserId);
+        try
         {
-            item.IsDeleted = true;
-            await _userManager.RemoveFromRoleAsync(item.ApplicationUser, "Teacher");
+            if (teacher == null)
+            {
+                teacher = await _teacherService.CreateAsync(item, lessonTypeId);
+            }
+            else
+            {
+                teacher = await _teacherService.UpdateAsync(item, lessonTypeId);
+            }
+        }
+        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(item); }
+
+        /*
+            if (!User.IsInRole("Admin"))
+            {
+                var message = "User in teacher account " + User.Identity.Name + " tried to change payment amount ";
+                await _notificationService.Create(message,null);
+                await _userService.SignOutAsync();
+                throw new Exception("An attempt was made to fix a field that is only accessible to the administrator. The request has been sent to the appropriate place");
+
+                //return RedirectToAction("Index", "Home");
+
+            }
+        */
+
+
+        var isTeacher = HttpContext.Session.GetString("isTeacher");
+        HttpContext.Session.Remove("isEdit");
+        if (isTeacher == "true")
+        {
+
+            return RedirectToAction("Create", "Teachers", new { id = user.Id });
+        }
+        else if (HttpContext.Session.GetInt32("isEdit") == 0)
+        {
+            return RedirectToAction("Create", "BaseUserInfo", new { userId = user.Id });
         }
         else
         {
-            item.IsDeleted = false;
-            await _userManager.AddToRoleAsync(item.ApplicationUser, "Teacher");
+            return RedirectToAction("Item", "Account", new { userId = user.Id, id = user.Id });
         }
-
-        _context.Teachers.Update(item);
-        await _context.SaveChangesAsync();
-        return RedirectToAction("Item", "Account", new { itemId = item.ApplicationUserId, id = item.ApplicationUserId });
-
     }
 
+    [Route("/Teachers/GetAsync")]
+    public async Task<IActionResult> GetAsync(Guid? lessonTypeId, Guid? groupId)
+    {
+        if (groupId != null && groupId != Guid.Empty)
+        {
+            var group = await _groupService.GetAsync((Guid)groupId);
+            return Ok(group.GroupTeachers?.Select(x => x.Teacher));
+        }
+        var items = await _teacherService.GetAllAsync();
+        if (lessonTypeId != null && lessonTypeId != Guid.Empty)
+        {
+            var res = items.ToList();
+            var rs = res.Where(x => x.CurrentPossibleCourses != null && x.CurrentPossibleCourses.Select(x => x.LessonTypeId).ToList().Contains((Guid)lessonTypeId)).ToList();
+            return Ok(rs);
+        }
+
+        //items = items.Where(x => !x.IsDeleted);
+        
+        var result = await items.ToListAsync();
+        return Ok(result ?? new List<Teacher>());
+    }
 
 }

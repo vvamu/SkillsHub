@@ -58,7 +58,6 @@ public class HomeController : Controller
 
 
     [HttpPost]
-
     public async Task<IActionResult> SendMessage(SendingMessage msg)
     {
         #region ViberMessage
@@ -108,6 +107,9 @@ await _mailer.SendMessage();
 
          return Redirect("~/thanks");
     }
+
+
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

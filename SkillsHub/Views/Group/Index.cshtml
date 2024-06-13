@@ -22,41 +22,15 @@
     .search-select {
         min-width: 30px
     }
+
+    .nav-item {
+        zoom : 80%
+    }
 </style>
 
 
 <div>
     <div>
-
-        <div class="row page-titles mx-0">
-            <div class="col p-md-0">
-                <ol class="breadcrumb" style="display:flex;align-items:center">
-                    <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                    <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
-                    <form>
-                        <li>
-                                    @if (User.IsInRole("Admin"))
-                                    {
-                                <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" asp-action="Create" asp-controller="Group">
-                                    Create new
-                                </button>
-                                    }
-                                    <!--if (User.IsInRole("Teacher"))
-                                    {
-                                <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" asp-action="Create" asp-controller="Group">
-                                    Request to create new
-                                </button>
-                                    }-->
-
-                            <!--<a class="dropdown-item" asp-action="Create" asp-controller="Account"></a>-->
-
-                        </li>
-                    </form>
-                </ol>
-            </div>
-        </div>
-
-
         <!--NAVBAR - Search, Filter, Sort-->
 
         <nav class="navbar navbar-expand-lg bg-light">
@@ -67,24 +41,14 @@
                         <div class="col col-10">
                             <div class="" style="display:flex;grid-gap:10px;flex-wrap:wrap">
                                <div class="" style="display:flex;grid-gap:10px;flex-wrap:wrap">
-                                    <div class="nav-item">
-                                        <div class="input-group icons">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
-                                            </div>
-
-
-                                            <input type="search" onkeypress="getGroups()" id="filter-name" class="form-control search-input" placeholder="Search by group name" />
-
-                                        </div>
-                                    </div>
+                                   
 
                                     <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Status:</p>
+                                        <p style="white-space:nowrap">Статус:</p>
                                         <select class="form-control search-select" id="filter-isDeleted" name="val-skill" onchange="getGroups()">
                                             <option selected></option>
-                                            <option value="Yes">Not active</option>
-                                            <option value="No">Active </option>
+                                            <option value="Yes">Не активны</option>
+                                            <option value="No">Активны </option>
                                         </select>
                                     </div>
                                     <!--
@@ -107,11 +71,11 @@
                                     -->
 
                                     <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Start time type:</p>
+                                        <p style="white-space:nowrap">Время начала:</p>
                                         <select class="form-control search-select" id="filter-time-start" name="val-skill" onchange="getGroups()">
                                             <option value="" selected></option>
-                                            <option value="Yes">Time is defined</option>
-                                            <option value="No">Time not defined</option>
+                                            <option value="Yes">Время определено</option>
+                                            <option value="No">Время не определено</option>
                                         </select>
                                     </div>
                                   
@@ -126,7 +90,7 @@
                                     </div>
 
                                     <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Lesson type:</p>
+                                        <p style="white-space:nowrap">Категория занятий:</p>
 
                                         <select class="form-control search-select" id="filter-lesson-type-id" name="val-skill" onchange="getGroups()">
                                             <option value="" selected></option>
@@ -136,15 +100,15 @@
 
 
                                     <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p>Category:</p>
+                                        <p>Курс:</p>
 
                                         <select class="form-control search-select" id="filter-course-name-id" name="val-skill" onchange="getGroups()">
                                             <option value="" selected></option>
                                             @if (_context.Courses != null)
                                             {
-                                                foreach (Course item in _context.Courses.Where(x => x.IsDeleted == false))
+                                                foreach (Course item in _context.Courses.Where(x => !x.IsDeleted && x.ParentId == null))
                                                 {
-                                                    <option value="@item.Id">@item.Name</option>
+                                                    <option value="@item.Id">@item.DisplayName</option>
                                                 }
                                             }
                                         </select>
@@ -154,18 +118,26 @@
                                         <p style="white-space:nowrap">Сортировать по:</p>
                                         <select class="form-control search-select" id="sort-select" name="val-skill" onchange="getGroups()">
                                             <option value="" selected></option>
-                                            <option value="DateCreated">Времени создания</option>
+                                            <option value="DateRegistration">Времени создания</option>
                                             <option value="DateStart">Времени запуска</option>
                                         </select>
                                     </div>
                                     <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                        <p style="white-space:nowrap">Order type:</p>
+                                        
                                         <select class="form-control  search-select " id="sort-select-type" onchange="getGroups()">
                                             <option value="asc" selected>↑</option>
                                             <option value="desc">↓</option>
                                         </select>
                                     </div>
+                                    <div class="nav-item">
+                                        <div class="input-group icons">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
+                                            </div>
+                                            <input type="search" onkeypress="getGroups()" id="filter-name" class="form-control search-input" placeholder="Поиск по имени группы" />
 
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -173,8 +145,25 @@
                         <div class="col">
                             <div>
                                 <!--<div class="nav-item"> <input type="button" onchange="resetSearch()" value="Reset" class="form-control btn btn-primary search" /></div>-->
-                                <div class="nav-item"><input type="button" onclick="getGroups()" value="Search" class="form-control btn btn-primary search" /></div>
+                                <div class="nav-item" style="margin-bottom:5px"><input type="button" onclick="getGroups()" value="Поиск" class="form-control btn btn-outline-warning search" /></div>
+                                <div class="nav-item" style="margin-bottom:5px">
+                                    <form>
+                                        
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <button type="submit" class="form-control btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" asp-action="Create" asp-controller="Group">Создать</button>
+                                            }
+                                            <!--if (User.IsInRole("Teacher"))
+                                                {
+                                            <button type="submit" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" asp-action="Create" asp-controller="Group">
+                                                Request to create new
+                                            </button>
+                                                }-->
+                                            <!--<a class="dropdown-item" asp-action="Create" asp-controller="Account"></a>-->
 
+                                        
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -182,10 +171,10 @@
                 </div>
             </div>
         </nav>
-        <div id="allGroups">
+        <div id="allGroups" >
             <div class="d-flex justify-content-center">
                 <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">Загрузка...</span>
                 </div>
             </div>
         </div>
@@ -254,4 +243,59 @@
     function GetCreateModal() {
         $("#partialZone").load("/Group/GetCreateModal");
     }
+
+
+    function GetLessonTypes() {
+
+        filters_LessonType = {
+           
+            IsDeleted: '-'
+
+        }
+        orders = {
+            OrderColumn: "Id",
+            OrderType: "asc",
+        }
+
+        var valData = { filters: filters_LessonType, order: orders };
+        $.ajax({
+            url: '/LessonType/OptionsList',
+            type: 'GET',
+            data: valData,
+            success: function (data) {
+                $("#filter-lesson-type-id").empty(); // Clear the select element
+                var firstOptionAdded = false;
+                data.forEach(function (item) {
+
+
+                    // Check if DisplayName is defined before extracting substring
+                    if (item.displayName && item.displayName.indexOf(';') !== -1) {
+
+
+                        var option = $('<option ' + 'title="' + item.displayName + '" ' + 'value="' + item.id + '" >').text(item.status + " - " + item.name + " - " + item.durationText + " - " + item.check);
+
+                        // Check if displayName includes "Не активен" before disabling the option
+                        if (item.displayName.includes("Не активен")) {
+                            option.prop('disabled', true);
+                        }
+                        if (!firstOptionAdded) {
+                            option.attr('selected', 'selected');
+                            firstOptionAdded = true;
+                        }
+                        $("#filter-lesson-type-id").append(option);
+                    } else {
+                        console.error("Missing or invalid displayName for item:", item);
+                    }
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        }).then(() => {
+
+        })
+
+    }
+
+    GetLessonTypes();
 </script>

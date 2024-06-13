@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace SkillsHub.Domain.Models;
 
-public class GroupTeacher  : BaseEntity
+public class GroupTeacher  : LogModel<GroupTeacher>
 {
     public Guid GroupId { get; set; }
     public Group Group { get; set; }
@@ -11,7 +11,12 @@ public class GroupTeacher  : BaseEntity
     public Guid TeacherId { get; set; }
 
     [DefaultValue("CONVERT(datetime, GETDATE())")]
-    public DateTime DateAdd { get; set; }
+    public DateTime DateAdd { get; set; } = DateTime.Now;
 
-
+    public override bool Equals(object obj)
+    {
+        var other = obj as GroupTeacher;
+        if (other == null) return false;
+        return true;
+    }
 }

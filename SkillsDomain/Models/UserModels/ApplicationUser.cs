@@ -20,27 +20,32 @@ public class ApplicationUser : IdentityUser<Guid>
     [DefaultValue("A1")]
     public string? EnglishLevel { get; set; } = "A1";
 
-    
 
     public string? SourceFindCompany { get; set; }
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     [DefaultValue("CONVERT(date, GETDATE())")]
-    public DateTime? RegistrationDate { get; set; }
+    public DateTime? RegistrationDate { get; set; } = DateTime.Now;
+
     public List<ExternalConnection>? ExternalConnections { get => UserInfo?.ExternalConnections; }
     public List<NotificationUser>? Notifications { get; set; }
+    public List<UserWorkingDay>? UserWorkingDays { get; set; }
+
+    public string OwnHashedPassword { get; set; }
+    [DefaultValue("0")]
+    public bool IsDeleted { get; set; } = false;
+    [ForeignKey("UserTeacherId")] public virtual Teacher? UserTeacher { get; set; }   public Guid? UserTeacherId { get; set; }
+    [ForeignKey("UserStudentId")] public virtual Student? UserStudent { get; set; }  public Guid? UserStudentId { get; set; }
 
 
     #region NotMapped
 
+    [NotMapped]
+    public string? Roles { get; set; }
 
     [NotMapped]
     public string? Password { get; set; } //?
-    public string OwnHashedPassword { get; set; }
-    [DefaultValue("0")]
-    public bool IsDeleted { get; set; } = false;
-    public virtual Teacher? UserTeacher { get; set; }
-    public virtual Student? UserStudent { get; set; }
+    
     [DefaultValue("0")]
     public bool IsVerified { get; set; } = false; //need to del
 

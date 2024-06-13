@@ -1,43 +1,84 @@
 ﻿@using SkillsHub.Application.DTO;
 @using SkillsHub.Domain.Models;
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
 @model Group;
+@{
+    var group = Model ?? new Group();
+    var isCanEditProperties = group == null;
+    if(group != null)
+    {
+        isCanEditProperties =  group.Id == Guid.Empty || group.Lessons == null || (group.Lessons != null && group.Lessons.Count() == 0) ;
+    }
+}
+
+<style>
+
+    input[type="checkbox"] {
+        margin-right: 5px !important; /* Example margin */
+        margin-left: 0px !important;
+        padding-top: 15px !important;
+        padding-left: 12px !important;
+        background-color: #5da6d6 !important;
+    }
+
+        input[type="checkbox"]:disabled {
+            margin-right: 5px !important; /* Example margin */
+            margin-left: 0px !important;
+            padding-top: 15px !important;
+            padding-left: 12px !important;
+            background-color: #b2b2b2 !important;
+        }
+
+        .search {
+        border-color:#ededed;
+        border-radius : 10px;
+    }
+
+</style>
+
 <!-- Модальное окно -->
-<form class="mt-1 mb-5 login-input" method="post">
+<form class="mt-1 mb-5 login-input" method="post" style="zoom:120%">
     <div class="container-fluid">
         <div class="row">
             <div class="col">
                 <div class="card">
                     <div class="card-body">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
                         @if (Model != null)
                         {
-                            <h2>Edit group</h2>
-                            var options = new System.Text.Json.JsonSerializerOptions
-                {
-                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
-                };
-                            try
-                            {
-                                <input type="hidden" id="studentsByGroup" value="@System.Text.Json.JsonSerializer.Serialize(@ViewBag.studentsByGroup, options)" />
-                            }
-                            catch (Exception ex) { }
+                            <div>
+                            <div style="display:flex;align-items:center;grid-gap:2px">
+                                <h2>Редактирование группы </h2>
+                                <span>@Model.DateCreated</span>
+                            </div>
+                            <span style="color:#979797">Редактирование большинства полей возможно только при отсутсвии занятий</span>
+                            </div>
+                            <input type="hidden" asp-for="Id" />
+                            <input type="hidden" asp-for="IsDeleted"/>
+                             <a asp-action="Item" asp-controller="Group" asp-route-id="@Model.Id" style="font-weight:900;color:#7571f9">Назад</a>
                         }
                         else
                         {
-                            <h2>Create new group</h2>
+                            <h2>Создать новую группу</h2>
+                             <a asp-action="Index" asp-controller="Group" style="font-weight:900;color:#7571f9">К группам</a>
+
                         }
-                        <div class="validation" asp-validation-summary="ModelOnly"></div>
-                        <div class="form-group ">
+                       
+                        </div>
+                        <div class="validation" asp-validation-summary="ModelOnly" style="color:red;font-weight:700"></div>
+                        <!--Name-->
+                        <div class="form-group " style="margin-bottom:0px">
                             <label class=" col-form-label" for="val-skill">
-                                <h4>Name<span classtext-danger">*</span></h4>
+                                <h4>Имя <span class="text-danger">*</span></h4>
                             </label>
-                            <input asp-for="Name" type="text" class="form-control" placeholder="For example - Morning group*" required />
+                            <input asp-for="Name" type="text" class="form-control" placeholder="Утренняя группа*" required />
                             <div class="validate"></div>
                             <div class="invalid-feedback">
-                                Please choose a name.
+                                Выберите имя
                             </div>
                         </div>
                         <br />
-
+                        <!--
                         <h4>Lessons count <span class="text-danger">*</span></h4>
                         <div style="display:flex;grid-gap:10px">
                             <input class="form-control" type="number" asp-for="LessonsCount" min="1" max="50" id="lessonsCount" style="margin-right:10%" />
@@ -47,16 +88,155 @@
                                 <span style="color:lightseagreen">For unlimited count lessons</span>
                             </div>
                         </div>
+                        -->
                         <br />
+                        <!--LessonType-->
+                        <div class="form-group ">
+                            <label class=" col-form-label" style="display:flex;align-items:baseline">
+                                <h4>Категория занятий <span class="text-danger">*</span>  </h4>
+                                <span style="color:#979797;font-size:small"> (для просмотра дополнительной информации наведите на элемент)</span>
+                            </label>    
+                            <div style="display:flex;margin:10px">
+                                @if (isCanEditProperties)
+                                {
+                                    <select class="form-control" id="lessonType-select" onchange="SelectLessonType()" asp-for="LessonTypeId" ></select>
+                                    <button type="button" onclick="GetLessonTypes()" class="btn btn-primary" style="zoom:60%">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                        </svg>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <select class="form-control" id="lessonType-select" onchange="GetPayments()" asp-for="LessonTypeId" disabled></select>
+                                    <button type="button" onclick="GetLessonTypes()" class="btn btn-primary" style="zoom:60%" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                        </svg>
+                                    </button>
+                                }
+                               
+                            </div>
+                        </div>
+
+                        <!--PaymentCategory-->
                         <div class="form-group ">
                             <label class=" col-form-label" for="val-skill">
-                                <h3>Lesson type <span class="text-danger">*</span></h3>
+                                <h4>Тип оплаты <span class="text-danger">*</span></h4>
                             </label>
 
                             <div style="display:flex;margin:10px">
-                                <select class="form-control" id="lessonType-select" onchange="GetLessonTypes()">
+                                 @if (isCanEditProperties)
+                                {
+                                    <select class="form-control" id="paymentCategory-select" asp-for="PaymentCategoryId">
+                                        <!--
+                                        if(group != null && group.PaymentCategory != null)
+                                        {
+                                            <input value="group.PaymentCategoryId" selected>Выбрано - group.PaymentCategory.DisplayName</input>
+                                        }
+                                        <option>Первоначально выберите категорию занятий</option>
+                                        -->
+                                    </select>
+                                    <button type="button" onclick="GetPayments()" class="btn btn-primary" style="zoom:60%">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                        </svg>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <select class="form-control" id="paymentCategory-select" asp-for="PaymentCategoryId" disabled>
+                                        <option>Первоначально выберите категорию занятий</option>
+                                        
+                                    </select>
+                                    <button type="button" onclick="GetPayments()" class="btn btn-primary" style="zoom:60%" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                        </svg>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        <!--EnglishLevel-->
+                        <div class="form-group ">
+                            <label class=" col-form-label" for="val-skill">
+                                <h4>Уровень английского <span class="text-danger">*</span></h4>
+                            </label>
+
+                            <div style="display:flex;margin:10px">
+                                <select class="form-control" asp-for="EnglishLevel">
+                                    @{
+
+                                        var englishLevels = new List<string>() {"A1", "A1.2", "A2", "B1", "B2", "C1", "C2"};
+                                                        @foreach (var i in englishLevels)
+                                        {
+                                            if (group?.EnglishLevel != null)
+                                            {
+                                                var selected = (group.EnglishLevel == i) ? "selected" : "";
+                                                var style = (group.EnglishLevel == i) ? "color:#ff00cf; font-size:medium" : "";
+                                                                <option value="@i" class="@selected" style="@style">@i</option>
+                                            }
+                                            else
+                                            {
+                                                var selected = (englishLevels.IndexOf(i) == 0) ? "selected" : "";
+                                                                <option value="@i" class="@selected">@i</option>
+                                            }
+                                        }
+                                   }
                                 </select>
-                                <button type="button" onclick="GetLessonTypes()" class="btn btn-primary" style="zoom:60%">
+                            </div>
+                        </div>
+                        <div class="form-group " style="margin-bottom:10px; display:flex;align-content:center">
+
+                            <div class="col-lg-10">
+                                <h4>Группа с постоянным составом?<span classtext-danger">*</span></h4>
+                                <span style="color:#979797;font-size:small"> (в каждое занятие добавляются все ученики группы, при обновлении в непрошедших занятиях обновится состав)</span>
+                               
+                            </div>
+                            <div class="col-lg-2">
+                                <input type="checkbox" class="form-control" asp-for="IsPermanentStaffGroup" checked disabled>
+                            </div>
+                        </div>
+                       
+                            <!--
+                            <div class="form-group ">
+                                <label class=" col-form-label" for="val-skill">
+                                    <div style="display:flex;margin:10px">
+                                        <h4>Group with permanent staff  <span class="text-danger">*</span></h4>
+                                        (all students to all lessons)
+                                    </div>
+                                </label>
+                                <select asp-for="IsPermanentStaffGroup" class="form-control">
+                                    <option value="false">No</option>
+                                    <option value="true">Yes</option>
+                                </select>
+                            </div>
+                            -->
+                        <br />
+
+                        <!--Teacher-->
+                        <div style="display:flex;align-items:center">
+                            <label class=" col-form-label" for="val-skill">
+                                <div style="display:flex;margin:10px">
+                                    <h4>Учитель<span class="text-danger">*</span></h4>
+                                    @if (group?.GroupTeachers != null)
+                                    {
+                                        @foreach (var student in group.GroupTeachers)
+                                        {
+                                            <input type="hidden" name="teacherId" value="@student.Id" />
+                                        }
+                                    }
+                                </div>
+                            </label>
+
+                            <input placeholder="Поиск..." class="form-control search"  />
+                            <div style="display:flex;margin:10px">
+                                
+                                <button type="button" onclick="GetTeachers()" class="btn btn-primary" style="zoom:60%">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                                         <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
                                         <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
@@ -64,150 +244,47 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="row" style="grid-gap:10%">            
-                            <div class="col">
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>Subject <span class="text-danger">*</span></h4>
-                                    </label>
-
-                                    <div style="display:flex;margin:10px">
-                                        <select class="form-control" id="subject-select" onchange="GetSubjects()">
-                                        </select>
-                                        <button type="button" onclick="GetSubjects()" class="btn btn-primary" style="zoom:60%">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
-                                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
-                                            </svg>
-                                        </button>
-                                    </div>
-
-                                </div>
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>Course <span class="text-danger">*</span></h4>
-                                    </label>
-                                    <div style="display:flex;margin:10px">
-                                        <select class="form-control" id="course-select" onchange="GetCourses()">
-                                        </select>
-                                        <button type="button" onclick="GetCourses()" class="btn btn-primary" style="zoom:60%">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
-                                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>Group type <span class="text-danger">*</span></h4>
-                                    </label>
-                                    <div style="display:flex;margin:10px">
-                                        <select class="form-control" id="groupType-select" onchange="GetGroupTypes()">
-                                        </select>
-                                        <button type="button" onclick="GetGroupTypes()" class="btn btn-primary" style="zoom:60%">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
-                                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
-                                            </svg>
-                                        </button>
-                                    </div>
+                        <select class="form-control" id="teachers-select" asp-for="TeacherIdString">
+                            <div class="d-flex justify-content-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Загрузка...</span>
                                 </div>
                             </div>
-                           <div class="col">
-                                <div class="form-group ">
+                        </select>
 
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>English level <span class="text-danger">*</span></h4>
-                                    </label>
-
-                                    <div style="display:flex;margin:10px">
-                                        <select class="form-control" asp-for="EnglishLevel">
-                                            @{
-                                                var englishLevels = new List<string>() {"A1", "A1.2", "A2", "B1", "B2", "C1", "C2"};
-                                                foreach(var i in englishLevels)
-                                                {
-                                                    <option value="@i">@i</option>
-                                                }
-                                            }
-                                        </select>
-
-                                    </div>
+                        <!--Students-->
+                        <div style="display:flex;align-items:center">
+                            <label class=" col-form-label" for="val-skill">
+                                <div style="display:flex;margin:10px">
+                                    <h4>Студенты<span class="text-danger">*</span></h4>
+                                    @if(group?.GroupStudents != null)
+                                    {
+                                        @foreach (var student in group.GroupStudents.Select(x=>x.Student))
+                                        {
+                                            <input type="hidden" name="studentId" value="@student.Id" />
+                                        }
+                                    }
+                                    
                                 </div>
-                                <div class="form-group ">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>Location type <span class="text-danger">*</span></h4>
-                                    </label>
-
-                                    <select class="form-control" id="locationType-select" >
-                                        <option value="online">online</option>
-                                        <option value="offline">offline</option>
-                                    </select>
-                                </div>
-                                <div class="form-group ">
-
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>Age type <span class="text-danger">*</span></h4>
-                                    </label>
-
-                                    <div style="display:flex;margin:10px">
-                                        <select class="form-control" id="ageType-select" onchange="GetAgeTypes()">
-                                        </select>
-                                        <button type="button" onclick="GetAgeTypes()" class="btn btn-primary" style="zoom:60%">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
-                                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                           </div>
+                            </label>
+                            <input placeholder="Поиск..." class="form-control search" />
+                            <div style="display:flex;margin:10px">
+                                <button type="button" onclick="GetStudents()" class="btn btn-primary" style="zoom:60%">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-
-                        
-                        
-                        
-
-                        
-
+                        <ul id="studentsList" class="list-group col">
+                            <div class="d-flex justify-content-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Загрузка...</span>
+                                </div>
+                            </div>
+                        </ul>
                        
-                        <!--
-                        <div class="form-group ">
-                            <label class=" col-form-label" for="val-skill">
-                                <div style="display:flex;margin:10px">
-                                    <h4>Group with permanent staff  <span class="text-danger">*</span></h4>
-                                    (all students to all lessons)
-                                </div>
-                            </label>
-                            <select asp-for="IsPermanentStaffGroup" class="form-control">
-                                <option value="@false">No</option>
-                                <option value="@true">Yes</option>
-                            </select>
-                        </div>
-                        -->
-                        <br />
-                        <!--
-                           <div class="form-group ">
-                               <label class=" col-form-label" for="val-skill">
-                                   Online/Offline (delete)<span class="text-danger">*</span>
-                               </label>
-                               <select name="Term" asp-for="Term" class="form-control" id="val-skill">
-                                   <option value="Online" >Online</option>
-                                   <option value="Offline" selected>Offline</option>
-                               </select>
-                           </div>-->
-                        <div>
-                            <label class=" col-form-label" for="val-skill">
-                                <div style="display:flex;margin:10px">
-                                    <h4>Students<span class="text-danger">*</span></h4>
-                                    <p>(from All Students)</p>
-                                </div>
-                            </label>
-                            <ul id="studentsList" class="list-group col"></ul>
-                        </div>
-                        <div class="form-group ">
-                            <ul id="courcesList" class="list-group col"></ul>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -215,39 +292,81 @@
                 <div class="row card">
                     <div class="card-body">
                         <div style="display:flex; justify-content:space-between">
-                            <h3>Schedule</h3>
-                            <input type="button" value="+" onclick="CreateScheduleDay()" class="btn btn-outline-danger" />
-                        </div>
-                        <div id="schedule_d" class="form-group row">
-                            <div class="card-body">
-                                <label>Date start group</label>
+                            <h3>Расписание</h3>
+                            <div>
+                                @if(group != null && group.DaySchedules != null && group.DaySchedules.Count() > 0)
+                                {
+                                    <button type="button" onclick="CreateScheduleDayDb()" class="btn btn-primary" style="zoom:60%">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                    </svg>
+                                </button>
+
+                                }
+                                <input type="button" value="+" onclick="CreateScheduleDay()" class="btn btn-outline-primary" />
                             </div>
-                            <div style="display:flex;grid-gap:10px">
-                                <input asp-for="DateStart" class="form-control" type="date" id="CreateLateDateStart" />
-                                <div class="validate"></div>
-                                <div>
-                                    <input type="checkbox" asp-for="IsLateDateStart" onclick="CreateLateDateStartFunc(this)" />
-                                    <span style="color:lightseagreen">For late date start</span>
+                            @{
+                                
+                                if(group!= null && group.DaySchedules != null)
+                                {
+                                    foreach(var day in group.DaySchedules)
+                                    {
+                                                    <input type="hidden" name="daySchedule" value="@day"/>
+
+                                    }
+                                }
+                            }
+                        </div>
+                        <div  class="form-group row">
+                            <div class="card-body">
+                                <label>Дата начала занятий</label>
+                            
+                                <div style="display:flex;grid-gap:10px">
+                                    <input asp-for="DateStart" class="form-control" type="date" id="CreateLateDateStart" />
+                                    <div class="validate"></div>
+                                    <div style="display:flex;align-items:center;grid-gap:10%">
+                                        <input type="checkbox" asp-for="IsLateDateStart" onclick="CreateLateDateStartFunc(this)" />
+                                        <span style="color:lightseagreen;text-wrap:nowrap">Выбрать позже</span>
+                                    </div>
+                                </div>
+                                
+                                <div id="schedule_d">
+                                    <div class="d-flex justify-content-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Загрузка...</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <hr />
                         </div>
+                        <hr />
+                        <input type="hidden" value="@false" class="form-control" asp-for="IsCreateLessonsAlready">
+                        <!--
+                        <div class="form-group " style="margin-bottom:10px; display:flex;align-content:center">
+                            
+                            <div class="col-lg-2">
+                                <input type="checkbox" class="form-control" asp-for="IsCreateLessonsAlready">
+                            </div>
+                            <div class="col-lg-10">
+                                <h5>Создать занятия по расписанию?<span classtext-danger">*</span></h5>
+                            </div>
+                        </div>-->
                         <div style="display:flex; justify-content:space-between">
                             <!--
                                <input type="button" onclick="CheckSchedule()" class="btn login-form__btn submit w-100" value="Check schedule"/>
                                -->
+                               
+                                @{
+                                    var text = group == null ||  group.Id == Guid.Empty ? "Создать новую группу" : "Редактировать группу";
+                                }
+
                             @if (User.IsInRole("Admin"))
                             {
-                                @if (Model != null)
-                                {
-                                    <input type="submit" asp-action="Edit" asp-controller="Group" class="btn login-form__btn submit w-100" value="Edit group" />
-                                }
-                                else
-                                {
-                                    <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" onclick="CheckCorrect()" value="Create new group" />
-                                }
+                                <input type="submit" asp-action="Create" asp-controller="Group" class="btn login-form__btn submit w-100" onclick="CheckCorrect()" value="@text" />
+                                
                             }
-                            @if (User.IsInRole("Teacher"))
+                            @if (!User.IsInRole("Teacher") && !User.IsInRole("Admin") && !User.IsInRole("Student"))
                             {
                                 @if (Model != null)
                                 {
@@ -270,6 +389,46 @@
         </div>
     </div>
 </form>
+
+@if (Model != null && Model.Parents != null && Model.Parents?.Count() != 0)
+{
+    <section style="padding-top:0%">
+        <div class="login-form-bg h-100">
+            <div class="container-fluid">
+                <div class="row justify-content-center h-100">
+                    <div class="col-xl-12">
+                        <div class="form-input-content">
+                            <div class="card login-form mb-0">
+                                <div class="card-body pt-5" style="zoom:150%">
+                                    @foreach (var par in Model.Parents)
+                                    {
+                                        <div class="col" style="background-color:rgb(117 113 249 / 30%)">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div>
+                                                        <!--HEADER LESSON-->
+                                                        <div class="row" >
+
+                                                            <div class="col-lg-3">@par.Name - @par.LessonType.Name, @par.PaymentCategory.FullDisplayName</div>
+                                                            <div class="col-lg-2">@foreach (var ds in @par.DaySchedules) { <div>@ds.DayName: @ds.WorkingStartTime-@ds.WorkingEndTime</div>}</div>
+                                                            <div class="col-lg-3">@foreach (var i in @par.GroupStudents) { <div>@i.Student.ApplicationUser.FullName</div>}</div>
+                                                            <div class="col-lg-3">@foreach (var i in @par.GroupTeachers) { <div>@i.Teacher.ApplicationUser.FullName</div>}</div>
+                                                            <div class="col-lg-1">@par.DateCreated</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
 <!--
    <script src="~/plugins/common/common.min.js"></script>
 
@@ -286,9 +445,19 @@
 
    -->
 <script>
+    const buttons = document.querySelectorAll('.btn');
+
+    function DisableAttributes()
+    {
+
+        buttons.forEach(button => {
+            button.setAttribute('disabled', true);
+                });
+    }
+    DisableAttributes();
+
+    const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
     
-
-
     function CreateUnlimitedLessons(inp) {
         var checkbox = inp;
         var lessonsCountInput = document.querySelector('#lessonsCount');
@@ -300,7 +469,6 @@
             lessonsCountInput.disabled = false;
         }
     }
-
     function CreateLateDateStartFunc(input) {
         var checkbox = input;
         var lessonsCountInput = document.querySelector('input[id="CreateLateDateStart"]');
@@ -316,17 +484,100 @@
 
     function CreateScheduleDay() {
         let schedule = $("#schedule_d")[0];
+
         var div = document.createElement('div');
         var elementValue = '<div><div id="insert" class="card-body">'
-        elementValue += '<label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>'
-        elementValue += '<label>Enter start time (12:00 AM)</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." />'
-        //elementValue += '<label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />'
-        elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>'
+        elementValue += '<label>Введите день недели</label><select class="form-control" name="dayName">'
+
+
+
+        
+        daysOfWeek.forEach(day => {
+            elementValue += `<option value="${day}" ${day === "Monday" ? 'selected' : ''}>${day}</option>`;
+        });
+        elementValue += '</select>'
+        elementValue += '<label>Введите время начала</label><input class="form-control" type="time" name="startTime" placeholder="Введите..." value="10:00" />'
+        //elementValue += '<label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Введите..." />'
+        elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Удалить этот день</button>'
         elementValue += '</div></div>';
         elementValue += '<hr/></div>'
         div.innerHTML = elementValue;
         schedule.appendChild(div);
     }
+
+    function CreateScheduleDayDb() {
+        return new Promise((resolve, reject) => {
+            var workingDays = [];
+            var valData = { groupId: '@group?.Id' };
+
+            $.ajax({
+                url: '/Group/ScheduleDays',
+                type: 'GET',
+                data: valData,
+                success: function (data) {
+                    workingDays = data;
+                    resolve(workingDays); // Resolve the Promise with the fetched data
+                },
+                error: function (error) {
+                    reject(error); // Reject the Promise if there is an error
+                }
+            });
+        }).then((workingDays) => {
+            $("#schedule_d").empty();
+
+            var schedule = document.getElementById('schedule_d');
+
+            workingDays.forEach(function (workingDay) {
+                let div = document.createElement('div');
+                let elementValue = '<div><div id="insert" class="card-body">';
+                elementValue += '<label>Введите день недели</label>';
+                elementValue += '<select class="form-control" name="dayName">';
+                console.log("workingDay");
+                console.log(workingDay);
+                daysOfWeek.forEach(day => {
+                    elementValue += `<option value="${day}" ${workingDay.dayNameString === day.toLowerCase() ? 'selected' : ''}>${day}</option>`;
+                });
+
+                elementValue += '</select>';
+                elementValue += '<label>Введите время начала</label>';
+                elementValue += '<input class="form-control" type="time" name="startTime" placeholder="Введите..." value="' + convertTimeSpanToString(workingDay.workingStartTime) + '" />';
+                elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Удалить этот день</button>';
+                elementValue += '</div></div>';
+                elementValue += '<hr/></div>';
+
+                div.innerHTML = elementValue;
+                schedule.appendChild(div);
+            });
+        });
+    }
+
+
+    function convertTimeSpanToString(timeSpan) {
+        console.log("timeSpan " + timeSpan);
+
+        const timeComponents = timeSpan.split(':');
+
+        if (timeComponents.length >= 2) {
+            const hours = parseInt(timeComponents[0], 10);
+            const minutes = parseInt(timeComponents[1], 10);
+            const seconds = timeComponents.length === 3 ? parseInt(timeComponents[2], 10) : 0;
+
+            let date = new Date();
+            date.setHours(hours);
+            date.setMinutes(minutes);
+            date.setSeconds(seconds);
+
+            if (!isNaN(date.getTime())) {
+                let formattedHours = date.getHours().toString().padStart(2, '0');
+                let formattedMinutes = date.getMinutes().toString().padStart(2, '0');
+                return `${formattedHours}:${formattedMinutes}`;
+            }
+        }
+
+        return '';
+    }
+
+
     function RemoveScheduleDay(btn) {
         let parent = btn.parentElement;
         parent = parent.parentElement;
@@ -334,7 +585,6 @@
 
         parent.remove();
     }
-
     function CheckSchedule() {
         var checkSchedule = $("#checkSchedule");
         checkSchedule.empty();
@@ -366,6 +616,138 @@
 
     //---------------------------------------------------------------
 
+    function GetStudents() {
+        return new Promise((resolve, reject) => {
+            var selectElement = document.getElementById("lessonType-select");
+            var selectedValue = selectElement.value;
+            var valData = { lessonTypeId: selectedValue };
+            var dbGroupStudents = [];
+            $('input[name="studentId"]').each(function () {
+                dbGroupStudents.push($(this).val());
+            });
+            $('#studentsList').empty();
+            $.ajax({
+                url: '/Student/GetAsync',
+                type: 'GET',
+                data: valData,
+                success: function (data) {
+                    console.log("teachers");
+                    console.log(data);
+                    data.forEach(function (item) {
+                        var checked = dbGroupStudents.includes(item.id.toString()) ? "checked style='color:#7571f9'" : "";
+                        var disabled = item.status == "Удален" ? "disabled" : "";
+
+                        $('#studentsList').append(`
+                            <li style="display:flex;align-items:center">
+                                <div class="col-lg-2">
+                                    <input type='checkbox' class="form-control" name='studentId' style='margin-right:5px;' value='${item.id}' ${checked} ${disabled}/>
+                                </div>
+                                <div class="col-lg-10">
+                                    <span>${item.applicationUser.fullName} - Уровень английского: ${item.applicationUser.englishLevel}</span>
+                                </div>
+                            </li>
+                            <hr />
+                        `);
+                    });
+
+                    resolve(); // Resolve the Promise once AJAX request is complete
+                },
+                error: function (error) {
+                    reject(error); // Reject the Promise if there is an error
+                }
+            });
+        });
+    }
+
+    function GetTeachers() {
+        return new Promise((resolve, reject) => {
+            var selectElement = document.getElementById("lessonType-select");
+            var selectedValue = selectElement.value;
+            var valData = { lessonTypeId: selectedValue };
+            var firstOptionAdded = false;
+            var dbGroupTeachers = [];
+            $('input[name="teacherId"]').each(function () {
+                dbGroupTeachers.push($(this).val());
+            });
+            var dbIsCanEdit = '@isCanEditProperties.ToString()';
+            var dbId = '@group?.GroupTeachers?.FirstOrDefault()?.TeacherId.ToString()';
+
+            $.ajax({
+                url: '/Teachers/GetAsync',
+                type: 'GET',
+                data: valData,
+                success: function (data) {
+                    $("#teachers-select").empty();
+                    data.forEach(function (item) {
+                        var itemText = item.applicationUser.fullName + " - Уровень английского: " + item.applicationUser.englishLevel;
+                        var disabled = item.status == "Удален" ? "disabled" : "";
+                        var option = $('<option ' + 'title="' + item.applicationUser.fullName + '" ' + 'value="' + item.id + '" ' + disabled + ' >').text(itemText);
+                        if (dbId != "" && item.id == dbId) {
+                            option = $('<option ' + 'title="' + item.applicationUser.fullName + '" ' + 'value="' + item.id + '" style="color:#7571f9" ' + '" ' + disabled + ' >').text(itemText);
+                            option.attr('selected', 'selected');
+                        } else if (!firstOptionAdded && disabled != "disabled") {
+                            option.attr('selected', 'selected');
+                            firstOptionAdded = true;
+                        }
+                        $("#teachers-select").append(option);
+                    });
+
+                    resolve(); // Resolve the Promise once AJAX request is complete
+                },
+                error: function (error) {
+                    reject(error); // Reject the Promise if there is an error
+                }
+            });
+        });
+    }
+
+    function GetPayments() {
+        return new Promise((resolve, reject) => {
+            var selectElement = document.getElementById("lessonType-select");
+            var selectedValue = selectElement.value;
+            var valData = { lessonTypeId: selectedValue };
+            var firstOptionAdded = false;
+            var dbIsCanEdit = '@isCanEditProperties.ToString()';
+            var dbId = '@group?.PaymentCategoryId.ToString()';
+
+            $.ajax({
+                url: '/PaymentCategory/OptionsList',
+                type: 'GET',
+                data: valData,
+                success: function (data) {
+                    $("#paymentCategory-select").empty();
+
+                    data.forEach(function (item) {
+                        if (item.displayName) {
+                            var option = $('<option ' + 'title="' + item.displayName + '" ' + 'value="' + item.id + '" >').text(item.status + " - " + item.displayName);
+
+                            if (dbId != "" && item.id == dbId) {
+                                option = $('<option ' + 'title="' + item.displayName + '" ' + 'value="' + item.id + '" style="color:#7571f9">').text(item.status + " - " + item.displayName);
+                                option.attr('selected', 'selected');
+                            } else if (!firstOptionAdded) {
+                                option.attr('selected', 'selected');
+                                firstOptionAdded = true;
+                            }
+
+                            if (item.status.includes("Не активен") && dbIsCanEdit == "False") {
+                                option.prop('disabled', true);
+                            }
+
+                            $("#paymentCategory-select").append(option);
+                        } else {
+                            console.error("Missing or invalid displayName for item:", item);
+                        }
+                    });
+
+                    resolve(); // Resolve the Promise once AJAX request is complete
+                },
+                error: function (xhr, status, error) {
+                    reject(error); // Reject the Promise if there is an error
+                }
+            });
+        });
+    }
+
     var filters_LessonType = {
             "filter-subjectId": $("#subject-select option:selected").val(),
             "filter-courseId": $("#course-select option:selected").val(),
@@ -380,82 +762,116 @@
         OrderType: "asc",
     }
 
-
-
-    function GetSubjects() {
-        console.log($("#subject-select option:selected").val());
-        console.log(typeof($("#subject-select option:selected").val())) 
-        
-        $("#subject-select").load("/Subject/OptionsList", { subjectId: $("#subject-select option:selected").val() }, function (responseTxt, statusTxt, xhr) {
-            if (statusTxt == "success")
-                console.log("External content loaded successfully!");
-            if (statusTxt == "error")
-                console.log("Error: " + xhr.status + ": " + xhr.statusText);
-        });
-        GetCourses();
-    }
-    GetSubjects();
-
-    function GetCourses() {
-       
-        $("#course-select").load("/Course/OptionsList", {subjectId: $("#subject-select option:selected").val(), courseId : $("#course-select option:selected").val() });
-    }
-
-    function GetGroupTypes() {
-
-        $("#groupType-select").load("/GroupType/OptionsList", { groupTypeId: $("#groupType-select option:selected").val() });
-    }
-    function GetAgeTypes() {
-
-        $("#ageType-select").load("/AgeType/OptionsList", { ageTypeId: $("#ageType-select option:selected").val() });
-    }
     function GetLessonTypes() {
+        return new Promise((resolve, reject) => {
+            var dbIsCanEdit = '@isCanEditProperties.ToString()';
+            var dbId = '@group?.LessonTypeId.ToString()';
 
-        filters_LessonType = {
+            filters_LessonType = {
                 SubjectId: $("#subject-select option:selected").val(),
                 CourseId: $("#course-select option:selected").val(),
                 GroupTypeId: $("#groupType-select option:selected").val(),
                 LocationType: $("#locationType-select option:selected").val(),
                 AgeTypeId: $("#ageType-select option:selected").val(),
                 IsDeleted: '-'
+            };
 
-        }
-        orders = {
-            OrderColumn: "Id",
-            OrderType: "asc",
-        }
+            orders = {
+                OrderColumn: "Id",
+                OrderType: "asc",
+            };
 
+            var valData = { filters: filters_LessonType, order: orders };
 
+            $.ajax({
+                url : '/LessonType/OptionsList',
+                type: 'GET',
+                data: valData,
+                success: function (data) {
+                    $("#lessonType-select").empty();
+                    var firstOptionAdded = false;
+                    data.forEach(function (item) {
+                        if (item.displayName && item.displayName.indexOf(';') !== -1) {
+                            var option = $('<option ' + 'title="' + item.displayName + '" ' + 'value="' + item.id + '" >').text(item.status + " - " + item.name + " - " + item.durationText + " - " + item.check);
+                            if (dbId != "" && item.id == dbId) {
+                                option = $('<option ' + 'title="' + item.displayName + '" ' + 'value="' + item.id + '" selected style="color:#7571f9">').text(item.status + " - " + item.name + " - " + item.durationText + " - " + item.check);
+                            } else if (!firstOptionAdded) {
+                                option.attr('selected', 'selected');
+                                firstOptionAdded = true;
+                            }
 
-        $("#lessonType-select").load("/LessonType/OptionsList", { filters: filters_LessonType, order: orders, lessonTypeId: $("#lessonType-select option:selected").val() });
+                            if (item.displayName.includes("Не активен")) {
+                                option.prop('disabled', true);
+                            }
+
+                            $("#lessonType-select").append(option);
+                        } else {
+                            console.error("Missing or invalid displayName for item:", item);
+                        }
+                    });
+
+                    resolve(); // Resolve the Promise once AJAX request is complete
+                },
+                error: function (xhr, status, error) {
+                    reject(error); // Reject the Promise if there is an error
+                }
+            });
+        });
     }
-    
+
+    async function SelectLessonType() {
+        DisableAttributes()
+        await Promise.all([GetTeachers(), GetPayments(), GetStudents()])
+            .then(function () {
+                console.log("All AJAX requests have completed");
+                buttons.forEach(button => {
+                    button.removeAttribute('disabled');
+                });
+            })
+            .catch(function (error) {
+                console.error("Error:", error);
+            });
+
+    }
+
+    async function fetchData() {
+        try {
+            await GetLessonTypes();
+            console.log("GetLessonTypes() completed");
+            await Promise.all([GetTeachers(), GetPayments(), GetStudents(), CreateScheduleDayDb()]);
+            console.log("All remaining AJAX requests have completed");
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
 
     $(document).ready(function () {
-        //getDataByAjax("/Student/GetStudentListAsync")
-        CreateScheduleDay();
-        //фильтры
-        GetSubjects();
-        GetSubjects();
-        GetCourses();
-        GetGroupTypes();
-        GetAgeTypes();
+        fetchData()
+            .then(() => {
+                console.log("All AJAX requests have completed");
+                buttons.forEach(button => {
+                    button.removeAttribute('disabled');
+                });
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
 
-        
-        
-       
-        $("#groupType-select").click(function () {
-            $("#groupType-data").load("/GroupType/OptionsList", { courseId: $("#course-select").val() }); //чтобы смотреть проводятся такие занятия  или нет!
-            $("#lessonType-select").load("/LessonType/OptionsList", { filters: filters_LessonType, order: orders });
-        })
-        $("#locationType-select").click(function () {
-            $("#groupType-data").load("/LocationType/OptionsList", { courseId: $("#course-select").val(), groupId: $("#groupType-select").val() }); //чтобы смотреть проводятся такие занятия  или нет!
-        })
+        var daySchedules = [];
+        $('input[name="daySchedule"]').each(function () {
+            daySchedules.push($(this).val());
+        });
 
-        $("ageType-select").click(function () {
-            $("#groupType-data").load("/AgeType/OptionsList", { courseId: $("#course-select").val() }); //чтобы смотреть проводятся такие занятия  или нет!
-            $("#lessonType-select").load("/LessonType/OptionsList", { filters: filters_LessonType, order: orders });
-        })
+        if(daySchedules.length == 0)
+        {
+            CreateScheduleDay();
+
+        }
+        else
+        {
+            //CreateScheduleDayDb();
+        }
+
 
     });
 

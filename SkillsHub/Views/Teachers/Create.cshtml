@@ -1,28 +1,30 @@
-﻿@using SkillsHub.Application.DTO;
+﻿@inject SkillsHub.Persistence.ApplicationDbContext _context;
+@model Teacher
 
-@model SkillsHub.Domain.Models.Teacher
+@{
+    var item = Model ?? new Teacher();
+    var isEdit = (Model != null) ? "Редактировать" : "Создать";
+    var isEditHeader = isEdit + " учителя ";
+}
+<style>
 
-    
+    input[type="checkbox"] {
+        margin-right: 5px !important; /* Example margin */
+        margin-left: 0px !important;
+        padding-top: 15px !important;
+        padding-left: 12px !important;
+        background-color: #5da6d6 !important;
+    }
 
-<div class="row page-titles mx-0">
-    <div class="col p-md-0">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                
-                <!--<form><a asp-action="Item" asp-controller="Account" asp-route-id="Model.ApplicationUserId">Account</a></form>-->
-                <span>Account</span>
-            </li>
-            <li class="breadcrumb-item active"><a href="javascript:void(0)">Teacher edit</a> 
-                <label>Active</label>
-            <select asp-for="IsDeleted">
-                <option value="@true">+</option>
-                <option value="@false">-</option>
-            </select>    
-            
-            </li>
-        </ol>
-    </div>
-</div>
+    input[type="checkbox"]:disabled {
+        margin-right: 5px !important; /* Example margin */
+        margin-left: 0px !important;
+        padding-top: 15px !important;
+        padding-left: 12px !important;
+        background-color: #b2b2b2 !important;
+    }
+</style>
+
 <!-- row -->
 <form class="mt-1 mb-5 login-input" method="post">
     <div class="container-fluid">
@@ -31,141 +33,247 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="form-group row">
-                            <label class="col-lg-4 col-form-label" for="val-range">
-                                <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
 
-                                @if (Model != null)
-                                {
-                                    <input type="hidden" asp-for="ApplicationUserId" value="@Model.ApplicationUserId" />
-                                    <input type="hidden" asp-for="Id" value="@Model.Id" />
-                                    @if (Model.PossibleCources != null)
+                             @if(item.ApplicationUser != null)
+                            {
+                                <div>
+                                    <h2>@item.ApplicationUser.FullName</h2>
+                                </div>
+                            }
+
+                            <div style="display:flex;justify-content:space-between">
+                                <label class="col-lg-4 col-form-label" for="val-range" style="display:flex;align-items:center;grid-gap:5%;text-wrap:nowrap">
+                                    <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
+
+                                    @if (Model != null)
                                     {
                                         var options = new System.Text.Json.JsonSerializerOptions
                                         {
                                             ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
                                         };
 
-                                        try
-                                        {
-
-                                            <input type="hidden" id="studentPossibleCources" value="@System.Text.Json.JsonSerializer.Serialize(@ViewBag.PossibleCourses, options)" />
-
-                                        }catch(Exception ex) {}
+                                        <input type="hidden" asp-for="ApplicationUserId" value="@item.ApplicationUserId" /> 
+                                        <input type="hidden" asp-for="Id" value="@item.Id" />
+                                    
+                                      
                                     }
-                                }
-                                @if (Model.Id != Guid.Empty)
-                                {
-                                    <h2>Edit teacher</h2>
-                                }
+                                    <h2 style="text-wrap:nowrap">@isEditHeader</h2>
+                                    @if (Model!= null && Model.Id != Guid.Empty)
+                                    {
+                                        
+                                        <select asp-for="IsDeleted" class="form-select" style="min-width:200px">
+                                            <option value="@true">Удален</option>
+                                            <option value="@false">Активен</option>
+                                        </select>
+                                    }
+                                    
+                                </label>
 
-                                else
-                                {
-                                    <h2>Create teacher</h2>
-                                }
-                            </label>
-
+                                <label style="display:flex;align-items:center">
+                                    <a style="color:#7571f9;" asp-action="Item" asp-controller="Account" asp-route-itemId="@Model.ApplicationUserId">Назад</a>
+                                </label>
+                            </div>
 
                             <div class="container-fluid">
-                                <label>
-                                    Possibility to work<span class="text-danger">*</span>
-                                </label>
-                                <div class="col-lg-6">
-                                    @if(Model.Id != Guid.Empty)
+                                <div style="display:flex;justify-content:space-between">
+                                    <label>
+                                        Может обучать:
+                                    </label>
+                                    <button type="button" onclick="GetCourses()" class="btn btn-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div>
+                                    <div style="min-height:20px"><span></span></div>
+                                    @if(item.PossibleCources != null && item.CurrentPossibleCourses != null)
                                     {
-                                        <ul id="courcesNames" class="list-group col"></ul>
-                                    }else{
-                                        <div>After creating...</div>
+                                        @foreach (var i in item?.CurrentPossibleCourses?.Where(x=>x.LessonTypeId != null)?.Select(x=>x.LessonTypeId)?.ToList()) // _context.LessonTypes.Where(x=>!x.IsDeleted && x.IsActive && x.ParentId == null
+                                        {
+                                            <input type="hidden" name="dbLessonTypeStudent" value="@i" />
+                                        }
                                     }
+                                    <ul id="courcesNames" class="list-group col">
+                                        <div class="d-flex justify-content-center">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Загрузка...</span>
+                                            </div>
+                                        </div>
+                                    @{
+                                               
+                                            <!--
+                                                    <li style="display:flex;align-items:center">
+                                                        <div class="col-lg-2">
+                                                            <input type='checkbox' class="form-control" name='itemValue' style='margin-right:5px;' value='i.Id' /> 
+                                                        </div>
+                                                        <div class="col-lg-10">
+                                                            <span >i.DisplayName</span>
+                                                        </div>
+                                                    </li>
+                                                    <hr />
+                                            -->
+                                         
+                                    }
+                                    </ul>
                                 </div>
                             </div>
+
+                            
                         </div>
+                        
                     </div>
+                    
                 </div>
+                <div style="margin-bottom:10px">
+                    <input type="submit" class="btn btn-primary" value="@isEdit" asp-action="Create" asp-controller="Teachers" />
+                </div>
+                    <div class="form-group row">
+                       
+                        @if (item.Id != Guid.Empty && item.PossibleCources != null && item.PossibleCources.Count() > 0)
+                        {
+                            var isLessonTypeAddToUser = "-";
+
+
+                            <section style="padding-top:0%">
+                                <div class="login-form-bg h-100">
+                                    <div class="">
+                                        <div class="row justify-content-center h-100">
+                                            <div class="">
+                                                <div class="form-input-content">
+                                                    <div class="card login-form mb-0">
+                                                        <div class="card-body pt-5">
+                                                           <div style="display:flex;justify-content:space-between;margin-bottom:15px">
+                                                               <label>
+                                                                   История изменений:
+                                                               </label>
+                                                              
+                                                           </div>
+
+
+                                                            @foreach (var par in item.PossibleCources.OrderByDescending(x => x.DateCreated))
+                                                            {
+
+                                                                <div class="col" style="background-color:rgb(117 113 249 / 30%)">
+                                                                    <div class="card">
+                                                                        <div class="card-body">
+                                                                            <div>
+                                                                                <!--HEADER LESSON-->
+                                                                                <div class="row">
+                                                                                    <div>@par?.LessonType?.Name - @par?.Status - @par?.DateCreated</div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        }
+                    </div>
             </div>
+            @if (!User.IsInRole("Admin") && !User.IsInRole("Teacher") && !User.IsInRole("Student"))
+            {
             <div class="col">
+                <div class="row">
                 <div class="card">
                     <div class="card-body">
                         <div>
                             <div>
-                                <h2>Schedule</h2>
-                                <hr/>
+                                <h2>Расписание</h2>
+                                <hr />
                                 <div class="container-fluid">
                                     <label>
-                                        Working days<span class="text-danger">*</span>
+                                        Рабочее время<span class="text-danger">*</span>
                                     </label>
                                     <div class="col-lg-6">
-                                        <ul class="list-group col">
-
-                                            @if(Model.Id != Guid.Empty)
+                                            @if (Model.Id != Guid.Empty)
                                             {
+                                                <ul class="list-group col">
 
-                                                @foreach(var day in Enum.GetNames<DayOfWeek>()){
-                                        
-                                        
-                                                <li class="list-group-item">
-                                                    @if(Model != null && Model.WorkingDays != null && Model.WorkingDays.Contains(day))
-                                                        {
-                                                            <input name="workingDay" style='margin-right:5px;' type="checkbox" value="@day" checked />@day
+                                                    @foreach (var day in Enum.GetNames<DayOfWeek>())
+                                                    {
 
-                                                        }
-                                                        else
-                                                        {
-                                                            <input name="workingDay" style='margin-right:5px;' type="checkbox" value="@day" />@day
-                                                        }
-                                                    </li>
+
+                                                        <li class="list-group-item">
+                                                            @if (Model != null && Model.WorkingDays != null && Model.WorkingDays.Contains(day))
+                                                            {
+                                                                <input name="workingDay" style='margin-right:5px;' type="checkbox" value="@day" checked />
+                                                                @day
+                                                            }
+                                                            else
+                                                            {
+                                                                <input name="workingDay" style='margin-right:5px;' type="checkbox" value="@day" />
+
+                                                                @day
+                                                            }
+                                                        </li>
                                                     }
+                                                </ul>
                                             }
                                             else
                                             {
-                                                <li>After creating...</li>
+                                                <li>Later</li>
                                             }
-                                        </ul>
-                                    </div>
+                                        </div>
                                 </div>
 
                             </div><!-- <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>-->
                         </div>
-                        <div id="schedule_d" class="form-group row"></div>
+                        <div id="schedule_d" class="form-group row">
+
+                            
+
+                        </div>
                     </div>
-                    <div class="form-group row">
-                        <div class="col-lg-8 ml-auto"> </div>
-                    </div>
+                    
+                </div>
                 </div>
 
-                        <div class="card">
-                            <div class="card-body">
+                
+               
+                <!--
+                    <div class="card">
+                        <div class="card-body">
+                            <div>
                                 <div>
-                                    <div>
-                                        <h2>Payment</h2>
-                                        <hr />
-                                        <label>Paid to teacher</label>
-                                        <div style="display:flex;align-items:center">
-                                             @{/*
-                                        if(User.IsInRole("Admin"))
-        {
-        <input type="number" asp-for="PaidAmount" class="form-control" /> <span>BYN</span>
-        }else
-        {
-        {
-        <input type="number" asp-for="PaidAmount"  class="form-control" disabled/> <span>BYN</span>
-        }
-        }*/
+                                    <h2>Оплата</h2>
+                                    <hr />
+                                <div style="display:flex;align-items:center">
+                                    {
+                                        /*
+                                        if (User.IsInRole("Admin"))
+                                        {
+                                        <input type="number" asp-for="PaymentAmount" class="form-control" /> <span>BYN</span>
+                                        }
+                                        else
+                                        {
+
+                                        <input type="number" asp-for="PaymentAmount" class="form-control" disabled /> <span>BYN</span>
+
+                                        }*/
                                     }
-                                        </div>
+                                </div>
+                                    <div class="form-group row">
+                                        <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Student" /> </div>
+                                    </div>
 
-                                        <div class="form-group row">
-                                            <div class="col-lg-8 ml-auto"> <input type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Teachers" value="Submit" /> </div>
-                                        </div>
-
-                                    </div><!-- <button type="button" class="btn btn-primary" onclick="CreateScheduleDay()">+</button>-->
                                 </div>
                             </div>
                         </div>
-                
+                    </div>
+                    -->
+            </div>
+            }
             </div>
         </div>
-    </div>
-    </div>
 </form>
 
 
@@ -185,80 +293,53 @@
 
 
 <script>
-    function getCourcesNamesList() {
 
-        var studentsList = $("#courcesNames");
 
-        console.log("ok")
-
-        let model;
-        let studentSelectedOptions;
-
-        var studentPossibleCources;
-        var courseIds;
-        if ($("#studentPossibleCources") != null && $("#studentPossibleCources").val() != undefined) {
-
-            studentPossibleCources = JSON.parse($("#studentPossibleCources").val());
-            console.log("studentPossibleCources");
-            console.log(studentPossibleCources);
-            courseIds = studentPossibleCources.map(function (course) {
-                return course.CourseNameId;
-            });
-        }
-        console.log("ok")
-
+    function GetCourses() {
+        var dbLessonTypeStudents = [];
+        $('input[name="dbLessonTypeStudent"]').each(function () {
+            dbLessonTypeStudents.push($(this).val());
+        });
 
 
         $.ajax({
-            url: "/Cource/GetCourcesNamesAsync",
-            type: "GET",
-            dataType: "json",
+            url: '/LessonType/CheckboxList',  // Update this with the actual endpoint URL on your server
+            type: 'GET',
             success: function (data) {
-                data = JSON.parse(data);
-                if (Array.isArray(data)) {
+                // Assuming that the returned data is an array of LessonTypes objects
+                // Update the lessonTypesList in the HTML with the fetched data
+                $('#courcesNames').empty();
+                data.forEach(function (item) {
+                    var checked = dbLessonTypeStudents.includes(item.id.toString()) ? "checked" : "";
+                    console.log("checked -  " +checked)
+                    var ii = `
+                          <li style="display:flex;align-items:center">
+                              <div class="col-lg-2">`;
+                    if (item.displayName.includes("Не активен") && checked == "") {
+                        ii += `<input type='checkbox' class="form-control" name='lessonTypeId' style='margin-right:5px;background-color:#b2b2b2' value='${item.id}' disabled />`
+                    }
+                    else {
+                        ii += `<input type='checkbox' class="form-control" name='lessonTypeId' style='margin-right:5px;' value='${item.id}'  ${checked} />`
+                    }
+                    ii += `</div>
+                               <div class="col-lg-10">
+                                   <span>${item.displayName}</span>
+                               </div>
+                           </li>
+                           <hr />`;
 
-                    data.forEach(function (item, i, arr) {
-                    studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
 
-                    var appendedLine = "<li class='list-group-item'>";
-                    console.log("ok")
-                    
-
-                    
-                    if (courseIds != undefined && courseIds.includes(item.Id))
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "' checked  /> ";
-                    else
-                        appendedLine += "<input type='checkbox' name='itemValue' asp-route-itemValue='this.value'  style='margin-right:5px;' value='" + item.Id + "'  /> ";
-
-                    appendedLine += item.Name;
-                    appendedLine += "</li>"
-
-                    studentsList.append(appendedLine);
-                    })
-                }
+                    $('#courcesNames').append(ii);
+                });
+            },
+            error: function (error) {
+                console.error('Error fetching Lesson Types:', error);
             }
         });
 
     }
 
-    function CreateScheduleDay() {
-        let schedule = $("#schedule_d")[0];
-        var div = document.createElement('div');
-        var elementValue = '<div><div id="insert" class="card-body">'
-        elementValue += '<label>Enter day name</label><select class="form-control" name="dayName"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Tuesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>'
-        elementValue += '<label>Enter start time (12:00 AM)</label><input class="form-control" type="time" name="startTime" placeholder="Enter..." />'
-        elementValue += '<label>Enter duration (in minutes)</label><input class="form-control" type="number" name="duration" placeholder="Enter..." />'
-        elementValue += '<button style="margin-top:10px" class="btn btn-outline-danger" onclick="RemoveScheduleDay(this)" type="button"> Remove this day</button>'
-        elementValue += '</div></div>';
-        elementValue += '<hr/>'
-        div.innerHTML = elementValue;
-        schedule.appendChild(div);
-    }
+    GetCourses();
 
-    $(document).ready(function () {
-        //getDataByAjax("/Student/GetStudentListAsync")
-        getCourcesNamesList();
-        //CreateScheduleDay();
-    });
 
 </script>

@@ -12,6 +12,7 @@ using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Helpers;
 using SkillsHub.Persistence;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Policy;
 using Viber.Bot.NetCore.Middleware;
@@ -69,7 +70,10 @@ public class Program
         builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
-
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.ExpireTimeSpan = TimeSpan.FromDays(30);
+        });
 
         #endregion
 
@@ -108,7 +112,9 @@ public class Program
         builder.Services.AddTransient<IUserService, UserService>();
         builder.Services.AddTransient<IExternalService, ExternalService>();
         //builder.Services.AddTransient<ICourcesService, CourcesService>();
-        builder.Services.AddTransient<IGroupService, GroupService>();
+        builder.Services.AddScoped<IGroupService, GroupService>();
+        builder.Services.AddTransient<IAbstractLogModel<GroupTeacher>, GroupTeacherService>();
+
         builder.Services.AddTransient<IRequestService, RequestService>();
         builder.Services.AddTransient<INotificationService, NotificationService>();
         builder.Services.AddScoped<ILessonService, LessonService>();
@@ -118,7 +124,17 @@ public class Program
 
 
         builder.Services.AddScoped<ILessonTypeService, LessonTypeService>();
-        builder.Services.AddScoped<IPaymentCategoryService, PaymentCategoryService>();
+        builder.Services.AddScoped<IAbstractLogModel<PaymentCategory>, PaymentCategoryService>();
+        builder.Services.AddScoped<IAbstractLogModel<AgeType>, AgeTypeService>();
+        builder.Services.AddScoped<IAbstractLogModel<GroupType>, GroupTypeService>();
+        builder.Services.AddScoped<IAbstractLogModel<Course>, CourseService>();
+        builder.Services.AddScoped<IAbstractLogModel<Location>, LocationService>();
+        builder.Services.AddTransient<IAbstractLogModel<LessonTypeStudent>, LessonTypeStudentService>();
+        builder.Services.AddTransient<IAbstractLogModel<LessonTypeTeacher>, LessonTypeTeacherService>();
+        builder.Services.AddTransient<IUserRoleModelService<Student>, StudentService>();
+        builder.Services.AddTransient<IUserRoleModelService<Teacher>, TeacherService>();
+
+
 
         #endregion
 
@@ -152,6 +168,26 @@ public class Program
         app.UseHttpsRedirection();
         app.UseStaticFiles();
 
+        app.UseExceptionHandler(errorApp =>
+        {
+            errorApp.Run(async context =>
+            {
+                var statusCode = context.Response.StatusCode;
+
+                if (statusCode == 404)
+                {
+                    context.Response.Redirect("/Account/SignIn");
+                    return;
+                }
+
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                context.Response.ContentType = "text/html";
+
+                // Перенаправление на страницу Home/Error
+                context.Response.Redirect("/Home/Error");
+            });
+        });
+        app.UseStatusCodePagesWithReExecute("/Account/SignIn", "?statusCode={0}");
         app.UseRouting();
 
         app.UseAuthentication();
@@ -167,6 +203,8 @@ public class Program
         pattern: "{controller=Home}/{action=Thanks}",
         defaults: new { controller = "Home", action = "Thanks" }
         );
+
+        
 
 
         app.MapControllerRoute(name: "thanks",

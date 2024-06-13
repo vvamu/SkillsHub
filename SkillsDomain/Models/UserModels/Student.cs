@@ -13,10 +13,20 @@ public class Student : BaseEntity
     public List<LessonTypeStudent>? PossibleCources { get; set; }
     public List<GroupStudent>? Groups { get; set; }
     public List<LessonStudent>? Lessons { get; set; }
-
     public string? WorkingDays { get; set; }
 
     #region NotMapped
+    [NotMapped]
+    public List<LessonTypeStudent>? CurrentPossibleCourses
+    {
+        get
+        {
+            if (PossibleCources == null) return null;
+            if (PossibleCources.Count < 0) return null;
+            return PossibleCources.Where(x => !x.IsDeleted && x.ParentId == null || x.ParentId == Guid.Empty).ToList();
+        }
+    }
+
 
     [NotMapped]
     public decimal CurrentCalculatedPrice { get; set; }

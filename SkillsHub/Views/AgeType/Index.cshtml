@@ -1,95 +1,73 @@
-﻿@model IQueryable<AgeType>?;
+﻿@model List<AgeType>?;
 @{
 	ViewData["Title"] = "Create";
 }
 
-@if (Model == null || Model.Count() == 0)
-{
-    <div style="display:flex;flex;grid-gap:20px;justify-content:center">
-        <h2>List is empty</h2>
-    </div>
-    <div id="lessonType-data">
-        <form><a class="btn btn-primary" type="submit" asp-action="Create" asp-controller="PaymentType">Create</a></form>
-    </div>
+<style>
+    th, td {
+        text-wrap: nowrap
+    }
+
+</style>
+
+@{
+    var items = Model.ToList() ?? new List<AgeType>();
+    var properties = new string[] { "Статус", "Имя", "Возраст", "Дата изменения", "Дата создания" };
+
 }
-else
-{
 
 
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div style="display:flex; justify-content:space-between;align-items:center;margin:5px">
-                            <h2 class="card-title">Возрастные категории</h2>
-                            <form>
-                                <div><input type="button" onclick="Create()" class="btn btn-primary" value="+" /></div>
-                            </form>
-                        </div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div style="display:flex; justify-content:space-between;align-items:center;margin:5px">
+                        <h2 class="card-title">Возрастные категории</h2>
+                        <form>
+                            <div><input type="submit" class="btn btn-primary" value="+" asp-action="Create" asp-controller="AgeType" /></div>
+                        </form>
+                    </div>
+
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered zero-configuration">
                                 <thead>
                                     <tr>
-                                        
-                                        <th>Name</th>
-                                        <th>Min age</th>
-                                        <th>Max age</th>
-                                        <th>Status</th>
-                                       
+                                    @foreach (var i in properties)
+                                    {
+                                        <th>@i</th>
+                                    }
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
+                                <tbody id="partialContainer">
+                                    
                                    @foreach(var item in Model)
                                    {
-                                       <td>@item.Name</td>
-                                       <td>@item.MinimumAge</td>
-                                       <td>@item.MaximumAge</td>
-                                       <td>
-                                           <select>
-                                               <option>
-                                                    Active
-                                               </option>
-                                               <option>
-                                                    Not active
-                                               </option>                         
-                                           </select>
-                                       </td>
-                                       
-                                   }
+                                    <tr>
+                                       <td>@item.Status</td>
+                                        <td><form><a asp-action="Create" asp-controller="AgeType" asp-route-itemId="@item.Id" style="color:#7571f9">@item.Name</a></form></td>
+                                       <td>@item.DisplayName?.Replace("/", "").Replace("\\", "")</td>
+                                       <td>@item.DateCreated</td>
+                                       <td>@item.DateRegistration</td>
                                     </tr>
-                                <span id="partialContainer"></span>
+                                   }
+                                    
                                 </tbody>
                                 <tfoot>
                                     <tr>
-
-                                        <th>Name</th>
-                                        <th>Min age</th>
-                                        <th>Max age</th>
-                                        <th>Status</th>
+                                    @foreach (var i in properties)
+                                    {
+                                        <th>@i</th>
+                                    }
                                        
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
-
-                        <div>
-                            <form><a class="btn btn-primary" type="submit" asp-action="Create" asp-controller="PaymentType">Create</a></form>
-                        </div>
-
-                    </div>
+                    
                 </div>
             </div>
         </div>
     </div>
-
-  
-    }
-    <script>
-         function Create(){
-                $.get('/AgeType/CreateRowAsync', function (data) {
-                    $('#partialContainer').append(data);
-                });
-                }
-    </script>
+</div>

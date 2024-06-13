@@ -124,12 +124,12 @@ public static class FilterMaster
         if (filters != null)
         {
             if (filters.GroupId != Guid.Empty)
-                items = items.Where(x => x.Group.Id == filters.GroupId);
+                items = items.Where(x => x.GroupId == filters.GroupId);
 
             if (filters.TeacherId != Guid.Empty)
-                items = items.Where(x => x.Group!= null && x.Group.GroupTeachers != null).Where(x => x.Group.GroupTeachers.Select(x=>x.Id).Contains(filters.TeacherId));
+                items = items.Where(x => x.TeacherId != null && x.TeacherId == filters.TeacherId);//(x => x.Group!= null && x.Group.GroupTeachers != null).Where(x => x.Group.GroupTeachers.Select(x=>x.Id).Contains(filters.TeacherId));
             if (filters.StudentId != Guid.Empty)
-                items = items.Where(x => x.Group.GroupStudents != null).Where(x => x.Group.GroupStudents.Select(x => x.Id).Contains(filters.StudentId));
+                items = items.Where(x => x.ArrivedStudents != null && x.ArrivedStudents.Select(x => x.StudentId).Contains(filters.StudentId));//(x => x.Group.GroupStudents != null).Where(x => x.Group.GroupStudents.Select(x => x.Id).Contains(filters.StudentId));
             if (!string.IsNullOrEmpty(filters.Topic))
                 items = items.Where(x => x.Topic.Contains(filters.Topic));
             if (!string.IsNullOrEmpty(filters.Category))
@@ -140,6 +140,8 @@ public static class FilterMaster
                     items = items.Where(x => x.EndTime > DateTime.Now);
                 if (filters.Category == "Deleted")
                     items = items.Where(x => x.IsDeleted == true);
+                if (filters.Category == "Active")
+                    items = items.Where(x => x.IsDeleted == false);
             }
 
             if (filters.Category != "Deleted")
@@ -169,7 +171,7 @@ public static class FilterMaster
             {
                 items = items.Where(x => x.UserTeacher != null).Where(x => x.UserTeacher.WorkingDays.Contains(filters.TeacherWorkingDay));
             }
-            /*
+            
             if (!string.IsNullOrEmpty(filters.StudentPossibleCource))
             {
                 var i = items.Where(x => x.UserStudent != null).Where(x => x.UserStudent.PossibleCources != null);
@@ -181,7 +183,7 @@ public static class FilterMaster
             if (!string.IsNullOrEmpty(filters.TeacherPossibleCource))
             {
                 items = items.Where(x => x.UserTeacher != null).Where(x => x.UserTeacher.PossibleCources != null).Where(x => x.UserTeacher.PossibleCources.Select(x => x.LessonType).Select(x => x.Id.ToString()).Contains(filters.TeacherPossibleCource));
-            }*/
+            }
             if (!string.IsNullOrEmpty(filters.IsDeleted))
             {
                 if (filters.IsDeleted == "Yes")

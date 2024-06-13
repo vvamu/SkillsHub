@@ -3,61 +3,83 @@
 
 @model Group
 
-@if (Model != null)
-{
-    Group Group = Model;
+@{
+    Group group = Model ?? new Group();
 
-    <div class="row page-titles mx-0">
-        <div class="col p-md-0">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                <li class="breadcrumb-item active"><a href="javascript:void(0)">Home</a></li>
-            </ol>
-        </div>
-    </div>
+}
+<style>
+    .search-input {
+        min-width: 30px
+    }
+
+    .search-select {
+        min-width: 30px
+    }
+
+    .nav-item {
+        zoom: 80%
+    }
+</style>
     <!-- row -->
-
     <form class="form-valide" action="#" method="post">
         <div class="container-fluid">
             <div class="row">
                 <div class="col">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-body" style="zoom:80%">
 
 
                             <div style="display:flex;justify-content:space-between">
-                                <h2 style="margin-bottom:5%">Group </h2>
-                                @if (Model.IsDeleted)
-                                {
-                                    <span>Not active</span>
-                                }
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <div>
+                                <h2 style="margin-bottom:5%">Группа - @group.Status</h2>
+                            <div style="display:flex;align-items:center;grid-gap:5px">
+                                <a asp-action="Index" asp-controller="Group" style="font-weight:900;color:#7571f9">К группам</a>
+                                    
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <div>
 
-                                        <input type="submit" asp-action="Delete" asp-controller="Group" asp-route-id="@Model.Id" value="x" class="btn btn-outline-danger" title="The group can be restored" />
+                                            <input type="submit" asp-action="Delete" asp-controller="Group" asp-route-id="@group?.Id" value="x" class="btn btn-outline-danger" title="The group can be restored" />
+                                            <input type="submit" asp-action="HardDelete" asp-controller="Group" asp-route-id="@group?.Id" value="x" class="btn btn-danger" title="The group can`t be restored" />
 
-                                        <!--
-                                        <input type="submit" asp-action="HardDelete" asp-controller="Group" asp-route-id="Model.Id" value="x" class="btn btn-danger" title="Full delete with lessons" />
-                                            -->
-                                    </div>
-                                }
+                                            <!--
+                                            <input type="submit" asp-action="HardDelete" asp-controller="Group" asp-route-id="group?.Id" value="x" class="btn btn-danger" title="Full delete with lessons" />
+                                                -->
+                                        </div>
+                                    }
+                            </div>
+                                
                             </div>
 
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    Name
+                                    Имя
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class=" col-form-label">@Model.Name</p>
+                                    <p class=" col-form-label">@group?.Name</p>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    LessonType
+                                    Категория занятий
                                 </label>
                                 <div class="col-lg-6">
-                                    <p class="col-form-label">@Model.LessonType.Name</p>
+                                <p class="col-form-label">
+                                    @{
+
+                                        //string modifiedString = "";
+                                        string[]? resultArray = null;
+                                        //if (group.DisplayName != null) modifiedString = group.DisplayName + ";" + @group.DateCreated;
+                                        if (group.LessonType != null) {
+                                            resultArray = (group.LessonType.DisplayName + ";" + @group.DateCreated).Split(';');
+                                                    @foreach (var ii in resultArray)
+                                            {
+                                                        <div>@ii</div>
+                                            }
+                                        }
+                                    }
+                                    
+                                    
+                                </p>
                                 </div>
                             </div>
 
@@ -65,40 +87,16 @@
                            
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    Staff type
+                                    Тип состава группы
                                 </label>
-                                <div class="col-lg-6">
-                                    <p class="col-form-label">
-                                        @if (Group.IsPermanentStaffGroup)
-                                        {
-                                        <p class="col-form-label">With permanent staff</p>
-                                        }
-                                        else
-                                        {
-                                            <p class="col-form-label">Without permanent staff</p>
-                                        }
-                                    </p>
-                                </div>
+                                <div class="col-lg-6">@group.PermanentStaffGroupTextRu</div>
                             </div>
+
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    Group requirements <span class="text-danger"></span>
+                                    Предположительная длительность <span class="text-danger"></span>
                                 </label>
-                                <div class="col-lg-6">
-                                    <p class="col-form-label">
-                                        @Group.LessonsCount lessons;
-
-                                        @if (!Group.IsUnlimitedLessonsCount)
-                                        {
-                                            <span title="Needed Lessons Time In Minutes">(-------- min)</span>
-                                        }
-                                        else
-                                        {
-                                            <span>(Unlimited)</span>
-                                        }
-
-                                    </p>
-                                </div>
+                                <div class="col-lg-6">@group.PreparedDurationTextRu</div>
                             </div>
 
                             <!--
@@ -113,60 +111,84 @@
                             -->
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    Date start
+                                    Дата старта группы
                                 </label>
-                                <div class="col-lg-6">
-                                    <p class="col-form-label">
-                                        @if (!Group.IsLateDateStart && Group.DateStart != DateTime.MinValue)
-                                        {
-                                            <span>@Group.DateStart.ToLongDateString()</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Not decided</span>
-                                        }
-                                    </p>
-                                </div>
+                                <div class="col-lg-6">@group.DateStartTextRu</div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">
+                                    Учитель
+                                </label>
+                             
+                               
+                            @{
+                                var teacherName= "-";
+                                var teacherr = group?.GroupTeacher?.Teacher;
+                                Guid teacherId = Guid.Empty;
+                                if(teacherr != null)
+                                {
+                                    teacherId = teacherr.ApplicationUserId;
+                                    teacherName = teacherr.ApplicationUser.FullName;
+                                }
+
+                                    if(User.IsInRole("Admin"))
+                                    {
+                                            <div class="col-lg-6"><a asp-action="Item" asp-controller="Account" asp-route-id="@teacherId" style="font-weight:900;color:#7571f9">@teacherName</a></div>
+
+                                    }
+                                    else{
+                                                <div class="col-lg-6">@teacherName</div>
+                                    }
+                                
+                            }
+
+                               
                             </div>
 
 
-                            <div class="form-group row">
-                                <label class="col-lg-4 col-form-label">
-                                    Lessons count
-                                </label>
-                                <div class="col-lg-6">
-                                    <p class="col-form-label">
-                                        Passed: @Group.Lessons.Where(x => x.IsСompleted).Count() ; Created:
-                                        @if (Group.Lessons.Count() < Group.LessonsCount && !Group.IsUnlimitedLessonsCount)
-                                        {
-                                            <span style="color:red"> @Group.Lessons.Count()</span>
-                                        }
-                                        <span title="Passed Lessons Time In Minutes">(@Group.PassedLessonsTimeInMinutes min</span> /  <span title="Assigned Lessons">@Group.ResultLessonsTimeInMinutes min)</span>
-                                    </p>
-                                </div>
-                            </div>
+                            
+                          
 
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
-                                    Students in group (@Group.GroupStudents.Count() / @Group.LessonType.GroupType.DisplayName)
+                                @{
+                                    var studentDesctiption = $"({@group?.GroupStudents.Count()} из  {@group?.LessonType.GroupType.DisplayName} )";
+                                    studentDesctiption = studentDesctiption.Replace("(", "").Replace(")", "");
+                                }
+                                Студенты @studentDesctiption
                                 </label>
                                 <div class="col-lg-6">
-                                    <ol>
-                                        @foreach (var st in Group.GroupStudents.Select(x => x.Student))
+                                   
+                                    @if(User.IsInRole("Admin"))
+                                    {
+                                        @foreach (var st in group?.GroupStudents.Select(x => x.Student).Select(x=>x.ApplicationUser))
                                         {
-                                            <li>
-                                                <a asp-action="Item" asp-controller="Account" asp-route-itemId="@st.ApplicationUser.Id" style="font-weight:900;color:#7571f9">
-                                                    @st.ApplicationUser.FirstName @st.ApplicationUser.Surname @st.ApplicationUser.LastName
+                                           
+                                            <div>
+                                                 <a asp-action="Item" asp-controller="Account" asp-route-itemId="@st.Id" style="font-weight:900;color:#7571f9">
+                                                    @st.FullName
                                                 </a>
-                                            </li>
+                                            </div>
+                                           
                                         }
-
-                                    </ol>
+                                    }
+                                    
 
                                 </div>
                             </div>
 
-
+                            <hr/>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">
+                                    Количество занятий
+                                </label>
+                                <div class="col-lg-8">
+                                    <div>@group.PassedLessonsTextRu</div>
+                                    <div>@group.CreatedLessonsTextRu</div>
+                                    <div>@group.NeedToCreateLessonsTextRu</div>
+                                  
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -175,39 +197,31 @@
                     <div class="card">
                         <div class="card-body">
 
-                            <h4>SHEDULE</h4>
-
-
+                        <div style="display:flex;justify-content:space-between;align-content:center"> 
+                            <h4>Расписание</h4>
+                            @if (User.IsInRole("Admin"))
+                                    {
+                                      <form>
+                                          <input type="submit" value="Редактировать" asp-action="Create" asp-controller="Group"  formmethod="get" asp-route-id="@group?.Id" class="btn btn-primary" />
+                                      </form>
+                                    }
+                        </div>
                             <div class="col">
-                                @foreach (var ds in Group.DaySchedules)
+                                @foreach (var ds in group?.DaySchedules)
                                 {
-
+                                    
                                     <div class="card">
                                         <div class="card-body">
-                                            <div>@ds.DayName: @ds.WorkingStartTime-@ds.WorkingEndTime</div>
+                                        <div>@System.Globalization.CultureInfo.GetCultureInfo("ru-RU").DateTimeFormat.GetDayName((DayOfWeek)ds.DayName)  : @ds.WorkingStartTime-@ds.WorkingEndTime</div>
                                         </div>
                                     </div>
 
                                 }
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <form>
-                                        <!--<input type="hidden" asp-for="Model.Id" value="Model.Id"/>-->
-
-                                        <input type="submit" value="Edit group" asp-action="Edit" asp-controller="Group" formmethod="get" asp-route-id="@Model.Id" class="btn btn-primary" />
-
-                                    </form>
-
-                                }
-
-
-
-
                             </div>
                         </div>
                     </div>
 
-                    @if (User.IsInRole("Admin") && Model.IsLateDateStart)
+                    @if (User.IsInRole("Admin") && group.IsLateDateStart)
                     {
 
                         <div class="card">
@@ -215,20 +229,20 @@
                                 <div class="card-body" style="display:flex;justify-content:space-between">
 
                                     <input class="form-control" type="date" name="DateStart" />
-                                    <input type="submit" value="Start" asp-action="EditDateStart" asp-controller="Group" formmethod="post" asp-route-id="@Model.Id" class="btn btn-primary" />
+                                    <input type="submit" value="Start" asp-action="EditDateStart" asp-controller="Group" formmethod="post" asp-route-id="@group?.Id" class="btn btn-primary" />
 
                                 </div>
                             </form>
                         </div>
                     }
 
-                    @if (User.IsInRole("Admin"))
+                    @if (!User.IsInRole("Admin") && !User.IsInRole("Teacher") && !User.IsInRole("Student"))
                     {
-                        var countEndedLessons = Model.Lessons.Where(x => x.IsСompleted).Count();
-                        var countLessons = Model.Lessons.Count();
-                        var priceByEndedLessons = Model.PaymentCategory.TeacherPrice * countEndedLessons;
-                        var priceByLessons = Model.PaymentCategory.TeacherPrice * countLessons;
-                        var lessonStudents = Model.Lessons.Where(x => x.IsСompleted && x.ArrivedStudents != null).SelectMany(x => x.ArrivedStudents).Count();
+                        var countEndedLessons = group?.Lessons.Where(x => x.IsСompleted).Count();
+                        var countLessons = group?.Lessons.Count();
+                        var priceByEndedLessons = group?.PaymentCategory.TeacherPrice * countEndedLessons;
+                        var priceByLessons = group?.PaymentCategory.TeacherPrice * countLessons;
+                        var lessonStudents = group?.Lessons.Where(x => x.IsСompleted && x.ArrivedStudents != null).SelectMany(x => x.ArrivedStudents).Count();
 
                         <div class="card">
                             <div class="card-body">
@@ -236,18 +250,25 @@
                                 <div class="col">
 
                                     <div class="form-group" style="display:flex">
-                                        <span>Current Teacher salary : @(Model.PaymentCategory.TeacherPrice * countEndedLessons) BYN |  </span>
-                                        <span>Full Teacher salary :  @(Model.PaymentCategory.TeacherPrice * countLessons) BYN</span>
+                                        <span>Текущая зарплата учителя (законченные занятия): @(group?.PaymentCategory.TeacherPrice * countEndedLessons) BYN |  </span>
+                                        <span>Предполагаемая зарплата учителя (запланированные занятия) :  @(group?.PaymentCategory.TeacherPrice * countLessons) BYN</span>
+                                        <span>Максимальная/минимальная зарплата учителя за курс :  @(group?.PaymentCategory.TeacherPrice * countLessons) BYN</span>
+                                        <span>Оплачено учителю:  @(group?.PaymentCategory.TeacherPrice * countLessons) BYN</span>
                                     </div>
 
                                     <div class="form-group">
-                                        <span>Current Students price : @(Model.PaymentCategory.StudentPrice * lessonStudents) BYN  |  </span>
-                                        <!--<span>Min/Max Students price :  (Model.PaymentCategory.StudentPrice * Model.PaymentCategory.MinCountLessons)/ (Model.PaymentCategory.StudentPrice * Model.PaymentCategory.MaximumStudents) BYN</span>-->
+                                        <span>Текущий доход от учеников (законченные занятия) : @(group?.PaymentCategory.StudentPrice * lessonStudents) BYN  |  </span>
+                                        <span>Предполагаемый доход от учеников (запланированные занятия) : @(group?.PaymentCategory.StudentPrice * lessonStudents) BYN  |  </span>
+                                        <span>Максимальный/минимальный доход от учеников за курс :  (group?.PaymentCategory.StudentPrice * group?.PaymentCategory.MinCountLessons)/ (group?.PaymentCategory.StudentPrice * group?.PaymentCategory.MaximumStudents) BYN</span>
+                                        <span>Оплачено учениками : </span>
                                     </div>
 
                                     <div class="form-group">
-                                        <span>Current difference :  @((Model.PaymentCategory.TeacherPrice * countEndedLessons) - (Model.PaymentCategory.StudentPrice * lessonStudents)) BYN |  </span>
-                                        <!--<span>Min/Max difference : ((Model.LessonType.TeacherPrice * countLessons) - (Model.LessonType.StudentPrice * Model.LessonType.MinCountLessons))/((Model.LessonType.TeacherPrice * countLessons) - (Model.LessonType.StudentPrice * Model.LessonType.MaximumStudents)) BYN</span>-->
+                                        <span>Текущий доход от прошедших занятий:  @((group?.PaymentCategory.TeacherPrice * countEndedLessons) - (group?.PaymentCategory.StudentPrice * lessonStudents)) BYN |  </span>
+                                        <span>Предполагаемый доход от запланированных занятий: </span>
+                                        <span>Максимальный/минимальный доход за курс: </span>
+                                        <span>Уже получено: </span>
+                                        <!--<span>Min/Max difference : ((group?.LessonType.TeacherPrice * countLessons) - (group?.LessonType.StudentPrice * group?.LessonType.MinCountLessons))/((group?.LessonType.TeacherPrice * countLessons) - (group?.LessonType.StudentPrice * group?.LessonType.MaximumStudents)) BYN</span>-->
                                     </div>
                                 </div>
                             </div>
@@ -262,43 +283,71 @@
 
                 <div class="row">
                     <div style="display:flex; justify-content:space-between">
-                        <h4>LESSONS</h4>
-                        <div style="display:flex;" />
+                        <h4>Занятия</h4>
+                        <div style="display:flex;align-items:center" >
 
-                        @{
-                            var lessonsCount = 0;
-                            if (Model.Lessons != null) lessonsCount = Model.Lessons.Count();
-                        }
+                            @{
+                                var lessonsCount = 0;
+                                if (group?.Lessons != null) lessonsCount = group.Lessons.Count();
+                            }   
 
-                        @if (User.IsInRole("Admin") && Model.IsVerified && !Model.IsLateDateStart && (Model.LessonsCount > lessonsCount))
-                        {
-                            <input type="submit" asp-action="CreateBySchedule" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-outline-primary" title="Create by credule" />
-                            <input type="submit" asp-action="Create" asp-controller="Lesson" formmethod="get" asp-route-id="@Model.Id" value="+" class="btn btn-primary" title="Create from zero info" />
-                        }
+                            @{
+                                var textToSpan = "";
+                                if(group.IsLateDateStart && User.IsInRole("Admin"))
+                                {
+                                    textToSpan = "Выберите дату запуска группы.";
+                                }
+                            else if (group.DaySchedules == null || group.DaySchedules.Count() == 0 && User.IsInRole("Admin"))
+                                {
+                                    textToSpan += " Чтобы создать занятие по расписанию создайте его.";
+                                }
+                                else if (User.IsInRole("Admin") && group.IsCanAddLessons && group.DaySchedules != null && group.DaySchedules.Count() > 0)
+                                {
+
+                                            <input type="number" name="countLessons" min="0" max="30" class="form-control" />
+                                            <input type="submit" asp-action="CreateBySchedule" asp-controller="Lesson" formmethod="get" asp-route-id="@group?.Id" value="Создать по расписанию" class="btn btn-outline-primary" title="Создать по расписанию" />
+                                            <span style="margin:10px">|</span>
+                            
+                                }
+                            }
+                        
+                                <!--if (User.IsInRole("Admin") && group.IsVerified && !group.IsLateDateStart && (group?.LessonsCount > lessonsCount)) -->
+                      
+                                @if (User.IsInRole("Admin") && group.IsCanAddLessons)
+                                {
+
+                                    <input type="submit" asp-action="Create" asp-controller="Lesson" formmethod="get" asp-route-id="@group?.Id" value="+" class="btn btn-primary" title="Создать занятие" />
+                                }
+                            @if(group.Lessons != null && group.Lessons.Count() > 0 && User.IsInRole("Admin"))
+                            {
+                            <input type="submit" asp-action="DeleteAll" asp-controller="Lesson" formmethod="get" asp-route-id="@group?.Id" value="Удалить все" class="btn btn-danger" title="Удалить все" />
+
+                            }
+                        </div>
                     </div>
                 </div>
                 @{
-                    var lessons = _context.Lessons.Where(x => x.GroupId == Model.Id).ToList();
+                    var lessons = _context.Lessons.Where(x => x.GroupId == group.Id).ToList();
                 }
-                <span>Assigned @lessons.Count() out of @Model.LessonsCount; Passed @lessons.Where(x => x.EndTime.Ticks < @DateTime.Now.Ticks).Count() </span>
+            <span>@textToSpan</span>
 
                 <!--NAVBAR - Search, Filter, Sort-->
                 <nav class="navbar navbar-expand-lg bg-light">
                     <div class="container-fluid">
 
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:20px">
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent" style="display:flex;grid-gap:10px">
                             <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="display:flex;grid-gap:10px">
                                 <li class="nav-item">
                                     <div class="input-group icons">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
                                         </div>
-                                        <input type="search search-input" onchange="searchLessons() id="searchByTopic" class="form-control" placeholder="Search by topic" aria-label="Search by topic">
+                                        <input type="search search-input" onchange="searchLessons() id="searchByTopic" class="form-control" placeholder="Поиск по теме занятия" aria-label="Search by topic">
 
                                     </div>
                                 </li>
                                 <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p>Passed by teacher:</p>
+                                    <p style="text-wrap:nowrap">Поиск по учителю:</p>
 
                                     <select class="form-control search-select" id="searchByTeacher" name="val-skill" onchange="searchLessons()">
                                         <option value="" selected></option>
@@ -326,28 +375,30 @@
                                 -->
 
                                 <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p>Visited student:</p>
+                                    <p style="text-wrap:nowrap">Поиск по ученику:</p>
                                     <select class="form-control search-select" id="searchByStudent" name="val-skill" onchange="searchLessons()">
                                         <option value="" selected></option>
-                                        @if (ViewBag.Students != null)
-                                        {
-                                            @foreach (Student item in ViewBag.Students)
-                                            {
-                                                <option value="@item.Id">@item.ApplicationUser.FirstName @item.ApplicationUser.LastName @item.ApplicationUser.Surname</option>
-                                            }
-                                        }
+                                        
+                                           
+                                        
 
+                                    </select>
+                                    <!--
+                                    <select class="form-control search-select" id="searchByStudent" name="val-skill" onchange="searchLessons()" style="min-width:120px"> 
+                                        <option>Присутствовал</option>
+                                        <option>Отсутствовал</option>-->
                                     </select>
                                 </li>
 
                                 <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p>Category:</p>
+                                    <p style="text-wrap:nowrap">Категория:</p>
 
                                     <select class="form-control search-select" id="searchByCategory" name="val-skill" onchange="searchLessons()">
-                                        <option selected></option>
-                                        <option>Passed</option>
-                                        <option>Сurrent</option>
-                                        <option>Deleted</option>
+                                        <option selected value="Active">Активные</option>
+                                        <option value="Passed">Прошедшие</option>
+                                        <option value="Current">Будущие</option>
+                                        <option value="Deleted">Удаленные</option>
+                                        <!--<option value="Deleted">Удаленные</option>-->
                                     </select>
                                 </li>
 
@@ -361,21 +412,21 @@
 
 
                                 <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Order by:</p>
+                                    <p style="white-space:nowrap">Сортировка:</p>
                                     <select class="form-control  search-select " id="sort-select" onchange="searchLessons()">
                                         <option selected></option>
                                         @{
                                             var i = "Topic StartTime".Split(" ");
                                             foreach (var a in i)
                                             {
-                                                <option>@a</option>
+                                                        <option>@a</option>
                                             }
                                         }
                                     </select>
                                 </li>
 
                                 <li class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Order type:</p>
+                                    <p style="white-space:nowrap">:</p>
                                     <select class="form-control  search-select " id="sort-select-type" onchange="searchLessons()">
                                         <option value="asc" selected>↑</option>
                                         <option value="desc">↓</option>
@@ -383,7 +434,7 @@
                                 </li>
                                 <li class="nav-item">
                                     <!--<input type="button" onclick="resetSearch()" class="btn btn-primary btn-sm" style="margin-left:5px;  " value="Reset" />-->
-                                    <input type="button" onclick="searchLessons()" class="btn btn-primary btn-sm" style="margin-left:5px;  " value="Search" />
+                                    <input type="button" onclick="searchLessons()" class="btn btn-warning" style="margin-left:5px;  " value="Поиск" />
                                 </li>
                             </ul>
                         </div>
@@ -396,7 +447,7 @@
                     <!--await Html.PartialAsync("_LessonsList")-->
                     <div class="d-flex justify-content-center">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden">Загрузка...</span>
                         </div>
                     </div>
                 </div>
@@ -433,11 +484,11 @@
             try {
 
                 filters = {
-                    GroupId: '@Model.Id',
+                    GroupId: '@group?.Id',
                     Topic: $('#searchByTopic').val(),
                     TeacherId: $('#searchByTeacher').val(),
                     StudentId: $('#searchByStudent').val(),
-                    GroupId: '@Model.Id',
+                    GroupId: '@group?.Id',
                     Category: $("#searchByCategory").val(),
                 };
 
@@ -542,8 +593,62 @@
 
         }
 
+        function GetStudents() {
+
+                $.ajax({
+                    url: '/Student/GetAsync',
+                    type: 'GET',
+                    
+                    success: function (data) {
+                        console.log("teachers");
+                        console.log(data);
+
+                        $('#studentsList').empty();
+                        var emptyOption = $('<option value=""></option>')
+                        $("#searchByStudent").append(emptyOption);
+
+
+                        data.forEach(function (item) {
+                            var disabled = item.status == "Удален" ? "" : "";
+
+                            $('#searchByStudent').append(`
+                                                    <option> ${item.applicationUser.fullName} - Уровень английского: ${item.applicationUser.englishLevel}</option>
+                                                    
+                            `);
+                        });
+
+                    },
+                    error: function (error) {
+                    }
+                });
+        
+        }
+        
+        function GetTeachers() {
+
+                $.ajax({
+                    url: '/Teachers/GetAsync',
+                    type: 'GET',
+               
+                    success: function (data) {
+                        $("#searchByTeacher").empty();
+                        var emptyOption = $('<option value=""></option>')
+                        $("#searchByTeacher").append(emptyOption);
+                        data.forEach(function (item) {
+                            var itemText = item.applicationUser.fullName ;
+                            var disabled = item.status == "Удален" ? "" : "";
+                            var option = $('<option ' + 'title="' + item.applicationUser.fullName + '" ' + 'value="' + item.id + '" ' + disabled + ' >').text(itemText);
+                             $("#searchByTeacher").append(option);
+                        })
+                   
+                    }
+                
+                 });
+
+        
+        }
+        GetStudents();
+        GetTeachers();
 
     </script>
-
     <!-- #/ container -->
-}

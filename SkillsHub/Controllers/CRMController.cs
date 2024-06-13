@@ -102,7 +102,18 @@ public class CRMController: Controller
 
         return View();
     }
+    public IActionResult Classes3()
+    {
+        var events = new List<Eventh>
+        {
+            Eventt
+        };
+        //ViewData["Events"] = JSONListHelper.GetEventListJSONString(events);
+        ViewData["Events"] = "fesff";
+        //ViewBag.Events = JSONListHelper.GetEventListJSONString(events);
 
+        return View();
+    }
 
     public JsonResult CreateNewEvent(EventDTO eventDto)
     {

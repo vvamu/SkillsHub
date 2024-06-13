@@ -1,28 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SkillsHub.Application.DTO;
-using SkillsHub.Application.Helpers;
-using SkillsHub.Application.Services;
-using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
-using SkillsHub.Domain.Models;
-using SkillsHub.Helpers;
-using SkillsHub.Helpers.SearchModels;
 using SkillsHub.Persistence;
-using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
-using System.Web;
-using static NuGet.Packaging.PackagingConstants;
 
 namespace SkillsHub.Controllers;
 
@@ -34,162 +16,36 @@ public class StudentController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IGroupService _groupService;
     private readonly INotificationService _notificationService;
+    private readonly IUserRoleModelService<Student> _studentService;
 
     public StudentController(
         IUserService userService,ApplicationDbContext context, UserManager<ApplicationUser> userManager, 
-        IGroupService groupService, INotificationService notificationService)
+        IGroupService groupService, INotificationService notificationService, IUserRoleModelService<Student> studentService)
     {
         _userService = userService;
         _context = context;
         _userManager = userManager;
         _groupService = groupService;
         _notificationService = notificationService;
+        _studentService = studentService;
         //var items = _userService.GetAllStudentsDTOAsync().Result;
         //Reporter.ReportToXLS<Student>(items.ToArray());
     }
-    #region NotUse
+
+    #region Create = Update =  Get
 
     [HttpGet]
-    public async Task<IActionResult> Index2()
-    {
-        var users = _context.ApplicationUsers.Include(x => x.UserStudent).Where(x => x.UserStudent != null);
-        var students = _context.Students.AsQueryable();
-
-
-        return View((users, students));
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Index()
-    {
-        var users = await _userService.GetAllStudentsAsync();
-
-
-        return View(users);
-    }
-
-    #endregion
-
-    #region Get
-
-    [HttpGet]
-    [Route("/Student/GetStudentListAsync")]
-    public async Task<IActionResult> GetStudentListAsync([FromQuery] StudentFilterModel StudentFilterModel, StudentOrderModel? orders)
-    {
-
-
-        var items = await _userService.GetAllStudentsAsync();
-        List<Student> students = new List<Student>();   
-
-
-        students = items.Where(x => x.IsDeleted == false).ToList();
-
-        var res = new List<Student>();
-        foreach (var i in students)
-        {
-            if (await _userManager.IsInRoleAsync(i.ApplicationUser, "Student"))
-                res.Add(i);
-        }
-
-
-
-        if (!User.IsInRole("Admin"))
-        {
-            var user = await _userService.GetCurrentUserAsync();
-            var userStudent = user.UserStudent ?? new Student();
-            var usersByUserGroups = _context.Groups.Include(x => x.GroupStudents).
-                SelectMany(x=>x.GroupStudents).
-                Select(x=>x.Student).
-                Where(x => x.Id ==  userStudent.Id).
-                //Select(x=>x.ApplicationUser).
-                Where(x => x.IsDeleted == false); 
-
-            // items = usersByUserGroups;
-        }
-      
-
-        var ii = students.ToList();
-
-        return Json(JsonSerializerToAjax.GetJsonByIQueriable(res.AsQueryable()));
-    }
-
-    
-
-    [HttpPost]
-    [Route("/Student/StudentsCheckedCheckboxListByObject")]
-    public async Task<IActionResult> StudentsCheckedCheckboxListByObject(Guid groupId, Guid lessonId)
-    {
-        List<Student> selectedStudents = new List<Student>();
-        Group group = await _groupService.GetAsync(groupId);
-        Lesson lesson = await _context.Lessons.Include(x=>x.ArrivedStudents).FirstOrDefaultAsync(x=>x.Id == lessonId);
-
-        var items = await _userService.GetAllStudentsAsync();
-        items = items.Where(x => x.IsDeleted == false);
-
-        //if (group == null && lesson == null) return null;
-        
-        if(group != null)
-        {
-            selectedStudents = group.GroupStudents.Select(x => x.Student).ToList(); //studentsByGroup
-        }
-        if(lesson != null)
-        {
-            group = await _context.Groups.Include(x => x.Lessons).Include(x=>x.GroupStudents).FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(lessonId));
-            if (group == null) return null;
-            items = group.GroupStudents.Select(x => x.Student).AsQueryable();
-            selectedStudents = lesson.ArrivedStudents.Select(x=>x.Student).ToList();
-        }
-
-
-
-        
-        //--------------------------------------------------------------------------
-        if (!User.IsInRole("Admin"))
-        {
-            var user = await _userService.GetCurrentUserAsync();
-            var userStudent = user.UserStudent ?? new Student();
-            var userTeacher = user.UserTeacher ?? new Teacher();
-
-            if (userTeacher != null && user.UserTeacher.Groups != null)
-            {
-               // user.UserTeacher.Groups//.SelectMany(x => x.GroupStudents).Select(x => x.Student)
-                   // .ToList().ForEach(x => students.Add(x));
-            }
-            if(userStudent !=null)
-            {
-                //var studentGroups = user.UserStudent.Groups.Select(x => x.Group);
-                //studentGroups.SelectMany(x=>x.GroupStudents).Select(x=>x.Student).ToList().ForEach(x=>students.Add(x));
-                //studentGroups.Select(x => x.Teacher).ToList().ForEach(x=>st);
-            }
-            // items = usersByUserGroups;
-        }
-        //--------------------------------------------------------------------------
-      
-        var all = items.ToList();          
-
-
-        return PartialView("_StudentsCheckedCheckboxListByObject",(all, selectedStudents));
-    }
-
-    #endregion
-    #region Create = Update
-
-    [HttpGet]
-    public async Task<IActionResult> Create(Guid id)
+    public async Task<IActionResult> Create(Guid id, bool isEdit = false)
     {
         try
         {
-            var user = await _userService.GetUserByIdAsync(id) ?? await _userService.GetCurrentUserAsync();
-            var student = _context.Students
-                .Include(x => x.PossibleCources)
-                .FirstOrDefault(x => x.ApplicationUserId == user.Id) ?? new Student();
-
-            var possibleCourses = await _context.Students.Where(x => x.ApplicationUserId == user.Id).SelectMany(x => x.PossibleCources).ToArrayAsync();
-            ViewBag.PossibleCourses = possibleCourses;
-
-            student.ApplicationUserId = user.Id;
+            Student student = new Student();
+            var user = await _context.ApplicationUsers.FindAsync(id) ?? await _userService.GetCurrentUserAsync();
+            student = await _context.Students.FirstOrDefaultAsync(x => x.ApplicationUserId == id);
+            if (student == null) student = await _studentService.CreateAsync(new Student() { ApplicationUserId = user.Id }, new Guid[0]);
+            else student = await _studentService.GetAsync(student.Id);
             
-
+            HttpContext.Session.SetInt32("isEdit", Convert.ToInt16(isEdit) );
             return View(student);
         }
         catch (Exception)
@@ -198,65 +54,66 @@ public class StudentController : Controller
             var user = await _userService.GetCurrentUserAsync();
 
             if (user == null) return View("Index");
-            return View();
+            return View(new Student() { ApplicationUserId = id });
 
 
         }
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Student item, Guid[] itemValue, string[] workingDay) //itemValue = courceName
+    public async Task<IActionResult> Create(Student item, Guid[] lessonTypeId) // string[]? workingDay , itemValue = courceName
     {
-        var student = _context.Students.AsNoTracking().Include(x => x.ApplicationUser).FirstOrDefault(x => x.Id == item.Id);
-
-        ApplicationUser user = item.ApplicationUser;
-        if (user == null) user = await _userService.GetUserByIdAsync(item.ApplicationUserId);
-        if(student != null) { //user = student.ApplicationUser;
-                              }
-
+        var student = await _context.Students.FindAsync(item.Id);
+        ApplicationUser user = await _context.ApplicationUsers.FindAsync(item.ApplicationUserId);
+        //if (user == null) { ModelState.AddModelError("", "User not found"); return View(item); }
         try
         {
             if (student == null)
             {
-                student = await _userService.CreateStudentAsync(user, item);
-                item = student;
-                user.UserStudent = item;
+                student = await _studentService.CreateAsync(item, lessonTypeId);
+                //item = student;
+                //user.UserStudent = item;
             }
-            if (!User.IsInRole("Admin"))
+            else
             {
-                var message = "User in student account " + User.Identity.Name + " tryed to change payment amout ";
-                await _notificationService.Create(message,null);
-                await _userService.SignOutAsync();
-                throw new Exception("An attempt was made to fix a field that is only accessible to the administrator. The request has been sent to the appropriate place");
-
-                //return RedirectToAction("Index", "Home");
-                
+                student = await _studentService.UpdateAsync(item, lessonTypeId);
             }
-
-           
-            
-
-            item = await UpdateWorkingDays(item, workingDay);
-
-            //item = await _userService.UpdateStudentWithCourcesNames(item, itemValue.ToList());
-            await _context.SaveChangesAsync();
-
-
         }
-        catch { }
-        //var user = await _userService.GetUserByIdAsync(item.ApplicationUserId);
+        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(item); }
 
         var isTeacher = HttpContext.Session.GetString("isTeacher");
+        HttpContext.Session.Remove("isEdit");
         if (isTeacher == "true")
+        {
+            
             return RedirectToAction("Create", "Teachers", new { id = user.Id });
+        }   
+        else if (HttpContext.Session.GetInt32("isEdit") == 0)
+        {
+            return RedirectToAction("Create", "BaseUserInfo", new { userId = user.Id });
+        }
         else
-            return RedirectToAction("Create", "BaseUserIngo", new {userId = user.Id});
+        {
+            return RedirectToAction("Item", "Account", new { userId = user.Id , id = user.Id});
+        }
 
 
 
         
     }
 
+    [Route("/Student/GetAsync")]
+    public async Task<IActionResult> GetAsync(Guid? lessonTypeId)
+    {
+        var items = await _studentService.GetAllAsync();
+        if (lessonTypeId != null && lessonTypeId != Guid.Empty)
+        {
+            var result = items.ToList();
+            var oks = result.Where(x => x.CurrentPossibleCourses != null && x.CurrentPossibleCourses.Select(x => x.LessonTypeId).ToList().Contains((Guid)lessonTypeId)).ToList();
+            return Ok(oks);
+        }
+        return Ok(await items.ToListAsync());
+    }
     #endregion
 
     #region WorkingDays/Schedule
@@ -270,32 +127,4 @@ public class StudentController : Controller
     }
 
     #endregion
-
-
-    public async Task<IActionResult> Activate(Guid id, Guid userId)
-    {
-        var isUser = _context.ApplicationUsers.FirstOrDefault(x => x.Id == id);
-        if(isUser != null)
-         return RedirectToAction("Create", "Student", new { id = id });
-
-        var item = await _context.Students
-            .Include(x => x.ApplicationUser)
-            .FirstOrDefaultAsync(x => x.Id == id) ?? new Student() { ApplicationUserId = id };
-       
-        if (await _userManager.IsInRoleAsync(item.ApplicationUser, "Student"))
-        {
-            item.IsDeleted = true;
-            await _userManager.RemoveFromRoleAsync(item.ApplicationUser, "Student");
-        }
-        else
-        {
-            item.IsDeleted = false;
-            await _userManager.AddToRoleAsync(item.ApplicationUser, "Student");
-        }
-
-            _context.Students.Update(item);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Item", "Account", new { itemId = item.ApplicationUserId, id = item.ApplicationUserId });
-
-        }
 }

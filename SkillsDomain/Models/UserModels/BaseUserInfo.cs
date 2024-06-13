@@ -6,10 +6,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace SkillsHub.Domain.BaseModels;
 
 //1.FullName 2.Sex 3.BirthDate - Age 4.PhonesArray 5.EmailsArray 6.Refs - Roles 7.AdditionalInfo 8.RegistrationDate 9.DateLastUpdate 10.DateCreate, 
-public class BaseUserInfo : BaseEntity
+public class BaseUserInfo : LogModel<BaseUserInfo>
 {
-    public BaseUserInfo? Parent {  get; set; }
-    public Guid? ParentId { get; set; }
+
     public new bool IsDeleted {  get; set; }
     [NotMapped]
     public string? FullName { get => $"{this?.LastName} {this?.FirstName} {this?.Surname}"; }
@@ -26,8 +25,6 @@ public class BaseUserInfo : BaseEntity
 
     public string? AdditionalInfo { get; set; }
     public List<ApplicationUserBaseUserInfo> ApplicationUsers { get; set; }
-    public DateTime? RegistrationDate { get; set; }
-
     public override bool Equals(object obj)
     {
         if (obj == null || GetType() != obj.GetType())
@@ -36,12 +33,12 @@ public class BaseUserInfo : BaseEntity
         BaseUserInfo other = (BaseUserInfo)obj;
         return FirstName == other.FirstName &&
                LastName == other.LastName &&
-               Surname == other.Surname &&
-               Sex == other.Sex &&
-               BirthDate == other.BirthDate &&
-               Phones == other.Phones &&
-               Emails == other.Emails &&
-               AdditionalInfo == other.AdditionalInfo;
+               Surname == other.Surname;
+               //Sex == other.Sex &&
+               //BirthDate == other.BirthDate &&
+               //Phones == other.Phones &&
+               //Emails == other.Emails &&
+               //AdditionalInfo == other.AdditionalInfo;
     }
 
     #region NotMapped

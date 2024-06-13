@@ -4,390 +4,522 @@
 @using SkillsHub.Domain.BaseModels
 @using SkillsHub.Domain.Models;
 @using SkillsHub.Persistence;
-
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 @inject UserManager<ApplicationUser> _uM;
 
 
 @model Lesson?;
 
+@{
+    var lesson = Model ?? new Lesson() ;
+    var titleText = "Занятие в группе ";
+    var additionalLocationInfoTitle = "Кабинет"; 
+    var isEditMode = false;
+    bool isDisabled = false;
+    @if ((User.IsInRole("Admin") || User.IsInRole("Teacher")) && Model != null)
+    {
+        titleText = "Управление занятием в группе ";
+        if (Model.Id == Guid.Empty) 
+        {
+            titleText = "Создание занятие в группе ";
+        }
+        if (lesson.Group != null && lesson.Group.LessonType != null && !lesson.Group.LessonType.Location.IsOffline) additionalLocationInfoTitle = "Ссылка на занятие";
 
-<!-- Модальное окно -->
-@if(Model!= null && Model.GroupId != Guid.Empty)
-{
-<div class="row page-titles mx-0">
-    <div class="col p-md-0">
-        <ol class="breadcrumb" style="display:flex;align-items:center">
-            <li class="breadcrumb-item"><a asp-action="Item" asp-controller="Group" asp-route-id="@Model.GroupId">Group</a></li>
-            <li class="breadcrumb-item active"><a href="javascript:void(0)">Lesson</a></li>
-            <li>
+        isEditMode = true;
+        isDisabled = false;
+    }
+    string disabledAttribute = isDisabled ? "disabled" : "";
 
-            </li>
 
-        </ol>
-    </div>
-</div>
+    titleText += lesson.Group?.Name;
+    //if (Model.Id == Guid.Empty) titleText += " - " + lesson.IsCompletedTextRu;
+
+    _context.Groups.ToList();
+    _context.ApplicationUsers.ToList();
 }
 
-@if ((!User.IsInRole("Admin") && !User.IsInRole("Teacher")) && Model != null)
+
+@{
+   
+}
+@if (true)
     {
-        if (Model.Id != Guid.Empty)
-        {
+       
             <form class="mt-1 mb-5 login-input" method="post">
-                <input type="hidden" asp-for="GroupId" value="'@Model.GroupId'" />
+                @{
+                                <input type="hidden" asp-for="GroupId" value="@lesson.GroupId" />
+                                <input type="hidden" asp-for="IsDeleted" value="@lesson.IsСompleted" />
+                                <input type="hidden" asp-for="GroupId" value="@ViewBag.GroupId" />
+                                <input type="hidden" name="GroupId" value="@ViewBag.GroupId" />
+                }
+                
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col">
                             <div class="card">
                                 <div class="card-body">
 
-                                <h2>Lesson </h2>  <span>- "@Model.Group.Name"</span> @if (Model != null && Model.IsСompleted)
-                                    {
-                                        <span style="color:palevioletred">Completed</span>
-                                    }
-
-                                    <div class="validation" asp-validation-summary="ModelOnly"></div>
+                            <div style="display:flex;justify-content:space-between;align-items:center">
+                                    
+                            <div class="row">
+                                <div class="col-7"><h2 >@titleText </h2> @if(lesson.Id != Guid.Empty) {<span>@lesson.DateCreated</span>}</div>
+                                <div class="col-4" style="margin-left:5px" >
+                                <select  asp-for="IsСompleted" class="form-select" disabled="@(!isEditMode)" style="max-height:40px">
+                                     <option value="@true" >Завершено</option>
+                                     <option value="@false" >Не завершено</option>
+                                 </select>
+                                 
+                                </div>
+                            </div>
+                                    <div>
+                                        <a asp-action="Item" asp-controller="Group" asp-route-id="@Model?.GroupId" style="font-weight:900;color:#7571f9">К группе</a>
+                                    </div>
+                            </div>
+                            <div class="validation" asp-validation-summary="ModelOnly" style="color:#e16565"></div>
                                     <div class="form-group">
                                         <label class=" col-form-label" for="val-skill">
-                                            <h4>
-                                              
-
-
-                                            </h4>
+                                            <h4></h4>
                                         </label>
                                     </div>
 
+                                  
+
                                     <div class="form-group">
                                         <label class=" col-form-label" for="val-skill">
-                                            <h4>Date start | End date<span class="text-danger">*</span></h4>
+                                            <h4>Время начала | Время конца<span class="text-danger">*</span></h4>
+                                            @if (Model != null && Model.Group != null && Model.Group.LessonType != null)
+                                            {
+                                                <p style="font-size:small">
+                                                    (Время занятия по категории занятий : <span id="defaultLessonTime">@Model.Group.LessonType.LessonTimeInMinutes</span> min)
+                                                </p>
+                                            }
+                                            
                                         </label>
-                                        <div style="display:flex; justify-content:space-between">
-                                            <input type="datetime" asp-for="StartTime" class="form-control" value="@Model.StartTime" disabled>
-                                            <input type="datetime" asp-for="EndTime" class="form-control" value="@Model.EndTime" disabled>
+                                        <div class="row" style="align-items:baseline">
+                                            <div class="col-2">
+                                                <input type="datetime-local"
+                                                       id="meeting-time"
+                                                       step="any"
+                                                       class="form-control"
+                                                       disabled="@(!isEditMode)"
+                                                       asp-for="StartTime"
+                                                       onchange="GetLessonDuration()"/>
+                                            </div>
+
+                                            <div class="col-2">
+                                            <input type="datetime-local"
+                                                   id="meeting-time2"
+                                               step="any"
+                                                   class="form-control"
+                                                   disabled="@(!isEditMode)"
+                                                   asp-for="EndTime" 
+                                                   onchange="GetLessonDuration()"/>
+                                            </div>
+                                            <!--
+                                        <div class="col-2" style="display:flex;align-items:center">
+                                        <span style="font-size:x-large;margin-right:10px">+</span>
+                                        <input type="number" id="addDurationValue" class="form-control" style="background-color:aliceblue" />
                                         </div>
+                                         <div class="col-2">
+                                            <input type="button" class="btn btn-outline-primary" value="увеличить время занятия" onclick="AddMinutesToLessonEndTime()" />
+                                        </div>
+                                        -->
+                                        <div class="col-3" id="durationLesson">30 минут 10 секунд</div>
+                                        </div>
+                                          
+                                        
                                     </div>
+                                   
 
                                     <div class="form-group">
                                         <label class=" col-form-label" for="val-skill">
-                                            <h4>Topic</h4>
+                                        <h4>Тема занятия</h4>
                                         </label>
-                                        <input type="text" asp-for="Topic" disabled />
+                                       <div>
+                                        <input type="text" asp-for="Topic" disabled="@(!isEditMode)" placeholder="Введите..." class="form-control" />
+                                       </div>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label class=" col-form-label" for="val-skill">
-                                            <h4>Teacher<span class="text-danger">*</span></h4>
-                                        </label>
-                                        @if (Model.Group != null && Model.Group.GroupTeachers != null)
-                                        {
-
-                                        foreach (var teacher in Model.Group.GroupTeachers.Select(x => x.Teacher).Select(x => x.ApplicationUser))
-                                        {
-                                            <a asp-action="Item" asp-controller="Account" asp-route-id="@teacher.UserTeacher.Id">@teacher.FirstName @teacher.LastName @teacher.Surname</a>
-
-
-                                        }
-
-                                        }
-                                        else
-                                        {
-                                            <p>No teacher</p>
-                                        }
+                                    <div class="form-group" >
+                                        <div  style="display:flex; justify-content:space-between">
+                                            <label class=" col-form-label" for="val-skill">
+                                                <h4>Учитель<span class="text-danger">*</span></h4>
+                                            </label>
+                                            <div style="display:flex;margin:10px">
+                                                <button type="button" onclick="GetTeachers()" class="btn btn-primary" style="zoom:60%">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <select class="form-select" disabled="@(!isEditMode)" asp-for="TeacherId" id="teachers-select">
+                                        
+                                        </select>
 
                                     </div>
 
 
-                                    <div class="form-group">
-                                        <label class=" col-form-label" for="val-skill" style="display:flex;justify-content:space-between">
+                               <div class="form-group">
+                                <div style="display:flex;justify-content:space-between">
+                                        <label class=" col-form-label" for="val-skill" >
 
-                                            <h4>Arrived students @Model.Group.LessonType.GroupType.DisplayName
+                                        @{
+                                            var descrStudents = "";
+                                                            @if (lesson.Group != null && lesson.Group.LessonType != null && lesson.Group.LessonType.GroupType != null) descrStudents = @Model.Group.LessonType.GroupType.DisplayName;
+                                        }
+                                            <h4>Ученики </h4>
                                             @if (User.IsInRole("Student"))
                                             {
 
                                             <!--<button asp-action="RequestFromStudentToMissLesson" formmethod="post" asp-controller="Lesson" asp-route-id="Model.Id" class="btn btn-warning" />-->
                                             }
                                         </label>
+                                        <div style="display:flex;margin:10px">
+                                            <button type="button" onclick="GetStudents()" class="btn btn-primary" style="zoom:60%">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                                                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                </div>
                                         <ul>
-                                            @foreach (var item in Model.ArrivedStudents)
+                                    @if(lesson != null && lesson.ArrivedStudents != null && lesson.ArrivedStudents.Count() > 0)
+                                    {
+                                        @foreach (var item in lesson?.ArrivedStudents)
+                                        {
+                                          
+                                            <li class="row" style="align-items:baseline;grid-gap">
+                                                <div class="col-4">
+                                                    <select class="form-select" style="margin-top:10px" disabled="@(!isEditMode)" name="visitStatus">
+                                                        @foreach (var status in lesson.StudentVisitStatusesRuDictionary)
+                                                        {
+                                                            @if(item.VisitStatus == status.Key)
+                                                            {
+                                                                <option value="@status.Key" selected >@status.Value</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@status.Key">@status.Value</option>
+                                                            }
+                                                        }
+                                                    </select>
+
+                                                </div>
+                                                <div class="col-8" style="font-size:x-large">
+                                                    <span>
+                                                        <input type="hidden" name='studentId' value='@item.StudentId' />
+                                                        <a asp-action="Item" asp-controller="Account" asp-route-id="@item.Id">@item?.Student?.ApplicationUser?.FullName</a>
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+                                    else if(lesson.Group != null && lesson.Group.IsPermanentStaffGroup)
+                                    {
+                                        if (lesson?.Group != null && lesson?.Group.GroupStudents != null)
+                                        {
+                                            if (lesson?.Group.GroupStudents.Count() == 0)
+                                            {
+                                                <li>В группе нет ни одного ученика. Добавьте в группу учеников.</li>
+                                            }
+
+                                            @foreach (var item in lesson?.Group.GroupStudents.Select(x => x.Student))
                                             {
 
-                                                <li>
-                                                    <a asp-action="Item" asp-controller="Account" asp-route-id="@item.Id">@item.Student.ApplicationUser.FirstName @item.Student.ApplicationUser.LastName</a>
+                                                <li class="row" style="align-items:baseline;grid-gap">
+                                                    <div class="col-4">
+                                                    <select class="form-select" style="margin-top:10px" disabled="@(!isEditMode)"  name="visitStatus">
+                                                        <option selected value="1" >Посетил</option>
+                                                        <option value="2" >Не посетил со списанием занятия</option>
+                                                        <option value="3">Не посетил без списания занятия</option>
+                                                    </select>
+                                                       
+                                                    </div>
+                                                    <div class="col-8" style="font-size:x-large">
+                                                        <span>
+                                                            <input type="hidden" name='studentId' value='@item.Id' />
+                                                            <a asp-action="Item" asp-controller="Account" asp-route-id="@item.Id">@item.ApplicationUser.FullName</a>
+                                                        </span>
+                                                    </div>
                                                 </li>
                                             }
-                                        </ul>
+                                        }
+
+                                    }
+                                    else if (lesson?.Group != null && lesson?.Group.GroupStudents != null)
+                                    {
+                                        if (lesson?.Group.GroupStudents.Count() == 0)
+                                        {
+                                            <li>В группе нет ни одного ученика. Добавьте в группу учеников.</li>
+                                        }
+
+                                        @foreach (var item in lesson?.Group.GroupStudents.Select(x => x.Student))
+                                        {
+
+                                            <li class="row">
+                                                <div class="col-1">
+                                                    <input type='checkbox' class="form-control" name='studentId' value='@item.Id' disabled="@(!isEditMode)" style="margin-top:10px" />
+                                                </div>
+                                                <div class="col-10">
+                                                    <span>
+                                                        <a asp-action="Item" asp-controller="Account" asp-route-id="@item.Id">@item.ApplicationUser.FullName</a>
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+                                     
+                                    else if (Model != null && lesson.Id != Guid.Empty)
+                                    {
+                                        <div id="arrivedStudentsList">
+                                            <div class="d-flex justify-content-center">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Загрузка...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </ul>
 
                                     </div>
+                           
+                            
+                            
+                                
+                               <div class="row">
+                                <div class="col-6">
+                                    <h4>Место проведения</h4>
+                                    @if (Model != null && Model.Group != null && Model.Group.LessonType != null)
+                                    {
+                                        <p style="font-size:small">
+                                            @lesson?.Group?.LessonType?.Location?.DisplayName
+                                        </p>
+                                    }
+                                </div>
+                                <div class="col-6">
+                                    <h4>@additionalLocationInfoTitle</h4>
+                                    @if (additionalLocationInfoTitle == "Кабинет")
+                                    {
+                                        <input type="number" asp-for="Location" class="form-control" value="@Model.Location" placeholder="Введите..." disabled="@(!isEditMode)">
+                                    }
+                                    else
+                                    {
 
-                                    <div class="form-group">
-                                        <label class=" col-form-label" for="val-skill" style="display:flex;justify-content:space-between">
-                                            <h4>Link to webinar<span class="text-danger">*</span></h4>
 
-                                            <input type="url" asp-for="Location" class="form-control" value="@Model.Location" placeholder="Url link" disabled>
-                                        </label>
-                                    </div>
-                                    <div class="form-group" style="display:flex">
-                                        <label class=" col-form-label" for="val-skill">
-                                            <h4>Completed<span class="text-danger">*</span></h4>
-                                        </label>
-
-                                        <input type="checkbox" asp-for="IsСompleted" class="form-control" disabled>
-                                    </div>
-
-
-
-
-
-
-
+                                        <input type="url" asp-for="Location" class="form-control" value="@Model.Location" placeholder="Введите..." disabled="@(!isEditMode)">
+                                    }
 
                                 </div>
+                            </div>
+
+                               <div class="form-group">
+                                        <label class=" col-form-label" for="val-skill">
+                                            <h4>Ссылка на материалы</h4>
+                                        </label>
+                                        <input type="text" asp-for="AdditionalMaterials" class="form-control" placeholder="Введите..." disabled="@(!isEditMode)">
+                               </div>
+                               <div class="form-group">
+                                   <label class=" col-form-label" for="val-skill">
+                                       <h4>Комментарий</h4>
+                                   </label>
+                                   <textarea class="form-control" asp-for="Comment" rows="3" maxlength="300" placeholder="Введите..."></textarea>
+                               </div>
+
+                                @if(isEditMode)
+                                {
+                                    <div class="form-group">
+                                        @if (Model != null && Model.Id != Guid.Empty &&User.IsInRole("Admin"))
+                                        {
+                                            <input type="submit" asp-action="Create" asp-controller="Lesson" class="btn btn-primary" value="Редактировать" formmethod="post" />
+                                             <input type="submit" asp-action="Delete" asp-controller="Lesson" class="btn btn-danger" value="Удалить" formmethod="post" />
+                                        }
+                                        else if(User.IsInRole("Admin"))
+                                        {
+                                            <input type="submit" asp-action="Create" asp-controller="Lesson" class="btn btn-primary disabledBeforeLoad" value="Создать" formmethod="post" />
+                                        }
+                                         @if (User.IsInRole("Teacher") && Model != null && Model.Id != Guid.Empty)
+                                                        {
+                                                                    <input type="submit" asp-action="Create" asp-controller="Lesson" class="btn btn-primary" value="Редактировать без времени" formmethod="post" />
+                                                                    <input type="submit" asp-action="RequestEdit" asp-controller="Request" value="Запрос на изменение" formmethod="post" class="btn btn-outline-primary" />
+                                                                    <input type="submit" asp-action="RequestDelete" asp-controller="Request" asp-route-id="Model.Id" formmethod="post" value="Запрос на удаление" class="btn btn-outline-danger" />
+                                                           
+                                                        }
+                                         
+                                        
+                                        <!--<input type="button" asp-action="StartNow" asp-controller="Lesson" class="btn btn-success" value="Начать занятие"  /> -->
+                                        <!--<input type="button" asp-action="CompleteNow" asp-controller="Lesson" class="btn btn-outline-success" value="Завершить сейчас"  />-->
+                                    </div>
+                                }
+                            </div>
                             </div>
                         </div>
                     </div>
                 </div>
         </form>
-    }
-}
-else if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
-{
-    try
-    {
-        _context.Groups.ToList();
-        
-        _context.ApplicationUsers.ToList();
-    }
-    catch(Exception ex) {}
     
+}
 
-
-
-        <form class="mt-1 mb-5 login-input" method="post">
-            @if (Model != null)
-            {
-                <input type="hidden" asp-for="GroupId" value="@Model.GroupId" />
-                <input type="hidden" asp-for="@Model.Id" />
-                @if (Model.Teacher != null)
-                {
-                    <input type="hidden" id="teacherByLesson" value="'@Model.Teacher.Id'" />
-                }
-                @if (Model.Group != null && Model.Group.GroupTeachers != null)
-                {
-                    foreach (var tGr in Model.Group.GroupTeachers)
-                    {
-                        <input type="hidden" id="teacherByGroup" value="'@tGr.TeacherId'" />
-                    }
-               
-                }
-                <input type="hidden" asp-for="GroupId" value="@ViewBag.GroupId" />
-                <input type="hidden" name="GroupId" value="@ViewBag.GroupId" />
-
-            }
-
+@if (Model != null && Model.Parents != null && Model.Parents?.Count() != 0)
+{
+    <section style="padding-top:0%">
+        <div class="login-form-bg h-100">
             <div class="container-fluid">
-                <div class="row">
-                    <div class="col">
-                        <div class="card">
-                            <div class="card-body">
-                            <div style="display:flex;align-items:center;grid-gap:6%">
-                                <h2>Lesson editor</h2>
+                <div class="row justify-content-center h-100">
+                    <div class="col-xl-12">
+                        <div class="form-input-content">
+                            <div class="card login-form mb-0">
+                                <div class="card-body pt-5" style="zoom:130%">
+                                    @foreach (var par in Model.Parents)
+                                    {
+                                        <div class="col" style="background-color:rgb(117 113 249 / 30%)">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div>
+                                                        <!--HEADER LESSON-->
+                                                        <div class="row" >
 
-                                <div style="display:flex;align-items:baseline;grid-gap:6%">
-                                @if (Model != null && Model.IsСompleted)
-                                {
-                                    <span style="color:palevioletred">- already completed</span>
-                                }
-                                else
-                                {
-                                    <span> - complete status</span>
-                                }
-                                <input class="form-check-input" type="checkbox" asp-for="IsСompleted" />
-                                </div>
-                            </div>
-
-
-                            <div>
-                                <div class="validation" asp-validation-summary="ModelOnly"></div>
-
-                            </div>
-
-                                <div class="form-group">
-
-                                    <label class=" col-form-label" for="val-skill" style="display:flex">
-                                        <h4>Start time | End time<span class="text-danger">*</span></h4>
-                                        @if(Model != null && Model.Group != null && Model.Group.LessonType != null)
-                                        {
-                                            <p>
-                                            (Default by lesson type: <span id="defaultLessonTime">@Model.Group.LessonType.LessonTimeInMinutes</span> min)
-                                            </p>
-                                        }
-                                    </label>
-
-                                    <div style="display:flex;grid-gap:15px">
-
-
-                                    @{
-                                        DateTime minimumDateTime = DateTime.Now.AddYears(-1);
-                                        //minimumDateTime.Second = 0;
-                                    }
-                                    <input type="datetime-local"
-                                           id="meeting-time"
-                                           step="any"
-                                           class="form-control"
-                                           asp-for="StartTime" />
-
-                                        <input type="datetime-local"
-                                               id="meeting-time2"
-                                           step="any"
-                                               class="form-control"
-                                               asp-for="EndTime" />
-
-
-                                        <!--<div style="width:50%; display:flex;align-items:center;grid-gap:10px">
-                                            Set end time default <input type="button" value="set" class="btn btn-primary btn-sm" onclick="SetEndTime()" />
-                                        </div>-->
-
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>Topic</h4>
-                                    </label>
-                                    <input type="text" asp-for="Topic" class="form-select" placeholder="Input topic..."/>
-                                </div>
-
-
-                                <!--Teacher-->
-                                <div class="form-group">
-                                    <label class=" col-form-label" for="val-skill">
-                                    <h4>Teacher<span class="text-danger">*</span> @if (User.IsInRole("Admin")) {<span style = "font-size:small" > (by cource name)</span>}</h4>
-                                    </label>
-                                
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    
-                                    
-
-                                    <select asp-for="TeacherId" id="allTeachers" class="form-select">
-
-                                        @{
-                                            _context.Teachers.ToList();
-
-                                            var ii = _context.ApplicationUsers.ToList();
-                                            var teacherUserId = Guid.Empty;
-
-                                        }
-                                        @if (Model!= null && Model.Teacher != null && Model.Teacher.Teacher.ApplicationUser != null)
-                                        {
-                                            var user = Model.Teacher.Teacher.ApplicationUser;
-                                            
-                                            if(user!= null)
-                                            {
-                                                teacherUserId = user.Id;
-                                                <option selected class="text-info" value="@Model.Teacher.Id">@user.Login @user.FirstName @user.LastName </option>
-                                            }
-
-                                        }
-                                        @foreach (var teacher in _context.Teachers.Include(x=>x.ApplicationUser).Where(x => x.IsDeleted == false && x.ApplicationUser != null && x.ApplicationUser.Id != teacherUserId ))
-                                        {
-                                            try
-                                            {
-
-
-                                                List<LessonType> possibleCources = new List<LessonType>();
-                                                if (teacher.PossibleCources != null) possibleCources = teacher.PossibleCources.Where(x => x.LessonType != null).Select(x => x.LessonType).ToList();
-                                            //if(Model!= null && Model.Group != null && Model.Group.CourseName!= null &&possibleCources.Contains(Model.Group.CourseName))
-                                            //{
-                                                <option value="@teacher.Id">@teacher.ApplicationUser.Login - @teacher.ApplicationUser.FirstName @teacher.ApplicationUser.LastName @teacher.ApplicationUser.Surname</option>
-
-                                            //}
-                                            }
-                                            catch (Exception ex) { }
-                                        }
-
-                                    </select>
-                                }
-                                else
-                                {
-                                    <select asp-for="TeacherId" id="allTeachers" class="form-select" disabled>                                    
-                                        @if (Model != null && Model.Teacher != null && Model.Teacher.Teacher.ApplicationUser != null)
-                                        {
-                                            _context.Teachers.ToList();
-                                            _context.ApplicationUsers.ToList();
-                                            var user = Model.Teacher.Teacher.ApplicationUser;
-
-
-                                            <option selected class="text-info" value="@Model.Teacher.Id">@user.Login @user.FirstName @user.LastName @user.Surname</option>
-
-
-                                        }
-                                        
-
-                                    </select>
-                                }
-
-                            </div>
-
-                                <div class="form-group">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>Link to webinar</h4>
-                                    </label>
-                                    <input type="text" asp-for="Location" class="form-select" placeholder="Input link...">
-                                </div>
-
-                                <div class="form-group">
-                                    <label class=" col-form-label" for="val-skill">
-                                        <h4>Link to materials</h4>
-                                    </label>
-                                <input type="text" asp-for="AdditionalMaterials" class="form-select" placeholder="Input link...">
-                                </div>
-                            <div class="form-group">
-                                <label class=" col-form-label" for="val-skill">
-                                    <h4>Comment</h4>
-                                </label>
-                                <textarea class="form-control" asp-for="Comment" rows="3" maxlength="300"></textarea>
-                            </div>
-
-                              @if(Model != null && Model.Id != Guid.Empty)
-                              {
-                                <div id="arrivedStudentsList">
-                                    <div class="d-flex justify-content-center">
-                                        <div class="spinner-border text-primary" role="status">
-                                            <span class="visually-hidden">Loading...</span>
+                                                        
+                                                            <div class="col-lg-4">
+                                                                <div>@par?.Topic</div>
+                                                                <div>@par?.StartTime.ToShortDateString() @par?.StartTime.ToShortTimeString() - @par?.EndTime.ToShortTimeString()</div>
+                                                                @if(@par.DateCompletedByTeacher != DateTime.MinValue) {<div>Завершено учителем : @par.DateCompletedByTeacher</div>}
+                                                                <div>@par?.AdditionalMaterials</div>
+                                                                <div>@par?.Comment</div>
+                                                            </div>
+                                                            <div class="col-lg-5">
+                                                                <div>Учитель: @if(par.Teacher != null) { <div>@par.Teacher.Teacher.ApplicationUser.FullName</div>}</div>
+                                                                <hr />
+                                                                <div>
+                                                                    @if (par.ArrivedStudents != null && @par.ArrivedStudents.Select(x => x.Student) != null && @par.ArrivedStudents.Select(x => x.Student).Select(x => x.ApplicationUser) != null)
+                                                                    {
+                                                                        @foreach (var i in @par.ArrivedStudents)
+                                                                        {
+                                                                            <div>@(par.ArrivedStudents.IndexOf(i) + 1). @i.Student.ApplicationUser.FullName - @i.VisitStatusTextRu</div>
+                                                                            @if(i.Comment != null && !string.IsNullOrEmpty(i.Comment)) {<div>Комментарий: </div>}
+                                                                        }
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-3">@par?.DateCreated</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                              }
-
-                                        
-                                    
-
-
-                                <hr />
-                               
-                                <div class="form-group">
-                                    @if (Model != null && Model.Id != Guid.Empty)
-                                    {
-                                        <input type="submit" asp-action="Edit" asp-controller="Lesson" class="btn btn-primary" value="Edit" formmethod="post" />
-                                    }
-                                    else
-                                    {
-                                        <input type="submit" asp-action="Create" asp-controller="Lesson" class="btn btn-primary" value="Create" formmethod="post" />
                                     }
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
-    }
+        </div>
+    </section>
+}
+
+
 
 
 <script>
+    const buttons = document.querySelectorAll('.btn');
 
+    function DisableAttributes()
+    {
+
+        buttons.forEach(button => {
+            button.setAttribute('disabled', true);
+                });
+    }
+    DisableAttributes();
+
+    function GetLessonDuration() {
+    console.log("GetLessonDuration");
+   
+    const startTime = new Date(document.getElementById("meeting-time").value);
+    const endTime = new Date(document.getElementById("meeting-time2").value);
+    console.log(startTime)
+            console.log(endTime)
+
+    // Вычисляем разницу в минутах и секундах
+    const timeDifference = Math.abs(endTime - startTime) / 1000; // разница в секундах
+    const minutes = Math.floor(timeDifference / 60);
+    const seconds = Math.floor(timeDifference % 60);
+    console.log(` - ${minutes} минут ${seconds} секунд`);
+
+    // Проверяем, если endTime меньше startTime, меняем знак минут на отрицательный
+    const adjustedMinutes = endTime < startTime ? -minutes : minutes;
+
+    // Отображаем разницу на странице
+    document.getElementById("durationLesson").innerHTML = ` ${adjustedMinutes} минут ${seconds} секунд`;
+}
+
+
+    function AddMinutesToLessonEndTime() {
+        console.log()
+        // Получаем значения элементов
+        var endTimeInput = document.getElementById("meeting-time2");
+        var addMinutesInput = document.getElementById("addDurationValue");
+
+        // Получаем текущее значение конечного времени
+        var endTime = new Date(endTimeInput.value);
+
+        // Получаем количество минут, которое нужно добавить
+        var addMinutes = parseInt(addMinutesInput.value) || 0;
+
+        // Добавляем указанное количество минут к конечному времени
+        endTime.setTime(endTime.getTime() + addMinutes * 60000 + 180);
+
+        // Форматируем новое время в требуемый формат (YYYY-MM-DDTHH:MM)
+        var formattedEndTime = endTime.toISOString().slice(0, 16);
+
+        // Устанавливаем новое значение в поле конечного времени
+        endTimeInput.value = formattedEndTime;
+    }
+
+
+
+    function GetTeachers() {
+        return new Promise((resolve, reject) => {
+            var valData = { groupId: '@lesson.GroupId' };
+            var firstOptionAdded = false;
+            var dbGroupTeachers = [];
+            $('input[name="teacherId"]').each(function () {
+                dbGroupTeachers.push($(this).val());
+            });
+            var dbIsCanEdit = '@isEditMode.ToString()';
+            var dbId = '@lesson?.Group?.GroupTeachers?.FirstOrDefault()?.TeacherId.ToString()';
+
+            $.ajax({
+                url: '/Teachers/GetAsync',
+                type: 'GET',
+                data: valData,
+                success: function (data) {
+                    $("#teachers-select").empty();
+                    data.forEach(function (item) {
+                        var disabled = item.status == "Удален" ? "disabled" : "";
+                        var option = $('<option ' + 'title="' + item.applicationUser.fullName + '" ' + 'value="' + item.id + '" ' + disabled + ' >').text(item.applicationUser.fullName);
+                        if (dbId != "" && item.id == dbId) {
+                            option = $('<option ' + 'title="' + item.applicationUser.fullName + '" ' + 'value="' + item.id + '" style="color:#7571f9" ' + '" ' + disabled + ' >').text(item.applicationUser.fullName);
+                            option.attr('selected', 'selected');
+                        } else if (!firstOptionAdded && disabled != "disabled") {
+                            option.attr('selected', 'selected');
+                            firstOptionAdded = true;
+                        }
+                        $("#teachers-select").append(option);
+                    });
+
+                    resolve(); // Resolve the Promise once AJAX request is complete
+                },
+                error: function (error) {
+                    reject(error); // Reject the Promise if there is an error
+                }
+            });
+        });
+    }
 
     function SetStartTime() {
         
@@ -398,6 +530,7 @@ else if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
         
 
     }
+
 
     function SetEndTime() {
         // Get the values of the elements
@@ -424,87 +557,12 @@ else if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
 
         // Set the value of the EndTime input
         endTimeInput.value = formattedEndTime;
+        console.log(endTimeInput)
+        console.log("endTimeInput")
     }
-
-
-    function getLessonTypesList() {
-
-        var studentsList = $("#lessonTypes");
-
-        $.ajax({
-            url: "/Cource/GetLessonTypesAsync",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                data = JSON.parse(data);
-                if (Array.isArray(data)) {
-
-
-                    data.forEach(function (item, i, arr) {
-                        studentsList.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
-
-                        var appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='" + item.Id + "'>" + item.Name;
-
-                        appendedLine += "</option>"
-
-                        studentsList.append(appendedLine);
-                    })
-                }
-            }
-        });
-
-    }
-
-    function getTeachers() {
-
-        var requiredTeachers = $("#allTeachers");
-        var teacher = $("#teacherByLesson").val();
-        var teacher2 = $("#teacherByGroup").val();
-        var teacherId = ""
-
-        if (teacher2 != undefined)
-            teacherId = teacher2
-        if (teacher != undefined)
-            teacherId = teacher
-        console.log("fefwefef")
-
-        $.ajax({
-            url: "/Teachers/GetTeachersAsync",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                data = JSON.parse(data);
-                if (Array.isArray(data)) {
-
-                    if (data.length == 0) {
-                        var appendEmpty = "<li class='list-group-item' value='' >Teacher's list is empty</li>";
-                        requiredTeachers.append(appendEmpty);
-                    }
-                    data.forEach(function (item, i, arr) {
-                        requiredTeachers.append("<input type='hidden' name='itemId'  value='" + item.Id + "'/>");
-
-                        var appendedLine = ""
-                        if (teacherId != undefined && item.Id.toString() == teacherId)
-                            appendedLine += "<option class='list-group-item' style='color:blue' selected name='teacherValue' value='" + item.Id + "'>";
-                        else
-                            appendedLine = "<option class='list-group-item' asp-for='LessonTypeId' value='" + item.Id + "'>";
-                        appendedLine += item.ApplicationUser.FirstName + " " + item.ApplicationUser.LastName + " " + item.ApplicationUser.Surname
-                        appendedLine += "</option>"
-
-                        requiredTeachers.append(appendedLine);
-                    })
-
-
-
-
-                }
-            }
-        });
-    }
+   
 
     function selectAllStudents() {
-
-
 
     }
 
@@ -580,22 +638,45 @@ else if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
         });
     }*/
 
-
+    
     //-------------------------------------------------
 
 
+    function Init() {
+        return new Promise((resolve, reject) => {
+            Promise.all([GetTeachers(), loadArrivedStudentsList()]).then(() => {
+                console.log("1 itit");
+                
+               
+                console.log("2 itit");
+
+                resolve();
+            }).catch(error => {
+                console.log("err itit");
+                reject(error); // Reject the Promise if any operation fails
+            });
+        });
+    }
+
     $(document).ready(function () {
 
-
-        //getStudents();
-        //getTeachers();
-        console.log("teacher")
-
-        //getLessonTypesList();
-        loadArrivedStudentsList();
-
-        SetStartTime()
-        SetEndTime()
+         GetTeachers().then(() => {
+            console.log("End itit");
+            buttons.forEach(button => {
+                button.removeAttribute('disabled');
+            });
+    }).catch(error => {
+        console.error('Ошибка при получении учителей:', error);
     });
 
+
+        if ('@lesson.Id' != '@Guid.Empty') {
+            // Do something if condition is met
+        } else {
+            SetStartTime();
+            SetEndTime();
+            GetLessonDuration();
+            resolve(); // Resolve the Promise once operations are completed
+        }
+    });
 </script>

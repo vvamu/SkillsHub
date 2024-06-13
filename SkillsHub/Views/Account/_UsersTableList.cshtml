@@ -1,14 +1,19 @@
 ﻿@using SkillsHub.Domain.BaseModels;
 @model List<ApplicationUser>;
 @inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
+@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> _userManager;
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 
+@{
+    var properties = new string[] { "Статус", "Роли", "Логин", "Курсы", "Рабочее время", "Полное имя", "Пол", "Телефон", "Почта", "День рождения", "Занятия учителя/ученика", "Текущие группы учителя/ученика", "Источник поиска", "Мягкое удаление", "Тяжелое удаление", "Дата создания" };
+
+}
 
     @if (Model == null || Model.Count() == 0)
         {
 
                 <div style=" display:flex;grid-gap:20px;justify-content:center;min-height:200px;align-items:center ">
-                    <h3>Users list is empty</h3> 
+                    <h3>Список пользователей пуст</h3> 
                     
 
                 </div>
@@ -28,155 +33,187 @@
                                         <table class="table table-striped table-bordered zero-configuration">
                                             <thead>
                                                 <tr>
-                                                    <th>Login</th>
-                                                    <th>Full Name</th>
-                                                    <th>Sex</th>
-                                                    <th>Phone</th>
-                                                    <th>Email</th>
-                                                    <th>BirthDate and Age</th>
-                                                    <th>Lessons teacher/student</th>
-                                                    <th>Current groups teacher/student</th>
-                                                    <th>Roles</th>
-                                                    <th>Cources</th>
-                                                    <th>Working days</th>
-                                                    <th>Source Find Company</th>
-                                                    
-                                                    <th>Soft delete</th>
-                                                    <th>Hard delete (from database)</th>
+                                                    @foreach(var item in properties)
+                                                    {
+                                                        <th style="text-wrap:nowrap">@item</th>
+                                                    }
 
                                                 </tr>
                                             </thead>
                                             <tbody>
 
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>
-                @if (item.IsDeleted == false)
-                {
-                    <a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.Id" style="font-weight:900;color:#7571f9">  @item.Login </a>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>---</td>
+                                        @{
+                                                var userRolesList = await _userManager.GetRolesAsync(item);
+                                                var translatedRoles = userRolesList.Select(role =>
+                                                {
+                                                    switch (role)
+                                                    {
+                                                        case "Student":
+                                                            return "Студент";
+                                                        case "Teacher":
+                                                            return "Учитель";
+                                                        case "Admin":
+                                                            return "Администратор";
+                                                        default:
+                                                            return role;
+                                                    }
+                                                }).ToList();
+                                                var userRoles = String.Join(";", translatedRoles);
+                                        }
+                                            <td>@userRoles</td>
+                                        <td>
+                                            @{
+                                                    var deletedStatus = item.IsDeleted ? "font-weight:900;color:red" : "font-weight:900;color:#7571f9";                                        
+                                            }
+                                            
+                                            <a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.Id" style="@deletedStatus">  @item.Login </a>
 
-                }
-                else
-                {
-                    <a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.Id" style="font-weight:900;color:red">  @item.Login </a>
-                }
-            </td>
+                                        </td>
+                                        <td>
+                                            
+                                                @try
+                                                {
 
-            @{var birhDateToString = "";}
-            @if(item!= null && item.UserInfo != null)
-            {
-                DateTime birthDate = DateTime.Now;
-                birhDateToString = birthDate.ToString();
-                if(birthDate == DateTime.Now) 
-                birhDateToString = (DateOnly.FromDateTime(birthDate).ToShortDateString());
-            }
+
+                                                    @if (item.UserTeacher != null && item.UserTeacher.PossibleCources != null)
+                                                    {
+                                                        var teacherCources = item.UserTeacher?.CurrentPossibleCourses.Select(x => x.LessonType).Select(x => x.Name).ToList() ?? new List<string?>();
+
+                                                        <div class="row">
+                                                            <div class="col" style="text-wrap:nowrap">Направления для учителя:</div>
+                                                            <div class="col">
+                                                                @foreach (var cource in teacherCources)
+                                                                {
+                                                                    <div style="text-wrap:nowrap">@cource</div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    @if (item.UserStudent != null && item.UserStudent.PossibleCources != null)
+                                                    {
+                                                        var studentrCources = item.UserStudent?.CurrentPossibleCourses?.Select(x => x.LessonType).Select(x => x.Name).ToList() ?? new List<string?>() {"Отсутствуют"};
+
+                                                        <div class="row">
+                                                            <div class="col" style="text-wrap:nowrap">Направления для студента: </div>
+                                                            <div class="col">
+                                                                @foreach (var cource in studentrCources)
+                                                                {
+                                                                    <div style="text-wrap:nowrap">@cource</div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+
+                                                }
+                                            
+                                        </td>
+
+
+                                        <td>
+
+                                                @if (item.UserTeacher != null && item.UserTeacher.WorkingDays != null)
+                                                {
+
+                                                    <p>
+                                                        <strong>Учитель:</strong> @item.UserTeacher.WorkingDays
+                                                    </p>
+                                                }
+                                                @if (item.UserStudent != null && item.UserStudent.WorkingDays != null)
+                                                {
+                                                    <p>
+                                                        <strong>Студент:</strong>  @item.UserStudent.WorkingDays
+                                                    </p>
+                                                }
+                                        </td>
+                                        
+
+                                        @{var birhDateToString = "";}
+                                        @if(item!= null && item.UserInfo != null)
+                                        {
+                                            DateTime birthDate = DateTime.Now;
+                                            birhDateToString = birthDate.ToString();
+                                            if(birthDate == DateTime.Now) 
+                                            birhDateToString = (DateOnly.FromDateTime(birthDate).ToShortDateString());
+                                        }
             
-                <td>@item?.FirstName @item?.LastName @item?.Surname</td>
-                <td>@item?.Sex</td>
-                <td>@item?.Phone</td>
-                <td>@item?.Email</td>
+                                            <td style="text-wrap:nowrap">@item?.FullName</td>
+                                            <td>@item?.Sex</td>
+                                            <td>@item?.Phone</td>
+                                            <td>@item?.Email</td>
+                                            
 
-                <td> @(DateOnly.FromDateTime(item.BirthDate).ToShortDateString()) - @item?.Age year</td>
-            @{
-                var teacherLessonsMonth = 0;
-                var studentLessonsMonth = 0;
-                var teacherLessons = 0;
-                var studentLessons = 0;
-                var teacherGroups = 0;
-                var studentGroups =  0;
-                
-                var teacherExpected = 0;
-                var studentExpected = 0;
-                var currentMonth = DateTime.Now.Month;
+                                            <td> @(DateOnly.FromDateTime(item.BirthDate).ToShortDateString()) - @item?.Age лет</td>
+                                            @{
+                                                var teacherLessonsMonth = 0;
+                                                var studentLessonsMonth = 0;
+                                                var teacherLessons = 0;
+                                                var studentLessons = 0;
+                                                var teacherGroups = 0;
+                                                var studentGroups =  0;
 
-               
-                  // var ii = teacherLessonsMonth = item.UserTeacher.Groups;
+                                                var teacherExpected = 0;
+                                                var studentExpected = 0;
+                                                var currentMonth = DateTime.Now.Month;
 
-                 _context.Lessons.ToList();
-                 _context.Groups.ToList();
-                 _context.LessonStudents.ToList();
-                 _context.GroupStudents.ToList();
 
-                     if (item.UserTeacher != null)
-                    {
-                        teacherExpected = _context.Lessons.Where(x=>x.TeacherId== item.UserTeacher.Id && x.IsСompleted ==  false).Count();
-                        var teacherLessonss = _context.Lessons.Where(x=>x.TeacherId== item.UserTeacher.Id && x.IsСompleted ==  true);
-                        teacherLessons = teacherLessonss.Count();
-                        teacherLessonsMonth = teacherLessonss.Where(x=>x.EndTime.Month == currentMonth).Count();
-                        teacherGroups = _context.GroupTeachers.Where(x=>x.TeacherId == item.UserTeacher.Id).Count();
-                       
-                       
+                                                // var ii = teacherLessonsMonth = item.UserTeacher.Groups;
+                                                /*
+                                                _context.Lessons.ToList();
+                                                _context.Groups.ToList();
+                                                _context.LessonStudents.ToList();
+                                                _context.GroupStudents.ToList();
+
+                                                if (item.UserTeacher != null)
+                                                {
+                                                teacherExpected = _context.Lessons.Where(x=>x.TeacherId== item.UserTeacher.Id && x.IsСompleted ==  false).Count();
+                                                var teacherLessonss = _context.Lessons.Where(x=>x.TeacherId== item.UserTeacher.Id && x.IsСompleted ==  true);
+                                                teacherLessons = teacherLessonss.Count();
+                                                teacherLessonsMonth = teacherLessonss.Where(x=>x.EndTime.Month == currentMonth).Count();
+                                                teacherGroups = _context.GroupTeachers.Where(x=>x.TeacherId == item.UserTeacher.Id).Count();
+
+
                     }
-                      if (item.UserStudent != null)
-                      {
-                          studentExpected = _context.LessonStudents.Where(x=>x.StudentId == item.UserStudent.Id && x.Lesson.IsСompleted ==  false).Count();
-                        var lessonStudents = _context.LessonStudents.Where(x=>x.StudentId == item.UserStudent.Id && x.Lesson.IsСompleted ==  true);
-                        studentLessons = lessonStudents.Count();
-                        studentLessonsMonth = lessonStudents.Where(x=>x.Lesson != null && x.Lesson.EndTime.Month == currentMonth).Count();
-                        studentGroups = _context.GroupStudents.Where(x=>x.StudentId == item.UserStudent.Id).Count();
+                                                if (item.UserStudent != null)
+                                                {
+                                                studentExpected = _context.LessonStudents.Where(x => x.StudentId == item.UserStudent.Id && x.Lesson.IsСompleted == false).Count();
+                                                var lessonStudents = _context.LessonStudents.Where(x => x.StudentId == item.UserStudent.Id && x.Lesson.IsСompleted == true);
+                                                studentLessons = lessonStudents.Count();
+                                                studentLessonsMonth = lessonStudents.Where(x => x.Lesson != null && x.Lesson.EndTime.Month == currentMonth).Count();
+                                                studentGroups = _context.GroupStudents.Where(x => x.StudentId == item.UserStudent.Id).Count();
 
-                      }
-                        
-                   
-               
-                
-
-            }
-            <td>total passed: @teacherLessons / @studentLessons;<br/> by month: @teacherLessonsMonth / @studentLessonsMonth;<br/>expected: @teacherExpected/@studentExpected</td>
-            <td>@teacherGroups / @studentGroups</td>
-            <td>
-                @{
-                    var roles = await _roleManager.UserManager.GetRolesAsync(item);
-                    string result = string.Join(",", roles.ToArray());
-                    @result
-                }
-            </td>
-            <td>@try{
-
-                
-                 @if(item.UserTeacher != null && item.UserTeacher.PossibleCources != null) { 
-                 var teacherCources = item.UserTeacher.PossibleCources.Select(x=>x.LessonType).Select(x=>x.Name).ToList();
-
-                 <p><strong>Teacher:</strong> @foreach(var cource in teacherCources){@cource}
-                 </p> 
-                 }
-                 @if(item.UserStudent != null && item.UserStudent.PossibleCources != null) { 
-                 var studentrCources = item.UserStudent.PossibleCources.Select(x=>x.LessonType).Select(x=>x.Name).ToList();
-
-                 <p><strong>Student:</strong> @foreach(var cource in studentrCources)
-                     {
-                         @cource 
-                     }
-                 </p> 
-                 } 
-                 }
-                 catch(Exception ex) {
-
-                 }</td>
-
-
-                  <td>
-                    
-                 @if(item.UserTeacher != null && item.UserTeacher.WorkingDays != null) { 
-
-                 <p><strong>Teacher:</strong> @item.UserTeacher.WorkingDays
-                 </p> 
-                 }
-                 @if(item.UserStudent != null && item.UserStudent.WorkingDays != null) { 
-                     <p><strong>Student:</strong>  @item.UserStudent.WorkingDays 
-                     </p> 
-                 } 
-                </td>
-            <td>@item.SourceFindCompany</td>
+                                                }*/
+                                            }
+                                        <td>Всего: @teacherLessons / @studentLessons;<br/> За месяц: @teacherLessonsMonth / @studentLessonsMonth;<br/> Ожидается: @teacherExpected/@studentExpected</td>
+                                        <td>
+                                                @if (item.UserTeacher != null) {<div>Группы учителя: @teacherGroups </div>}
+                                                @if (item.UserStudent != null) {<div>Группы ученика: @studentGroups</div>}
+                                        </td>
+                                        
+                                            
+                                            <td></td>
+                                        <td>@item.SourceFindCompany</td>
             
-            <td><a asp-action="SoftDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Soft delete</a></td>
-            <td><a asp-action="HardDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Hard delete</a></td>
-        </tr>
-    }
+                                        <td><a asp-action="SoftDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Soft delete</a></td>
+                                        <td><a asp-action="HardDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Hard delete</a></td>
+                                    </tr>
+                                }
                                     </tbody>
                                     <tfoot>
                                         <tr>
+
+                                        @foreach (var item in properties)
+                                        {
+                                            <th style="text-wrap:nowrap">@item</th>
+                                        }
+
+                                            <!--
                                             <th>Login</th>
                                             <th>Full Name</th>
                                             <th>Sex</th>
@@ -191,7 +228,7 @@
                                             <th>Source Find Company</th>
                                             
                                             <th>Soft delete</th>
-                                            <th>Hard delete (from database)</th>
+                                                <th>Hard delete (from database)</th>-->
 
                                         </tr>
                                     </tfoot>
@@ -204,6 +241,6 @@
         </div>
 }
 
-                                            <script src="~/plugins/tables/js/jquery.dataTables.min.js"></script>
+    <script src="~/plugins/tables/js/jquery.dataTables.min.js"></script>
     <script src="~/plugins/tables/js/datatable/dataTables.bootstrap4.min.js"></script>
     <script src="~/plugins/tables/js/datatable-init/datatable-basic.min.js"></script>

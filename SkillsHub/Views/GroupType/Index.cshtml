@@ -1,0 +1,73 @@
+﻿@model List<GroupType>?;
+@{
+	ViewData["Title"] = "Create";
+}
+
+<style>
+    th, td {
+        text-wrap: nowrap
+    }
+
+</style>
+
+@{
+    var items = Model.ToList() ?? new List<GroupType>();
+    var resText = "Групповые категории";
+    var properties = new string[] { "Статус", "Имя", "Количество учеников", "Дата изменения", "Дата создания" };
+}
+
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div style="display:flex; justify-content:space-between;align-items:center;margin:5px">
+                        <h2 class="card-title">@resText</h2>
+                        <form>
+                            <div><input type="submit" class="btn btn-primary" value="+" asp-action="Create" asp-controller="GroupType" /></div>
+                        </form>
+                    </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered zero-configuration">
+                                <thead>
+                                    <tr>
+                                        @foreach(var i in properties)
+                                        {
+                                            <th>@i</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody id="partialContainer">
+                                    
+                                   @foreach(var item in Model)
+                                   {
+                                    <tr>
+                                       <td>@item.Status</td>
+                                       <td><form><a asp-action="Create" asp-controller="GroupType" asp-route-itemId="@item.Id" style="color:#7571f9">@item.Name</a></form></td>
+                                       <td>@item.DisplayName?.Replace("/", "").Replace("\\" , "")</td>
+                                       <td>@item.DateCreated</td>
+                                       <td>@item.DateRegistration</td>
+                                    </tr>
+                                       
+                                   }
+                                    
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        @foreach (var i in properties)
+                                        {
+                                            <th>@i</th>
+                                        }
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

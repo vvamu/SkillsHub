@@ -1,0 +1,37 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<SkillsHub.Domain.BaseModels.ApplicationUser> _signInManager;
+@inject UserManager<SkillsHub.Domain.BaseModels.ApplicationUser> _userManager;
+@model EmailProvider.Models.SendingMessage?;
+
+
+@{
+    var userName = _signInManager.Context.User.Identity.Name;
+    if (userName == null) throw new Exception();
+    var dbUser = await _userManager.FindByNameAsync(userName);
+
+}
+
+
+@if (User.IsInRole("Admin"))
+{
+    <!--
+
+    <div class="panel-footer">
+        <div class="input-group">
+            <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
+            <span class="input-group-btn">
+                <button class="btn btn-warning" id="btn-chat">
+                    Send
+                </button>
+            </span>
+        </div>
+    </div>
+-->
+}
+
+
+
+
+
+
+

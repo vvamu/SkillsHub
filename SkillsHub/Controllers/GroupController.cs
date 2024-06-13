@@ -42,251 +42,95 @@ public class GroupController : Controller
     public async Task<IActionResult> Index()
     {   
         var groups = await _groupService.GetAll().ToListAsync();
-
         return View(groups);
     }
+
 
     [HttpPost]
     public async Task<IActionResult> GetGroups(GroupFilterModel filters, OrderModel order)
     {
-        var gr = _groupService.GetAll();
+        var gr = _groupService.GetAllGroupsList();
         List<Group> res = new List<Group>();
 
         var ress = await FilterMaster.FilterGroups(gr.AsQueryable(), filters, order);
-        var rerer = ress.ToList();
+        var rerer = ress.ToList().Where(x=>!x.IsDeleted);
+        
+
 
         foreach (var group in rerer)
-            res.Add(await _groupService.GetAsync(group.Id));
+        {
 
+            var i = await _groupService.GetAsyncToGroupsList(group.Id);
+            res.Add(i);
+
+        }
         return PartialView("_GroupsList", res);
     }
 
     public async Task<IActionResult> Item(Guid id)
     {
         var group = await _groupService.GetAsync(id);
-        ViewBag.Students = await _userService.GetAllStudentsAsync();
-        ViewBag.Teachers = _userService.GetAllTeachers();
-        
-
+        if (group == null) return RedirectToAction("Index", "Group");
         return View(group);
     }
 
-    public IActionResult Create()
+    public async Task<IActionResult> Create(Guid? id)
     {
+        if(id == null) return View();
 
-        return View();
+        var group = await _groupService.GetAsync((Guid)id);
+        return View(group);
     }
 
+    [Route("/Group/ScheduleDays")]
+    public async Task<IActionResult> GetScheduleDaysAsync(Guid groupId)
+    {
+        var item = await _groupService.GetAsync(groupId);
+        if (item == null) return Ok(new List<GroupWorkingDay>());
+        var scheduleDays = item.DaySchedules;
+        foreach(var sc in scheduleDays)
+        {
+
+        }
+
+        return Ok(scheduleDays);
+    }
 
 
     [HttpPost]
     public async Task<IActionResult> Create(Group item, Guid[] studentId, string[] dayName, TimeSpan[] startTime) //del teacherValue and duration
     {
-        //return View("Create", item);
         Group group = new Group();
+        if(item != null && item.Id != Guid.Empty) group = await _context.Groups.FindAsync(item.Id);        
+
         try
         {
+          
+            item.TeacherId = new Guid(item?.TeacherIdString);
             if (!User.IsInRole("Admin")) item.IsVerified = false;
+            else item.IsVerified = true;
 
-
-            var groupType = await _context.GroupTypes.FirstOrDefaultAsync(x=>x.Id == item.LessonType.GroupTypeId);
-            item.IsPermanentStaffGroup = true;
-
-            //if (item.IsPermanentStaffGroup) item.IsLateDateStart = true;
-            var lessonType = item.LessonType;
-            
-            
-               if (lessonType.GroupType != null  && (studentId.Count() > lessonType.GroupType.MaximumStudents) || (studentId.Count() < lessonType.GroupType.MinimumStudents))
-                {
-                    if(!item.IsLateDateStart)
-                        ModelState.AddModelError("", "Not correct count of students to  start group."); return View("Create", item);
-                }
-            
-            group =  await _groupService.CreateAsync(item);
-
-            if (!item.IsVerified)
-            {
-                var user = await _userService.GetCurrentUserAsync();
-                var message = "Teacher " + user.FirstName + " " + user.LastName + " " + user.Surname + " send request to create new group '" + item.Name + "'. Check it.";
-
-                var notification = new NotificationMessage() { IsRequest = true, Message = message };
-            }
-
-            await _groupService.CreateScheduleDaysToGroup(group, dayName, startTime);
-
-            List<Lesson> lessons = new List<Lesson>();
-            if(item.IsVerified && !item.IsLateDateStart)
+            if (group.Id != Guid.Empty)
             {
                 
-                   lessons =await _groupService.CreateLessonsBySchedule(group.DaySchedules, item.DateStart, item.LessonsCount, item, true);
-                               
+               group = await _groupService.UpdateAsync(item, studentId, dayName, startTime);
             }
-            await _groupService.UpdateGroupStudents(group, studentId.ToList());
-
-
-            if (item.IsPermanentStaffGroup)
-            {
-                foreach (var lesson in lessons)
-                {
-                    try
-                    {
-                        await _lessonService.UpdateLessonStudents(lesson, studentId.ToList());
-
-                    }
-                    catch(Exception ex) { ModelState.AddModelError("", "The group was created, but messages were not sent to users."); return View("Create", item); }
-                    }
-                   
-                
-            }
-
-
-
-            await _context.SaveChangesAsync();
+            else
+                group =  await _groupService.CreateAsync(item,studentId,dayName,startTime);
 
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message); return View("Create",item);
+            if(ex is ArgumentNullException) ModelState.AddModelError("", "Группа не может быть создана без учителя");
+            else ModelState.AddModelError("", ex.Message); 
+            return View("Create",item);
         }
         return RedirectToAction("Item", new { id = group.Id });
 
     }
-    [HttpGet]
-    public async Task<IActionResult> Edit(Guid id)
-    {
-        var group = await _groupService.GetAsync(id);
-        try
-        {
-            if (group != null && group.GroupStudents != null)
-            {
-                ViewBag.studentsByGroup = group.GroupStudents.ToArray();
-            }
-            ViewBag.teachers = _context.Teachers.Include(x => x.ApplicationUser).ToList();
 
 
-        }
-        catch (Exception ex) { }
-        return View(group);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Edit(Group item, Guid[] studentId, string[] dayName, TimeSpan[] startTime)
-    {
-        try
-        {
-            /*
-            var group = await _groupService.GetAsync(item.Id);
-            _context.Entry(group).State = EntityState.Detached;
-
-            #region Add notification to teacher
-
-            try
-            {
-                
-
-                    List<NotificationUser> usersToSend = new List<NotificationUser>();//{ new NotificationUser() { UserId =  } };
-
-                if (item.TeacherId != group.TeacherId && item.TeacherId !=  Guid.Empty)
-                {
-                    var userTeacher  =_context.Teachers.Include(x=>x.ApplicationUser).FirstOrDefault(x=>x.Id == item.TeacherId);
-                    //var message = " You was added to group " + group.Name + " like teacher";
-                    //var notification = new NotificationMessage() { Message = message, Users = usersToSend };
-                    _notificationService.Create("You was added to group "+group.Name + " like teacher", new List<ApplicationUser>() { userTeacher.ApplicationUser });
-
-                }
-                if (item.TeacherId != group.TeacherId && group.TeacherId != Guid.Empty)
-                {
-                    var userTeacher = _context.Teachers.Include(x => x.ApplicationUser).FirstOrDefault(x => x.Id == group.TeacherId);
-                    //var message = " You was renoved from group " + group.Name + " like teacher";
-                    //var notification = new NotificationMessage() { Message = message, Users = userTeacher };
-
-                    _notificationService.Create("You was removed from group"+group.Name+ " like teacher", new List<ApplicationUser>() { userTeacher.ApplicationUser});
-                }
-                
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex) { }
-
-            #endregion
-
-
-
-            //need
-            
-            if (item.LessonTypeId == Guid.Empty) item.LessonTypeId = group.LessonTypeId;
-            //if(item.CourseNameId == Guid.Empty) item.CourseNameId = group.CourseNameId;
-            if(item.TeacherId == Guid.Empty) item.TeacherId = group.TeacherId;
-
-
-
-            
-
-            var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x => x.Id == item.LessonTypeId);
-
-           
-
-
-            /////////////-------------------------------
-            if (lessonType != null && ((item.DateStart < DateTime.Now.AddDays(1)
-                && (item.GroupStudents.Count() <= lessonType.MinimumStudents || studentId.Count() >= lessonType.MaximumStudents)) || item.IsLateDateStart))
-            {
-                ModelState.AddModelError("", "Not correct count of students to  start group."); return View("Create", item);
-            }
-            /////////////-------------------------------
-
-            _context.Groups.Update(item);
-            await _context.SaveChangesAsync();
-
-            if (group.LessonsCount != item.LessonsCount)
-                await _notificationService.СreateToUpdateCountLessonsInGroup(group, group.LessonsCount, item.LessonsCount, null);
-
-            //await _groupService.CreateScheduleDaysToGroup(item, dayName, startTime, studentId);
-            
-             await _groupService.UpdateGroupStudents(group, studentId.ToList()); //this  method with UpdateLessonStudent
-            
-            var dateStart = item.DateStart;
-            var lessonsCount = item.LessonsCount;
-
-            if (group.Lessons != null && group.Lessons.Count !=  0)
-            {
-                dateStart = group.Lessons.OrderByDescending(x=>x.EndTime).FirstOrDefault().EndTime.AddDays(1); //Where(x=>x.EndTime <  DateTime.Now)
-                lessonsCount = item.LessonsCount - group.Lessons.Count();//.Where(x => x.EndTime < DateTime.Now).Count();
-            }
-            if (group.IsUnlimitedLessonsCount) lessonsCount = 10;
-            if(item.IsVerified && !item.IsLateDateStart && lessonsCount > 0) 
-            {
-                var lessons = await _groupService.CreateLessonsBySchedule(group.DaySchedules, dateStart, lessonsCount, item, true);
-
-                
-            }
-
-            var less = _context.Lessons.Include(x=>x.ArrivedStudents).Where(x=>x.GroupId == group.Id && x.IsСompleted == false).ToList();
-            if (item.IsPermanentStaffGroup)
-            {
-                foreach (var lesson in less)
-                {
-                    await _lessonService.UpdateLessonStudents(lesson, studentId.ToList());
-                }
-            }
-            */
-            /*
-            if(group.Lessons != null && group.Lessons.Count != 0)
-            {
-                foreach(var less in group.Lessons.Where(x=>x.IsСompleted == false)
-                {
-                    less.Teacher = group.Teacher;
-
-                }
-            }
-            */
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("", ex.Message); return View(item);
-        }
-        return RedirectToAction("Item" , new {id = item.Id});
-    }
-
+    /*
     [HttpPost]
     public async Task<IActionResult> EditDateStart(Guid id,DateTime DateStart)
     {
@@ -316,7 +160,7 @@ public class GroupController : Controller
 
 
     }
-
+    */
     [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Delete(Guid id)
@@ -333,22 +177,27 @@ public class GroupController : Controller
     [HttpPost]
     public async Task<IActionResult> HardDelete(Guid id)
     {
-        await _groupService.HardDeleteAsync(id);
-        /*
-        var group = await _groupService.GetAsync(id);
+        try
+        {
 
-        int a = 10;
-        int b = 20;
-        (a, b) = (b, a);
 
-        int c = b - a;
-        group.IsDeleted = true;
+            await _groupService.DeleteAsync(id, true);
+        }
+        catch (Exception ex) {
+            try
+            {
 
-        _context.Groups.Update(group);
-        await _context.SaveChangesAsync();*/
 
+                await _groupService.DeleteAsync(id, false);
+            }
+            catch (Exception ex2)
+            {
+
+            }
+        }
         return RedirectToAction("Index");
     }
+    /*
     public IActionResult GetCreateModal()
     {
         return PartialView("_Create");
@@ -370,16 +219,17 @@ public class GroupController : Controller
         {
             var schedulesDays = group.DaySchedules.Select(x=>x.DayName);
 
-            /*
+            
             foreach(var goodDay in goodDaysOfWeeksByStudent)
             {
                 if (schedulesDays.Contains(goodDay))
                     goodGroups.Add(group);
             }
-            */
+            
         }
         return goodGroups;
     }
+    */
 
     
 

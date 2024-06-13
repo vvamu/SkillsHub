@@ -22,22 +22,17 @@
                     <form style="display:flex; justify-content:space-between">
                         <input type="hidden" asp-for="@student.Id" value="@student.Id" />
                         <input type="hidden" asp-for="@student.ApplicationUserId" value="@Model.Id" />
-                        @if (!(await _userManager.IsInRoleAsync(Model, "Student")) || Model.UserStudent.IsDeleted)
-                        {
-
-                            <h3 style="color:dimgray">Статистика ученика - UnActive</h3>
-                        }
-                        else
-                        {
-                            <h3>Статистика ученика - Active</h3>
-                        }
+                        
+                       
+                        <h3>Статистика ученика - @Model.UserStudent.Status</h3>
+                       
                         @if (student.Id == Guid.Empty)
                         {
                             student.Id = Model.Id;
                         }
                         @if(User.IsInRole("Admin"))
                         {
-                            <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-route-id="@student.Id" asp-action="Activate" asp-route-userId="@Model.Id" asp-controller="Student" />
+                           <!-- <input class="btn btn-primary btn-sm" type="submit" value="↑↓" asp-route-id="student.Id" asp-action="Activate" asp-route-userId="Model.Id" asp-controller="Student" /> -->
 
                         }
 
@@ -46,42 +41,45 @@
                 }
 
             </div>
-            <div style="display:flex; justify-content:space-between">
-                <b>Working schedule: </b>
-                @if (student.WorkingDays != null)
-                {
-                    <ol style="padding-left:0.2%">
+            @if (!User.IsInRole("Admin") && !User.IsInRole("Teacher") && !User.IsInRole("Student"))
+            {
+                <div style="display:flex; justify-content:space-between">
+                    <b>Рабочее расписание: </b>
+                    @if (student.WorkingDays != null)
+                    {
+                        <ol style="padding-left:0.2%">
 
-                        @foreach (var item in student.WorkingDays.Split("-"))
-                        {
-                            <li>@item.ToString()</li>
-                        }
-                    </ol>
-                }
-                <b></b>
-                <b></b>
+                            @foreach (var item in student.WorkingDays.Split("-"))
+                            {
+                                <li>@item.ToString()</li>
+                            }
+                        </ol>
+                    }
+                    <b></b>
+                    <b></b>
 
 
 
-            </div>
+                </div>
+            }
 
             
             <div style="display:flex; justify-content:space-between">
 
                 <b>Направления работы:</b> @{
-                    if (student.PossibleCources != null)
+                    if (student.PossibleCources != null && student.CurrentPossibleCourses != null)
                     {
 
-                        <ol>
-                            @foreach (var item in student.PossibleCources.Select(x => x.LessonType.Name))
+                        
+                            @foreach (var item in student?.CurrentPossibleCourses?.Select(x => x.LessonType.Name))
                             {
-                                <li>@item</li>
+                                <div>@item</div>
                             }
-                        </ol>
+                      
                     }
                     else
                     {
-                        <p>EMPTY</p>
+                        <span>Отсутствуют</span>
                     }
                 }
                 <b></b>
@@ -95,17 +93,27 @@
             <hr/>
             <div>
                 @{
-                    var visitedLessonsCount = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id).Select(x => x.Lesson).Where(x => x.IsСompleted).Count();
-                    var missedLessonsCount = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id && (x.VisitStatus==2 || x.VisitStatus ==3)).Select(x => x.Lesson).Where(x => x.IsСompleted).Count();
-                    var missedLessonsCountWithoutWriteOff = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id && (x.VisitStatus == 3)).Select(x => x.Lesson).Where(x => x.IsСompleted).Count();
+                    var visitedLessonsCount = _context.LessonStudents.Where(x => x.ParentId == null).Where(x => x.StudentId == Model.UserStudent.Id).Select(x => x.Lesson).Where(x => x.IsСompleted).Where(x => x.ParentId == null && !x.IsDeleted).Count();
+                    var missedLessonsCount = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id && (x.VisitStatus==2 || x.VisitStatus ==3)).Select(x => x.Lesson).Where(x => x.IsСompleted).Where(x => x.ParentId == null && !x.IsDeleted).Count();
+                    var missedLessonsCountWithoutWriteOff = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id && (x.VisitStatus == 3)).Select(x => x.Lesson).Where(x => x.IsСompleted).Where(x => x.ParentId == null && !x.IsDeleted).Count();
 
                     var arrivedLessonsCount = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id).Select(x => x.Lesson).Count();
                 }
-                Lessons: visited @visitedLessonsCount @if (@missedLessonsCount != 0) {<span>(missed @missedLessonsCount, without write - off @missedLessonsCountWithoutWriteOff)</span>} из @arrivedLessonsCount<br /> Payable now / for full courses: @Model.UserStudent.CurrentCalculatedPrice BYN / @Model.UserStudent.TotalCalculatedPrice BYN
+                <div>Занятия :</div>
+                <div>Посещено @visitedLessonsCount @if (@missedLessonsCount != 0)
+                {
+                    <span>(пропущено @missedLessonsCount, без списания занятий - @missedLessonsCountWithoutWriteOff)</span>
+                } из @arrivedLessonsCount
+                </div>
+                <div>Цена к оплате : --- BYN</div>
+              
             </div>
+            <!--
+                  Payable now / for full courses: Model.UserStudent.CurrentCalculatedPrice BYN / Model.UserStudent.TotalCalculatedPrice BYN
             <div>
-                Paid: --- BYN
+                Выплачено: --- BYN
             </div>
+            -->
             <!--
             <div>
                 Посещено групп англ / индив англ / групп прогр:

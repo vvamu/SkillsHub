@@ -7,9 +7,7 @@ namespace SkillsHub.Application.DTO;
 public class UserCreateDTO
 {
     public Guid Id { get; set; }
-
     public Guid BaseUserInfoId { get; set; }
-
     public string? PasswordChanged { get; set; }
     public string? PasswordChangedConfirm { get; set; }
 
@@ -41,6 +39,7 @@ public class UserCreateDTO
 
     public bool IsVerified { get; set; } = false;
     public bool IsBase { get; set; }
+    public bool IsDeleted { get; set; }
 
 }
 

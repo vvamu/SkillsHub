@@ -55,7 +55,7 @@
                         <div class="card-body">
 
                 <div style=" display:flex;flex;grid-gap:20px;justify-content:center ">
-                    <h3>Request list is empty</h3>
+                    <h3>Запросы отсутствуют</h3>
                 </div>
                 </div>
                 </div>
@@ -89,7 +89,7 @@
                                                 <div class="d-sm-flex justify-content-between mb-2" style="display:flex">
                                                     <h3 class="mb-sm-0">
 
-                                                        <a asp-action="Item" asp-controller="Group" asp-route-id="@i.Id">@i.Name</a>
+                                                        <a asp-action="Item" asp-controller="Group" asp-route-id="@i.Id" style="font-weight:900;color:#7571f9">Запросы группы "@i.Name"</a>
 
                                                 </h3>
                                             </div>
@@ -105,7 +105,7 @@
                                                         <h5 class="mb-sm-0">
 
                                                             <small class="text-muted ml-4">
-                                                                <strong>@item.DateCreated</strong> by <strong><a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.User.Id">@item.User.Login </a></strong>
+                                                                <strong>Отправлено @item.DateCreated</strong> пользователем <strong><a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.User.Id" style="font-weight:900;color:#7571f9">@item.User.Login </a></strong>
                                                             </small>
                                                         </h5>
                                                     </div>
@@ -117,19 +117,29 @@
 
                                                 <!--ApplyRequest(Guid id, Lesson lesson, int answer)-->
 
-
+                                                <form>
                                                 <div style="display:flex;justify-content:space-between" class="row">
 
-                                                    <div class="card col" style="margin:20px">
+                                                    <div class="card col-lg-6"> 
                                                         <div class="card-body">
-                                                            <h3>Lesson Date @item.LessonBefore.StartTime.ToShortDateString()</h3>
+                                                            <h3><a asp-action="Create" asp-controller="Lesson" asp-route-id="@item.LessonBefore.Id" style="font-weight:900;color:#7571f9">Занятие @item.LessonBefore.StartTime.ToShortDateString() </a></h3>
                                                             <div>
-                                                                <h4>Before</h4>
+                                                                <h4>До изменений</h4>
                                                                 <div style="display:flex; justify-content:space-between">
                                                                     <div style="display:flex; grid-gap:5%">
+                                                                       <input type="datetime-local"
+                                                                           step="any"
+                                                                           class="form-control"
+                                                                           asp-for="@item.LessonBefore.StartTime" disabled/>
+                                                                           -
+                                                                        <input type="datetime-local"
+                                                                           step="any"
+                                                                           class="form-control"
+                                                                           asp-for="@item.LessonBefore.EndTime" disabled/>
 
-                                                                        <input type="time" name="startTime" asp-for="@item.LessonBefore.StartTime" disabled /> -
-                                                                        <input type="time" name="endTime" asp-for="@item.LessonBefore.EndTime" disabled />
+                                                                           <!--
+                                                                        <input type="time" name="startTime" class="form-control" asp-for="item.LessonBefore.StartTime" disabled /> -
+                                                                        <input type="time" name="endTime" class="form-control" asp-for="item.LessonBefore.EndTime" disabled />-->
                                                                     </div>
 
                                                                 </div>
@@ -138,12 +148,11 @@
                                                             @if (!item.RequestMessage.ToLower().Contains("delete"))
                                                             {
                                                                 <div>
-                                                                    <h4>After</h4>
+                                                                    <h4>После изменений</h4>
                                                                     <div style="display:flex; justify-content:space-between">
                                                                         <div style="display:flex; grid-gap:5%">
-
-                                                                            <input type="time" asp-for="@item.NewStart" disabled /> -
-                                                                            <input type="time" asp-for="@item.NewEnd" disabled />
+                                                                            <input type="datetime-local" step="any" class="form-control" asp-for="@item.NewStart"  /> -
+                                                                            <input type="datetime-local" step="any" class="form-control" asp-for="@item.NewEnd"  />
                                                                         </div>
 
                                                                     </div>
@@ -155,10 +164,10 @@
 
 
 
-                                                    <div class="card col" style="margin:20px">
+                                                    <div class="card col-lg-3">
                                                         <div class="card-body">
                                                             <div>
-                                                                <h4>Message</h4>
+                                                                <h4>Сообщение</h4>
                                                                 <div style="display:flex; justify-content:space-between">
 
                                                                     <div>@item.RequestMessage</div>
@@ -168,34 +177,36 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="card col" style="margin:20px">
+                                                    <div class="card col-lg-3">
 
                                                         <!-- ADD GOGS (3) item.LessonBefore.StartTime
                                                         
                                                         -->
 
                                                         <div class="card-body">
-                                                            <div>
-                                                                <h4>Result</h4>
-                                                                <div style="display:flex; justify-content:space-between">
-                                                                    <form>
+                                                          
+                                                                <h4>Действие</h4>
+                                                                <div >
+                                                                    
                                                                     <input type="hidden" asp-for="@item.Id"/>
 
                                                                         @if(item.RequestMessage.Contains("delete"))
                                                                         {
-                                                                            <input type="submit" asp-action="ApplyDeleteRequest" asp-controller="Request" asp-route-id="@item.Id" value="Apply request" class="btn btn-primary" />
-                                                                            <input type="submit" asp-action="RejectDeleteRequest" asp-controller="Request" asp-route-id="@item.Id" value="Reject request" class="btn btn-danger" />
+
+                                                                            <input type="submit" asp-action="ApplyDeleteRequest" asp-controller="Request" asp-route-id="@item.Id" value="Применить изменения" class="btn btn-primary" />
+                                                                            <input type="submit" asp-action="RejectDeleteRequest" asp-controller="Request" asp-route-id="@item.Id" value="Отклонить изменения" class="btn btn-danger" />
                                                                         }
                                                                         else
                                                                         {
-                                                                            <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Apply request" class="btn btn-primary" />
-                                                                            <input type="submit" asp-action="RejectRequest" asp-controller="Request" asp-route-id="@item.Id" value="Reject request" class="btn btn-danger" />
+                                                                            <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="@item.Id" value="Применить изменения" class="btn btn-primary" />
+                                                                            <input type="submit" asp-action="RejectRequest" asp-controller="Request" asp-route-id="@item.Id" value="Отклонить изменения" class="btn btn-danger" />
                                                                         }
-                                                                    </form>
+                                                                   
                                                                 </div>
                                                             </div>
-                                                        </div>
+                                                        
                                                     </div>
+                                                     
                                                     <!-- add DOGs asp-route-id="item.Id"
                                                     <div class="card" style="margin:20px">
                                                     <div class="card-body">
@@ -204,11 +215,11 @@
 
                                                     <form>
                                                     <input type="hidden" name="answer" value="1" />
-                                                    <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="item.Id" value="Apply request" class="btn btn-primary" />
+                                                    <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="item.Id" value="Применить изменения" class="btn btn-primary" />
                                                     </form>
                                                     <form>
                                                     <input type="hidden" name="answer" value="-1" />
-                                                    <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="item.Id" value="Reject request" class="btn btn-danger" />
+                                                    <input type="submit" asp-action="ApplyRequest" asp-controller="Request" asp-route-id="item.Id" value="Отклонить изменения" class="btn btn-danger" />
                                                     </form>
 
                                                     }
@@ -219,7 +230,7 @@
 
 
                                                 </div>
-                                           
+                                           </form>
                                       
 
 

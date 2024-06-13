@@ -16,11 +16,25 @@ public class Teacher : BaseEntity
     public string? WorkingDays { get; set; }
     public decimal PaidAmount { get; set; }
 
+
+    #region NotMapped
+
     [NotMapped]
-    public decimal CurrentCalculatedPrice {  get; set; }
+    public List<LessonTypeTeacher>? CurrentPossibleCourses
+    {
+        get
+        {
+            if (PossibleCources == null) return null;
+            if (PossibleCources.Count < 0) return null;
+            return PossibleCources.Where(x => !x.IsDeleted && x.ParentId == null || x.ParentId == Guid.Empty).ToList();
+        }
+    }
+
+    [NotMapped]
+    public decimal CurrentCalculatedPrice { get; set; }
     [NotMapped]
     public decimal TotalCalculatedPrice { get; set; }
-    
+
     /*
     [NotMapped]
     public List<Lesson> PassedLessons
@@ -49,36 +63,41 @@ public class Teacher : BaseEntity
         }
     }
     */
+    /*
     [NotMapped]
     public List<Lesson> PreparedLessons
     {
         get
         {
-            
+
             List<Lesson> lessons = new List<Lesson>();
-            if (this.Groups == null || this.Groups.Select(x=>x.Group).Where(x => x.Lessons != null).Count() == 0) return lessons;
-            lessons = this.Groups.Select(x=>x.Group).Where(x => x.Lessons != null).SelectMany(x => x.Lessons).ToList();//.Where(x => x.Teacher != null && x.Teacher == this).ToList();
-            
+            if (this.Groups == null || this.Groups.Select(x => x.Group).Where(x => x.Lessons != null).Count() == 0) return lessons;
+            lessons = this.Groups.Select(x => x.Group).Where(x => x.Lessons != null).SelectMany(x => x.Lessons).ToList();//.Where(x => x.Teacher != null && x.Teacher == this).ToList();
+
             List<Lesson> lessonsf = new List<Lesson>();
             //if (this.Groups == null || this.Groups.Where(x => x.Lessons != null).Count() == 0) return lessons;
 
             foreach (var group in this.Groups.Select(x => x.Group))
             {
-                foreach (var lesson in group.Lessons.Select(x=>x.Teacher).Where(x => x.Teacher == this).Select(x=>x.Lesson))
+                if (group.Lessons == null || group.Lessons.Select(x => x.Teacher) == null || this == null) return new List<Lesson>(); 
+                try
                 {
+
+
+                    foreach (var lesson in group.Lessons.Select(x => x.Teacher).Where(x => x.TeacherId != null && x.TeacherId == this.Id).Select(x => x.Lesson))
+                    {
                         lessons.Add(lesson);
+                    }
                 }
+                catch (Exception ex) { }
 
             }
 
-            
+
             return lessons;
 
         }
-    }
+    }*/
 
-
-
-
-
+    #endregion
 }

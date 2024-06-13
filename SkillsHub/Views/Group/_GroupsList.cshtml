@@ -7,7 +7,9 @@
 @model List<Group>
 @inject UserManager<ApplicationUser> _userManager;
 
+    @{
 
+    }
 <style>
     li {
         margin-right: 20px; /* Расстояние снизу */
@@ -60,7 +62,7 @@
 
                                                     if (item.Lessons != null)
                                                     {
-                                                        countLessons = item.Lessons.Count;
+                                                        countLessons = item.Lessons.Where(x=>x.ParentId== null).Count();
                                                         //var lessonLastDay = item.Lessons.FirstOrDefault(x => x.EndTime.Date.Day < @DateTime.Now.Day).EndTime; -- item.Lessons.FirstOrDefault(x => x.EndTime.Date.Day < @DateTime.Now.Day) != null
                                                         //<span> last lesson: lessonLastDay.Date</span>
                                                     }
@@ -72,11 +74,11 @@
                                         </small>
                                         </h5>
                                         <div class="media-reply__link">
-                                            <button class="btn btn-transparent p-0 mr-3">Lessons @countLessons / @item.LessonsCount</button>
+                                            <button class="btn btn-transparent p-0 mr-3">Занятия @countLessons / @item.LessonsCount</button>
                                            <!-- <button class="btn btn-transparent p-0 mr-3"><i class="fa fa-thumbs-down"></i></button>-->
                                             @if(User.IsInRole("Admin"))
                                             {
-                                        <a asp-action="Edit" asp-controller="Group" asp-route-id="@item.Id" class="btn btn-transparent p-0 ml-3 font-weight-bold">
+                                        <a asp-action="Create" asp-controller="Group" asp-route-id="@item.Id" class="btn btn-transparent p-0 ml-3 font-weight-bold">
                                             <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><path d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z" /></svg>
                                         </a>
                                             }
@@ -85,54 +87,71 @@
                                     </div>
                                     <ul>
                                     
+                                    @{
+
+                                        var dateStartRu =!item.IsLateDateStart && @item.DateStart != DateTime.MinValue ? (DateOnly.FromDateTime(item.DateStart).ToShortDateString()) : "не определена";
+
+                                    }
                                     
-                                     <li>Status: @if(item.IsDeleted){<span>Completed</span>} else {<span>Not completed</span>} </li>
-                                     
-                                        <li>Lessons <!--by type-->passed, assigned, scheduled  : @item.Lessons.Where(x=>x.IsСompleted == true).Count() / @item.Lessons.Count() @if (!item.IsUnlimitedLessonsCount) { <span></span>} else{<span>Unlimited</span>}</li>
-                                        <li>Working minutes <!--by type item.Result-->: @item.PassedLessonsCount /@item.ResultLessonsTimeInMinutes min</li>
+                                    <li>Статус: @if(item.IsDeleted){<span>Удален</span>} else if(item.Lessons != null && item.Lessons.Count() > 0) {<span>Занятия начаты</span>} else {  <span>Занятия не начаты</span>} </li>
+                                    <li>Дата начала: @dateStartRu</li>
+                                    <li>Последнее изменение группы: @item.DateCreated.Value.ToShortDateString()</li>
+                                       
+                                    <li>Занятия : @if (item.IsUnlimitedLessonsCount) {<span>Количество занятий не определено</span>} 
+                                     else {
+                                         <div>@item.PassedLessonsTextRu</div>
+                                         <div>@item.CreatedLessonsTextRu</div>
+                                         <div>@item.NeedToCreateLessonsTextRu</div>
+                                     }</li>
 
+                                     <li style="display:flex"> Учитель: 
+                                    @{
+                                        var teacherName= " не определен";
+                                            var teacherr = item?.GroupTeacher?.Teacher;
+                                        Guid teacherId = Guid.Empty;
+                                        if(teacherr != null)
+                                        {
+                                            teacherId = teacherr.ApplicationUserId;
+                                            teacherName = teacherr.ApplicationUser.FullName;
+                                        }
+
+                                        if (User.IsInRole("Admin") && teacherr != null)
+                                        {
+                                        <div class="col-lg-6"><a asp-action="Item" asp-controller="Account" asp-route-id="@teacherId" style="font-weight:900;color:#7571f9">@teacherName</a></div>
                                         
-                                        @if (!item.IsLateDateStart && @item.DateStart != DateTime.MinValue)
-                                        {
-                                            <li>Date start: @(DateOnly.FromDateTime(item.DateStart).ToShortDateString())</li>
                                         }
-                                        else
-                                        {
-                                            <li>Date start: Not decided</li>
+                                        else{
+                                            <span>@teacherName</span>
                                         }
-                                        <li>Date created: @item.DateCreated.ToShortDateString()</li>
+                                        
+                                    }
 
+                                    </li>
                                         <li>
-                                            <strong>Teachers:</strong> @if (item.GroupTeachers != null )
-                                            {
-                                                foreach(var grT in item.GroupTeachers.Select(x=>x.Teacher).Select(x=>x.ApplicationUser))
-                                                {
-                                                    <span> @grT.FirstName @grT.LastName @grT.Surname</span>
+                                           @{
+                                              var studentDesctiption = $"({@item?.GroupStudents.Count()} из  {@item?.LessonType.GroupType.DisplayName} )";
+                                              studentDesctiption = studentDesctiption.Replace("(", "").Replace(")", "");
+                                          }
+                                          Студенты @studentDesctiption
+                                          
+                                          <div class="col-lg-6">
 
-                                                }
-                                            }
-                                        </li>
-                                        <li>
-                                            <strong>Students (
-                                                    @if (item.GroupStudents != null)
-                                                    {
-                                                        <span>@item.GroupStudents.Count()</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>0</span>
-                                                    }
-                                                 / @item.LessonType.GroupType.DisplayName)
-                                        </strong> @if (item.GroupStudents != null && item.GroupStudents.Count() != 0 && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
-                                            {
-                                                <span>:</span>
-                                                foreach(var i in item.GroupStudents.Select(x=>x.Student))
-                                                {
-                                                    <span>@i.ApplicationUser.FirstName @i.ApplicationUser.LastName @i.ApplicationUser.Surname ,</span>
-
-                                                }
-                                            }
-                                            else{<span>  </span>}
+                                        @if (!User.IsInRole("Admin") && !User.IsInRole("Student") && !User.IsInRole("Teacher"))
+                                              {
+                                                  @foreach (var st in item?.GroupStudents.Select(x => x.Student).Select(x=>x.ApplicationUser))
+                                                  {
+                                                     
+                                                      <div>
+                                                           <a asp-action="Item" asp-controller="Account" asp-route-itemId="@st.Id" style="font-weight:900;color:#7571f9">
+                                                              @st.FullName
+                                                          </a>
+                                                      </div>
+                                                     
+                                                  }
+                                              }
+                                          </div>
+                                         
+                                          
                                             
                                         </li>
                                     </ul>
