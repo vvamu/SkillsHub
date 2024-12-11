@@ -12,8 +12,19 @@ public class Lesson : LogModel<Lesson>
     //[Url]
     public string? LinkToWebinar { get; set; }
 
-    public LessonTeacher? Teacher { get; set; }
+
+    [NotMapped]
+    public LessonTeacher? Teacher
+    {
+        get
+        { if (Teachers == null) return null;
+          return Teachers.Where(x=>!x.IsDeleted).OrderByDescending(x=>x.DateCreated).FirstOrDefault();
+        }
+    }
+    [NotMapped]
     public Guid? TeacherId { get; set; }
+
+    public List<LessonTeacher>? Teachers { get; set; }
     public List<LessonStudent>? ArrivedStudents { get; set; }
     public Group? Group { get; set; }
     public Guid? GroupId { get; set; }
@@ -54,6 +65,36 @@ public class Lesson : LogModel<Lesson>
 
     //public bool IsVerified { get; set; }
     #region NotMapped
+
+    [NotMapped]
+    public List<LessonTeacher>? CurrentLessonTeachers
+    {
+        get
+        {
+            if (Teachers == null) return new List<LessonTeacher>();
+
+            var res = Teachers?
+            .GroupBy(x => x.TeacherId).ToList();
+            var res2 = res.Select(g => g.OrderByDescending(x => x.DateCreated).First()).ToList();
+            var res3 = res2.Where(x => !x.IsDeleted).ToList();
+            return res3;
+        }
+    }
+
+    [NotMapped]
+    public List<LessonStudent>? CurrentLessonStudents
+    {
+        get
+        {
+            if (ArrivedStudents == null) return new List<LessonStudent>();
+            var res = ArrivedStudents?
+            .GroupBy(x => x.StudentId).ToList();
+            var res2 = res.Select(g => g.OrderByDescending(x => x.DateCreated).First()).ToList();
+            var res3 = res2.Where(x => !x.IsDeleted).ToList();
+            return res3;
+        }
+    }
+
 
     public Dictionary<int, string> StudentVisitStatusesRuDictionary
     {

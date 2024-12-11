@@ -54,7 +54,7 @@ public class LessonController : Controller
         var items =  _lessonService.GetGroupLessonsList();
         //items = items.Where(x => x.Group.Id == id).Where(x => x.IsDeleted == false);
         items = await FilterMaster.GetAllLessons(items, filters, order);
-
+        
        
         return PartialView("_LessonsList", items.ToList());
 
@@ -142,17 +142,17 @@ public class LessonController : Controller
 
 
     [HttpPost]
-    public async Task<IActionResult> Create(Lesson lesson, Guid[]? studentId, int[]? visitStatus)
+    public async Task<IActionResult> Create(Lesson lesson, Guid[]? studentId, int[]? visitStatus, int[] itemGrade)
     {
         var lessonDb = await _context.Lessons.FindAsync(lesson.Id);
         try
         {
             if(lessonDb != null)
             {
-                await _lessonService.Edit(lesson, studentId, visitStatus,true);
+                lessonDb = await _lessonService.Edit(lesson, studentId, visitStatus,true);
             }
             else {
-                await _lessonService.Create(lesson, studentId, visitStatus, true);
+                lessonDb = await _lessonService.Create(lesson, studentId, visitStatus, true);
             }
         }
         catch (Exception ex) 
@@ -165,7 +165,7 @@ public class LessonController : Controller
         
 
 
-        return RedirectToAction("Create", "Lesson", new { id = lesson.Id });
+        return RedirectToAction("Create", "Lesson", new { id = lessonDb.Id });
     }
     #endregion
 

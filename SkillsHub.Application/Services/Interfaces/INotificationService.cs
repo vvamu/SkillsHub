@@ -15,6 +15,14 @@ public interface INotificationService
     public Task<NotificationMessage> СreateToEditLesson(Lesson lastLessonValue, Lesson? newlessonValue = null, List<ApplicationUser>? usersToSend = null, int answer = 1);
     public Task<NotificationMessage> СreateToUpdateCountLessonsInGroup(Group group, int previousCountLessons, int currentCountLessons, List<ApplicationUser>? usersToSend);
 
-    public Task<NotificationMessage> Create(string message, List<ApplicationUser>? usersToSend);
+    public Task<NotificationMessage> Create(string message, List<ApplicationUser>? usersToSend =null);
+
+    public Task CreateToChangeStudentsByGroup(Group group, List<Guid> toCreate, List<Guid> toDelete);
+    public Task CreateToChangeTeachersByGroup(Group group, List<Guid> toCreate, List<Guid> toDelete);
+
+    public Task RemoveCurrentUserNotificationsAsync();
+    public Task RemoveAllNotificationsAsync();
+
+
 
 }

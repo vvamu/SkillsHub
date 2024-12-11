@@ -6,6 +6,7 @@ using SkillsHub.Domain.BaseModels;
 using SkillsHub.Helpers.SearchModels;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SkillsHub.Helpers;
@@ -242,9 +243,9 @@ public static class FilterMaster
             {
                 if (filters.IsLateDateStart == "Yes")
                 {
-                    items = items.Where(x => x.IsLateDateStart == true);
+                    items = items.Where(x => x.DateStart == DateTime.MinValue);
                 }
-                else if (filters.IsLateDateStart == "No") items = items.Where(x => x.IsLateDateStart == false);
+                else if (filters.IsLateDateStart == "No") items = items.Where(x => x.DateStart != DateTime.MinValue);
             }
             if (!string.IsNullOrEmpty(filters.IsPermanentStaffGroup))
             {
@@ -294,10 +295,23 @@ public static class IQueryableExtensions
         if (string.IsNullOrEmpty(property))
             return query;
 
-        var parameter = Expression.Parameter(typeof(T), "x");
-        var propertyAccess = Expression.Property(parameter, property);
-        var lambda = Expression.Lambda<Func<T, object>>(
-            Expression.Convert(propertyAccess, typeof(object)), parameter);
+        var type = typeof(T);
+        var parameter = Expression.Parameter(type, "x");
+
+        var propertyInfo = type.GetProperty(property);
+        if (propertyInfo == null)
+        {
+            // Check if property is inherited
+            propertyInfo = type.GetProperty(property, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+            if (propertyInfo == null)
+            {
+                // Handle case for inherited properties which may require more complex navigation
+                throw new ArgumentException($"Property '{property}' not found on type '{type.Name}' or its base types.");
+            }
+        }
+
+        var propertyAccess = Expression.Property(parameter, propertyInfo);
+        var lambda = Expression.Lambda<Func<T, object>>(Expression.Convert(propertyAccess, typeof(object)), parameter);
 
         if (orderType.ToLower() == "asc")
         {

@@ -152,7 +152,7 @@
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">
                                 @{
-                                    var studentDesctiption = $"({@group?.GroupStudents.Count()} из  {@group?.LessonType.GroupType.DisplayName} )";
+                                    var studentDesctiption = $"({@group?.CurrentGroupStudents?.Count()} из  {@group?.LessonType.GroupType.DisplayName} )";
                                     studentDesctiption = studentDesctiption.Replace("(", "").Replace(")", "");
                                 }
                                 Студенты @studentDesctiption
@@ -161,7 +161,7 @@
                                    
                                     @if(User.IsInRole("Admin"))
                                     {
-                                        @foreach (var st in group?.GroupStudents.Select(x => x.Student).Select(x=>x.ApplicationUser))
+                                    @foreach (var st in group?.CurrentGroupStudents?.Select(x => x.Student).Select(x => x.ApplicationUser))
                                         {
                                            
                                             <div>
@@ -199,10 +199,10 @@
 
                         <div style="display:flex;justify-content:space-between;align-content:center"> 
                             <h4>Расписание</h4>
-                            @if (User.IsInRole("Admin"))
+                            @if (User.IsInRole("Admin") && Model != null)
                                     {
                                       <form>
-                                          <input type="submit" value="Редактировать" asp-action="Create" asp-controller="Group"  formmethod="get" asp-route-id="@group?.Id" class="btn btn-primary" />
+                                          <input type="submit" value="Редактировать" asp-action="Create" asp-controller="Group"  formmethod="get" asp-route-id="@Model?.Id" class="btn btn-primary" />
                                       </form>
                                     }
                         </div>

@@ -12,29 +12,34 @@ using System.Threading.Tasks;
 
 namespace SkillsHub.Application.Helpers;
 
-public abstract class AbstractLogModelService<T> : IAbstractLogModel<T> where T : LogModel<T>, new()
+public abstract class AbstractLogModelService<T> : AbstractBaseModelService<T>, IAbstractLogModel<T> where T : LogModel<T>, new()
 {
-    protected ApplicationDbContext _context;
-    protected DbSet<T> _contextModel;
-    protected IValidator<T> _validator { get; set; }
-    protected IQueryable<T>? _fullInclude;
-
-
-    public virtual async Task<T> GetAsync(Guid? itemId, bool withParents = false)
+    public virtual async Task<T> GetAsync(Guid? itemId, bool withParents = false , bool touchFullInclude = true)
 	{
 		if (itemId == Guid.Empty) return new T();
         T? item = null;
-        if (_fullInclude != null)
-        {
-            item = await _fullInclude.FirstOrDefaultAsync(x => x.Id == itemId);
-        }
-        else 
-		 item = await _contextModel.FirstOrDefaultAsync(x => x.Id == itemId);
-		if (item == null) return new T();
-		item.Children = GetAllParents((Guid)itemId).Where(x => x.Id != itemId).ToList();
-		item.Parents = GetAllChildren((Guid)itemId).Where(x => x.Id != itemId).ToList();
 
-       if(withParents && _fullInclude != null)
+        try
+        {
+
+            if (_fullInclude != null && touchFullInclude)
+            {
+                item = await _fullInclude.FirstOrDefaultAsync(x => x.Id == itemId);
+            }
+        } 
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+		
+        item = item  == null ? await _contextModel.FirstOrDefaultAsync(x => x.Id == itemId) : item;
+		if (item == null) return new T();
+        item.Children = GetAllParents((Guid)itemId).Where(x => x.Id != itemId).ToList();
+
+        if(touchFullInclude)
+            item.Parents = GetAllChildren((Guid)itemId).Where(x => x.Id != itemId).ToList();
+
+        if (withParents && _fullInclude != null && touchFullInclude)
         {
             if (item.Parents != null)
             {
@@ -52,7 +57,7 @@ public abstract class AbstractLogModelService<T> : IAbstractLogModel<T> where T 
 		return item;
 	}
 
-    public async Task<T> GetLastValueAsync(Guid? itemId, bool withParents = false)
+    public virtual async Task<T> GetLastValueAsync(Guid? itemId, bool withParents = false)
     {
         if (itemId == Guid.Empty) return new T();
         var res = await GetAsync(itemId, withParents);
@@ -86,15 +91,19 @@ public abstract class AbstractLogModelService<T> : IAbstractLogModel<T> where T 
         var itemId = Guid.Empty;
         if (item.Id != null) itemId = item.Id;
         var oldValue = _contextModel.Find(itemId) ?? new T();
-        await Validate(oldValue, item);
+        await Validate(oldValue, item,false);
         item.Id = Guid.Empty;
         item.DateCreated = DateTime.Now;
+
+        if(item is LessonType lt) { lt.LessonTypePaymentCategory = null; }
+
+
         var res = await _contextModel.AddAsync(item);
 
 
         var children = GetAllParents(oldValue.Id).OrderByDescending(x => x.DateCreated).ToList();
-        var parents = GetAllChildren(oldValue.Id).OrderByDescending(x => x.DateCreated).ToList();
-
+        //var parents = GetAllChildren(oldValue.Id).OrderByDescending(x => x.DateCreated).ToList();
+        List<T> parents = new List<T>();
         if (oldValue.Id != Guid.Empty) parents.Insert(0,oldValue);
         if (children.Count() != 0)
         {
@@ -109,8 +118,10 @@ public abstract class AbstractLogModelService<T> : IAbstractLogModel<T> where T 
     }
     public virtual async Task<T> UpdateAsync(T item)
     {
-        var itemDb = _contextModel.FirstOrDefault(x => x.Id == item.Id) ?? throw new Exception("No info in database");
+        var itemDb = _contextModel.Find(item.Id) ?? throw new Exception("No info in database");
         var resCreated = await CreateAsync(item);
+
+        //if (item is LessonType lt) lt.IsActive = false;
 
         itemDb.ParentId = resCreated.Id;
         _contextModel.Update(itemDb);
@@ -160,7 +171,7 @@ public abstract class AbstractLogModelService<T> : IAbstractLogModel<T> where T 
     }
 
 
-    public virtual async Task Validate(T oldValue, T newItem)
+    public virtual async Task Validate(T oldValue, T newItem, bool withCheckChildren = true)
     {
         if(_validator != null)
         {
@@ -173,6 +184,8 @@ public abstract class AbstractLogModelService<T> : IAbstractLogModel<T> where T 
             }
         }
         if (oldValue == null) return;
+        if (!AreObjectsDifferent(oldValue, newItem)) throw new Exception("No changes");
+        if (!withCheckChildren) return;
         var children = GetAllChildren(oldValue.Id).OrderByDescending(x => x.DateCreated).ToList();
         if (children == null || children.Count == 0) return;
         //Check unique rows without considering parent rows
@@ -180,7 +193,7 @@ public abstract class AbstractLogModelService<T> : IAbstractLogModel<T> where T 
         resultSearching = resultSearching.Where(x => !children.Select(x => x.Id).Contains(x.Id)).ToList();
         resultSearching = resultSearching.Where(x => x.Equals(newItem)).ToList();
         //if (resultSearching.Count() > 1) throw new Exception("Entity with those properties already defined");
-        if (!AreObjectsDifferent(oldValue, newItem)) throw new Exception("No changes");
+        
 
     }
 
@@ -246,8 +259,11 @@ public abstract class AbstractLogModelService<T> : IAbstractLogModel<T> where T 
     public IEnumerable<T> GetAllChildren(Guid parentId)
     {
         var parent = _contextModel.FirstOrDefault(i => i.Id == parentId);
-
-        if (parent != null)
+        if (_contextModel is DbSet<LessonType> && _fullInclude != null)
+        {
+            //parent = _fullInclude.FirstOrDefault(i => i.Id == parentId);
+        }
+        if (parent != null)    
         {
             yield return parent;
 
@@ -260,6 +276,10 @@ public abstract class AbstractLogModelService<T> : IAbstractLogModel<T> where T 
     private IEnumerable<T> GetChildrenRecursive(Guid parentId)
     {
         var children = _contextModel.Where(i => i.ParentId == parentId).ToList();
+        if (_contextModel is DbSet<LessonType> && _fullInclude != null)
+        {
+            children = _fullInclude.Where(i => i.ParentId == parentId).ToList();
+        }
 
         foreach (var child in children)
         {

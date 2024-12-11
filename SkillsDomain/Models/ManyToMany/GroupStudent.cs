@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SkillsHub.Domain.Models;
 
-public class GroupStudent : LogModel<GroupStudent>
+public class GroupStudent : BaseEntity
 {
     public Guid GroupId { get; set; }
     public Group Group { get; set; }

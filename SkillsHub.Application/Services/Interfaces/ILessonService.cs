@@ -26,6 +26,8 @@ public interface ILessonService : IAbstractLogModel<Lesson>
 
     // public Task<List<LessonStudent>> CreateLessonStudents(List<Lesson> lessons, List<Guid> studentIds, Teacher teacher);
 
+    public Task UpdateLessonsUsersForUnCompletedLessonsByGroupAsync(Guid groupId, Guid? newTeacherId = null, List<Guid> newStudents = null);
+
 
 
 }

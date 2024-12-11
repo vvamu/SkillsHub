@@ -19,7 +19,7 @@ public class LessonTypeStudentService : AbstractLogModelService<LessonTypeStuden
         _contextModel = _context.LessonTypeStudents;
     }
 
-    public override async Task<LessonTypeStudent> GetAsync(Guid? id, bool withParents = false)
+    public override async Task<LessonTypeStudent> GetAsync(Guid? id, bool withParents = false, bool touchFullInclude = true)
     {
         var lessonTypeStudent = await base.GetAsync(id);
         var lessonType = await _context.LessonTypes.FirstOrDefaultAsync(x => x.Id == lessonTypeStudent.LessonTypeId);

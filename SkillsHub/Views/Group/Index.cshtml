@@ -84,8 +84,8 @@
                                         <select class="form-control search-select" id="filter-permanent-staff" name="val-skill" onchange="getGroups()">
                                             <!--<option value="IsVerified">Запросы на создание от учителей</option>-->
                                             <option value="" selected></option>
-                                            <option value="Yes">Группы с постоянным составом</option>
-                                            <option value="No">Группы с непостоянным составом</option>
+                                            <option value="No">Группы с постоянным составом</option>
+                                            <option value="Yes">Группы с непостоянным составом</option>
                                         </select>
                                     </div>
 
@@ -118,7 +118,7 @@
                                         <p style="white-space:nowrap">Сортировать по:</p>
                                         <select class="form-control search-select" id="sort-select" name="val-skill" onchange="getGroups()">
                                             <option value="" selected></option>
-                                            <option value="DateRegistration">Времени создания</option>
+                                            <option value="DateCreated">Времени создания</option>
                                             <option value="DateStart">Времени запуска</option>
                                         </select>
                                     </div>
@@ -265,15 +265,14 @@
             success: function (data) {
                 $("#filter-lesson-type-id").empty(); // Clear the select element
                 var firstOptionAdded = false;
+
                 data.forEach(function (item) {
 
-
-                    // Check if DisplayName is defined before extracting substring
                     if (item.displayName && item.displayName.indexOf(';') !== -1) {
 
 
                         var option = $('<option ' + 'title="' + item.displayName + '" ' + 'value="' + item.id + '" >').text(item.status + " - " + item.name + " - " + item.durationText + " - " + item.check);
-
+                        
                         // Check if displayName includes "Не активен" before disabling the option
                         if (item.displayName.includes("Не активен")) {
                             option.prop('disabled', true);
@@ -282,6 +281,7 @@
                             option.attr('selected', 'selected');
                             firstOptionAdded = true;
                         }
+                        console.log(option);
                         $("#filter-lesson-type-id").append(option);
                     } else {
                         console.error("Missing or invalid displayName for item:", item);

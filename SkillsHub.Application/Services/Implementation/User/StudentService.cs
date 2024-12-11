@@ -23,11 +23,14 @@ public class StudentService : IUserRoleModelService<Student>
         _lessonTypeStudentService = lessonTypeStudentService as LessonTypeStudentService;
         _userManager = userManager;
     }
-    public async Task<IQueryable<Student>> GetAllAsync()
+    public async Task<IQueryable<Student>> GetAllAsyncWithUserAndPossibleCoursesLink()
     {
         var items =  _context.Students
             .Include(x => x.ApplicationUser).ThenInclude(x=>x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
             .Include(x => x.PossibleCources).AsQueryable();
+
+
+
         foreach (var item in items)
         {
             var dbLessonTypesStudentIds = item.PossibleCources?.Select(x => x.Id);
@@ -42,6 +45,15 @@ public class StudentService : IUserRoleModelService<Student>
             item.PossibleCources = dbLessonTypesStudens;//.Where(x => !x.IsDeleted && x.ParentId == null).ToList();
         }
        
+        return items;
+    }
+
+    public async Task<IQueryable<Student>> GetAllAsync()
+    {
+        var items = _context.Students
+            .Include(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
+            .Include(x => x.PossibleCources).AsQueryable();
+      
         return items;
     }
 

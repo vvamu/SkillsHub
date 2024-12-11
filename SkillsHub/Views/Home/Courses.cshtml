@@ -1,4 +1,4 @@
-﻿@model EmailProvider.Models.SendingMessage?
+﻿@model List<LessonType>?
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 
 
@@ -15,30 +15,54 @@
     var individualProgLT = progPaymentCategory.FirstOrDefault(x => x.Name.ToLower().Contains("individual")) ?? new PaymentCategory() { StudentPricePerLesson = 50m }; //LessonTimeInMinutes = 60
     */
 
-    var lessonTypes = _context.LessonTypes;
-    var englishLT = lessonTypes.Where(x => x.Name.ToLower().Contains("english"));
-    var progLT = lessonTypes.Where(x => x.Name.ToLower().Contains("programming"));
-    var groupEnglishLT = englishLT.FirstOrDefault(x => x.Name.ToLower().Contains("group")) ?? new LessonType() { StudentPricePerLesson = 22.5m, MinCountLessonsToPay = 8 , LessonTimeInMinutes = 70 };
-    var individualEnglishLT = englishLT.FirstOrDefault(x => x.Name.ToLower().Contains("individual")) ?? new LessonType() { StudentPricePerLesson = 40m, MinCountLessonsToPay = 1 , LessonTimeInMinutes = 60}; //, LessonTimeInMinutes = 60
+    _context.GroupTypes.ToList();
+    _context.AgeTypes.ToList();
+    var lessonTypesList = Model;
 
-    var groupProgLT = progLT.FirstOrDefault(x => x.Name.ToLower().Contains("group")) ?? new LessonType() { StudentPricePerLesson = 30m, MinCountLessonsToPay = 4, LessonTimeInMinutes = 90 }; //, LessonTimeInMinutes = 90
-    var individualProgLT = progLT.FirstOrDefault(x => x.Name.ToLower().Contains("individual")) ?? new LessonType() { StudentPricePerLesson = 50m, MinCountLessonsToPay = 1, LessonTimeInMinutes = 60 }; //LessonTimeInMinutes = 60
+    var englishLTs = lessonTypesList.Where(x=>!x.IsDeleted).Where(x => x.Course != null && x.Course.Subject.ToLower().Contains("english"));
+    var progLTs = lessonTypesList.Where(x => !x.IsDeleted).Where(x => x.Course != null && x.Course.Subject.ToLower().Contains("programming"));
+
+    var englishIndividual = englishLTs.Where(x => x.GroupType != null && x.GroupType?.MaximumStudents == 1).ToList();
+    var englishGroup = englishLTs.Where(x => x.GroupType != null && x.GroupType?.MaximumStudents > 1).ToList();
+    var progIndividual = progLTs.Where(x => x.GroupType != null && x.GroupType?.MaximumStudents == 1).ToList();
+    var progGroup = progLTs.Where(x => x.GroupType != null && x.GroupType?.MaximumStudents > 1).ToList();
+
+   
 
 
+    var groupEnglishLT = englishGroup.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 25m, MinCountLessonsToPay = 8, LessonTimeInMinutes = 70 };
+    var individualEnglishLT = englishIndividual.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 40m, MinCountLessonsToPay = 1, LessonTimeInMinutes = 60 }; //, LessonTimeInMinutes = 60
+    var groupProgLT = progGroup.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 35m, MinCountLessonsToPay = 4, LessonTimeInMinutes = 90 }; //, LessonTimeInMinutes = 90
+    var individualProgLT = progIndividual.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 50m, MinCountLessonsToPay = 1, LessonTimeInMinutes = 60 }; //LessonTimeInMinutes = 60
 
-    var engToddlersIndivid = _context.LessonTypes.FirstOrDefault();
-    var engAdultsIndivid = _context.LessonTypes.FirstOrDefault();
-    var engOrganizIndivid = _context.LessonTypes.FirstOrDefault();
-    var engExpressIndivid = _context.LessonTypes.FirstOrDefault();
-    var engSpeakingClubIndivid = _context.LessonTypes.FirstOrDefault();
-    var progChildrenIndivid = _context.LessonTypes.FirstOrDefault();
 
-    var engToddlersGroup = _context.LessonTypes.FirstOrDefault();
-    var engAdultsGroup = _context.LessonTypes.FirstOrDefault();
-    var engOrganizGroup = _context.LessonTypes.FirstOrDefault();
-    var engExpressGroup = _context.LessonTypes.FirstOrDefault();
-    var engSpeakingClubGroup = _context.LessonTypes.FirstOrDefault();
-    var progChildrenGroup = _context.LessonTypes.FirstOrDefault();
+    var englishIndividualAdults = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+    var englishGroupAdults = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+
+    var englishIndividualToddlers = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+    var englishGroupToddlers = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+
+    var englishIndividualOrganiz = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+    var englishGroupOrganiz = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+
+    var englishIndividualExpress = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+    var englishGroupExpress = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+
+    var englishIndividualSpeakingClub = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+    var englishGroupSpeakingClub = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+
+    var programmingIndividual = progLTs.Where(x => x.GroupType != null && x.GroupType?.Name == "individual");
+    var programmingGroup = progLTs.Where(x => x.GroupType != null && x.GroupType?.Name == "group");
+
+    var programmingIndividualScratch = _context.LessonTypes.FirstOrDefault();
+    var programmingGroupScratch = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+
+    var programmingIndividualPython = _context.LessonTypes.FirstOrDefault();
+    var programmingGroupPython = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+
+    var programmingIndividualJava = _context.LessonTypes.FirstOrDefault();
+    var programmingGroupJava = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
+
 
 }
 

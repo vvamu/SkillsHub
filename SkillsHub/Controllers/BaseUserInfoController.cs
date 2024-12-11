@@ -72,8 +72,9 @@ public class BaseUserInfoController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create(Guid userId)
+    public async Task<IActionResult> Create(Guid userId,string applicationUserId)
     {
+
         var userInfo = new BaseUserInfo() { ApplicationUserId = userId };
         return View(userInfo);
     }

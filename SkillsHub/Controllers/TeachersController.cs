@@ -227,25 +227,36 @@ public class TeachersController : Controller
     }
 
     [Route("/Teachers/GetAsync")]
-    public async Task<IActionResult> GetAsync(Guid? lessonTypeId, Guid? groupId)
+    public async Task<IActionResult> GetAsync(Guid? lessonTypeId, string? groupId = "", bool isTotal = false)
     {
-        if (groupId != null && groupId != Guid.Empty)
+        List<Teacher> rs = null;
+        Guid groupID;
+        Guid.TryParse(groupId, out groupID);
+        if (!string.IsNullOrEmpty(groupId) && groupID != Guid.Empty)
         {
-            var group = await _groupService.GetAsync((Guid)groupId);
-            return Ok(group.GroupTeachers?.Select(x => x.Teacher));
+            var group = await _groupService.GetAsync((Guid)groupID);
+            if (isTotal && group.GroupTeachers != null) rs = group.GroupTeachers?.Select(x => x.Teacher).ToList();
+            if(!isTotal && group.GroupTeachers != null) rs = group.CurrentGroupTeachers.Select(x=>x.Teacher).ToList();
+            
         }
         var items = await _teacherService.GetAllAsync();
         if (lessonTypeId != null && lessonTypeId != Guid.Empty)
         {
             var res = items.ToList();
-            var rs = res.Where(x => x.CurrentPossibleCourses != null && x.CurrentPossibleCourses.Select(x => x.LessonTypeId).ToList().Contains((Guid)lessonTypeId)).ToList();
-            return Ok(rs);
+            items = res.Where(x => x.PossibleCources != null &&  x.CurrentPossibleCourses != null && x.CurrentPossibleCourses.Select(x => x.LessonTypeId).ToList().Contains((Guid)lessonTypeId)).AsAsyncQueryable();
+           
         }
-
+        rs = await items.ToListAsync();
+        if (rs == null)
+        {
+            rs =  new List<Teacher>();
+        }
+     
+        return Ok(rs);
         //items = items.Where(x => !x.IsDeleted);
+
         
-        var result = await items.ToListAsync();
-        return Ok(result ?? new List<Teacher>());
+ 
     }
 
 }

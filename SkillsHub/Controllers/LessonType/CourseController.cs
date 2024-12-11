@@ -49,22 +49,31 @@ public class CourseController : Controller
         Course? result;
         try
         {
+            var id = Guid.Empty;
+            Guid.TryParse(item.StringId, out id); 
+            if(item.Id == Guid.Empty && id != Guid.Empty)  item.Id = id;
             var isEdit = await _context.Courses.FindAsync(item.Id);
             if (isEdit != null) result = await _courseService.UpdateAsync(item);
             else result = await _courseService.CreateAsync(item);
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(item); }
-
-        return View(result);
+        var res = await _courseService.GetLastValueAsync(result.Id);
+        return View(res);
     }
-    public async Task<IActionResult> Remove(Course item)
+
+    [HttpPost]
+    public async Task<IActionResult> ChangeActiveStatus(Course item,bool isRemove = false)
     {
         try
         {
-            var res = await _courseService.RemoveAsync(item.Id);
+            var id = Guid.Empty;
+            Guid.TryParse(item.StringId, out id);
+            if (item.Id == Guid.Empty && id != Guid.Empty) item.Id = id;
+            if(isRemove) item = await _courseService.RemoveAsync(item.Id);
+            else item = await _courseService.RestoreAsync(item.Id);
         }
-        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(item); }
-        return RedirectToAction("InstitutionSetting", "CRM");
+        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View("Create",item); }
+        return RedirectToAction("Create", item);
     }
     /*
     [HttpPost]

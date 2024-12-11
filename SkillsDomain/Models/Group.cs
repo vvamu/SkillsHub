@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SkillsHub.Domain.Models;
 
-public class Group : LogModel<Group>
+public class Group : BaseModels.BaseEntity
 {
     public string Name { get; set; }
     public string? EnglishLevel { get; set; }
@@ -30,13 +30,62 @@ public class Group : LogModel<Group>
     public bool IsLateDateStart { get; set; }
 
 
-
+    //public DateTime DateLastUpdate { get; set; }
 
     public bool IsPermanentStaffGroup { get; set; }
+    public bool IsCanAddLessons { get; set; } = false;
+
 
     #region NotMapped
 
-    public bool IsCanAddLessons { get; set; } = false;
+    [NotMapped]
+    public GroupTeacher? GroupTeacher
+    {
+        get
+        {
+            if (GroupTeachers == null) return null;
+            var res = GroupTeachers?
+           .GroupBy(x => x.TeacherId).ToList();
+            var res2 = res.Select(g => g.OrderByDescending(x => x.DateAdd).First()).ToList();
+            var res3 = res2.Where(x => !x.IsDeleted).First();
+            return res3;
+        }
+    }
+    [NotMapped]
+    public List<GroupTeacher>? CurrentGroupTeachers
+    {
+        get
+        {
+            if (GroupTeachers == null) return new List<GroupTeacher>();
+
+            var res = GroupTeachers?
+            .GroupBy(x => x.TeacherId).ToList();
+            var res2 = res.Select(g => g.OrderByDescending(x => x.DateAdd).First()).ToList();
+            var res3 = res2.Where(x => !x.IsDeleted).ToList();
+            return res3;
+        }
+    }
+
+    [NotMapped]
+    public List<GroupStudent>? CurrentGroupStudents {
+        get
+        {
+            if(GroupStudents == null) return new List<GroupStudent>();
+            var res = GroupStudents?
+            .GroupBy(x => x.StudentId).ToList();
+            var res2 = res.Select(g => g.OrderByDescending(x => x.DateAdd).First()).ToList();
+            var res3 = res2.Where(x => !x.IsDeleted).ToList();
+            return res3;
+        }
+    }
+
+
+
+    [NotMapped]
+    public IQueryable<IGrouping<DateTime,GroupTeacher>>? LogGroupTeachers { get; set; }
+    [NotMapped]
+
+    public IQueryable<IGrouping<DateTime, GroupStudent>>? LogGroupStudents { get; set; }
 
     [NotMapped]
     public bool IsCreateLessonsAlready {  get; set; }
@@ -182,8 +231,7 @@ public class Group : LogModel<Group>
 
 
 
-    [NotMapped]
-    public GroupTeacher? GroupTeacher { get => GroupTeachers?.FirstOrDefault(); }
+    
 
     [NotMapped]
     public Guid TeacherId { get; set; }
@@ -194,6 +242,7 @@ public class Group : LogModel<Group>
     public override bool Equals(object obj)
     {
         var other = obj as Group;
+        if (other == null) return false;
         if(Name == other.Name && DateStart == other.DateStart && IsLateDateStart && other.IsLateDateStart) return true;
         return false;
     }

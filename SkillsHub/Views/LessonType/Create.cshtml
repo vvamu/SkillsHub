@@ -361,9 +361,15 @@
                                                         <!--HEADER LESSON-->
                                                         <div class="row">
                                                             @{
-                                                                string modifiedString = par.DisplayName.Replace(";", ";\n") + "\n" + @par.DateCreated;
-                                                             }
-                                                            <div>@modifiedString</div>
+                                                                //string modifiedString = par.DisplayName.Replace(";", ";\n") + "\n" + @par.DateCreated;
+                                                                var modifiedString = par.DisplayName.Split(";");
+                                                                foreach(var m in modifiedString)
+                                                                {
+                                                                    <div>@m</div>
+                                                                }
+                                                            }
+                                                            
+                                                            
                                                            
                                                         </div>
                                                         @{

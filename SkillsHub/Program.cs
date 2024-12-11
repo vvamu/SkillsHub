@@ -2,6 +2,7 @@ global using SkillsHub.Domain.Models;
 
 using EmailProvider;
 using EmailProvider.Options;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -31,10 +32,30 @@ public class Program
 
 
         //FOR SESSION
+        //builder.Services.AddDistributedMemoryCache();
+        //builder.Services.AddSession(options =>
+        //{
+        //    options.IdleTimeout = TimeSpan.FromDays(30); // Установите время простоя сеанса на 30 дней
+        //});
+        //builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme)
+        //.AddCookie(options =>
+        //{
+        //    options.Cookie.IsEssential = true; // Make the cookie essential for preserving user authentication
+        //    options.ExpireTimeSpan = TimeSpan.FromDays(30); // Set the expiration time of the cookie
+        //    options.SlidingExpiration = true; // Extend the expiration time with each request
+        //});
+
         builder.Services.AddDistributedMemoryCache();
-        builder.Services.AddSession(options => {
-            options.IdleTimeout = TimeSpan.FromMinutes(30);
+
+        builder.Services.AddSession(options =>
+        {
+
+             
+            options.Cookie.Name = ".AdventureWorks.Session";
+            options.IdleTimeout = TimeSpan.FromDays(10);
+            options.Cookie.IsEssential = true;
         });
+
 
         var services = builder.Services;
         services.AddAutoMapper(typeof(MappingProfile).Assembly);
@@ -58,18 +79,21 @@ public class Program
         services.AddDbContext<ApplicationDbContext>(
         options =>
         {
-            options.UseSqlServer(connectionString,options => options.EnableRetryOnFailure());
+            options.UseSqlServer(connectionString,options => options.EnableRetryOnFailure().CommandTimeout(60));
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             options.EnableSensitiveDataLogging();
         },
-        ServiceLifetime.Transient);
+        ServiceLifetime.Scoped);
 
         #endregion
 
-        #region Authentication JWT
+        #region Authentication
+        
         builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
+       
+        
         builder.Services.ConfigureApplicationCookie(options =>
         {
             options.ExpireTimeSpan = TimeSpan.FromDays(30);
@@ -107,14 +131,12 @@ public class Program
         //    opt.Token = "5192d0382ea7e2e9-d35f8cb4f9a26339-3a3429d4a23b0c5f";
         //    opt.Webhook = "https://localhost:7150/Viber/Get";
         //});
-
+        
         builder.Services.AddTransient<EmailProvider.Interfaces.IMailService, MailService>();
         builder.Services.AddTransient<IUserService, UserService>();
         builder.Services.AddTransient<IExternalService, ExternalService>();
         //builder.Services.AddTransient<ICourcesService, CourcesService>();
         builder.Services.AddScoped<IGroupService, GroupService>();
-        builder.Services.AddTransient<IAbstractLogModel<GroupTeacher>, GroupTeacherService>();
-
         builder.Services.AddTransient<IRequestService, RequestService>();
         builder.Services.AddTransient<INotificationService, NotificationService>();
         builder.Services.AddScoped<ILessonService, LessonService>();
@@ -146,8 +168,12 @@ public class Program
 
         var app = builder.Build();
         //FOR SESSION
-        // use this before .UseEndpoints or .MapControllerRoute
-        app.UseSession();
+        
+        
+        //app.UseCookiePolicy(new CookiePolicyOptions
+        //{
+        //    MinimumSameSitePolicy = SameSiteMode.None,
+        //});
 
         //app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -167,7 +193,7 @@ public class Program
         });
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-
+        /*
         app.UseExceptionHandler(errorApp =>
         {
             errorApp.Run(async context =>
@@ -186,12 +212,13 @@ public class Program
                 // Перенаправление на страницу Home/Error
                 context.Response.Redirect("/Home/Error");
             });
-        });
+        });*/
         app.UseStatusCodePagesWithReExecute("/Account/SignIn", "?statusCode={0}");
         app.UseRouting();
 
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseSession(); // use this before .UseEndpoints or .MapControllerRoute
 
         app.MapControllerRoute(
             name: "default",

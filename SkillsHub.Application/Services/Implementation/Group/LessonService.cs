@@ -9,6 +9,7 @@ using SkillsHub.Domain.Models;
 using SkillsHub.Persistence;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -47,7 +48,7 @@ public class LessonService : AbstractLogModelService<Lesson> , ILessonService
 
             .Include(x => x.Group).ThenInclude(x => x.GroupTeachers).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
             .Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
-            .Include(x => x.Teacher).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
+            .Include(x => x.Teachers).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
             .Include(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser).ThenInclude(x=>x.ConnectedUsersInfo).ThenInclude(x=>x.BaseUserInfo)
             .AsNoTracking();
     }
@@ -67,16 +68,17 @@ public class LessonService : AbstractLogModelService<Lesson> , ILessonService
 
             .Include(x => x.Group).ThenInclude(x => x.GroupStudents)
             .Include(x => x.Group).ThenInclude(x => x.LessonType).ThenInclude(x=>x.GroupType)
+            .Include(x=>x.Group).ThenInclude(x=>x.PaymentCategory)
             //.Include(x => x.Group).ThenInclude(x => x.GroupTeachers).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
             //.Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
-            .Include(x => x.Teacher).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
+            .Include(x => x.Teachers).ThenInclude(x => x.Teacher).ThenInclude(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
             .Include(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
             .AsNoTracking()
             .OrderBy(x => x.StartTime).AsQueryable();
         return items;
     }
 
-    public override async Task<Lesson> GetAsync(Guid? itemId, bool withParents = false)
+    public override async Task<Lesson> GetAsync(Guid? itemId, bool withParents = false , bool touchFullInclude = true)
     {
         var id = (Guid)itemId;
         var lesson = _fullInclude
@@ -256,18 +258,19 @@ public class LessonService : AbstractLogModelService<Lesson> , ILessonService
         foreach (var lessonDb in parents)
         {
             var students = await _context.LessonStudents.AsNoTracking().Where(x => x.LessonId == lessonDb.Id).ToListAsync();
-            var teacher = await _context.LessonTeachers.AsNoTracking().FirstOrDefaultAsync(x => x.TeacherId == (Guid)lessonDb.TeacherId);
-
-
             if(students != null) _context.LessonStudents.RemoveRange(students);
             await _context.SaveChangesAsync();
 
-            
-            if (teacher != null)
+            if(lessonDb.TeacherId != null && Guid.Empty != lessonDb.TeacherId)
             {
+                var teacher = await _context.LessonTeachers.AsNoTracking().FirstOrDefaultAsync(x => x.LessonId == lessonDb.Id);
+                if (teacher != null)
+                {
                     _context.LessonTeachers.Remove(teacher);
                     await _context.SaveChangesAsync();
+                }
             }
+            
 
             
             
@@ -399,8 +402,8 @@ public class LessonService : AbstractLogModelService<Lesson> , ILessonService
 
                 
                 lessons.Add(lesson);
-
-                await Create(lesson);
+                if (group.IsPermanentStaffGroup) await Create(lesson, groupStudents.Select(x => x.StudentId).ToArray());
+                else await Create(lesson);
                 count++;
                 
             }
@@ -537,13 +540,18 @@ public class LessonService : AbstractLogModelService<Lesson> , ILessonService
         var oldStudents = new List<Guid>();
         studentsId = studentsId ?? new List<Guid>();
         visitStatus = visitStatus ?? new int[studentsId.Count].Select(x => 1).ToArray();
-        if(newLesson.GroupId != null)
+        if(studentsId.Count() == 0 && newLesson.GroupId != null)
         {
             var gr = _context.Groups.Include(x => x.GroupStudents).FirstOrDefault(x => x.Id == newLesson.GroupId);
             if (gr != null && gr.IsPermanentStaffGroup)
             {
-                studentsId = gr?.GroupStudents?.Select(x=>x.StudentId).ToList();
-                visitStatus = new int[studentsId.Count].Select(x => 1).ToArray();
+                studentsId = gr?.GroupStudents
+                .Where(x => !x.IsDeleted) // Фильтрация по IsDeleted == false
+                .GroupBy(x => new { x.StudentId, x.DateCreated, x.IsDeleted }) // Группировка по 3 полям
+                .Select(g => g.OrderByDescending(x => x.DateCreated).First()) // Выбор первого элемента по группам, сортировка по убыванию DateCreated
+                .ToList()
+                .Select(x=>x.StudentId).ToList();
+                visitStatus = new int[studentsId.Count].Select(x => x).ToArray();
             }
 
         }
@@ -589,6 +597,7 @@ public class LessonService : AbstractLogModelService<Lesson> , ILessonService
             var visitIndex = studentsId.IndexOf(studentId);
             var visit = (int)visitStatus.GetValue(visitIndex);
 
+            //var dbLessonStudent = _context.LessonStudents.FirstOrDefaultAsync(x => x.StudentId == studentId && x.LessonId == oldLesson.Id);
             var grSt = new LessonStudent() { LessonId = newLesson.Id, StudentId = studentId, VisitStatus = visit };
             await _context.LessonStudents.AddAsync(grSt);
             await _context.SaveChangesAsync();
@@ -597,6 +606,9 @@ public class LessonService : AbstractLogModelService<Lesson> , ILessonService
         {
             var student = await _context.Students.FindAsync(studentId);
             if (student == null) continue;
+            var grSt = new LessonStudent() { LessonId = newLesson.Id, StudentId = studentId, VisitStatus = 3 , IsDeleted = true };
+            await _context.LessonStudents.AddAsync(grSt);
+            await _context.SaveChangesAsync();
             if (!IsLessonCreatedWithNotifications) continue;
             #region Create notification to remove from group
             try
@@ -625,7 +637,7 @@ public class LessonService : AbstractLogModelService<Lesson> , ILessonService
         Teacher? teacher = user.UserTeacher;
         if (student != null)
         {
-            var groups = _context.Groups.Where(x => x.ParentId == null)
+            var groups = _context.Groups
                 .Include(x => x.GroupStudents)
                 .Where(x => x.GroupStudents != null && x.GroupStudents.Select(x => x.StudentId).Contains(student.Id))
                 .Include(x => x.DaySchedules);//_context.GroupStudents.Where(x => x.ParentId == null).Where(x => x.StudentId == student.Id);
@@ -643,7 +655,7 @@ public class LessonService : AbstractLogModelService<Lesson> , ILessonService
         }
         if (teacher != null)
         {
-            var groups = _context.Groups.Where(x => x.ParentId == null)
+            var groups = _context.Groups
                 .Include(x => x.GroupTeachers)
                 .Where(x => x.GroupTeachers != null && x.GroupTeachers.Select(x => x.TeacherId).Contains(teacher.Id))
                 .Include(x => x.DaySchedules);//_context.GroupStudents.Where(x => x.ParentId == null).Where(x => x.StudentId == student.Id);
@@ -726,4 +738,45 @@ public class LessonService : AbstractLogModelService<Lesson> , ILessonService
         return newLesson;
     }
 
+    public async Task UpdateLessonsUsersForUnCompletedLessonsByGroupAsync(Guid groupId, Guid? newTeacherId = null, List<Guid> newStudents = null)
+    {
+        var notCompletedLessons = await _context.Lessons
+            .Where(x => x.GroupId == groupId && x.ParentId == null).Where(x => !x.IsСompleted || x.EndTime < DateTime.Now)
+            .Include(x=>x.Group).ThenInclude(x=>x.GroupTeachers)
+            .Include(x => x.Group).ThenInclude(x => x.GroupStudents)
+            .Include(x => x.Teachers)
+            .Include(x => x.ArrivedStudents)
+            .ToListAsync();
+        newTeacherId = newTeacherId ?? notCompletedLessons.First().Group?.TeacherId;
+        newStudents = newStudents ?? notCompletedLessons?.First()?.Group?.GroupStudents?.Select(x=>x.StudentId)?.ToList();
+        foreach (var x2 in notCompletedLessons)
+        {
+            
+            x2.TeacherId = newTeacherId;
+            var students = _context.Lessons.Include(x => x.ArrivedStudents).SelectMany(x=>x.ArrivedStudents);
+            var dbStudentsIds = students.Select(x => x.StudentId)?.ToList();
+            var dbVisitStatuses = students.Select(x=>x.VisitStatus)?.ToList();
+
+
+            List<Guid> toCreate = newStudents.Except(dbStudentsIds).ToList();
+            List<Guid> toUpdate = newStudents.Intersect(dbStudentsIds).ToList();
+            List<Guid> toDelete = dbStudentsIds.Except(newStudents).ToList();
+
+            List<Guid> combinedList = toUpdate.Concat(toCreate).ToList();
+            int index = toUpdate.Count();
+            foreach (var id in combinedList)
+            {
+                if (toCreate.Contains(id))
+                {
+                    dbVisitStatuses.Insert(index, 1);
+                }
+                index++;
+            }
+
+            await Edit(x2, combinedList.ToArray(), dbVisitStatuses.ToArray(), false);
+
+        }
+       
+
+    }
 }

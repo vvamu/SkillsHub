@@ -37,7 +37,7 @@ public class LessonTypeController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var items =  _lessonTypeService.GetAll().Where(x=>x.ParentId == null || x.ParentId == Guid.Empty);
+        var items =  _lessonTypeService.GetAll().Where(x=>x.ParentId == null || x.ParentId == Guid.Empty).OrderByDescending(x=>x.IsActive).ThenBy(x=>x.IsDeleted);
         var result = await items.ToListAsync();
         return PartialView( result);
 
@@ -64,8 +64,8 @@ public class LessonTypeController : Controller
 
     public async Task<IActionResult> Item(Guid id)
     {
-        var item =  _lessonTypeService.GetAll();
-        return View(await item.FirstOrDefaultAsync(x => x.Id == id));
+        var item =  await _lessonTypeService.GetAsync(id,true);
+        return View(item);
     }
 
     /*
@@ -119,7 +119,7 @@ public class LessonTypeController : Controller
     [HttpGet]
     public async Task<IActionResult> Create(Guid? itemId)
     {
-        LessonType model = await _lessonTypeService.GetLastValueAsync(itemId);
+        LessonType model = await _lessonTypeService.GetLastValueAsync(itemId, true);
         return View(model);
     }
 
@@ -139,6 +139,7 @@ public class LessonTypeController : Controller
            ModelState.AddModelError("", ex.Message); return View("Create",item);
         }
         if(result == null) return RedirectToAction("InstitutionSetting", "CRM");
+        result = await _lessonTypeService.GetLastValueAsync(result.Id, true);
         return View(result);
 
 

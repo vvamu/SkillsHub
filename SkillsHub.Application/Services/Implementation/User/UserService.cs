@@ -715,6 +715,9 @@ public class UserService : IUserService
 
         _context.ApplicationUsers.Remove(item);
         await _context.SaveChangesAsync();
+
+
+
         return item;
     }
 

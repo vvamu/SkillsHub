@@ -31,9 +31,36 @@ public class Teacher : BaseEntity
     }
 
     [NotMapped]
-    public decimal CurrentCalculatedPrice { get; set; }
+    public decimal MonthCalculatedPriceCalculatedPrice { get; set; }
     [NotMapped]
     public decimal TotalCalculatedPrice { get; set; }
+    [NotMapped]
+
+    public int TotalCountVisitedLessonsWithStatus1 { get; set; }
+    [NotMapped]
+
+    public int TotalCountVisitedLessonsWithStatus2
+    {
+        get
+        {
+            if (Lessons != null)
+            {
+                foreach (var lesson in Lessons.Where(x => x.Lesson != null).Select(x => x.Lesson))
+                {
+                    if (lesson.Group != null && lesson.Group.PaymentCategory != null)
+                    {
+                        var lt = lesson.Group.PaymentCategory.TeacherPricePerLesson;
+
+                    }
+                }
+            }
+            return 0;
+        }
+    } 
+    [NotMapped]
+
+    public int TotalCountVisitedLessonsWithStatus3 { get; set; }
+
 
     /*
     [NotMapped]

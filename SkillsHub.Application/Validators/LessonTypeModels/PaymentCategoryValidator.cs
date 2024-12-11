@@ -20,10 +20,10 @@ public class PaymentCategoryValidator : AbstractValidator<PaymentCategory>
         RuleFor(x => x.TeacherPrice).GreaterThan(0).WithMessage("Минимальная цена для учителя 1");
         RuleFor(x => x.StudentPrice).GreaterThan(0).WithMessage("Минимальная цена для студента 1");
         RuleFor(x => x.MinCountLessonsToPay).GreaterThan(0).WithMessage("Минимальное количество уроков для оплаты 1");
-        RuleFor(x => x.DurationTypeTeacherName).NotEmpty().WithMessage("Необходимо указать тип значения продолжительности для учителя");
-        RuleFor(x => x.DurationTypeTeacherValue).NotEmpty().WithMessage("Необходимо указать тип продолжительности для учителя");
-        RuleFor(x => x.DurationTypeStudentName).NotEmpty().WithMessage("Необходимо указать тип значения продолжительности для студента");
-        RuleFor(x => x.DurationTypeStudentValue).NotEmpty().WithMessage("Необходимо указать тип продолжительности для студента");
+        RuleFor(x => x.DurationTypeTeacherValue).NotEmpty().WithMessage("Необходимо указать тип значения продолжительности для учителя");
+        RuleFor(x => x.DurationTypeTeacherName).NotEmpty().WithMessage("Необходимо указать тип продолжительности (занятие,месяц) для учителя");
+        RuleFor(x => x.DurationTypeStudentValue).NotEmpty().WithMessage("Необходимо указать тип значения продолжительности для студента");
+        RuleFor(x => x.DurationTypeStudentName).NotEmpty().WithMessage("Необходимо указать тип продолжительности (занятие,месяц) для студента");
     }
 }
 

@@ -24,7 +24,7 @@ public class TeacherService : IUserRoleModelService<Teacher>
         _userManager = userManager;
     }
 
-    public async Task<IQueryable<Teacher>> GetAllAsync()
+    public async Task<IQueryable<Teacher>> GetAllAsyncWithUserAndPossibleCoursesLink()
     {
         var items = _context.Teachers
             .Include(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x=>x.BaseUserInfo)
@@ -44,7 +44,15 @@ public class TeacherService : IUserRoleModelService<Teacher>
 
         return items;
     }
+    public async Task<IQueryable<Teacher>> GetAllAsync()
+    {
+        var items = _context.Teachers
+            .Include(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo)
+            .Include(x => x.PossibleCources)
+            .AsQueryable();
 
+        return items;
+    }
     public async Task<Teacher> GetAsync(Guid teacherId)
     {
         var item = await _context.Teachers.Include(x => x.ApplicationUser).ThenInclude(x => x.ConnectedUsersInfo).ThenInclude(x => x.BaseUserInfo).Include(x=>x.PossibleCources).FirstOrDefaultAsync(x=>x.Id == teacherId);

@@ -16,6 +16,7 @@ using System.Linq;
 namespace SkillsHub.Controllers;
 
 [Authorize]
+[Controller]
 public class GroupController : Controller
 {
     private readonly IGroupService _groupService;
@@ -71,62 +72,74 @@ public class GroupController : Controller
     {
         var group = await _groupService.GetAsync(id);
         if (group == null) return RedirectToAction("Index", "Group");
+        /*
+        if (!group.IsPermanentStaffGroup)
+        {
+            var gr = await _context.Groups.FindAsync(id);
+            gr.IsPermanentStaffGroup = true;
+            _context.Groups.Update(gr);
+            await _context.SaveChangesAsync();
+        }*/
+
         return View(group);
     }
 
+    [HttpGet]
     public async Task<IActionResult> Create(Guid? id)
     {
-        if(id == null) return View();
+        if(id == null) return View(new Group());
 
         var group = await _groupService.GetAsync((Guid)id);
         return View(group);
     }
 
+    [HttpGet]
     [Route("/Group/ScheduleDays")]
     public async Task<IActionResult> GetScheduleDaysAsync(Guid groupId)
     {
         var item = await _groupService.GetAsync(groupId);
         if (item == null) return Ok(new List<GroupWorkingDay>());
         var scheduleDays = item.DaySchedules;
-        foreach(var sc in scheduleDays)
-        {
+        scheduleDays?.ForEach(x => x.Group = null);
 
-        }
-
-        return Ok(scheduleDays);
+        return Ok(scheduleDays ?? new List<GroupWorkingDay>());
     }
 
 
     [HttpPost]
-    public async Task<IActionResult> Create(Group item, Guid[] studentId, string[] dayName, TimeSpan[] startTime) //del teacherValue and duration
+    [Route("/Group/Create2")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Create2(Group group, Guid[] studentId, string[] dayName, TimeSpan[] startTime) //del teacherValue and duration
     {
-        Group group = new Group();
-        if(item != null && item.Id != Guid.Empty) group = await _context.Groups.FindAsync(item.Id);        
+       
+        Group newGroup = new Group();
+        if(group != null && group.Id != Guid.Empty) newGroup = await _context.Groups.FindAsync(group.Id);        
 
         try
         {
-          
-            item.TeacherId = new Guid(item?.TeacherIdString);
-            if (!User.IsInRole("Admin")) item.IsVerified = false;
-            else item.IsVerified = true;
 
-            if (group.Id != Guid.Empty)
+            group.TeacherId = new Guid(group?.TeacherIdString);
+            if (!User.IsInRole("Admin")) group.IsVerified = false;
+            else group.IsVerified = true;
+            group.IsPermanentStaffGroup = true;
+
+            if (newGroup.Id != Guid.Empty)
             {
-                
-               group = await _groupService.UpdateAsync(item, studentId, dayName, startTime);
+
+                newGroup = await _groupService.UpdateAsync(group, studentId, dayName, startTime);
             }
             else
-                group =  await _groupService.CreateAsync(item,studentId,dayName,startTime);
+                newGroup =  await _groupService.CreateAsync(group, studentId,dayName,startTime);
 
         }
         catch (Exception ex)
         {
             if(ex is ArgumentNullException) ModelState.AddModelError("", "Группа не может быть создана без учителя");
             else ModelState.AddModelError("", ex.Message); 
-            return View("Create",item);
+            return View("Create", group);
         }
-        return RedirectToAction("Item", new { id = group.Id });
-
+        return RedirectToAction("Item", new { id = newGroup.Id });
+       
     }
 
 

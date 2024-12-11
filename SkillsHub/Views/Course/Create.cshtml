@@ -28,16 +28,26 @@
 
                   @if(isEdit)
                                     {
-                  <input type="hidden" asp-for="@Model.Id" value="@Model.Id" name="Id" />
+                  <input type="hidden" asp-for="@item.Id" value="@item.Id" name="Id" />
+                  <input type="hidden" asp-for="@item.StringId" value="@item.Id.ToString()" />
+
                      <div class="text-center" style="min-height:80px; display:flex;justify-content:space-between"> 
                         <h3>@restTextAndName</h3>
-                        <div class="table-cell">@item.DateCreated</div>
-                        <a asp-action="InstitutionSetting" asp-controller="CRM" >Назад</a>
-                        @if(Model.IsDeleted)
-                        {
-                          <input type="submit" class="btn btn-info" asp-action="Remove" asp-controller="Course" value="◯" style="height:50%" />
-                        }
-                          <input type="submit" class="btn btn-danger" asp-action="Remove" asp-controller="Course"  value="Х" style="height:50%" />
+                        <div class="text-center" xstyle="display:flex;justify-content:space-between;grid-gap:10%">
+                            <span class="table-cell" style="flex-wrap:nowrap">@item.DateCreated</span>
+                            <a asp-action="InstitutionSetting" asp-controller="CRM" style="color:#7571f9">Назад</a>
+                            @if(item.IsDeleted)
+                            {
+                              <input type="hidden" name="isRemove" value="false" />
+                              <input type="submit" class="btn btn-info" asp-action="ChangeActiveStatus" asp-controller="Course" formmethod="post" value="◯" style="height:50%" />
+                            }
+                            else
+                            {
+                              <input type="hidden" name="isRemove" value="true" />
+                              <input type="submit" class="btn btn-danger" asp-action="ChangeActiveStatus" asp-controller="Course" formmethod="post" value="Х" style="height:50%" />
+                            }
+                             
+                          </div>
                      </div>
                                     }
                   else
@@ -51,31 +61,42 @@
                   }
                                     <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
 
-                                    <div class="form-group row">
-                                        <label class="col-lg-4 col-form-label" for="val-skill">
-                                            Имя<span class="text-danger">*</span>
-                                        </label>
-                                        <div class="col-lg-6">
-                                            <input class="form-control" asp-for="@item.Name" name="Name" type="text" placeholder="Для организаций" required />
-                                        </div>
-                                    </div>
-                                    
+
                                     <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
                                             Предмет<span class="text-danger">*</span>
                                         </label>
                                         <div class="col-lg-6">
-                                            <input class="form-control" asp-for="@item.Subject" min="1" type="text" name="Subject" required  placeholder="Английский"/>
+                                            <!--<input class="form-control" asp-for="@item.Subject" min="1" type="text" name="Subject" required  placeholder="Английский"/>-->
+                                           
+                                            <select class="form-select" asp-for="@item.Subject">
+                                                <!--<option value="минуты" selected>Минуты</option>-->
+                                                <option value="English" selected="@(item.SubjectRu == "Английский" ? "selected" : null)">Английский</option>
+                                                <option value="Programming" selected="@(item.SubjectRu == "Программирование" ? "selected" : null)">Программирование</option>
+                                                <!--<option value="курс" selected>Курс целиком</option>-->
+                                            </select>
                                         </div>
                                     </div>
+
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Направление<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <input class="form-control" asp-for="@item.Name" type="text" placeholder="Для организаций" required />
+                                        </div>
+                                    </div>
+                                    
+                                    
                                     <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
                                             Описание
                                         </label>
                                         <div class="col-lg-6">
-                                            <input class="form-control" asp-for="@item.Description" type="text" name="Description" placeholder="Курсы английского языка для специфики вашей работы" />
+                                            <input class="form-control" asp-for="@item.Description" type="text" placeholder="Курсы английского языка для специфики вашей работы" />
                                         </div>
                                     </div>
+                                    <!--
                                     <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
                                             Детальное описание
@@ -83,7 +104,7 @@
                                         <div class="col-lg-6">
                                             <textarea class="form-control" type="text" name="Description" rows="4" placeholder="Основная цель этого курса - получение навыков и практики эффективного общения на английском языке в вашей профессиональной области. Программа курса подбирается и согласовывается под конкретную сферу деятельности организации, ее цели и задачи." > </textarea>
                                         </div>
-                                    </div>
+                                    </div>-->
                                     <input type="submit" asp-action="Create" asp-controller="Course" formmethod="post"  class="btn login-form__btn submit w-100" value="@resText" />
                                  </form>
                             </div>

@@ -129,7 +129,7 @@ else
                                                                             <ul>
                                                                        @foreach (var user in arrivedStudents)
                                                                        {
-                                                                         <li><a asp-route-id="@user.Id" asp-action="Item" asp-controller="Account" style="font-size:large;font-weight:900;color:#7571f9">@(arrivedStudents.IndexOf(user)+1). @user.Student.ApplicationUser.FullName</a> -
+                                                                         <li><a asp-route-id="@user.Id" asp-action="Item" asp-controller="Account" style="font-size:large;font-weight:900;color:#7571f9">@(arrivedStudents.IndexOf(user)+2). @user.Student.ApplicationUser.FullName</a> -
                                                                          @{
                                                                                                                                                      
                                                                                         @if(item != null && !item.IsСompleted)
@@ -170,30 +170,43 @@ else
                                                 <div>    
                                                         <hr/>
                                                         @if(item?.Group?.PaymentCategory != null)
-                                                                {
-                                                            @if(User.IsInRole("Student"))
-                                                                {
-                                                                    <div>
-                                                                        Цена для ученика: @item.Group.PaymentCategory.StudentPrice BYN
-                                                                    </div>
-                                                                }
-                                                            @if (User.IsInRole("Teacher" ) && !User.IsInRole("Admin"))
-                                                            {
+                                                        {
+                                                                    @if (User.IsInRole("Admin"))
+                                                                    {
+                                                                        <div>
+                                                                            <div>Цена для ученика: @item.Group.PaymentCategory.StudentPrice @item.Group.PaymentCategory.CurrencyStudent</div>
+                                                                            <div>Оплата учителю: @item.Group.PaymentCategory.TeacherPrice @item.Group.PaymentCategory.CurrencyTeacher</div>
+                                                                            @if (item.Group.PaymentCategory.CurrencyStudent == item.Group.PaymentCategory.CurrencyTeacher)
+                                                                            {
+                                                                                <div>
+                                                                                    Итого:  @(item.Group.PaymentCategory.TeacherPrice - (item.Group.PaymentCategory.StudentPrice * item.ArrivedStudents.Count())) @item.Group.PaymentCategory.CurrencyStudent 
+                                                                                </div> 
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <div>
+                                                                                    Итого:  @(item.Group.PaymentCategory.TeacherPrice) @item.Group.PaymentCategory.CurrencyTeacher - @(item.Group.PaymentCategory.StudentPrice * item.ArrivedStudents.Count())) @item.Group.PaymentCategory.CurrencyStudent
+                                                                                </div>
+                                                                            }
+                                                                        </div>
+                                                                        
+                                                                    }
 
-                                                                <div>
-                                                                    Оплата учителю: @item.Group.PaymentCategory.TeacherPrice BYN
-                                                                </div>
-                                                            }
+                                                                    else if (User.IsInRole("Student"))
+                                                                    {
+                                                                        <div>
+                                                                            Цена для ученика: @item.Group.PaymentCategory.StudentPrice BYN
+                                                                        </div>
+                                                                    }
+                                                                    else if (User.IsInRole("Teacher"))
+                                                                    {
+
+                                                                        <div>
+                                                                            Оплата учителю: @item.Group.PaymentCategory.TeacherPrice BYN
+                                                                        </div>
+                                                                    }
                                                             
-                                                                @if (User.IsInRole("Admin"))
-                                                            {
-                                                                    <div>
-                                                                        <div>Цена для ученика: @item.Group.PaymentCategory.StudentPrice BYN</div>
-                                                                        <div>Оплата учителю: @item.Group.PaymentCategory.TeacherPrice BYN</div>
-                                                                        <div>Итого: @(item.Group.PaymentCategory.TeacherPrice - (item.Group.PaymentCategory.StudentPrice * item.ArrivedStudents.Count())) BYN</div>
-                                                                    </div>
-                                                                
-                                                            }
+                                                                  
                                                         }
                                                 </div>
                                                     

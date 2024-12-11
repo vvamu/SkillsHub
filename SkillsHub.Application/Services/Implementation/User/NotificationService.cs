@@ -6,6 +6,7 @@ using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
 using SkillsHub.Persistence;
+using System.Collections.Immutable;
 
 namespace SkillsHub.Application.Services.Implementation;
 
@@ -13,14 +14,13 @@ public class NotificationService : INotificationService
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IMapper _mapper;
     private readonly IUserService _userService;
 
-    public NotificationService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IMapper mapper, IUserService userService)
+    public NotificationService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, 
+        IUserService userService)
     {
         _context = context;
         _userManager = userManager;
-        _mapper = mapper;
         _userService = userService;
     }
     
@@ -133,6 +133,89 @@ public class NotificationService : INotificationService
 
         }
     }
+
+    public async Task CreateToChangeStudentsByGroup(Group group, List<Guid> toCreate, List<Guid> toDelete)
+    {
+        var admins = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Admin");
+        List<BaseUserInfo> users = new List<BaseUserInfo>();
+        var messageToAdminСreate = "";
+        var messageToAdminDelete = "";
+
+        List<ApplicationUser> toCreateList = toCreate.Select(x => new ApplicationUser() { Id = x }).ToList();
+        List<ApplicationUser> toDeleteList = toDelete.Select(x => new ApplicationUser() { Id = x }).ToList();
+
+        foreach (var us in toDeleteList)
+        {
+            var student = await _context.Students.FirstOrDefaultAsync(x=>x.Id == us.Id);
+            var user = _context.ApplicationUserBaseUserInfo.Where(x => x.IsBase).Include(x => x.BaseUserInfo)?.FirstOrDefault(x => x.ApplicationUserId == student.ApplicationUserId);
+            if (user == null) continue;
+            users.Add(user.BaseUserInfo);
+            var message = $"Ученик {user.BaseUserInfo.FullName} был удален из группы {group.Name} ";
+            messageToAdminDelete += $" {(toDeleteList.IndexOf(us) + 1)}. {user.BaseUserInfo.FullName} ";
+            await Create(message, new List<ApplicationUser>() { new ApplicationUser() { Id = user.ApplicationUserId } });
+        }
+        foreach (var us in toCreateList)
+        {
+            var student = await _context.Students.FirstOrDefaultAsync(x => x.Id == us.Id);
+            var user = _context.ApplicationUserBaseUserInfo.Where(x => x.IsBase).Include(x => x.BaseUserInfo)?.FirstOrDefault(x => x.ApplicationUserId == student.ApplicationUserId);
+            if (user == null) continue;
+            users.Add(user.BaseUserInfo);
+            var message = $"Ученик {user.BaseUserInfo.FullName} был добавлен в группу {group.Name} ";
+            messageToAdminСreate += $" {(toCreateList.IndexOf(us) + 1)}. {user.BaseUserInfo.FullName} ";
+            await Create(message, new List<ApplicationUser>() { new ApplicationUser() { Id = user.ApplicationUserId } });
+        }
+        var resMessage = string.IsNullOrEmpty(messageToAdminDelete) ? "" : $"Были удалены из группы '{group.Name}' ученики : " + messageToAdminDelete;
+        resMessage += string.IsNullOrEmpty(messageToAdminСreate) ? "" :  $"Были добавлены в группу '{group.Name}' ученики : " + messageToAdminСreate;
+
+        if (string.IsNullOrEmpty(resMessage)) return;
+        foreach (var admin in admins)
+        {
+            
+            await Create(resMessage, new List<ApplicationUser>() { new ApplicationUser() { Id = admin.Id } });
+        }
+    }
+
+    public async Task CreateToChangeTeachersByGroup(Group group, List<Guid> toCreate, List<Guid> toDelete)
+    {
+        var admins = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync("Admin");
+        List<BaseUserInfo> users = new List<BaseUserInfo>();
+        var messageToAdminСreate = "";
+        var messageToAdminDelete = "";
+
+        List<ApplicationUser> toCreateList = toCreate.Select(x => new ApplicationUser() { Id = x }).ToList();
+        List<ApplicationUser> toDeleteList = toDelete.Select(x => new ApplicationUser() { Id = x }).ToList();
+
+        foreach (var us in toDeleteList)
+        {
+            var teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == us.Id);
+            var user = _context.ApplicationUserBaseUserInfo.Where(x => x.IsBase).Include(x => x.BaseUserInfo)?.FirstOrDefault(x => x.ApplicationUserId == teacher.ApplicationUserId);
+            if (user == null) continue;
+            users.Add(user.BaseUserInfo);
+            var message = $"Учитель {user.BaseUserInfo.FullName} был удален из группы {group.Name} ";
+            messageToAdminDelete += $" {(toDeleteList.IndexOf(us) + 1)}. {user.BaseUserInfo.FullName} ";
+            await Create(message, new List<ApplicationUser>() { new ApplicationUser() { Id = user.ApplicationUserId } });
+        }
+        foreach (var us in toCreateList)
+        {
+            var teacher = await _context.Teachers.FirstOrDefaultAsync(x => x.Id == us.Id);
+            var user = _context.ApplicationUserBaseUserInfo.Where(x => x.IsBase).Include(x => x.BaseUserInfo)?.FirstOrDefault(x => x.ApplicationUserId == teacher.ApplicationUserId);
+            if (user == null) continue;
+            users.Add(user.BaseUserInfo);
+            var message = $"Учитель {user.BaseUserInfo.FullName} был добавлен в группу {group.Name} ";
+            messageToAdminСreate += $" {(toCreateList.IndexOf(us) + 1)}. {user.BaseUserInfo.FullName} ";
+            await Create(message, new List<ApplicationUser>() { new ApplicationUser() { Id = user.ApplicationUserId } });
+        }
+        var resMessage = string.IsNullOrEmpty(messageToAdminDelete) ? "" :  $"Были удалены из группы {group.Name} учителя : " + messageToAdminDelete;
+        resMessage += string.IsNullOrEmpty(messageToAdminСreate) ? "" : $"Были добавлены в группу {group.Name} учителя : " + messageToAdminСreate;
+
+        if (string.IsNullOrEmpty(resMessage)) return;
+        foreach (var admin in admins)
+        {
+
+            await Create(resMessage, new List<ApplicationUser>() { new ApplicationUser() { Id = admin.Id } });
+        }
+    }
+
     public async Task CreateToRemoveUsersFromGroup(Group group, List<ApplicationUser> teachers = null, List<ApplicationUser> students =  null, List<ApplicationUser> admins = null)
     {
         List<BaseUserInfo> users = new List<BaseUserInfo>();
@@ -200,7 +283,7 @@ public class NotificationService : INotificationService
         return notification;
     }
 
-    public async Task<NotificationMessage> Create(string message, List<ApplicationUser> usersToSend)
+    public async Task<NotificationMessage> Create(string message, List<ApplicationUser> usersToSend = null)
     {
         var admins = await _userManager.GetUsersInRoleAsync("Admin");
         if (usersToSend == null) usersToSend = admins.ToList();
@@ -283,5 +366,25 @@ public class NotificationService : INotificationService
             .Include(x => x.LessonType).ToListAsync();
         var item = groups.Find(x => x.Id == id);
         return item;
+    }
+
+
+    public async Task RemoveCurrentUserNotificationsAsync()
+    {
+       var user = await _userService.GetCurrentUserAsync();
+       var notificationUsers = _context.NotificationUsers.Where(x=>x.UserId == user.Id);
+        _context.NotificationUsers.RemoveRange(notificationUsers);
+        await _context.SaveChangesAsync();
+
+    }
+
+    public async Task RemoveAllNotificationsAsync()
+    {
+        var notificationUsers = await  _context.NotificationUsers.ToListAsync();
+        _context.NotificationUsers.RemoveRange(notificationUsers);
+        await _context.SaveChangesAsync();
+        var notifications = await _context.NotificationMessages.ToListAsync();
+        _context.NotificationMessages.RemoveRange(notifications);
+        await _context.SaveChangesAsync();
     }
 }

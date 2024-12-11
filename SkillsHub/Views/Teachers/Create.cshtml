@@ -179,7 +179,7 @@
                         }
                     </div>
             </div>
-            @if (!User.IsInRole("Admin") && !User.IsInRole("Teacher") && !User.IsInRole("Student"))
+            @if (false)
             {
             <div class="col">
                 <div class="row">
@@ -314,15 +314,15 @@
                     console.log("checked -  " +checked)
                     var ii = `
                           <li style="display:flex;align-items:center">
-                              <div class="col-lg-2">`;
+                              <div class="col-lg-1">`;
                     if (item.displayName.includes("Не активен") && checked == "") {
-                        ii += `<input type='checkbox' class="form-control" name='lessonTypeId' style='margin-right:5px;background-color:#b2b2b2' value='${item.id}' disabled />`
+                        ii += `<input type='checkbox' class="form-control" name='lessonTypeId' style='width:40px;background-color:#b2b2b2' value='${item.id}' disabled />`
                     }
                     else {
-                        ii += `<input type='checkbox' class="form-control" name='lessonTypeId' style='margin-right:5px;' value='${item.id}'  ${checked} />`
+                        ii += `<input type='checkbox' class="form-control" name='lessonTypeId' style='width:40px;' value='${item.id}'  ${checked} />`
                     }
                     ii += `</div>
-                               <div class="col-lg-10">
+                               <div class="col-lg-11">
                                    <span>${item.displayName}</span>
                                </div>
                            </li>

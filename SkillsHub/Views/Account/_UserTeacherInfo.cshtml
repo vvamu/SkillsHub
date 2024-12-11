@@ -92,11 +92,12 @@
                     _context.Teachers.ToList();
 
                     _context.ApplicationUsers.ToList();
-                    var visitedLessonsCount = _context.Lessons.Where(x=>x.ParentId == null).Where(x => x.TeacherId == Model.UserTeacher.Id).Where(x => x.IsСompleted).Count();
-                    var arrivedLessonsCount = _context.Lessons.Where(x => x.ParentId == null).Where(x => x.TeacherId == Model.UserTeacher.Id).Count();
+
+                    var visitedLessonsCount = _context.Lessons.Where(x=>x.ParentId == null).ToList().Where(x => x.TeacherId == Model.UserTeacher.Id).Where(x => x.IsСompleted).Count();
+                    var arrivedLessonsCount = _context.Lessons.Where(x => x.ParentId == null).ToList().Where(x => x.TeacherId == Model.UserTeacher.Id).Count();
                 }
                 <div>Проведенные уроки: @visitedLessonsCount / @arrivedLessonsCount</div> 
-                <div>>Цена: @teacher.CurrentCalculatedPrice BYN / @teacher.TotalCalculatedPrice BYN</div>
+                <div>>Цена: 50 BYN  / 570 BYN</div>
             </div>
 
             <!--

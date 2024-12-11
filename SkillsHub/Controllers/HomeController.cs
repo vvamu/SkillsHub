@@ -4,6 +4,7 @@ using EmailProvider.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Services;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
@@ -22,14 +23,16 @@ public class HomeController : Controller
     private readonly IExternalService _externalService;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IUserService _userService;
+    private readonly ILessonTypeService _lessonTypeService;
 
     public HomeController(IMailService mailService, IExternalService externalService, 
-        SignInManager<ApplicationUser> signInManager, IUserService userService, ApplicationDbContext context)
+        SignInManager<ApplicationUser> signInManager, IUserService userService, ILessonTypeService lessonTypeService)
     {
         _mailService = mailService;
         _externalService = externalService;
         _signInManager = signInManager;
         _userService = userService;
+        _lessonTypeService = lessonTypeService;
     }
 
     [Route("thanks")]
@@ -56,6 +59,14 @@ public class HomeController : Controller
         return View();
     }
 
+
+    [HttpGet]
+    public async Task<IActionResult> Courses()
+    {
+        var items = await _lessonTypeService.GetAll().ToListAsync();
+        var result = items.Where(x => x.ParentId == null || (x.ParentId != null && x.ParentId == Guid.Empty) && !string.IsNullOrEmpty(x.DisplayName)).ToList();
+        return PartialView(result ?? new List<LessonType>());
+    }
 
     [HttpPost]
     public async Task<IActionResult> SendMessage(SendingMessage msg)
@@ -108,8 +119,14 @@ await _mailer.SendMessage();
          return Redirect("~/thanks");
     }
 
+    [HttpGet]
+    [Route("website")]
+    public async Task<IActionResult> GetWebsite()
+    {
+        return View("UnauthorizedIndex");
+    }
 
-
+    
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

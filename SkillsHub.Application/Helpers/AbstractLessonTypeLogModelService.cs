@@ -15,27 +15,45 @@ public abstract class AbstractLessonTypeLogModelService<T> : AbstractLogModelSer
             .Include(x => x.LessonTypes).ThenInclude(x=>x.LessonTypePaymentCategory).Where(x => x.LessonTypes != null)
             .SelectMany(x => x.LessonTypes).ToListAsync();
         lessonTypes = lessonTypes.Where(x => x.ParentId == null || x.ParentId == Guid.Empty).ToList();
-        var res = await base.UpdateAsync(item);
 
-        foreach (var lessonType in lessonTypes)
+        var executionStrategy = CreateExecutionStrategy();
+        await executionStrategy.ExecuteAsync(async () =>
         {
-            SetPropertyId(lessonType,res.Id);
+            await using var transaction = await BeginTransactionAsync();
+            try
+            {
 
-            var paymentCategoryIds = lessonType.LessonTypePaymentCategory != null ?
-                lessonType.LessonTypePaymentCategory.Select(x => x.PaymentCategoryId)
-                                        .OfType<Guid>()
-                                        .ToArray() :
-                Array.Empty<Guid>();
+                var res = await base.UpdateAsync(item);
+                await _context.SaveChangesAsync();
 
-            await _lessonTypeService.UpdateAsync(lessonType, paymentCategoryIds);
+                foreach (var lessonType in lessonTypes)
+                {
+                    SetPropertyId(lessonType, res.Id);
+
+                    var paymentCategoryIds = lessonType.LessonTypePaymentCategory != null ?
+                        lessonType.LessonTypePaymentCategory.Select(x => x.PaymentCategoryId)
+                                                .OfType<Guid>()
+                                                .ToArray() :
+                        Array.Empty<Guid>();
+
+                    await _lessonTypeService.UpdateAsync(lessonType, paymentCategoryIds,passedObject:new T());
+                }
+
+                //_context.LessonTypes.UpdateRange(lessonTypes);
+                //await _context.SaveChangesAsync();
+                await CommitAsync(transaction);
+                return res;
+
+            }
+            catch (Exception ex)
+            {
+                await RollbackAsync(transaction);
+                throw new Exception("Не получилось обновить элемент. Попробуйте позже.", ex);
+            }
+        });
+        return item;
+
         }
-
-        //_context.LessonTypes.UpdateRange(lessonTypes);
-        //await _context.SaveChangesAsync();
-        return res;
-
-
-    }
 
     public override async Task<bool> IsHardDelete(IQueryable<T> items)
     {

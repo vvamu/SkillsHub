@@ -190,7 +190,12 @@
                                     {
                                         @foreach (var item in lesson?.ArrivedStudents)
                                         {
-                                          
+                                            @if ((User.IsInRole("Student") && User.Identity.Name == item.Student.ApplicationUser.UserName) 
+                                            || User.IsInRole("Teacher") || User.IsInRole("Admin"))
+                                            {
+                                                
+                                            
+
                                             <li class="row" style="align-items:baseline;grid-gap">
                                                 <div class="col-4">
                                                     <select class="form-select" style="margin-top:10px" disabled="@(!isEditMode)" name="visitStatus">
@@ -208,25 +213,34 @@
                                                     </select>
 
                                                 </div>
-                                                <div class="col-8" style="font-size:x-large">
+                                                <div class="col-2" style="display:flex;align-items:baseline;grid-gap:20%">
+                                                
+                                                <p>Оценка:</p>
+                                                 <input type="number" min="1" max="10" asp-for="@item.Grade" name="itemGrade" disabled="@(!isEditMode)" class="form-control"/>
+                                                 
+                                                  
+
+                                                </div>
+                                                <div class="col-6" style="font-size:x-large">
                                                     <span>
                                                         <input type="hidden" name='studentId' value='@item.StudentId' />
                                                         <a asp-action="Item" asp-controller="Account" asp-route-id="@item.Id">@item?.Student?.ApplicationUser?.FullName</a>
                                                     </span>
                                                 </div>
                                             </li>
+                                            }
                                         }
                                     }
                                     else if(lesson.Group != null && lesson.Group.IsPermanentStaffGroup)
                                     {
-                                        if (lesson?.Group != null && lesson?.Group.GroupStudents != null)
+                                        if (lesson?.Group != null && lesson?.Group.CurrentGroupStudents != null)
                                         {
-                                            if (lesson?.Group.GroupStudents.Count() == 0)
+                                            if (lesson?.Group.CurrentGroupStudents.Count() == 0)
                                             {
                                                 <li>В группе нет ни одного ученика. Добавьте в группу учеников.</li>
                                             }
 
-                                            @foreach (var item in lesson?.Group.GroupStudents.Select(x => x.Student))
+                                            @foreach (var item in lesson?.Group.CurrentGroupStudents.Select(x => x.Student))
                                             {
 
                                                 <li class="row" style="align-items:baseline;grid-gap">
@@ -249,14 +263,14 @@
                                         }
 
                                     }
-                                    else if (lesson?.Group != null && lesson?.Group.GroupStudents != null)
+                                    else if (lesson?.Group != null && lesson?.Group.CurrentGroupStudents != null)
                                     {
-                                        if (lesson?.Group.GroupStudents.Count() == 0)
+                                        if (lesson?.Group.CurrentGroupStudents.Count() == 0)
                                         {
                                             <li>В группе нет ни одного ученика. Добавьте в группу учеников.</li>
                                         }
 
-                                        @foreach (var item in lesson?.Group.GroupStudents.Select(x => x.Student))
+                                        @foreach (var item in lesson?.Group.CurrentGroupStudents.Select(x => x.Student))
                                         {
 
                                             <li class="row">
@@ -398,7 +412,7 @@
                                                                     {
                                                                         @foreach (var i in @par.ArrivedStudents)
                                                                         {
-                                                                            <div>@(par.ArrivedStudents.IndexOf(i) + 1). @i.Student.ApplicationUser.FullName - @i.VisitStatusTextRu</div>
+                                                                            <div>@(par.ArrivedStudents.IndexOf(i) + 2). @i.Student.ApplicationUser.FullName - @i.VisitStatusTextRu</div>
                                                                             @if(i.Comment != null && !string.IsNullOrEmpty(i.Comment)) {<div>Комментарий: </div>}
                                                                         }
                                                                     }

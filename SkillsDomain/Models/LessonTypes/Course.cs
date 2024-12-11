@@ -6,6 +6,20 @@ namespace SkillsHub.Domain.Models;
 public class Course : LessonTypePropertyModel<Course>
 {
     public string Subject { get; set; }
+    [NotMapped]
+    public string SubjectRu { get
+        {
+            if (string.IsNullOrEmpty(Subject)) return "Не задано";
+            switch(Subject)
+            {
+                case "English": return "Английский";
+                case "Programming": return "Программирование";
+                default: return "Другое";
+            }
+        }
+    }
+
+    //public string SubjectCode { get; set; }
     public string? Description { get; set; }
 
     public override bool Equals(object obj)
@@ -18,7 +32,7 @@ public class Course : LessonTypePropertyModel<Course>
     }
 
     [NotMapped]
-    public override string? DisplayName { get => "Предмет: " + Subject + "; Направление: " + Name; }
+    public override string? DisplayName { get => $"Предмет: {SubjectRu}; Направление: {Name}"; }
 
 }
 

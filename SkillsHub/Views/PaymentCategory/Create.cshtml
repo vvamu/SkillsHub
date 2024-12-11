@@ -76,6 +76,8 @@
             </div>
         }
 
+                                    <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
+
 
     <div class="form-group row">
         <label class="col-lg-3 col-form-label" for="val-skill">
@@ -101,13 +103,13 @@
             Оплата ученика за <span class="text-danger">*</span>
         </label>
         <div class="col-lg-6">
-            <input class="form-control" asp-for="@item.DurationTypeStudentValue" min="1" value="1" disabled required />
+        <input type="number" value="1" class="form-control" asp-for="@item.DurationTypeStudentValue" min="1" disabled />
         </div>
         <div class="col-lg-3">
             <select class="form-select" asp-for="@item.DurationTypeStudentName">
                 <!--<option value="минуты" selected>Минуты</option>-->
                 <option value="lesson" selected>Занятия</option>
-                <!--<option value="курс" selected>Курс целиком</option>-->
+                <!--<option value="курс" selected>Курс целиком</option>-->  
             </select>
         </div>
     </div>
@@ -116,7 +118,7 @@
             Оплата ученика<span class="text-danger">*</span>
         </label>
         <div class="col-lg-6">
-            <input class="form-control" asp-for="@item.StudentPrice" min="1"  required />
+            <input class="form-control" asp-for="@item.StudentPrice" min="1" required />
         </div>
         
         <div class="col-lg-3">

@@ -1,4 +1,5 @@
 ﻿using SkillsHub.Domain.BaseModels;
+using SkillsHub.Domain.Models.NotInUse;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
@@ -14,6 +15,8 @@ public class WorkingDay : BaseEntity
     public TimeSpan? StartDate { get; set; }
     public TimeSpan? EndDate { get; set; }
     public string? RepeatIntervalName { get; set; } //День, Неделя, Месяц
-    public string? RepeatIntervalValue { get; set; } 
+    public string? RepeatIntervalValue { get; set; }
+   
+
 
 }

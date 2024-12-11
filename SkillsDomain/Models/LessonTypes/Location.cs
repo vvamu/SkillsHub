@@ -7,7 +7,7 @@ namespace SkillsHub.Domain.Models;
 public class Location : LessonTypePropertyModel<Location>
 {
     public bool IsOffline { get; set; }
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [NotMapped]
     public string IsOfflineTextRu { get => IsOffline ? "Оффлайн" : "Онлайн"; }

@@ -5,9 +5,83 @@
 
 <title>@ViewData["Title"]SkillsHub - Английский и программирование для детей и взрослых</title>
 
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" style="background-color: rgba(255, 255, 255,0.9);">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center fw-semi-bold fs-3" asp-controller="Home" asp-action="Index">
+                <img class="me-3" src="~/images/logo.svg" alt="" style="width:40px" />SKILLSHUB
+            </a>
+            <div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse border-top border-lg-0 mt-4 mt-lg-0" id="navbarSupportedContent">
+                    <ul class="navbar-nav mx-auto pt-2 pt-lg-0 font-base">
+                        <li class="nav-item px-2" data-anchor="data-anchor">
+                            <a class="nav-link" aria-current="page" href="#home" style="text-wrap:nowrap">
+                                Главная
+                            </a>
+                        </li>
+                        <li class="nav-item px-2" data-anchor="data-anchor">
+                            <a class="nav-link" href="#about" style="text-wrap:nowrap">
+                                О нас
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown px-2">
+                            <a class="nav-link dropdown-toggle" href="#cources"
+                               id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-wrap:nowrap">
+                                Наши услуги
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#english-adults" style="text-wrap:nowrap">Английский для взрослых</a></li>
+                                <li><a class="dropdown-item" href="#english-children" style="text-wrap:nowrap">Английский для детей</a></li>
+                                <li><a class="dropdown-item" href="#english-business" style="text-wrap:nowrap">Английский для бизнеса</a></li>
+                                <li><a class="dropdown-item" href="#english-express" style="text-wrap:nowrap">Экспресс-английский</a></li>
+                                <li><a class="dropdown-item" href="#english-speaking" style="text-wrap:nowrap">Speaking club</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#programming">Программирование</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item px-2" data-anchor="data-anchor">
+                            <form><a class="nav-link" target="_blank" rel="noopener noreferrer" href="https://www.flexiquiz.com/SC/N/3f8ecefb-e413-4b7d-8a43-98e0de87d9b3">Тест</a></form>
+                        </li>
+                        <li class="nav-item px-2" data-anchor="data-anchor"><a class="nav-link" href="#camping">Лагерь </a></li>
+                        <li class="nav-item px-2" data-anchor="data-anchor"><a class="nav-link" href="#contacts">Контакты</a></li>
+                        <li>
+                            <div style="display:flex;grid-gap:5%;margin-left:10px; margin-top:4%;margin-right:10px;margin-bottom:3%">
+                                <span>Язык: </span>
+                                <span id="google_translate_element"></span>
+                            </div>
+                        </li>
+                        <li class="nav-item px-2">
+                            <form style="">
+                                @if (@Context.Request.Path.Value != "/website")
+                                {
+                                    <button class="btn btn-outline-primary order-0" type="submit" asp-controller="Account" asp-action="SignIn">Войти</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-primary order-0" type="submit" asp-controller="Home" asp-action="Index">Назад</button>
+                                }
+                                
+                            </form>
+                        </li>
+                    </ul>
+                    <div class="ps-lg-5">
+                    </div>
+                </div>
+            </div>
 
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <div class="pb-3">
 <link rel="stylesheet" href="~/css/myStyles.css" asp-append-version="true" />
-<main class="main" id="top" >
+<main class=" main" id="top" >
    <section class="py-0" id="home">
       <div class="bg-holder d-none d-md-block" style="background-image:url(images/anastasia@1x.jpg);background-position:right bottom;background-size:70%;
          margin-top:1rem; background-position-y:0px; background-position-x:500px">
@@ -81,9 +155,9 @@
             </div>
          </div>
       </div>
-      </div>
+      
       <!-- end of .container-->
-   </section>
+  
    <hr />
    <!-- ======= About Us Section ======= -->
    <section class="about pt-0">
@@ -256,7 +330,8 @@
       </div>
    </div>
 
-   @await Html.PartialAsync("Courses")
+    <div id="courses"></div>
+   <!--await Html.PartialAsync("Courses")-->
 
    <!-- Are u ready? -->
    <section class="py-6 bg-100">
@@ -441,3 +516,23 @@
       </div>
    </section>
 </main>
+
+<script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+
+    function Create() {
+
+        console.log("hello")
+        $.get('/Home/Courses', function (data) {
+            $('#courses').append(data);
+
+        });
+        console.log("hello2")
+    }
+
+                      Create();
+                  </script>
+
+</div>
+            </div>

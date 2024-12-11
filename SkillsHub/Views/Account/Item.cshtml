@@ -13,6 +13,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js">
 </script>
 
+@{
+    var user = Model ?? new ApplicationUser();
+}
+
 <div>
     <!--
     if(Model != null)
@@ -156,6 +160,7 @@
                             <div>
                                 <div style="display:flex; justify-content:space-between">
                                 <h3>Об аккаунте</h3>
+                                    
                                 @if (User.Identity.Name == Model.UserName || User.IsInRole("Admin"))
                                     {
                                         <form>
@@ -166,6 +171,26 @@
                                     </button>
                                         </form>
                                     }
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        @if (false)
+                                        {
+                                            <li><strong class="text-dark mr-4"><a asp-action="SoftDelete" class="btn btn-warning" asp-controller="Account" asp-route-id="@Model.Id">Удалить</a></strong></li>
+                                        }
+                                        @if (false)
+                                        {
+                                            <li><strong class="text-dark mr-4"><a asp-action="Restore" class="btn btn-success" asp-controller="Account" asp-route-id="@Model.Id">Восстановить</a></strong></li>
+                                        }
+                                        @if (true)
+                                        {
+                                            <li>
+                                                <div>
+                                                    <a asp-action="HardDelete" class="btn btn-danger" asp-controller="Account" asp-route-id="@Model.Id">Полностью удалить</a>
+                                                </div>
+                                                <!--<div>Полностью удалить возможно только пользователя, у которого нет члена</div>-->
+                                            </li>
+                                        }
+                                    }
                                 </div>
                                 <ul class="card-profile__info">
                                     <li class="mb-1"><strong class="text-dark mr-4">День рождения</strong> <span>@Model.UserInfo?.BirthDate.ToShortDateString() - @(DateTime.Today.Year - Model.BirthDate.Year) year</span></li>
@@ -175,32 +200,7 @@
                                     @if(Model.UserInfo == null || Model.UserInfo?.DateCreated == null) {} else {<li><strong class="text-dark mr-4">Дата добавления</strong> <span>@Model.UserInfo?.DateCreated</span></li>}
                                     @if(false) {<li><strong class="text-dark mr-4"><form><a asp-action="WorkingSchedule" asp-controller="Account" asp-route-id="Model.Id" style="font-weight:900;color:#7571f9">Расписание</a></form></strong></li>}
 
-                                    @if (true)
-                                    {
-
-
-                                        @if (Model.IsDeleted == false)
-                                        {
-                                            <li><strong class="text-dark mr-4"><a asp-action="SoftDelete" class="btn btn-warning" asp-controller="Account" asp-route-id="@Model.Id">Удалить</a></strong></li>
-
-                                        }
-                                        else
-                                        {
-                                            <li><strong class="text-dark mr-4"><a asp-action="Restore"  class="btn btn-success" asp-controller="Account" asp-route-id="@Model.Id">Восстановить</a></strong></li>
-
-                                        }
-                                        @if (false && User.IsInRole("Admin"))
-                                        {
-                                            <li>
-                                                <div>
-                                                    <a asp-action="HardDelete" class="btn btn-danger" asp-controller="Account" asp-route-id="@Model.Id">Полностью удалить</a>
-                                                </div>
-                                                <div>Полностью удалить возможно только пользователя, у которого нет</div>
-                                           </li>
-
-                                        }
-
-                                    }
+                                    
                                 </ul>
                             </div>
                             <hr />
@@ -208,7 +208,7 @@
                                     <div style="display:flex; justify-content:space-between">
                                         <h3>Дополнительные сведения</h3>
                                         <form>
-                                            <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="BaseUserInfo" asp-route-userId="@Model.Id">
+                                        <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="BaseUserInfo" asp-route-userId="@user.Id" asp-route-applicationUserId="@(user.Id.ToString())">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
                                                     <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
                                                 </svg>

@@ -5,7 +5,7 @@
     var users = _context.ApplicationUsers.Where(x => !x.IsDeleted).ToList();
     var lessonTypes = _context.LessonTypes.Where(x => x.ParentId == null).Where(x => !x.IsDeleted).ToList();
     var lessons = _context.Lessons.Where(x => x.ParentId == null).Where(x => !x.IsDeleted).ToList();
-    var groups = _context.Groups.Where(x => x.ParentId == null).Where(x => !x.IsDeleted).ToList();
+    var groups = _context.Groups.Where(x => !x.IsDeleted).ToList();
 }
 
 <div>

@@ -95,7 +95,7 @@ public class LessonType : LogModel<LessonType>
     {
         get
         {
-            var res = $"{Status} - Название: {Name};  Описание: {Description}; Время занятия : {LessonTimeInMinutes} минут; {DurationText}; {Course?.DisplayName}; Тип группы: {GroupType?.DisplayName?.Replace("(", "").Replace(")", "")}; Местоположение: {Location?.DisplayName}; Возрастная категория:   {AgeType?.DisplayName}; {Check}";
+            var res = $"{Status} - Название: {Name};  Описание: {Description}; Время занятия : {LessonTimeInMinutes} минут; {DurationText}; {Course?.DisplayName}; Тип группы: {GroupType?.DisplayName?.Replace("(", "").Replace(")", "")}; Местоположение: {Location?.DisplayName}; Возрастная категория:   {AgeType?.DisplayName}; {Check}"; // Абонементы : {LessonTypePaymentCategory.Select(x=>x.PaymentCategory.DisplayName).Aggregate((i, j) => i + "," + j)};
             return res;
         }
     }

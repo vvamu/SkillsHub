@@ -1,0 +1,129 @@
+﻿@* @model List<LessonType>?
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
+
+
+   <!-- Courses more -->
+
+         <!--  Cources For Adults  -->
+         <div id="english-adults" ></div>
+         <div class="row gy-4 p-3 align-items-center features-item" data-aos="fade-up" style="margin-top: 20px; margin-bottom:20px">
+            <div class="col-md-5 order-1 order-md-2" style="align-self:baseline;">
+               <img src="~/images/adult_cources_english@0x.jpg" class="img-fluid" alt="adult_cources_english">
+            </div>
+            <div class="col-md-7 order-2 order-md-1">
+               <h3 >Английский для взрослых</h3>
+               <p class="fs-1">Курсы английского языка для взрослых от 16 лет</p>
+               <ul class="list-conditions" style=" list-style: none; margin-left: -10px;">
+                           
+
+                            <li>- Групповой формат <span>(до 8 человек)</li>
+                            <li>- Онлайн/оффлайн</li>
+                            <li>- Занятия проводятся 2 раза в неделю по @groupEnglishLT.LessonTimeInMinutes минут</li>
+                            <li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий (@(groupEnglishLT.StudentTotalCoursePrice)р)</li>
+                            <br/>
+                            <li>- Индивидуальный формат</li>
+                            <li>- Онлайн/оффлайн</li>
+                            <li>- Занятия проводятся по @individualEnglishLT.LessonTimeInMinutes минут</li>
+                            <hr/>
+                            <li>- Длительность зависит от скорости обучения учеников</li>
+                            <li>
+                                - Цена группового/индивидуального занятия: @groupEnglishLT.StudentPricePerLesson р/@individualEnglishLT.StudentPricePerLesson р
+                            </li>
+                            
+                        
+                       
+               </ul>
+               <div class="row align-items-center mt-4">
+                  <h4 class="fs-2 fw-normal">Уровень английского:
+                  </h4>
+                  <div >
+                     <ul class="list-unstyled py-3 levels-english">
+
+
+                        <li class="mb-3 text-900" data-bs-toggle="collapse" href="#collapseExample1" 
+                        role="button" aria-expanded="false" aria-controls="collapseExample">
+                        <span class="far fa-check-circle text-700 me-2"></span>
+                                    <a id="button1" href="#collapseExample1" type="button" data-bs-toggle="collapse" class="foo">
+                           BEGINNERS</a> – уровень А<span style="font-family: sans-serif;" >1</span>  (с нуля) 
+                           <a  id="foo" class="foo"><<</a> 
+                        </li>
+                        <div class="collapse row text-md-start" id="collapseExample1" href="#collapseExample1">
+                           <span class="far fa-check-circle  me-2"></span>
+                           <p >
+                              Обучающиеся смогут начать читать, понимать и употреблять в речи заученные фразы и выражения на самом простом коммуникативном уровне, также смогут представиться/представить других. Спрашивать и отвечать на вопросы о месте своего жительства, знакомых, о бытовой жизни, смогу участвовать в очень простом разговоре, если собеседник говорит медленно и отчетливо и готов поддерживать при разговоре.                
+                           </p>
+                        </div>
+
+
+                        <li class="mb-3 text-900" data-bs-toggle="collapse" href="#collapseExample2" 
+                        onclick="(this) => {this.style.aria-expanded = !this.style.aria-expanded}" role="button" 
+                        aria-expanded="false" aria-controls="collapseExample">
+                        <span class="far fa-check-circle text-700 me-2"></span>
+                           <a class="far fa-check-circle  me-2">
+                           ELEMENTARY</a> – уровень А1.2 
+                           <span class="foo"><<</span>
+                        </li>
+                        <div class="collapse row text-md-start " id="collapseExample2">
+                           <span class="far fa-check-circle  me-2"></span>
+                           <p >
+                              Обучающиеся смогут понимать и употреблять в речи знакомые фразы и выражения, необходимые для выполнения конкретных задач, также смогут представиться/представить других. Спрашивать и отвечать на вопросы о месте жительства, знакомых, о бытовой жизни, смогу участвовать в несложном разговоре, если собеседник говорит медленно и отчетливо и готов поддерживать при разговоре.                
+                           </p>
+                        </div>
+
+
+
+                        <li class="mb-3 text-900" id="button3" type="button" data-bs-toggle="collapse" href="#collapseExample3" 
+                        role="button" aria-expanded="false" aria-controls="collapseExample">
+                           <span class="far fa-check-circle  me-2" ></span>
+                           <a style="color: #091E40;" class="far fa-check-circle  me-2" href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample">
+                           PRE-INTERMEDIATE</a> – уровень А2 
+                           <span class="foo"><<</span>
+                        </li>
+                        <div class="collapse row text-md-start " id="collapseExample3">
+                           <span class="far fa-check-circle  me-2"></span>
+                           <p>
+                              Обучающиеся смогут понимать предложения и часто встречающиеся выражения, связанные с основными сферами жизни (например, основные сведения о себе и членах своей семьи, покупках, устройстве на работу и т. п.). Смогут выполнить задачи, связанные с обменом информацией на знакомые или бытовые темы. Смогут рассказать о себе, своих родных и близких, описать основные аспекты повседневной жизни, немного рассказать о своих предстоящих действиях.              
+                        </div>
+                        <li class="mb-3 text-900" id="button1" type="button" data-bs-toggle="collapse" href="#collapseExample4" role="button" aria-expanded="false" aria-controls="collapseExample">
+                           <span class="far fa-check-circle  me-2" ></span>
+                           <a style="color: #091E40;" class="far fa-check-circle  me-2">
+                           INTERMEDIATE</a> – уровень B1 
+                           <span class="foo"><<</span>
+                        </li>
+                        <div class="collapse row text-md-start " id="collapseExample4">
+                           <span class="far fa-check-circle  me-2"></span>
+                           <p style="padding-left: 4.2%;"  >
+                              Обучающиеся смогут понимать основные идеи четких сообщений, сделанных на литературном языке на разные темы, типично возникающие на работе, учёбе, досуге и т. д. Будут уметь общаться в большинстве ситуаций, которые могут возникнуть во время пребывания в стране изучаемого языка. Смогут составить связное сообщение на известные или особо интересующие их темы, а также смогут описать впечатления, события, надежды, стремления, изложить и обосновать свое мнение и планы на будущее.
+                           </p>
+                        </div>
+                        <li class="mb-3 text-900" id="button1" type="button" data-bs-toggle="collapse" href="#collapseExample5" role="button" aria-expanded="false" aria-controls="collapseExample">
+                           <span class="far fa-check-circle  me-2" ></span>
+                           <a style="color: #091E40;" class="far fa-check-circle  me-2">
+                           UPPER-INTERMEDIATE</a> – уровень B2 
+                           <span class="foo"><<</span>
+                        </li>
+                        <div class="collapse row text-md-start " id="collapseExample5">
+                           <span class="far fa-check-circle  me-2"></span>
+                           <p style="padding-left: 4.2%;"  >
+                              Обучающиеся смогут понимать общее содержание сложных текстов на абстрактные и конкретные темы, в том числе узкоспециальные тексты, говорить достаточно быстро и спонтанно, чтобы постоянно общаться с носителями языка без особых затруднений для любой из сторон. Смогут делать четкие, подробные сообщения на различные темы и изложить свой взгляд на основную проблему, показать преимущество и недостатки разных мнений.
+                           </p>
+                        </div>
+                        <li class="mb-3 text-900" id="button1" type="button" data-bs-toggle="collapse" href="#collapseExample6" role="button" aria-expanded="false" aria-controls="collapseExample">
+                           <span class="far fa-check-circle  me-2" ></span>
+                           <a style="color: #091E40;" class="far fa-check-circle  me-2">
+                           ADVANCE</a> – уровень С1 
+                           <span class="foo"><<</span>
+                        </li>
+                        <div class="collapse row text-md-start " id="collapseExample6">
+                           <span class="far fa-check-circle  me-2"></span>
+                           <p style="padding-left: 4.2%;"  >
+                              Обучающиеся смогут понимать объемные сложные тексты на различную тематику, распознавать скрытое значение, спонтанно говорить в быстром темпе, не испытывая затруднений с подбором слов и выражений. Гибко и эффективно использовать язык для общения в научной и профессиональной деятельности. Смогут создать точное, детальное, хорошо выстроенное сообщение на сложные темы, демонстрируя владение моделями организации текста, средствами связи и объединением его элементов
+                           </p>
+                        </div>
+                     </ul>
+                     <a type="button" href="#booking" class="btn btn-primary">Попробовать</a>
+                  </div>
+               </div>
+            </div>
+         </div>
+ *@

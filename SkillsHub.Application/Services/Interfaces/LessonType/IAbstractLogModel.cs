@@ -1,7 +1,7 @@
 ﻿namespace SkillsHub.Application.Services.Interfaces;
 public interface IAbstractLogModel<T>
 {
-	public Task<T> GetAsync(Guid? id, bool withParents = false);
+	public Task<T> GetAsync(Guid? id, bool withParents = false , bool touchFullInclude = true);
     public Task<T> GetLastValueAsync(Guid? itemId, bool withParents = false);
 
     public Task<IQueryable<T>> GetAllAsync();

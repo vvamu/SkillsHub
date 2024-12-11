@@ -3,7 +3,7 @@ using SkillsHub.Domain.Models;
 
 namespace SkillsHub.Persistence;
 
-public class LessonTeacher : LogModel<LessonTeacher>
+public class LessonTeacher : BaseEntity
 {
     public Guid LessonId { get; set; }
     public Lesson Lesson { get; set; }

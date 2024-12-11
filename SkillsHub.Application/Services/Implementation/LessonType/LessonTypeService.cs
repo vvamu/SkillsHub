@@ -2,8 +2,10 @@
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Application.Validators.LessonTypeModels;
+using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
 using SkillsHub.Persistence;
+using System.Security.AccessControl;
 
 namespace SkillsHub.Application.Services.Implementation;
 
@@ -18,30 +20,38 @@ public class LessonTypeService : AbstractLogModelService<LessonType>, ILessonTyp
         _contextModel = _context.LessonTypes;
         _validator = new LessonTypeValidator();
         _notificationService = notificationService;
+
+        _fullInclude = _context.LessonTypes
+            .Include(x => x.Course)
+            .Include(x => x.LessonTypePaymentCategory).ThenInclude(x => x.PaymentCategory)
+            .Include(x => x.GroupType)
+            .Include(x => x.Location)
+            .Include(x => x.AgeType)
+            .Include(x=>x.Groups);
+        
     }
 
 
     public IQueryable<LessonType> GetAll()
     {
-        var items = _contextModel
-            .Include(x => x.Course)
-            .Include(x => x.LessonTypePaymentCategory).ThenInclude(x => x.PaymentCategory)
-            .Include(x => x.GroupType)
-            .Include(x => x.Location)
-            .Include(x => x.AgeType);    
-        foreach (var item in items)
+          
+        foreach (var item in _fullInclude)
         {
             //item.Children = GetAllParents((Guid)item.Id).Where(x=>x.Id != item.Id).ToList();
             //item.Parents = GetAllChildren((Guid)item.Id).Where(x => x.Id != item.Id).ToList();
             
         }
 
-        return items;
+
+        return _fullInclude;
      
     }
 
-    public async Task<LessonType>? GetAsync(Guid itemId)
+
+    /*
+    public override async Task<LessonType>? GetAsync(Guid? itemId, bool withParents = false)
     {
+        ///
         var item = await _context.LessonTypes
             .Include(x => x.Course)
             .Include(x => x.LessonTypePaymentCategory).ThenInclude(x => x.PaymentCategory)
@@ -64,9 +74,11 @@ public class LessonTypeService : AbstractLogModelService<LessonType>, ILessonTyp
                 .Include(x => x.Groups)
                 .FirstOrDefaultAsync(x => x.Id == item.Parents[i].Id);
         }
-
+       
+    ///
+        var item = await base.GetAsync(itemId, withParents);
         return item ?? throw new Exception("Not found");
-    }
+    }*/
 
     public async Task<LessonType> CreateAsync(LessonType item, Guid[] paymentCategories)
     {
@@ -106,34 +118,56 @@ public class LessonTypeService : AbstractLogModelService<LessonType>, ILessonTyp
         return await base.RestoreAsync(itemId);
     }
 
-    public async Task<LessonType> UpdateAsync(LessonType item, Guid[] paymentCategories)
+    public async Task<LessonType> UpdateAsync(LessonType item, Guid[] paymentCategories, bool withStudents = true, bool withTeachers = true, object passedObject = null)
     {
-        var olItemDb = await GetAsync(item.Id) ?? throw new Exception("Lesson type not found");
+        LessonType olItemDb = null;
+        if(paymentCategories != null)
+            olItemDb = await GetAsync(item.Id, touchFullInclude:false) ?? throw new Exception("Lesson type not found");
+        else
+            olItemDb = await GetAsync(item.Id) ?? throw new     Exception("Lesson type not found");
+
         var payments = await CheckCorrectPaymentCategories(paymentCategories, item.IsActive);
 
         if (AreObjectsDifferent(olItemDb, item))
         {
-            await CheckCorrectActiveProperties(item.AgeTypeId, item.CourseId, item.GroupTypeId, item.LocationId);
+            await CheckCorrectActiveProperties(item.AgeTypeId, item.CourseId, item.GroupTypeId, item.LocationId,passedObject);
+            
             item = await base.UpdateAsync(item);
         }
-        var oldLessonTypeStudents = await _context.LessonTypeStudents.Where(x=>x.LessonTypeId == item.Id).ToListAsync();
-        var oldLessonTypeTeachers = await _context.LessonTypeTeachers.Where(x=>x.LessonTypeId == item.Id).ToListAsync();
-
-        
-        //var itemDb = await GetAsync(item.Id);
 
         var lessonTypePayments = payments.Select(x => new LessonTypePaymentCategory() { PaymentCategoryId = x.Id, LessonTypeId = item.Id });
-        var lessonTypeStudents = oldLessonTypeStudents.Select(x => new LessonTypeStudent() { StudentId = x.StudentId, LessonTypeId = item.Id });
-        var lessonTypeTeachers = oldLessonTypeTeachers.Select(x => new LessonTypeTeacher() { TeacherId = x.TeacherId, LessonTypeId = item.Id });
-
         await _context.LessonTypePaymentCategories.AddRangeAsync(lessonTypePayments);
         await _context.SaveChangesAsync();
-        await _context.LessonTypeStudents.AddRangeAsync(lessonTypeStudents);
-        await _context.SaveChangesAsync();
-        await _context.LessonTypeTeachers.AddRangeAsync(lessonTypeTeachers);
-        await _context.SaveChangesAsync();
+
 
         
+        
+
+        
+        if (withStudents)
+        {
+            var oldLessonTypeStudents = await _context.LessonTypeStudents.Where(x => x.LessonTypeId == olItemDb.Id).ToListAsync();
+            oldLessonTypeStudents.ForEach(x => x.LessonTypeId = item.Id);
+            _context.LessonTypeStudents.UpdateRange(oldLessonTypeStudents);
+            await _context.SaveChangesAsync();
+
+            //var lessonTypeStudents = oldLessonTypeStudents.Select(x => new LessonTypeStudent() { StudentId = x.StudentId, LessonTypeId = item.Id });
+            //await _context.LessonTypeStudents.AddRangeAsync(lessonTypeStudents);
+        }
+        if(withTeachers)
+        {
+            var oldLessonTypeTeachers = await _context.LessonTypeTeachers.Where(x => x.LessonTypeId == olItemDb.Id).ToListAsync();
+            oldLessonTypeTeachers.ForEach(x => x.LessonTypeId = item.Id);
+            _context.LessonTypeTeachers.UpdateRange(oldLessonTypeTeachers);
+            await _context.SaveChangesAsync();
+
+            //var lessonTypeTeachers = oldLessonTypeTeachers.Select(x => new LessonTypeTeacher() { TeacherId = x.TeacherId, LessonTypeId = item.Id });
+            //await _context.LessonTypeTeachers.AddRangeAsync(lessonTypeTeachers);
+            //await _context.SaveChangesAsync();
+        }
+
+
+
         /*
         var oldPayemntCatogories = olItemDb?.LessonTypePaymentCategory?.Where(x=>x.PaymentCategoryId != null).Select(x=>x.PaymentCategoryId ?? Guid.Empty).ToList() ?? new List<Guid>(); 
         var toUpdate = paymentCategories.Intersect(oldPayemntCatogories).ToList();
@@ -182,6 +216,18 @@ public class LessonTypeService : AbstractLogModelService<LessonType>, ILessonTyp
 
         return res; 
 
+    }
+
+    public override async Task<LessonType> GetLastValueAsync(Guid? itemId, bool withParents = false)
+    {
+        if (itemId == Guid.Empty) return new LessonType();
+        var res = await GetAsync(itemId, withParents);
+        if (res.ParentId != null)
+        {
+            res = GetAllParents(res.Id).OrderBy(x => x.DateCreated).LastOrDefault();
+            res = await GetAsync(res.Id, withParents);
+        }
+        return res;
     }
 
     public override async Task<bool> IsHardDelete(IQueryable<LessonType> items)
@@ -243,13 +289,26 @@ public class LessonTypeService : AbstractLogModelService<LessonType>, ILessonTyp
         return result;
     }
 
-    public async Task CheckCorrectActiveProperties(Guid? ageTypeId, Guid? courseId, Guid? groupTypeId, Guid? locationId)
+    public async Task CheckCorrectActiveProperties(Guid? ageTypeId, Guid? courseId, Guid? groupTypeId, Guid? locationId, object passedObject = null)
     {
-        var isFound = _context.AgeTypes.FirstOrDefault(x => x.Id == ageTypeId && !x.IsDeleted) != null ? true : throw new Exception("Age type now was deleted");
-        isFound = _context.Courses.FirstOrDefault(x => x.Id == courseId && !x.IsDeleted) != null ? true : throw new Exception("Course now was deleted");
-        isFound = _context.GroupTypes.FirstOrDefault(x => x.Id == groupTypeId && !x.IsDeleted) != null ? true : throw new Exception("Group type now was deleted");
-        isFound = _context.Locations.FirstOrDefault(x => x.Id == locationId && !x.IsDeleted) != null ? true : throw new Exception("Location type now was deleted");
-
+            bool isFound = false;
+           if(!(passedObject is AgeType))
+           {
+               isFound = _context.AgeTypes.FirstOrDefault(x => x.Id == ageTypeId && !x.IsDeleted) != null ? true : throw new Exception("Age type now was deleted");
+           }
+           if (!(passedObject is Course))
+           {
+                isFound = _context.Courses.FirstOrDefault(x => x.Id == courseId && !x.IsDeleted) != null ? true : throw new Exception("Course now was deleted");
+           }
+           if (!(passedObject is GroupType))
+           {
+               isFound = _context.GroupTypes.FirstOrDefault(x => x.Id == groupTypeId && !x.IsDeleted) != null ? true : throw new Exception("Group type now was deleted");
+           }
+           if (!(passedObject is Location))
+           {
+               isFound = _context.Locations.FirstOrDefault(x => x.Id == locationId && !x.IsDeleted) != null ? true : throw new Exception("Location type now was deleted");
+           }
+                   
     }
 
 

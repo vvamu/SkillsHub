@@ -9,19 +9,20 @@
 
 @{
     ViewData["Title"] = "Create";
+    
 }
 
 
 @{
     var formId = "form-";
     if (Model != null) formId += Model.Id.ToString();
-}
-@{
+    var item = Model ?? new BaseUserInfo();
+
     var resText = "Редактировать";
     if (Model == null) resText = "Создать";
 }
 
-<form id="@formId" class="item" style="margin-top:10px" >
+<form id="@formId" class="item" style="margin:5%">
     <!-- Section: Design Block -->
     <link href="~/css/style.css" rel="stylesheet">
     <style>
@@ -34,10 +35,10 @@
             border-bottom-left-radius: 0.5rem;
         }
 
-        .my-background {
+       /* .my-background {
             background-color: #F3F3F9 !important;
         }
-
+                */
         .col-form-label {
             text-align: start;
         }
@@ -50,8 +51,8 @@
     }
     <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
 
-
-    <div style="display:flex;justify-content:center;align-items:center;margin:20%">
+    <!--
+    <div style="display:flex;justify-content:center;align-items:center;grid-gap:5px">
         <input type="button" class="btn-primary" value="Выбрать из существующего" />
         <input type="button" class="btn-primary" value="Создать" />
     </div>
@@ -61,7 +62,8 @@
             <label class="col-lg-4 col-form-label" for="val-skill">
                 Выбрать пользователя<span class="text-danger">*</span>
             </label>
-        
+
+       
             <div class="form-group row">
                 <label class="col-lg-4 col-form-label" for="val-skill">
                     Роль <span class="text-danger">*</span>
@@ -75,19 +77,52 @@
             <div class="col-lg-6">
             <input class="form-control" list="datalistOptions" placeholder="Алексей ... "/>
             <datalist>
-                    @await Html.PartialAsync("_OptionsList.cshtml", _context.BaseUserInfo.AsQueryable())
+                    await Html.PartialAsync("_OptionsList.cshtml", (_context.BaseUserInfo.AsQueryable(),Model.ApplicationUserId))
             </datalist>
             </div>
 
             <div class="col-lg-6">
                 <input class="btn btn-success" style="width:100%" type="submit" value="Сохранить" asp-action="AddToUser" asp-controller="BaseUserInfo" />
             </div>
+            
 
         </div>
     </div>
-
+    -->
     
    <div>
+        @{
+            var user = _context.ApplicationUsers.FirstOrDefault(x=> x. Id == item.ApplicationUserId);
+            user = user ?? new ApplicationUser();
+
+
+        }
+   <!--
+   <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Выбрать пользователя<span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6" id="first-col">
+                
+                {
+                foreach (var student in _context.GroupTeachers)
+                {
+                    <input type="hidden" name="teacherId" value="student.Id" />
+                }
+                }
+        </div>
+    </div>-->
+    <div class="form-group row">
+        <label class="col-lg-4 col-form-label" for="val-skill">
+            Пользователь <span class="text-danger">*</span>
+        </label>
+        <div class="col-lg-6" id="first-col">
+                <a asp-action="Item" asp-controller="Account" asp-route-itemId="@user.Id">  @user.FullName </a>
+        </div>
+
+    </div>
+
+
     <div class="form-group row">
         <label class="col-lg-4 col-form-label" for="val-skill">
             Роль <span class="text-danger">*</span>

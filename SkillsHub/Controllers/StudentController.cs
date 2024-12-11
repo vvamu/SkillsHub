@@ -109,7 +109,8 @@ public class StudentController : Controller
         if (lessonTypeId != null && lessonTypeId != Guid.Empty)
         {
             var result = items.ToList();
-            var oks = result.Where(x => x.CurrentPossibleCourses != null && x.CurrentPossibleCourses.Select(x => x.LessonTypeId).ToList().Contains((Guid)lessonTypeId)).ToList();
+           
+            var oks = result.Where(x => x.PossibleCources != null &&  x.CurrentPossibleCourses != null && x.CurrentPossibleCourses.Select(x => x.LessonTypeId).ToList().Contains((Guid)lessonTypeId)).ToList();
             return Ok(oks);
         }
         return Ok(await items.ToListAsync());

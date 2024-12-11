@@ -5,8 +5,10 @@
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 
 @{
-    var properties = new string[] { "Статус", "Роли", "Логин", "Курсы", "Рабочее время", "Полное имя", "Пол", "Телефон", "Почта", "День рождения", "Занятия учителя/ученика", "Текущие группы учителя/ученика", "Источник поиска", "Мягкое удаление", "Тяжелое удаление", "Дата создания" };
-
+    var properties = new string[] {"Роли", "Логин", "Полное имя", "Курсы", "Пол", "Телефон", "Почта", "День рождения", "Занятия учителя/ученика", "Текущие группы учителя/ученика", "Дата создания" };
+    //"Рабочее время",
+    // "Статус",
+    // "Источник поиска", "Мягкое удаление", "Тяжелое удаление",
 }
 
     @if (Model == null || Model.Count() == 0)
@@ -27,8 +29,8 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-body">
-                                    <h4 class="card-title">Users</h4>
+                                <div class="card-body" style="zoom:80%">
+                                    <h4 class="card-title">Пользователи</h4>
                                     <div class="table-responsive">
                                         <table class="table table-striped table-bordered zero-configuration">
                                             <thead>
@@ -45,7 +47,7 @@
                                 @foreach (var item in Model)
                                 {
                                     <tr>
-                                        <td>---</td>
+                                            <!-- <td>---</td> -->
                                         @{
                                                 var userRolesList = await _userManager.GetRolesAsync(item);
                                                 var translatedRoles = userRolesList.Select(role =>
@@ -73,6 +75,7 @@
                                             <a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.Id" style="@deletedStatus">  @item.Login </a>
 
                                         </td>
+                                        <td style="text-wrap:nowrap">@item?.FullName</td>
                                         <td>
                                             
                                                 @try
@@ -84,7 +87,7 @@
                                                         var teacherCources = item.UserTeacher?.CurrentPossibleCourses.Select(x => x.LessonType).Select(x => x.Name).ToList() ?? new List<string?>();
 
                                                         <div class="row">
-                                                            <div class="col" style="text-wrap:nowrap">Направления для учителя:</div>
+                                                            <div class="col" style="text-wrap:nowrap;color:#2d2d2d;font-weight:bold">Направления для учителя:</div>
                                                             <div class="col">
                                                                 @foreach (var cource in teacherCources)
                                                                 {
@@ -98,7 +101,7 @@
                                                         var studentrCources = item.UserStudent?.CurrentPossibleCourses?.Select(x => x.LessonType).Select(x => x.Name).ToList() ?? new List<string?>() {"Отсутствуют"};
 
                                                         <div class="row">
-                                                            <div class="col" style="text-wrap:nowrap">Направления для студента: </div>
+                                                            <div class="col" style="text-wrap:nowrap;color:#2d2d2d;font-weight:bold">Направления для студента: </div>
                                                             <div class="col">
                                                                 @foreach (var cource in studentrCources)
                                                                 {
@@ -116,22 +119,25 @@
                                         </td>
 
 
+                                        <!--Working days-->
+                                        <!--
                                         <td>
 
-                                                @if (item.UserTeacher != null && item.UserTeacher.WorkingDays != null)
+                                                if (item.UserTeacher != null && item.UserTeacher.WorkingDays != null)
                                                 {
 
                                                     <p>
-                                                        <strong>Учитель:</strong> @item.UserTeacher.WorkingDays
+                                                        <strong>Учитель:</strong> item.UserTeacher.WorkingDays
                                                     </p>
                                                 }
-                                                @if (item.UserStudent != null && item.UserStudent.WorkingDays != null)
+                                                if (item.UserStudent != null && item.UserStudent.WorkingDays != null)
                                                 {
                                                     <p>
-                                                        <strong>Студент:</strong>  @item.UserStudent.WorkingDays
+                                                        <strong>Студент:</strong>  item.UserStudent.WorkingDays
                                                     </p>
                                                 }
-                                        </td>
+                                            </td>
+                                        -->
                                         
 
                                         @{var birhDateToString = "";}
@@ -143,7 +149,7 @@
                                             birhDateToString = (DateOnly.FromDateTime(birthDate).ToShortDateString());
                                         }
             
-                                            <td style="text-wrap:nowrap">@item?.FullName</td>
+                                            
                                             <td>@item?.Sex</td>
                                             <td>@item?.Phone</td>
                                             <td>@item?.Email</td>
@@ -197,11 +203,13 @@
                                         </td>
                                         
                                             
-                                            <td></td>
-                                        <td>@item.SourceFindCompany</td>
+                                            <td>@(item.RegistrationDate?.ToString() ?? "Не задано" )</td>
+                                            <!--
+                                        <td>item.SourceFindCompany</td>
             
-                                        <td><a asp-action="SoftDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Soft delete</a></td>
-                                        <td><a asp-action="HardDelete" asp-controller="Account" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Hard delete</a></td>
+                                        <td><a asp-action="SoftDelete" asp-controller="Account" asp-route-id="item.Id" class="btn btn-danger btn-sm">Soft delete</a></td>
+                                        <td><a asp-action="HardDelete" asp-controller="Account" asp-route-id="item.Id" class="btn btn-warning btn-sm">Hard delete</a></td>
+                                            -->
                                     </tr>
                                 }
                                     </tbody>
@@ -230,6 +238,7 @@
                                             <th>Soft delete</th>
                                                 <th>Hard delete (from database)</th>-->
 
+                                                
                                         </tr>
                                     </tfoot>
                                 </table>

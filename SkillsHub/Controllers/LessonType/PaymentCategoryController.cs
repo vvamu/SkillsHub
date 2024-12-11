@@ -53,6 +53,8 @@ public class PaymentCategoryController : Controller
         PaymentCategory? result = null;
         try
         {
+            if (item.DurationTypeStudentValue == 0) item.DurationTypeStudentValue = 1;
+            if (item.DurationTypeTeacherValue == 0) item.DurationTypeTeacherValue = 1;
             var isEdit = await _context.PaymentCategories.FindAsync(item.Id);
             if (isEdit != null) result = await _paymentCategoryService.UpdateAsync(item);
             else result = await _paymentCategoryService.CreateAsync(item);

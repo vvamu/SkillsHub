@@ -30,10 +30,13 @@ public class AccountController : Controller
     private readonly ILessonService _lessonService;
     private readonly IApplicationUserBaseUserInfoService _applicationUserBaseUserInfoService;
     private readonly IMailService _mailService;
+    private readonly INotificationService _notificationService;
 
     public AccountController(IUserService userService,
         ApplicationDbContext context, IMapper mapper, IGroupService groupService, ISalaryService salaryService
-        ,UserManager<ApplicationUser> userManager, ILessonService lessonService, IApplicationUserBaseUserInfoService applicationUserBaseUserInfoService, IMailService mailService)
+        ,UserManager<ApplicationUser> userManager, ILessonService lessonService, IApplicationUserBaseUserInfoService applicationUserBaseUserInfoService, 
+        INotificationService notificationService
+        ,IMailService mailService)
     {
         _userService = userService;
         _context = context;
@@ -44,6 +47,7 @@ public class AccountController : Controller
         _lessonService = lessonService;
         _applicationUserBaseUserInfoService = applicationUserBaseUserInfoService;
         _mailService = mailService;
+        _notificationService = notificationService;
 
     }
     #region Get
@@ -73,7 +77,8 @@ public class AccountController : Controller
         {
             if (user.UserTeacher != null)
             {
-                user.UserTeacher.CurrentCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher);
+                
+                user.UserTeacher.MonthCalculatedPriceCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher);
                 user.UserTeacher.TotalCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher, true);
             }
             if (user.UserStudent != null)
@@ -256,6 +261,26 @@ public class AccountController : Controller
         //return Json(JsonSerializerToAjax.GetJsonByIQueriable(notifications));
     }
 
+    [HttpPost]
+    [Route("/Account/RemoveCurrentUserNotifications")]
+    public async Task<IActionResult> RemoveCurrentUserNotifications()
+    {
+        var notifications = await _userService.GetCurrentUserNotifications();
+        await _notificationService.RemoveCurrentUserNotificationsAsync();
+        return PartialView("_Chat", new List<NotificationMessage>());
+    }
+
+    [HttpPost]
+    [Route("/Account/RemoveAllNotifications")]
+    public async Task<IActionResult> RemoveAllNotifications()
+    {
+        var notifications = await _userService.GetCurrentUserNotifications();
+        await _notificationService.RemoveAllNotificationsAsync();
+        var result = notifications.OrderByDescending(x => x.DateCreated).ToList() ?? new List<NotificationMessage>();
+        return PartialView("_Chat", result);
+
+    }
+
     [HttpGet]
     [Route("/Account/GetEmails")]
     public async Task<IActionResult> GetEmails(Guid? id)
@@ -313,7 +338,7 @@ public class AccountController : Controller
         var user = await _userService.GetUserByIdAsync(id);
         if (user.UserStudent == null) return PartialView("_StudentGroups", (user, new List<Group>(),new List<Lesson>()));
 
-        var groups = _context.GroupStudents.Where(x=>x.ParentId == null).Where(x=>x.StudentId == user.UserStudent.Id).Include(x=>x.Group).Where(x=>x.Group != null && !x.Group.IsDeleted).ToList();
+        var groups = user.UserStudent.Groups;
         List<Group> studentGroups = new List<Group>();
         foreach(var gro in groups)
         {
@@ -321,12 +346,10 @@ public class AccountController : Controller
             studentGroups.Add(group);
         }
 
-
-
         var ress = await FilterMaster.FilterGroups(studentGroups.AsQueryable(), filters, order);
         var rerer = ress.ToList();
 
-        var otherLessons = _context.LessonStudents.Where(x => x.ParentId != null).Where(x => x.StudentId == user.UserStudent.Id);//.Where(x=>)
+        var otherLessons = _context.LessonStudents.Where(x => x.StudentId == user.UserStudent.Id);//.Where(x=>)
         /*var otherLessons = _lessonService.GetAll()
             .Where(x => x.ArrivedStudents.Select(x => x.StudentId).Contains(user.UserStudent.Id))
             .Where(x => !studentGroups.Select(x => x.Id).Contains(x.GroupId));*/
@@ -345,7 +368,7 @@ public class AccountController : Controller
 
         if (user.UserTeacher == null) return PartialView("_TeacherGroups", (user, new List<Group>(), new List<Lesson>()));
 
-        var groups = _context.GroupTeachers.Where(x => x.ParentId == null).Where(x => x.TeacherId == user.UserTeacher.Id).Include(x => x.Group).Where(x => x.Group != null && !x.Group.IsDeleted).ToList();
+        var groups = user.UserTeacher.Groups.Where(x => x.Group != null && !x.Group.IsDeleted).ToList();
         List<Group> teacherGroups = new List<Group>();
         foreach (var gro in groups)
         {

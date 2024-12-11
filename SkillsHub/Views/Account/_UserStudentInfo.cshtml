@@ -89,13 +89,13 @@
             </div>
 
 
-            
+
             <hr/>
             <div>
                 @{
-                    var visitedLessonsCount = _context.LessonStudents.Where(x => x.ParentId == null).Where(x => x.StudentId == Model.UserStudent.Id).Select(x => x.Lesson).Where(x => x.IsСompleted).Where(x => x.ParentId == null && !x.IsDeleted).Count();
-                    var missedLessonsCount = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id && (x.VisitStatus==2 || x.VisitStatus ==3)).Select(x => x.Lesson).Where(x => x.IsСompleted).Where(x => x.ParentId == null && !x.IsDeleted).Count();
-                    var missedLessonsCountWithoutWriteOff = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id && (x.VisitStatus == 3)).Select(x => x.Lesson).Where(x => x.IsСompleted).Where(x => x.ParentId == null && !x.IsDeleted).Count();
+                    var visitedLessonsCount = student.Lessons?.Where(x=>x.VisitStatus == 1).Select(x => x.Lesson).Where(x => x.ParentId == null).Where(x => x.IsСompleted).Count(); //_context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id).Select(x => x.Lesson).Where(x => x.IsСompleted).Where(x => x.ParentId == null && !x.IsDeleted).Count();
+                    var missedLessonsCount = student.Lessons?.Where(x => x.VisitStatus == 3).Select(x => x.Lesson).Where(x => x.ParentId == null).Where(x => x.IsСompleted).Count();
+                    var missedLessonsCountWithoutWriteOff = student.Lessons?.Where(x => x.VisitStatus == 2).Select(x => x.Lesson).Where(x => x.ParentId == null).Where(x => x.IsСompleted).Count();
 
                     var arrivedLessonsCount = _context.LessonStudents.Where(x => x.StudentId == Model.UserStudent.Id).Select(x => x.Lesson).Count();
                 }

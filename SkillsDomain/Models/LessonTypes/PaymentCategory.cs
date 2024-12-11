@@ -21,7 +21,6 @@ public class PaymentCategory : LogModel<PaymentCategory>
     public int DurationTypeTeacherValue { get; set; }
     public string? DurationTypeStudentName { get; set; }
     public int DurationTypeStudentValue { get; set; }
-
     public string? CurrencyTeacher { get; set; }
     public string? CurrencyStudent { get; set; }
 
