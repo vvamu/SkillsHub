@@ -85,6 +85,11 @@ public class BaseUserInfoService : IBaseUserInfoService
 
     }
 
+    public IEnumerable<BaseUserInfo> GetAll()
+    {
+        return _context.BaseUserInfo.AsEnumerable();
+    }
+
     #region GetAllChildren
 
     public IEnumerable<BaseUserInfo> GetAllChildren(Guid parentId)

@@ -20,7 +20,7 @@ using System;
 
 namespace SkillsHub.Application.Services.Implementation;
 
-public class UserService : IUserService
+public class UserService : AbstractTransactionService, IUserService
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -30,7 +30,6 @@ public class UserService : IUserService
     private readonly IBaseUserInfoService _baseUserInfoService;
 
     public UserService(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager,
-        //RoleManager<ApplicationUser> roleManager,
         ApplicationDbContext context, IMapper mapper, IBaseUserInfoService baseUserInfoService)
     {
         _signInManager = signInManager;
@@ -709,13 +708,25 @@ public class UserService : IUserService
 
     public async Task<ApplicationUser> HardDeleteAsync(ApplicationUser item)
     {
+        
         if (item == null) throw new Exception("User not found");
         if(!item.IsDeleted)
             await SoftDeleteAsync(item);
 
-        _context.ApplicationUsers.Remove(item);
-        await _context.SaveChangesAsync();
-
+        var executionStrategy = CreateExecutionStrategy();
+        await executionStrategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await BeginTransactionAsync();
+            try { 
+                _context.ApplicationUsers.Remove(item);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                await RollbackAsync(transaction);
+                throw new Exception("Не получилось обновить элемент. Попробуйте позже.", ex);
+            }
+        });
 
 
         return item;

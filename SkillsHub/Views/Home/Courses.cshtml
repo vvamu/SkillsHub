@@ -30,10 +30,10 @@
    
 
 
-    var groupEnglishLT = englishGroup.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 25m, MinCountLessonsToPay = 8, LessonTimeInMinutes = 70 };
-    var individualEnglishLT = englishIndividual.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 40m, MinCountLessonsToPay = 1, LessonTimeInMinutes = 60 }; //, LessonTimeInMinutes = 60
+    var groupEnglishLT = englishGroup.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 25m, MinCountLessonsToPay = 8, LessonTimeInMinutes = 60 };
+    var individualEnglishLT = englishIndividual.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 40m, MinCountLessonsToPay = 1, LessonTimeInMinutes = 60  }; //, LessonTimeInMinutes = 60
     var groupProgLT = progGroup.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 35m, MinCountLessonsToPay = 4, LessonTimeInMinutes = 90 }; //, LessonTimeInMinutes = 90
-    var individualProgLT = progIndividual.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 50m, MinCountLessonsToPay = 1, LessonTimeInMinutes = 60 }; //LessonTimeInMinutes = 60
+    var individualProgLT = progIndividual.FirstOrDefault() ?? new LessonType() { StudentPricePerLesson = 50m, MinCountLessonsToPay = 1, LessonTimeInMinutes = 70 }; //LessonTimeInMinutes = 60
 
 
     var englishIndividualAdults = englishIndividual.FirstOrDefault(x => x.AgeType != null && x.AgeType?.Name == "Toddlers");
@@ -87,16 +87,19 @@
                             <li>- Групповой формат <span>(до 8 человек)</li>
                             <li>- Онлайн/оффлайн</li>
                             <li>- Занятия проводятся 2 раза в неделю по @groupEnglishLT.LessonTimeInMinutes минут</li>
-                            <li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий (@(groupEnglishLT.StudentTotalCoursePrice)р)</li>
+                            <!--<li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий ((groupEnglishLT.StudentTotalCoursePrice)р)</li>-->
                             <br/>
                             <li>- Индивидуальный формат</li>
                             <li>- Онлайн/оффлайн</li>
-                            <li>- Занятия проводятся по @individualEnglishLT.LessonTimeInMinutes минут</li>
+                            <li>- Занятия проводятся по 60 минут</li>
+                            
                             <hr/>
                             <li>- Длительность зависит от скорости обучения учеников</li>
-                            <li>
-                                - Цена группового/индивидуального занятия: @groupEnglishLT.StudentPricePerLesson р/@individualEnglishLT.StudentPricePerLesson р
-                            </li>
+                    <!--
+                                <li>
+                                    - Цена группового/индивидуального занятия: groupEnglishLT.StudentPricePerLesson р/individualEnglishLT.StudentPricePerLesson р
+                                </li>
+                            -->
                             
                         
                        
@@ -224,9 +227,9 @@
                            <li>- Групповой формат <span>(до 8 человек)</li>
                            <li>- 2-4 раза еженедельно</li>
                            <li>- Занятия проводятся 2-4 раза в неделю по 45 минут</li>
-                           <li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий (@groupEnglishLT.StudentTotalCoursePrice р)</li>
-                           <li>- Цена одного занятия: @groupEnglishLT.StudentPricePerLesson р</li>               
-                            <br/>
+                           <!--<li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий (groupEnglishLT.StudentTotalCoursePrice р)</li>-->
+                           <!--<li>- Цена одного занятия: groupEnglishLT.StudentPricePerLesson р</li>
+                                 <br/>-->
 
                         </ul>
                         <p></p>
@@ -252,16 +255,18 @@
                             <li>- Групповой формат <span>(до 8 человек)</li>
                             <li>- Онлайн/оффлайн</li>
                             <li>- Занятия проводятся 2 раза в неделю по @groupEnglishLT.LessonTimeInMinutes минут</li>
-                            <li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий (@groupEnglishLT.StudentTotalCoursePrice р)</li>
+                            <!--<li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий (groupEnglishLT.StudentTotalCoursePrice р)</li>-->
                             <br/>
                             <li>- Индивидуальный формат</li>
                             <li>- Онлайн/оффлайн</li>
-                            <li>- Занятия проводятся по @individualEnglishLT.LessonTimeInMinutes минут</li>
+                            <li>- Занятия проводятся по 60 минут</li>
                             <hr/>
                             <li>- Длительность зависит от скорости обучения учеников</li>
-                            <li>
-                                - Цена группового/индивидуального занятия: @groupEnglishLT.StudentPricePerLesson р/@individualEnglishLT.StudentPricePerLesson р
-                            </li>
+                            <!--
+                                <li>
+                                    - Цена группового/индивидуального занятия: groupEnglishLT.StudentPricePerLesson р/individualEnglishLT.StudentPricePerLesson р
+                                </li>
+                            -->
                                     
                         </ul>
                         <p></p>
@@ -291,17 +296,19 @@
                                 <li>- Групповой формат <span>(до 8 человек)</li>
                                 <li>- Онлайн/оффлайн</li>
                                 <li>- Занятия проводятся 2 раза в неделю по @groupEnglishLT.LessonTimeInMinutes минут</li>
-                                <li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий (@groupEnglishLT.StudentTotalCoursePrice р)</li>
+                                <!--<li>- Групповые абонементы от groupEnglishLT.MinCountLessonsToPay занятий (groupEnglishLT.StudentTotalCoursePrice р)</li>-->
                                 <br />
                                 
                                 <li>- Индивидуальный формат</li>
                                 <li>- Онлайн/оффлайн</li>
-                                <li>- Занятия проводятся по @individualEnglishLT.LessonTimeInMinutes минут</li>
+                                <li>- Занятия проводятся по 60 минут</li>
                                 <hr />
                                 <li>- Длительность зависит от скорости обучения учеников</li>
-                                <li>
-                                    - Цена группового/индивидуального занятия: @groupEnglishLT.StudentPricePerLesson р/@individualEnglishLT.StudentPricePerLesson р
-                                </li>
+                                <!--
+                                    <li>
+                                        - Цена группового/индивидуального занятия: groupEnglishLT.StudentPricePerLesson р/individualEnglishLT.StudentPricePerLesson р
+                                    </li>
+                                -->
                               
                         </ul>
                         <p></p>
@@ -346,20 +353,22 @@
                <h3 >Английский для организаций</h3>
                <p class="fs-1">Курсы английского языка для специфики вашей работы</p>
                <ul style=" list-style: none; margin-left: -10px;" class="list-conditions">
-
-                    <li>- Групповой формат <span>(до 8 человек)</li>
+                   
+                    <li>  <input style="border-color:#d4d4d4;border-radius:7px" type="text" value="- Групповой формат (до 8 человек)" /></li>
                     <li>- Онлайн/оффлайн</li>
                     <li>- Занятия проводятся 2 раза в неделю по @groupEnglishLT.LessonTimeInMinutes минут</li>
-                    <li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий (@groupEnglishLT.StudentTotalCoursePrice р)</li>
+                    <!--<li>- Групповые абонементы от groupEnglishLT.MinCountLessonsToPay занятий (groupEnglishLT.StudentTotalCoursePrice р)</li>-->
                     <br />
                     <li>- Индивидуальный формат</li>
                     <li>- Онлайн/оффлайн</li>
-                    <li>- Занятия проводятся по @individualEnglishLT.LessonTimeInMinutes минут</li>
+                    <li>- Занятия проводятся по 60 минут</li>
                     <hr />
                     <li>- Длительность зависит от скорости обучения учеников</li>
-                    <li>
-                        - Цена группового/индивидуального занятия: @groupEnglishLT.StudentPricePerLesson р/@individualEnglishLT.StudentPricePerLesson р
-                    </li>
+                    <!--
+                        <li>
+                            - Цена группового/индивидуального занятия: groupEnglishLT.StudentPricePerLesson р/individualEnglishLT.StudentPricePerLesson р
+                        </li>
+                    -->
                </ul>
                <div>
                    <!--
@@ -401,16 +410,18 @@
                     <li>- Групповой формат <span>(до 8 человек)</li>
                     <li>- Онлайн/оффлайн</li>
                     <li>- Занятия проводятся 2 раза в неделю по @groupEnglishLT.LessonTimeInMinutes минут</li>
-                    <li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий (@groupEnglishLT.StudentTotalCoursePrice р)</li>
+                    <!--<li>- Групповые абонементы от groupEnglishLT.MinCountLessonsToPay занятий (groupEnglishLT.StudentTotalCoursePrice р)</li>-->
                     <br />
                     <li>- Индивидуальный формат</li>
                     <li>- Онлайн/оффлайн</li>
-                    <li>- Занятия проводятся по @individualEnglishLT.LessonTimeInMinutes минут</li>
+                    <li>- Занятия проводятся по 60 минут</li>
                     <hr />
                     <li>- Длительность зависит от скорости обучения учеников</li>
-                    <li>
-                        - Цена группового/индивидуального занятия: @groupEnglishLT.StudentPricePerLesson р/@individualEnglishLT.StudentPricePerLesson р
-                    </li>
+                    <!--
+                        <li>
+                            - Цена группового/индивидуального занятия: groupEnglishLT.StudentPricePerLesson р/individualEnglishLT.StudentPricePerLesson р
+                        </li>
+                    -->
                </ul>
                <p style="font-size:17px">Выбирая экспресс – курсы, вы точно знаете, для каких целей изучаете английский язык, будь то путешествие или переезд в выбранную страну, сдача международных экзаменов. Это поможет составить программу, соответствующую именно Вашим потребностям.</p>
                <p style="font-size:17px">Программа включает в себя только основные моменты, необходимые Вам для Вашей цели. Так вы не будете тратить время на лексику и грамматические правила, которые, возможно, и вовсе не пригодятся. Выберите те темы, которые вы используете в работе, или которые будут вам полезны в поездке, или в любой другой ситуации.</p>
@@ -430,16 +441,18 @@
                     <li>- Групповой формат <span>(до 8 человек)</li>
                     <li>- Онлайн/оффлайн</li>
                     <li>- Занятия проводятся 2 раза в неделю по @groupEnglishLT.LessonTimeInMinutes минут</li>
-                    <li>- Групповые абонементы от @groupEnglishLT.MinCountLessonsToPay занятий (@groupEnglishLT.StudentTotalCoursePrice р)</li>
+                    <!--<li>- Групповые абонементы от groupEnglishLT.MinCountLessonsToPay занятий (groupEnglishLT.StudentTotalCoursePrice р)</li>-->
                     <br />
                     <li>- Индивидуальный формат</li>
                     <li>- Онлайн/оффлайн</li>
-                    <li>- Занятия проводятся по @individualEnglishLT.LessonTimeInMinutes минут</li>
+                    <li>- Занятия проводятся по 60 минут</li>
                     <hr />
                     <li>- Длительность зависит от скорости обучения учеников</li>
-                    <li>
-                        - Цена группового/индивидуального занятия: @groupEnglishLT.StudentPricePerLesson р/@individualEnglishLT.StudentPricePerLesson р
-                    </li>
+                    <!--
+                        <li>
+                            - Цена группового/индивидуального занятия: groupEnglishLT.StudentPricePerLesson р/individualEnglishLT.StudentPricePerLesson р
+                        </li>
+                    -->
                </ul>
                <div style="margin-top: 30px; margin-left: 6px;">
                   <p style="font-size:17px">Наш разговорный клуб английского языка с носителем поможет Вам улучшить произношение, преодолеть языковой барьер. Мы подбираем собеседников одного уровня владения языком, что позволяет высказаться каждому. Темы обсуждаются разные: путешествия, покупки, еда, космос, профессии и многое другое.</p>
@@ -462,16 +475,18 @@
                     <li>- Групповой формат <span>(до 8 человек)</li>
                     <li>- Онлайн/оффлайн</li>
                     <li>- Занятия проводятся 2 раза в неделю по @groupProgLT.LessonTimeInMinutes минут</li>
-                    <li>- Групповые абонементы от @groupProgLT.MinCountLessonsToPay занятий (@groupProgLT.StudentTotalCoursePrice р)</li>
+                    <!--<li>- Групповые абонементы от groupEnglishLT.MinCountLessonsToPay занятий (groupEnglishLT.StudentTotalCoursePrice р)</li>-->
                     <br />
                     <li>- Индивидуальный формат</li>
                     <li>- Онлайн/оффлайн</li>
                     <li>- Занятия проводятся по @individualProgLT.LessonTimeInMinutes минут</li>
                     <hr />
                     <li>- Длительность зависит от скорости обучения учеников</li>
+                    <!--
                     <li>
-                        - Цена группового/индивидуального занятия: @groupProgLT.StudentPricePerLesson р/@individualProgLT.StudentPricePerLesson р
+                        - Цена группового/индивидуального занятия: groupProgLT.StudentPricePerLesson р/individualProgLT.StudentPricePerLesson р
                     </li>
+                    -->
                </ul>
                <div>
                   <ul class="list-unstyled py-3" id="scroll-children">

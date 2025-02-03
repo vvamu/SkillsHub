@@ -16,16 +16,16 @@
 
 
         *, body {
-            font-family: "Ubuntu", "Trebuchet MS", times, roman, serif !important;
-            font-weight: 300;
-            font-style: normal;
+        font-family: "Ubuntu", "Trebuchet MS", times, roman, serif !important;
+        font-weight: 300;
+        font-style: normal;
         }
 
         input[type="checkbox"] {
-            margin-right: 5px; /* Example margin */
-            padding-top: 15px;
-            padding-left: 5px;
-            background-color: #5da6d6;
+        margin-right: 5px; /* Example margin */
+        padding-top: 15px;
+        padding-left: 5px;
+        background-color: #5da6d6;
         }
     </style>
 
@@ -33,17 +33,25 @@
         //if(Context.Request.Path.Value.Contains("/CRM") )
         if (@Context.Request.Path.Value == "/website" || (!User.Identity.IsAuthenticated && @Context.Request.Path.Value == "/") && @Context.Request.Path.Value == "/thanks")
         {
-           
-           // @await Html.PartialAsync("Home/UnauthorizedIndex.cshtml")
+
+            // @await Html.PartialAsync("Home/UnauthorizedIndex.cshtml")
             <div class="container">
                 <main role="main" class="pb-3">
                     @RenderBody()
                 </main>
             </div>
+
         }
         else if (User.Identity.IsAuthenticated)
         {
-            #region AuthorizedHeader
+            #region AuthorizedHeader;
+
+
+
+            @using SkillsHub.Domain.BaseModels;
+            @inject SkillsHub.Persistence.ApplicationDbContext _context;
+            @inject SignInManager<ApplicationUser> _signInManager;
+            @inject UserManager<ApplicationUser> _userManager;
 
             <meta name="theme-name" content="quixlab" />
             <link href="~/plugins/pg-calendar/css/pignose.calendar.min.css" rel="stylesheet">
@@ -53,11 +61,7 @@
             //
             <link href="~/plugins/fullcalendar/css/fullcalendar.min.css" rel="stylesheet">
             <link href="~/css/style.css" rel="stylesheet">
-        @using Microsoft.AspNetCore.Identity
-        @using SkillsHub.Domain.BaseModels
-        @inject SkillsHub.Persistence.ApplicationDbContext _context;
-        @inject SignInManager<ApplicationUser> _signInManager;
-        @inject UserManager<ApplicationUser> _userManager;
+
 
 
 
@@ -356,8 +360,8 @@
                                     </a>
                                     <ul aria-expanded="false">
                                         <li><a asp-action="Index" asp-controller="Account">Пользователи</a></li>
-                                        <li><a asp-action="Index" asp-controller="ApplicationUserBaseUserInfo">Дополнительные контакты</a></li>
-                                        <!--
+                                        <!--<li><a asp-action="Index" asp-controller="ApplicationUserBaseUserInfo">Дополнительные контакты</a></li>
+                                        
                                            <li><a asp-action="Index" asp-controller="Teachers">Teachers</a></li>
                                            <li><a asp-action="Index" asp-controller="Student">Students</a></li>
                                            -->
@@ -388,7 +392,7 @@
                                         <!-- <li><a href="./index-2.html">Home 2</a></li> -->
                                     </ul>
                                 </li>
-                                @if (User.IsInRole("Admin"))
+                                @if (User.IsInRole("Admin") && false)
                                 {
                                     <li>
                                         <a class="has-arrow" href="javascript:void()" aria-expanded="false">

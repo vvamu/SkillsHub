@@ -5,10 +5,12 @@
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 
 @{
-    var properties = new string[] {"Роли", "Логин", "Полное имя", "Курсы", "Пол", "Телефон", "Почта", "День рождения", "Занятия учителя/ученика", "Текущие группы учителя/ученика", "Дата создания" };
+    var properties = new string[] { "Роли", "Логин", "Полное имя", "Пол", "Телефон", "Почта", "День рождения", "Группы учителя/ученика", "Дата создания" };
     //"Рабочее время",
     // "Статус",
     // "Источник поиска", "Мягкое удаление", "Тяжелое удаление",
+    //"Курсы"
+    //"Занятия учителя/ученика",
 }
 
     @if (Model == null || Model.Count() == 0)
@@ -76,7 +78,8 @@
 
                                         </td>
                                         <td style="text-wrap:nowrap">@item?.FullName</td>
-                                        <td>
+                                        
+                                        @* <td>
                                             
                                                 @try
                                                 {
@@ -115,8 +118,10 @@
                                                 {
 
                                                 }
+                                                
                                             
-                                        </td>
+                                        </td> *@
+                                       
 
 
                                         <!--Working days-->
@@ -155,7 +160,8 @@
                                             <td>@item?.Email</td>
                                             
 
-                                            <td> @(DateOnly.FromDateTime(item.BirthDate).ToShortDateString()) - @item?.Age лет</td>
+                                             <td> @(DateOnly.FromDateTime(item.BirthDate).ToShortDateString()) - @item?.Age лет</td>
+                                            @*
                                             @{
                                                 var teacherLessonsMonth = 0;
                                                 var studentLessonsMonth = 0;
@@ -197,10 +203,11 @@
                                                 }*/
                                             }
                                         <td>Всего: @teacherLessons / @studentLessons;<br/> За месяц: @teacherLessonsMonth / @studentLessonsMonth;<br/> Ожидается: @teacherExpected/@studentExpected</td>
+                                        *@
                                         <td>
-                                                @if (item.UserTeacher != null) {<div>Группы учителя: @teacherGroups </div>}
-                                                @if (item.UserStudent != null) {<div>Группы ученика: @studentGroups</div>}
-                                        </td>
+                                                @if (item.UserTeacher != null) {<div>Группы учителя: @_context.GroupTeachers.Where(x=>x.TeacherId == item.UserTeacherId).Count(); </div>}
+                                                @if (item.UserStudent != null) {<div>Группы ученика: @_context.GroupStudents.Where(x=>x.StudentId == item.UserStudentId).Count();</div>}
+                                        </td> 
                                         
                                             
                                             <td>@(item.RegistrationDate?.ToString() ?? "Не задано" )</td>

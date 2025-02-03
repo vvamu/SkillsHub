@@ -91,17 +91,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
         builder.Entity<ApplicationUser>().HasOne(x => x.UserTeacher).WithOne(x => x.ApplicationUser).HasForeignKey<Teacher>(x => x.ApplicationUserId).OnDelete(DeleteBehavior.Cascade);
         builder.Entity<ApplicationUser>().HasOne(x => x.UserStudent).WithOne(x => x.ApplicationUser).HasForeignKey<Student>(x => x.ApplicationUserId).OnDelete(DeleteBehavior.Cascade);
 
-        
+        #region Teacher -> Group -> GroupTeachers -> GroupStudents -> Lesson -> LessonTeachers -> LessonStudents
 
-        /*
+        #endregion
+        //builder.Entity<Teacher>().HasMany(x => x.Groups).WithOne(x => x.Teacher).OnDelete(DeleteBehavior.Cascade);
+        //builder.Entity<Group>().HasOne(x => x.GroupTeacher).WithOne(x => x.Group).OnDelete(DeleteBehavior.Cascade);
+        //builder.Entity<GroupTeacher>().HasOne(x => x.Group).WithOne(x => x.GroupTeacher).OnDelete(DeleteBehavior.SetNull);
+        //builder.Entity<GroupTeacher>().HasOne(x => x.Teacher).WithMany(x => x.Groups).OnDelete(DeleteBehavior.SetNull);
+
+
+
+
+        
         builder.Entity<Teacher>().HasOne(x=>x.ApplicationUser).WithOne(x => x.UserTeacher).HasForeignKey<ApplicationUser>(x=>x.UserTeacherId).OnDelete(DeleteBehavior.Cascade);
-        builder.Entity<Student>().HasOne(x => x.ApplicationUser).WithOne(x => x.UserStudent).HasForeignKey<St(x => x.UserStudentId).OnDelete(DeleteBehavior.Cascade);
-        */
+        builder.Entity<Student>().HasOne(x => x.ApplicationUser).WithOne(x => x.UserStudent).HasForeignKey<ApplicationUser>(x => x.UserStudentId).OnDelete(DeleteBehavior.Cascade);
+        
 
         #region ManyToMany
         builder.Entity<GroupTeacher>().HasKey(ct => ct.Id);
-        builder.Entity<GroupTeacher>().HasOne(x => x.Teacher).WithMany(x => x.Groups).HasForeignKey(x => x.TeacherId).OnDelete(DeleteBehavior.Cascade);
-        builder.Entity<GroupTeacher>().HasOne(x => x.Group).WithMany(x => x.GroupTeachers).OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<LessonTeacher>().Ignore(x => x.Lesson); // Игнорируем существующее отношение
         builder.Entity<Lesson>().HasMany(x => x.Teachers).WithOne(x => x.Lesson).OnDelete(DeleteBehavior.SetNull);
