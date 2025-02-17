@@ -24,15 +24,17 @@ public class HomeController : Controller
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IUserService _userService;
     private readonly ILessonTypeService _lessonTypeService;
+    private readonly ApplicationDbContext _context;
 
     public HomeController(IMailService mailService, IExternalService externalService, 
-        SignInManager<ApplicationUser> signInManager, IUserService userService, ILessonTypeService lessonTypeService)
+        SignInManager<ApplicationUser> signInManager, IUserService userService, ILessonTypeService lessonTypeService, ApplicationDbContext context)
     {
         _mailService = mailService;
         _externalService = externalService;
         _signInManager = signInManager;
         _userService = userService;
         _lessonTypeService = lessonTypeService;
+        _context = context;
     }
 
     [Route("thanks")]
@@ -45,13 +47,30 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
         if(User.Identity.IsAuthenticated)
         {
-            return RedirectToAction("Index","CRM");
+
+            var user = await _userService.GetCurrentUserAsync();
+            if (user.ExternalConnections != null) ViewBag.NotificationsStatus = "On - " + user.ExternalConnections.Count; else ViewBag.NotificationsStatus = "Off";
+            if (!User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Item", "Account", new { id = user.Id });
+            }
+
+
+            ViewBag.TotalTeachers = _context.Teachers.Count();
+            ViewBag.TotalStudents = _context.Students.Count();
+            ViewBag.ActiveTotalTeachers = _context.Teachers.Where(x => x.IsDeleted == false).Count();
+            ViewBag.ActiveTotalStudents = _context.Students.Where(x => x.IsDeleted == false).Count();
+            ViewBag.TotalUsers = _context.ApplicationUsers.Count();
+            ViewBag.CountClasses = //_context.Teachers.Include(x => x.Lessons).Count();
+            ViewBag.CountMails = _context.EmailMessages.Count();
+
+            return View(user);
         }
-        return View("UnauthorizedIndex");
+        return View();
     }
 
     public IActionResult Test()

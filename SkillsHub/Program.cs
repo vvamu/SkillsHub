@@ -29,28 +29,10 @@ public class Program
             AddNewtonsoftJson(options =>
             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
-
-
-        //FOR SESSION
-        //builder.Services.AddDistributedMemoryCache();
-        //builder.Services.AddSession(options =>
-        //{
-        //    options.IdleTimeout = TimeSpan.FromDays(30); // Установите время простоя сеанса на 30 дней
-        //});
-        //builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme)
-        //.AddCookie(options =>
-        //{
-        //    options.Cookie.IsEssential = true; // Make the cookie essential for preserving user authentication
-        //    options.ExpireTimeSpan = TimeSpan.FromDays(30); // Set the expiration time of the cookie
-        //    options.SlidingExpiration = true; // Extend the expiration time with each request
-        //});
-
         builder.Services.AddDistributedMemoryCache();
 
         builder.Services.AddSession(options =>
         {
-
-             
             options.Cookie.Name = ".AdventureWorks.Session";
             options.IdleTimeout = TimeSpan.FromDays(10);
             options.Cookie.IsEssential = true;
@@ -125,12 +107,6 @@ public class Program
         #endregion
 
         #region Own Services
-
-        //builder.Services.AddViberBotApi(opt =>
-        //{
-        //    opt.Token = "5192d0382ea7e2e9-d35f8cb4f9a26339-3a3429d4a23b0c5f";
-        //    opt.Webhook = "https://localhost:7150/Viber/Get";
-        //});
         
         builder.Services.AddTransient<EmailProvider.Interfaces.IMailService, MailService>();
         builder.Services.AddTransient<IUserService, UserService>();
@@ -167,23 +143,16 @@ public class Program
         services.AddHostedService<RepeatingService>();
 
         var app = builder.Build();
-        //FOR SESSION
         
-        
-        //app.UseCookiePolicy(new CookiePolicyOptions
-        //{
-        //    MinimumSameSitePolicy = SameSiteMode.None,
-        //});
-
-        //app.UseMiddleware<ExceptionHandlingMiddleware>();
-
         if (app.Environment.IsDevelopment())
         {
             //app.UseExceptionHandler("/Home/Error");\
             app.UseDeveloperExceptionPage();
-
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
+        }
+        if (app.Environment.IsProduction())
+        {
+            app.UseExceptionHandler("/Home/Error");
         }
         app.UseCors(opt =>
         {
@@ -230,10 +199,6 @@ public class Program
         pattern: "{controller=Home}/{action=Thanks}",
         defaults: new { controller = "Home", action = "Thanks" }
         );
-
-        
-
-
         app.MapControllerRoute(name: "thanks",
                 pattern: "thanks/",
                 defaults: new { controller = "Home", action = "Thanks" });

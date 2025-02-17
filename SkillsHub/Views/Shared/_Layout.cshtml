@@ -5,28 +5,84 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
 
-@await Html.PartialAsync("_LayoutHead")
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Курсы Английского для детей и взрослых в Минске. Занятия онлайн и очно. Для организаций, экспресс-английский, speaking club (разговорный клуб), языковой лагерь для детей. В центре Минска (метро Якуба Коласа). Индивидуальные занятие. Низкие цены, дешево. Программирование для детей (Scratch, Java, Python) от 6 лет" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SkillsHub.styles.css" asp-append-version="true" />
+    <link href="https://skillshub.by/" rel="canonical" />
+    <meta property="og:title" content="SkillsHub - Курсы английского языка в Минске для детей и взрослых любого уровня." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://skillshub.by/" />
+    <meta property="og:description" content="Пройдите тест на уровень языка совершенно бесплатно! Обучаем с нуля или поможем улучшить навыки под ваши нужды." />
+    <meta property="og:site_name" content="SkillsHub - курсы английского в центре Минска" />
+    <meta property="og:image" content="https://img.freepik.com/free-vector/hand-drawn-english-school-illustration_23-2149517765.jpg?w=996&t=st=1698091774~exp=1698092374~hmac=0bac2c395f5113eedf6bf76b7716805c9cfb882671b6300421652d72fba575e1" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <!--OWN-->
+    <link rel="shortcut icon" type="image/x-icon" href="~/images/logo.svg">
+    <meta name="theme-color" content="rgb(253, 254, 255)">
+    <link href="~/css/chat.css" rel="stylesheet" />
+
+    <link href="~/css/myStyles.css" rel="stylesheet" />
+
+    <!--    Favicons-->
+    <link rel="apple-touch-icon" sizes="180x180" href="~/images/logo.svg">
+    <link rel="icon" type="image/png" sizes="48x48" href="~/images/logo.svg">
+    <link href="~/assets/css/theme.css" rel="stylesheet" />
 
 
+    <!-- Meta Pixel Code -->
+    <script>
+        function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        } (window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '972143338251307');
+        fbq('track', 'PageView');
+    </script>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+             src="https://www.facebook.com/tr?id=972143338251307&ev=PageView&noscript=1" />
+    </noscript>
+    <!-- End Meta Pixel Code -->
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function (m, e, t, r, i, k, a) {
+            m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+            m[i].l = 1 * new Date();
+            for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+            k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+        })
+            (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
+        ym(96558122, "init", {
+            clickmap: true,
+            trackLinks: true,
+            accurateTrackBounce: true,
+            webvisor: true
+        });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/96558122" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+
+</head>
 
 <body class="my-background">
 
     <style>
 
 
-        *, body {
-        font-family: "Ubuntu", "Trebuchet MS", times, roman, serif !important;
-        font-weight: 300;
-        font-style: normal;
-        }
-
-        input[type="checkbox"] {
-        margin-right: 5px; /* Example margin */
-        padding-top: 15px;
-        padding-left: 5px;
-        background-color: #5da6d6;
-        }
+        
     </style>
 
     @{
