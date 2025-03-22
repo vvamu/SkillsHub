@@ -123,12 +123,12 @@
                                
                             @{
                                 var teacherName= "-";
-                                var teacherr = group?.GroupTeacher?.Teacher;
+                                var teacherr = group?.GroupTeacher?.Teacher ?? new Teacher();
                                 Guid teacherId = Guid.Empty;
-                                if(teacherr != null)
+                                if(teacherr != null )
                                 {
                                     teacherId = teacherr.ApplicationUserId;
-                                    teacherName = teacherr.ApplicationUser.FullName;
+                                    teacherName = teacherr.ApplicationUser?.FullName;
                                 }
 
                                     if(User.IsInRole("Admin"))
@@ -161,7 +161,7 @@
                                    
                                     @if(User.IsInRole("Admin"))
                                     {
-                                    @foreach (var st in group?.CurrentGroupStudents?.Select(x => x.Student).Select(x => x.ApplicationUser))
+                                    @foreach (var st in group?.CurrentGroupStudents?.Select(x => x.Student).Select(x => x.ApplicationUser).Where(x=>x!= null))
                                         {
                                            
                                             <div>
@@ -355,7 +355,7 @@
                                         {
                                             @foreach (Teacher item in ViewBag.Teachers)
                                             {
-                                                <option value="@item.Id">@item.ApplicationUser.FirstName @item.ApplicationUser.LastName @item.ApplicationUser.Surname</option>
+                                                <option value="@item.Id">@item.ApplicationUser.FirstName @item.ApplicationUser.MiddleName @item.ApplicationUser.Surname</option>
                                             }
                                         }
 

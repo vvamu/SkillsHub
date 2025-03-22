@@ -2,83 +2,78 @@
 @using SkillsHub.Application.DTO;
 @using SkillsHub.Domain.BaseModels
 @inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> _roleManager;
-
-
+@model IQueryable<ApplicationUser>?
 @{
 ViewData["Title"] = "Пользователи ";
 }
-@model IQueryable<ApplicationUser>?
-    <!-- Custom Stylesheet -->
-    <link href="~/plugins/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+
+<link href="~/plugins/tables/css/datatable/dataTables.bootstrap4.min.css" rel="stylesheet">
 <link href="~/css/style.css" rel="stylesheet">
 
+<style>
+    .search-input{
+        min-width:30px
+    }
 
-    <!--**********************************
-        Main wrapper start
-    ***********************************-->
-    <style>
-        .search-input{
-            min-width:30px
-        }
+    .search-select {
+        min-width: 30px
+    }
+</style>
 
-        .search-select {
-            min-width: 30px
-        }
-    </style>
-
-    <div>
-
-        <div >
-        <!-- NAVBAR - Search, Filter, Sort -->
-        <nav class="navbar navbar-expand-lg bg-light">
-            <div class="container-fluid">
-                <div class=" navbar-collapse" id="navbarSupportedContent" style="display:flex;justify-content:space-between">
+<div>
+    <div >
+        <form>
+            <!-- NAVBAR - Search, Filter, Sort -->
+            <nav class="navbar navbar-expand-lg bg-light">
+                <div class="container-fluid">
+                    <div class=" navbar-collapse" id="navbarSupportedContent" style="display:flex;justify-content:space-between">
                     
                    
                     
-                        <div class="col">
-                            <div class="" style="display:flex;grid-gap:10px;flex-wrap:wrap">
-                                <!--
-                                <div class="nav-item">
-                                    <div class="input-group icons">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
-                                        </div>
+                            <div class="col">
+                                <div class="" style="display:flex;grid-gap:10px;flex-wrap:wrap">
+                                    <!--
+                                    <div class="nav-item">
+                                        <div class="input-group icons">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text bg-transparent border-0 pr-2 pr-sm-3" id="basic-addon1"><i class="mdi mdi-magnify"></i></span>
+                                            </div>
                                
 
-                                        <input type="search" onchange="getStudents()" id="searchByFIO" class="form-control search-input" placeholder="Search by name/username" />
-                                        <div class="drop-down d-md-none">
-                                            <input type="text" class="form-control search-input" placeholder="Search">
+                                            <input type="search" onchange="getStudents()" id="searchByFIO" class="form-control search-input" placeholder="Search by name/username" />
+                                            <div class="drop-down d-md-none">
+                                                <input type="text" class="form-control search-input" placeholder="Search">
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                -->
-                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Роль:</p>
-                                    <select class="form-control search-select userRole" id="userRole" onchange="getStudents()">
-                                        <option selected></option>
-                                        <option value="Admin">Администратор</option>
-                                        <option value="Student">Студент</option>
-                                        <option value="Teacher">Учитель</option>
-                                    </select>
-                                </div>
-                                <br/>
+                                    -->
+                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                        <p style="white-space:nowrap">Роль:</p>
+                                        <select class="form-control search-select userRole" id="userRole" onchange="getStudents()">
+                                            <option selected></option>
+                                            <option value="Admin">Администратор</option>
+                                            <option value="Student">Студент</option>
+                                            <option value="Teacher">Учитель</option>
+                                        </select>
+                                    </div>
+                                    <br/>
 
-                            <!--
-                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Курс студента:</p>
-                                    <select class="form-control search-select courceStudent" id="lessonType-select" onchange="getStudents()">
-                                        <option value="" selected></option>
-                                    </select>
-                                </div>
+                                <!--
+                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                        <p style="white-space:nowrap">Курс студента:</p>
+                                        <select class="form-control search-select courceStudent" id="lessonType-select" onchange="getStudents()">
+                                            <option value="" selected></option>
+                                        </select>
+                                    </div>
 
-                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Курс учителя:</p>
-                                    <select class="form-control search-select courceTeacher" id="lessonType2-select" onchange="getStudents()">
-                                        <option value="" selected></option>
-                                    </select>
-                                </div>
-                                -->
+                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                        <p style="white-space:nowrap">Курс учителя:</p>
+                                        <select class="form-control search-select courceTeacher" id="lessonType2-select" onchange="getStudents()">
+                                            <option value="" selected></option>
+                                        </select>
+                                    </div>
+                                    -->
                                 <!--
                                 <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
                                     <p style="white-space:nowrap">Рабочее время:</p>
@@ -132,65 +127,67 @@ ViewData["Title"] = "Пользователи ";
                                     </select>
                                 </div>
                         
-                                <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
-                                    <p style="white-space:nowrap">Order type:</p>
-                                    <select class="form-control  search-select " id="sort-select-type" onchange="getStudents()">
-                                        <option value="asc"  selected>↑</option>
-                                        <option value="desc">↓</option>
-                                    </select>
-                                </div>-->
+                                    <div class="nav-item" style="display:flex;align-items:baseline;grid-gap:10px">
+                                        <p style="white-space:nowrap">Order type:</p>
+                                        <select class="form-control  search-select " id="sort-select-type" onchange="getStudents()">
+                                            <option value="asc"  selected>↑</option>
+                                            <option value="desc">↓</option>
+                                        </select>
+                                    </div>-->
                         
-                                 <div class="nav-item"><input type="button" onclick="getStudents()" value="Поиск" class="form-control btn btn-primary search" /></div>
+                                     <div class="nav-item"><input type="button" onclick="getStudents()" value="Поиск" class="form-control btn btn-primary search" /></div>
 
                                 <!--
                                 <li class="nav-item">
                                     <input type="text" class="form-control search-input" placeholder="2017-06-04" id="minDate" />
                                 </li>
                                 -->
+                                    </div>
                                 </div>
-                            </div>
-                        <div>
-                            <a style="margin-left:20px" class="btn btn-secondary" asp-action="Create" asp-controller="Account">
-                               Создать
-                            </a>
-                            
-                            <ul class="dropdown-menu">
-                                <form>
-                                <!--<li><a class="dropdown-item" href="#">Invite via email</a></li>-->
-                                <li>
+                            <div>
+                                <input style="margin-left:20px" class="btn btn-danger" asp-route-isHardDelete="true" asp-action="Delete" asp-controller="Account"  type="submit" value="Удалить">
+                                <input name="isHardDelete"  type="hidden" value="true">
+                                <a style="margin-left:20px" class="btn btn-secondary" asp-action="Create" asp-controller="Account">
+                                   Создать
+                                </a>
 
-                                    <a class="dropdown-item" asp-action="Create" asp-controller="Account">Создать </a>
+                                <!--
+                                    <ul class="dropdown-menu">
+                                        <form>
+                                        <li><a class="dropdown-item" href="#">Invite via email</a></li>
+                                        <li>
+
+                                            <a class="dropdown-item" asp-action="Delete" asp-controller="Account">Удалить</a>
                                     
-                                </li>
-                                </form>
-                                </ul>
-                            </div>
-                </div>
+                                        </li>
+                                        <li>
+
+                                            <a class="dropdown-item" asp-action="Create" asp-controller="Account">Создать </a>
+                                    
+                                        </li>
+                                        </form>
+                                        </ul>
+                                -->
+                                </div>
+                    </div>
                         
                    
                 
-            </div>
-        </nav>
+                </div>
+            </nav>
 
 
-            <!-- row -->
-
-
-        
-        <div id="usersList">
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            <div id="usersList">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
             </div>
-        </div>
-                                                
-                                          
 
-         <!-- #/ container -->
-        </div>
-
+        </form>
     </div>
+</div>
 
 
 <script src="~/plugins/tables/js/jquery.dataTables.min.js"></script>

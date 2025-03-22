@@ -1,10 +1,5 @@
 ﻿using SkillsHub.Domain.BaseModels;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkillsHub.Domain.Models;
 
@@ -31,9 +26,9 @@ public class AgeType : LessonTypePropertyModel<AgeType>
             return false;
 
         AgeType other = (AgeType)obj;
-        return Name == other.Name || 
+        return Name == other.Name &&
                (MinimumAge == other.MinimumAge &&
                MaximumAge == other.MaximumAge);
     }
-    }
+}
 

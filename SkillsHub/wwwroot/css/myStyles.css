@@ -1,4 +1,8 @@
-﻿p {
+﻿
+#top{
+    padding-bottom:0px !important 
+}
+p {
     font-size: 19.2px;
 }
 

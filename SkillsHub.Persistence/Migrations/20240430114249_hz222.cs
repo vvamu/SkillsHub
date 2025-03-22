@@ -16,18 +16,18 @@ namespace SkillsHub.Persistence.Migrations
             type: "uniqueidentifier",
             nullable: true);
 
-                migrationBuilder.CreateIndex(
-                    name: "IX_BaseUserInfo_ParentId",
-                    table: "BaseUserInfo",
-                    column: "ParentId");
+            migrationBuilder.CreateIndex(
+                name: "IX_BaseUserInfo_ParentId",
+                table: "BaseUserInfo",
+                column: "ParentId");
 
-                migrationBuilder.AddForeignKey(
-                    name: "FK_BaseUserInfo_BaseUserInfo_ParentId",
-                    table: "BaseUserInfo",
-                    column: "ParentId",
-                    principalTable: "BaseUserInfo",
-                    principalColumn: "Id",
-                    onDelete: ReferentialAction.NoAction);
+            migrationBuilder.AddForeignKey(
+                name: "FK_BaseUserInfo_BaseUserInfo_ParentId",
+                table: "BaseUserInfo",
+                column: "ParentId",
+                principalTable: "BaseUserInfo",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.NoAction);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

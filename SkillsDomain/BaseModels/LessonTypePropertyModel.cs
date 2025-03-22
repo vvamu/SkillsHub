@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using SkillsHub.Domain.Models;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using SkillsHub.Domain.Models;
 
 namespace SkillsHub.Domain.BaseModels;
 

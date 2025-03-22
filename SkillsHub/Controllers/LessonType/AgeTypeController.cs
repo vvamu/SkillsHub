@@ -1,30 +1,17 @@
-﻿using AutoMapper;
-using EmailProvider.Interfaces;
-using EmailProvider.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Helpers;
-using SkillsHub.Application.Services;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
-using SkillsHub.Domain.BaseModels;
-using SkillsHub.Domain.Models;
-using SkillsHub.Helpers;
-using SkillsHub.Models;
 using SkillsHub.Persistence;
-using System.Diagnostics;
-using System.Text;
-using static Viber.Bot.NetCore.Models.ViberResponse;
 
 namespace SkillsHub.Controllers;
 public class AgeTypeController : Controller
 {
-	private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _context;
     private readonly AbstractLessonTypeLogModelService<AgeType>? _ageTypeService;
 
-    public AgeTypeController(ApplicationDbContext context, IAbstractLogModel<AgeType> ageTypeService)
+    public AgeTypeController(ApplicationDbContext context, IAbstractLogModelService<AgeType> ageTypeService)
     {
         _context = context;
         _ageTypeService = ageTypeService as AgeTypeService;
@@ -34,15 +21,15 @@ public class AgeTypeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var items =  _ageTypeService.GetAllItemsToList();
+        var items = _ageTypeService.GetItems(onlyCurrent:true);
         var result = await items.Where(x => x.ParentId == null).ToListAsync();
-        return PartialView( result);
+        return PartialView(result);
     }
 
     [HttpGet]
     public async Task<IActionResult> Create(Guid? itemId)
     {
-        var res = await _ageTypeService.GetLastValueAsync(itemId);
+        var res = await _ageTypeService.GetLastValueAsync(itemId,withParents:true);
         return View(res);
     }
     [HttpPost]
@@ -58,9 +45,10 @@ public class AgeTypeController : Controller
                 result = await _ageTypeService.UpdateAsync(item);
             }
             else result = await _ageTypeService.CreateAsync(item);
-        }catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(item);}
-        
-        return View(result);
+        }
+        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(item); }
+
+        return RedirectToAction("Create",new {itemId = result.Id});
         //return RedirectToAction("InstitutionSetting", "CRM");
     }
 
@@ -68,8 +56,9 @@ public class AgeTypeController : Controller
     {
         try
         {
-        var res = await _ageTypeService.RemoveAsync(item.Id);
-        }catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(item);}
+            var res = await _ageTypeService.RemoveAsync(item.Id);
+        }
+        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(item); }
         return RedirectToAction("InstitutionSetting", "CRM");
     }
 

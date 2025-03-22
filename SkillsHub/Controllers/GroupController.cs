@@ -2,16 +2,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SkillsHub.Application.Helpers;
-using SkillsHub.Application.Services.Implementation;
+using SkillsHub.Application.Services.Implementation.User;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
-using SkillsHub.Domain.Models;
-using SkillsHub.Helpers;
 using SkillsHub.Helpers.SearchModels;
 using SkillsHub.Persistence;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SkillsHub.Controllers;
 
@@ -27,7 +22,7 @@ public class GroupController : Controller
     private readonly ILessonService _lessonService;
     private readonly INotificationService _notificationService;
 
-    public GroupController(IGroupService groupService , ApplicationDbContext context, 
+    public GroupController(IGroupService groupService, ApplicationDbContext context,
         UserManager<ApplicationUser> userManager, IUserService userService, ILessonService lessonService,
         INotificationService notificationService)
     {
@@ -41,8 +36,8 @@ public class GroupController : Controller
 
     }
     public async Task<IActionResult> Index()
-    {   
-        var groups = await _groupService.GetAll().ToListAsync();
+    {
+        var groups =  _groupService.GetItems().ToList();
         return View(groups);
     }
 
@@ -54,8 +49,8 @@ public class GroupController : Controller
         List<Group> res = new List<Group>();
 
         var ress = await FilterMaster.FilterGroups(gr.AsQueryable(), filters, order);
-        var rerer = ress.ToList().Where(x=>!x.IsDeleted);
-        
+        var rerer = ress.ToList().Where(x => !x.IsDeleted);
+
 
 
         foreach (var group in rerer)
@@ -87,7 +82,7 @@ public class GroupController : Controller
     [HttpGet]
     public async Task<IActionResult> Create(Guid? id)
     {
-        if(id == null) return View(new Group());
+        if (id == null) return View(new Group());
 
         var group = await _groupService.GetAsync((Guid)id);
         return View(group);
@@ -111,9 +106,9 @@ public class GroupController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Create2(Group group, Guid[] studentId, string[] dayName, TimeSpan[] startTime) //del teacherValue and duration
     {
-       
+
         Group newGroup = new Group();
-        if(group != null && group.Id != Guid.Empty) newGroup = await _context.Groups.FindAsync(group.Id);        
+        if (group != null && group.Id != Guid.Empty) newGroup = await _context.Groups.FindAsync(group.Id);
 
         try
         {
@@ -129,17 +124,17 @@ public class GroupController : Controller
                 newGroup = await _groupService.UpdateAsync(group, studentId, dayName, startTime);
             }
             else
-                newGroup =  await _groupService.CreateAsync(group, studentId,dayName,startTime);
+                newGroup = await _groupService.CreateAsync(group, studentId, dayName, startTime);
 
         }
         catch (Exception ex)
         {
-            if(ex is ArgumentNullException) ModelState.AddModelError("", "Группа не может быть создана без учителя");
-            else ModelState.AddModelError("", ex.Message); 
+            if (ex is ArgumentNullException) ModelState.AddModelError("", "Группа не может быть создана без учителя");
+            else ModelState.AddModelError("", ex.Message);
             return View("Create", group);
         }
         return RedirectToAction("Item", new { id = newGroup.Id });
-       
+
     }
 
 
@@ -179,14 +174,14 @@ public class GroupController : Controller
     public async Task<IActionResult> Delete(Guid id)
     {
         var group = _context.Groups.FirstOrDefault(x => x.Id == id);
-        group.IsDeleted = true; 
+        group.IsDeleted = true;
         _context.Groups.Update(group);
-       await  _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
         return RedirectToAction("Index");
     }
 
-    [Authorize(Roles ="Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> HardDelete(Guid id)
     {
@@ -196,7 +191,8 @@ public class GroupController : Controller
 
             await _groupService.DeleteAsync(id, true);
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             try
             {
 
@@ -244,7 +240,7 @@ public class GroupController : Controller
     }
     */
 
-    
+
 
 
 }

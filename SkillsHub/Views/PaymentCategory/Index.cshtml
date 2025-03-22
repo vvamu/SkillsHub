@@ -7,7 +7,15 @@
     var items = Model.Where(x=>x.ParentId != Guid.Empty).ToList();
 }
 
+<style>
 
+    .column {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -29,7 +37,7 @@
                                     <th>Цена для студентов</th>
                                     <th>Цена для учителей</th>
 
-                                    <th>Минимальное количество занятий для оплаты</th>
+                                    <th>Кол-во занятий</th>
                                     <th>Последнее обновление</th>
                                     <th>Дата создания</th>
                                     </tr>
@@ -45,11 +53,11 @@
                                             
                                             
                                             <td>@item.Status </td>
-                                            <td>
+                                        <td class="column">
                                                 <form><a asp-action="Create" asp-controller="PaymentCategory" asp-route-itemId="@item.Id" style="color:#7571f9">  @item.Name </a></form>
                                             </td>
-                                            <td>@item.StudentDisplayName </td>
-                                            <td>@item.TeacherDisplayName </td>
+                                            <td>@item.StudentDisplayName.Replace("0000","0") </td>
+                                            <td>@item.TeacherDisplayName.Replace("0000","0") </td>
                                             <td>@item.MinCountLessonsToPay</td>
                                             <td>@item.DateCreated</td>
                                             <td>@item.DateRegistration </td>
@@ -64,7 +72,7 @@
                                     <th>Цена для студентов</th>
                                     <th>Цена для учителей</th>
                                     
-                                    <th>Минимальное количество занятий для оплаты</th>
+                                    <th>Кол-во занятий</th>
                                     <th>Последнее обновление</th>
                                     <th>Дата создания</th>
                                 </tr>

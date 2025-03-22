@@ -4,13 +4,7 @@
 //using CM.Text.BusinessMessaging.Model.MultiChannel;
 
 
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Viber.Bot;
-using System.Diagnostics;
 using Viber.Bot.NetCore.Models;
 
 namespace ViberMailer;
@@ -32,21 +26,21 @@ public class Mailer
 
         _viberBotClient = new ViberBotClient(_authToken);
         _viberBotClient.SetWebhookAsync(_webhookUrl);
-        
-        
+
+
         //var result = _viberBotClient.GetAccountInfoAsync();
-        
+
         var btnSubscribe = new ViberKeyboardButton();
         btnSubscribe.Text = "Subscribe";
-        
-        
+
+
         //btnSubscribe.ActionType = KeyboardActionType.Reply;
         //btnSubscribe.ActionBody = "https://chatapi.viber.com/pa/set_webhook";
-        
+
 
     }
 
-    public async Task SendMessage(string message="hello")
+    public async Task SendMessage(string message = "hello")
     {
         var result = await _viberBotClient.SendTextMessageAsync(new Viber.Bot.TextMessage
         {

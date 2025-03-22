@@ -15,7 +15,7 @@ public class GroupType : LessonTypePropertyModel<GroupType>
         {
             var res = Name;
             if (MinimumStudents == MaximumStudents) res += " (" + MinimumStudents + " students)";
-            else res += " (" + MinimumStudents + " - " + MaximumStudents + " students)"; 
+            else res += " (" + MinimumStudents + " - " + MaximumStudents + " students)";
             return res;
         }
     }
@@ -26,7 +26,7 @@ public class GroupType : LessonTypePropertyModel<GroupType>
         get
         {
             var res = Name + " ";
-            if (MinimumStudents == MaximumStudents) res +=  MinimumStudents + " студента(ов)";
+            if (MinimumStudents == MaximumStudents) res += MinimumStudents + " студента(ов)";
             else res += " " + MinimumStudents + " - " + MaximumStudents + " студента(ов)";
             return res;
         }

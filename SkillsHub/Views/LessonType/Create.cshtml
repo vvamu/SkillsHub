@@ -221,10 +221,10 @@
                                         <label class="col-lg-4 col-form-label" for="val-skill">
                                             Длительность курса<span class="text-danger">*</span>
                                         </label>
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-3">
                                             <input class="form-control" asp-for="@item.DurationTypeValue" min="1"  required />
                                         </div>
-                                        <div class="col-lg-4">
+                                        <div class="col-lg-3">
                                             <select class="form-select" asp-for="@item.DurationTypeName">
                                                 <option value="lesson" selected>Занятие</option>
                                                 <!--<option value="month" selected>Месяц</option>-->
@@ -235,11 +235,11 @@
                                         <label class="col-lg-4 col-form-label" for="val-skill">
                                             Частота занятий<span class="text-danger">*</span>
                                         </label>
-                                        <div class="col-lg-4" style="display:flex;align-content:center;justify-content:center">
+                                        <div class="col-lg-3" style="display:flex;align-content:center;justify-content:center">
                                             <input class="form-control" asp-for="@item.FrequencyValue" min="1"  required />       
                                         </div>
                                         
-                                        <div class="col-lg-4">    
+                                        <div class="col-lg-3">    
                                             <select class="form-select" asp-for="@item.FrequencyName">
                                                 <option value="week" selected>В неделю</option>
                                                 <!--<option value="month" selected>Месяц</option>-->
@@ -298,7 +298,7 @@
                                             <input class="form-control" type="text" asp-for="@item.Description" placeholder="Обучающиеся смогут начать читать, понимать и ..." />
                                         </div>
                                     </div>
-                                    <div class="form-group row">
+                                    @* <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
                                             Проверять при создании группы
                                         </label>
@@ -330,7 +330,7 @@
                                         <div class="col-lg-3">
                                             Возраст учеников
                                         </div>
-                                    </div>
+                                    </div> *@
 
                                     <input type="submit" asp-action="Create" asp-controller="LessonType" formmethod="post" class="btn login-form__btn submit w-100" value="@resText" />
                                  </form>
@@ -415,7 +415,7 @@
         let selectedCategories = "";
         $("input[name='paymentCategories']:checked").each(function () {
             let categoryDisplayName = $(this).closest('li').find('label').text().trim();
-            selectedCategories += categoryDisplayName + "\n";
+            selectedCategories += categoryDisplayName.split(';')[0].trim() + "; ";
         });
 
         // If no items are selected, display the default text

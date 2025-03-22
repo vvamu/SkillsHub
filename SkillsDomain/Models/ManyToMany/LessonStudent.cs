@@ -4,9 +4,11 @@ namespace SkillsHub.Domain.Models;
 
 public class LessonStudent : BaseEntity
 {
-    public Lesson Lesson { get; set; } public Guid LessonId { get; set; }
-    public Student Student { get; set; } public Guid StudentId { get; set; }
-    public int VisitStatus { get;set; }  //1 - Visited 2 - Missed without saving lesson 3 - Missed  with saving lesson 
+    public Lesson Lesson { get; set; }
+    public Guid LessonId { get; set; }
+    public Student Student { get; set; }
+    public Guid StudentId { get; set; }
+    public int VisitStatus { get; set; }  //1 - Visited 2 - Missed without saving lesson 3 - Missed  with saving lesson 
     public string LessonType { get; set; } = "Default"; //Отработка/Занятие/Групповое/Trial
 
     public string? Comment { get; set; }
@@ -14,10 +16,10 @@ public class LessonStudent : BaseEntity
     public double Grade { get; set; }
     public string? VisitStatusTextRu
     {
-        get 
-        { 
-        
-            if(Lesson != null && Lesson.IsСompleted)
+        get
+        {
+
+            if (Lesson != null && Lesson.IsСompleted)
             {
 
                 return VisitStatus switch
@@ -27,7 +29,7 @@ public class LessonStudent : BaseEntity
                     3 => "Пропустит с сохранением урока",
                     _ => "Неизвестный статус",
                 };
-            
+
             }
             return VisitStatus switch
             {

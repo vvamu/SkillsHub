@@ -1,7 +1,6 @@
 ﻿using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models.NotInUse;
 using SkillsHub.Persistence;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SkillsHub.Domain.Models;
@@ -17,8 +16,9 @@ public class Lesson : LogModel<Lesson>
     public LessonTeacher? Teacher
     {
         get
-        { if (Teachers == null) return null;
-          return Teachers.Where(x=>!x.IsDeleted).OrderByDescending(x=>x.DateCreated).FirstOrDefault();
+        {
+            if (Teachers == null) return null;
+            return Teachers.Where(x => !x.IsDeleted).OrderByDescending(x => x.DateCreated).FirstOrDefault();
         }
     }
     [NotMapped]
@@ -116,7 +116,9 @@ public class Lesson : LogModel<Lesson>
         }
     }
 
-    public string? IsCompletedTextRu { get
+    public string? IsCompletedTextRu
+    {
+        get
         {
             var res = "завершено";
             if (IsСompleted) return res;

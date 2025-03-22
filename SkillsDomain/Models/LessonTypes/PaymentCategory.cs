@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillsHub.Domain.BaseModels;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkillsHub.Domain.Models;
 
@@ -34,9 +29,9 @@ public class PaymentCategory : LogModel<PaymentCategory>
 
         PaymentCategory other = (PaymentCategory)obj;
         return Name == other.Name ||
-               ( StudentPrice == other.StudentPrice &&
+               (StudentPrice == other.StudentPrice &&
                TeacherPrice == other.TeacherPrice &&
-               DurationTypeTeacherName == other.DurationTypeTeacherName 
+               DurationTypeTeacherName == other.DurationTypeTeacherName
                && DurationTypeTeacherValue == other.DurationTypeTeacherValue &&
                DurationTypeStudentName == other.DurationTypeStudentName &&
                DurationTypeStudentValue == other.DurationTypeStudentValue
@@ -77,16 +72,17 @@ public class PaymentCategory : LogModel<PaymentCategory>
     public string? FullDisplayName
     {
         get
-        {   if (DurationTypeStudentName == DurationTypeTeacherName && CurrencyStudent == CurrencyTeacher)
+        {
+            if (DurationTypeStudentName == DurationTypeTeacherName && CurrencyStudent == CurrencyTeacher)
                 return Name + " - Цена студента/учителя " + StudentPrice + "/" + TeacherPrice + $" {CurrencyStudent} за {RuDurationTypeStudentName}";
             else return $"Цена студента: {StudentDisplayName} ; Цена учителя: {TeacherDisplayName}";
         }
     }
     [NotMapped]
-    public string? StudentDisplayName { get => $"{StudentPrice} {CurrencyStudent} {DurationTypeStudentValue} за {RuDurationTypeStudentName}"; }
+    public string? StudentDisplayName { get => $"{StudentPrice} {CurrencyStudent} - {DurationTypeStudentValue} {RuDurationTypeStudentName}"; }
 
     [NotMapped]
-    public string? TeacherDisplayName { get => $"{TeacherPrice} {CurrencyTeacher} {DurationTypeTeacherValue} за {RuDurationTypeTeacherName}"; }
+    public string? TeacherDisplayName { get => $"{TeacherPrice} {CurrencyTeacher} - {DurationTypeTeacherValue} {RuDurationTypeTeacherName}"; }
 
 
     [NotMapped]

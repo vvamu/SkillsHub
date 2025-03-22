@@ -1,10 +1,5 @@
 ﻿using SkillsHub.Domain.BaseModels;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkillsHub.Domain.Models;
 
@@ -14,12 +9,18 @@ public class LessonType : LogModel<LessonType>
     public string? Description { get; set; }
     public bool IsActive { get; set; }
     public int LessonTimeInMinutes { get; set; }
-    public string? FrequencyName { get; set; } public int FrequencyValue { get; set; }
-    public string? DurationTypeName { get; set; } public int DurationTypeValue { get; set; }
-    public Course? Course { get; set; } public Guid? CourseId { get; set; }
-    public GroupType? GroupType { get; set; } public Guid? GroupTypeId { get; set; }
-    public Location? Location { get; set; } public Guid? LocationId { get; set; }
-    public AgeType? AgeType { get; set; } public Guid? AgeTypeId { get; set; }
+    public string? FrequencyName { get; set; }
+    public int FrequencyValue { get; set; }
+    public string? DurationTypeName { get; set; }
+    public int DurationTypeValue { get; set; }
+    public Course? Course { get; set; }
+    public Guid? CourseId { get; set; }
+    public GroupType? GroupType { get; set; }
+    public Guid? GroupTypeId { get; set; }
+    public Location? Location { get; set; }
+    public Guid? LocationId { get; set; }
+    public AgeType? AgeType { get; set; }
+    public Guid? AgeTypeId { get; set; }
 
     public List<LessonTypePaymentCategory>? LessonTypePaymentCategory { get; set; }
 
@@ -30,7 +31,7 @@ public class LessonType : LogModel<LessonType>
 
     //public int CountScheduleDays { get; set; }
 
-    public bool CheckGroupType {  get; set; }
+    public bool CheckGroupType { get; set; }
     public bool CheckAgeType { get; set; }
     public bool CheckCountScheduleDays { get; set; }
     [NotMapped]
@@ -60,7 +61,7 @@ public class LessonType : LogModel<LessonType>
             if (IsUnlimitedLessonsCount) return "Пока не уйдет учитель :) ";
             switch (DurationTypeName)
             {
-                case "lesson": return $"{DurationTypeValue} занятий ({LessonTimeInMinutes*DurationTypeValue} минут)";
+                case "lesson": return $"{DurationTypeValue} занятий ({LessonTimeInMinutes * DurationTypeValue} минут)";
 
             }
             return "Не определена";
@@ -69,10 +70,11 @@ public class LessonType : LogModel<LessonType>
 
     public string RuFrequencyName
     {
-        get {
+        get
+        {
             if (FrequencyName == "week") return "неделя";
             else return "не определено";
-        } 
+        }
     }
 
 
@@ -84,9 +86,9 @@ public class LessonType : LogModel<LessonType>
             var result = "";
             if (CheckGroupType || CheckAgeType || CheckCountScheduleDays) result = "Обязательно соблюдать: ";
             if (CheckGroupType) result += GroupType?.DisplayName?.Replace("(", "").Replace(")", "") + " ; ";
-            
-            if (CheckAgeType) result += " "  + AgeType?.DisplayName?.Replace("(", "").Replace(")", "") + " ; ";
-            if (CheckCountScheduleDays) result += " " + RuFrequencyName +  $" - {FrequencyValue}  занятие  " ;
+
+            if (CheckAgeType) result += " " + AgeType?.DisplayName?.Replace("(", "").Replace(")", "") + " ; ";
+            if (CheckCountScheduleDays) result += " " + RuFrequencyName + $" - {FrequencyValue}  занятие  ";
             return result;
         }
     }
@@ -113,15 +115,16 @@ public class LessonType : LogModel<LessonType>
         }
     }
 
-    
+
 
     [NotMapped]
-    public int GroupsCount 
-    { get 
+    public int GroupsCount
+    {
+        get
         {
-            if(Groups == null) return 0;
+            if (Groups == null) return 0;
             else return Groups.Count;
-        } 
+        }
     }
 
 
@@ -169,8 +172,8 @@ public class LessonType : LogModel<LessonType>
     }
 
 
-    
-    
+
+
     /*
     public decimal StudentPricePerCource => StudentPrice * MinumumLessonsToPay;
     public decimal TeacherPricePerCource => TeacherPrice * MinumumLessonsToPay;

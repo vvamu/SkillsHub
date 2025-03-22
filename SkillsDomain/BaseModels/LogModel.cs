@@ -1,20 +1,16 @@
-﻿using Newtonsoft.Json.Linq;
-using SkillsHub.Domain.Models;
-using SkillsHub.Domain.Models;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SkillsHub.Domain.BaseModels;
 
 public abstract class LogModel<T> : BaseEntity
 {
-    public T? Parent {  get; set; }
+    public T? Parent { get; set; }
     public Guid? ParentId { get; set; }
     public string? Name { get; set; }
     public DateTime? DateRegistration { get; set; }
 
     public DateTime? DateCreated { get; set; }
-    
+
     [NotMapped]
     public List<T>? Parents { get; set; }
 

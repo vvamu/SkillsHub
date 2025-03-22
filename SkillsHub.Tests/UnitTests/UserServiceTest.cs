@@ -1,26 +1,12 @@
-using NUnit.Framework;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Implementation;
+using SkillsHub.Application.Services.Implementation.User;
 using SkillsHub.Application.Services.Interfaces;
+using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
 using SkillsHub.Persistence;
-using Moq;
-using SkillsHub.Application.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using SkillsHub.Application.Helpers;
-using ICourseService = SkillsHub.Application.Helpers.AbstractLessonTypeLogModelService<SkillsHub.Domain.Models.Course>;
-using SkillsHub.Domain.BaseModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using AutoMapper;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using SkillsHub.Application.DTO;
-using AutoFixture;
 
 namespace SkillsHub.Tests.UnitTests;
 
@@ -28,8 +14,8 @@ namespace SkillsHub.Tests.UnitTests;
 [TestFixture]
 public class UserServiceTest
 {
-    private  UserService _mockUserService;
-    private  ApplicationDbContext _mockContext;
+    private UserService _mockUserService;
+    private ApplicationDbContext _mockContext;
 
     [SetUp]
     public void Setup()
@@ -39,13 +25,13 @@ public class UserServiceTest
             {
                 services.AddAutoMapper(typeof(MappingProfile).Assembly);
                 services.AddTransient<IUserService, UserService>();
-                services.AddTransient<IExternalService, ExternalService>();
+                //services.AddTransient<IExternalService, ExternalService>();
                 //services.AddTransient<ICourcesService, CourcesService>();
                 services.AddScoped<IGroupService, GroupService>();
-                services.AddTransient<IRequestService, RequestService>();
+                //services.AddTransient<IRequestService, RequestService>();
                 services.AddTransient<INotificationService, NotificationService>();
                 services.AddScoped<ILessonService, LessonService>();
-                services.AddScoped<ISalaryService, SalaryService>();
+                //services.AddScoped<ISalaryService, SalaryService>();
                 services.AddScoped<IBaseUserInfoService, BaseUserInfoService>();
                 services.AddScoped<IApplicationUserBaseUserInfoService, ApplicationUserBaseUserInfoService>();
 
@@ -56,15 +42,15 @@ public class UserServiceTest
                 services.AddScoped<IAbstractLogModel<GroupType>, GroupTypeService>();
                 services.AddScoped<IAbstractLogModel<Course>, CourseService>();
                 services.AddScoped<IAbstractLogModel<Location>, LocationService>();
-                services.AddTransient<IAbstractLogModel<LessonTypeStudent>, LessonTypeStudentService>();
-                services.AddTransient<IAbstractLogModel<LessonTypeTeacher>, LessonTypeTeacherService>();
-                services.AddTransient<IUserRoleModelService<Student>, StudentService>();
-                services.AddTransient<IUserRoleModelService<Teacher>, TeacherService>();
+                //services.AddTransient<IAbstractLogModel<LessonTypeStudent>, LessonTypeStudentService>();
+                //services.AddTransient<IAbstractLogModel<LessonTypeTeacher>, LessonTypeTeacherService>();
+                //services.AddTransient<IUserRoleModelService<Student>, StudentService>();
+                //services.AddTransient<IUserRoleModelService<Teacher>, TeacherService>();
             })
         .Build();
 
-     
-        
+
+
         var newUser = new Application.DTO.UserCreateDTO();
         IQueryable<ApplicationUser> _items = new List<ApplicationUser>().AsQueryable();
 
@@ -77,7 +63,7 @@ public class UserServiceTest
     public async Task GetUserdByIdAsync_returns_user()
     {
 
-        
+
         //var users =await _mockUserService.Object.GetAllAsync();
         //var usersDb = await _mockContext.ApplicationUsers.ToListAsync();
         //var u = users.ToList();
@@ -121,7 +107,7 @@ public class UserServiceTest
         ////_mockUserService.Setup(repo => repo.GetUserByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new ApplicationUser());
         ////_mockUserService.Setup(repo => repo.CreateUserAsync(It.IsAny<UserCreateDTO>())).ReturnsAsync(new ApplicationUser());
 
-       
+
         //var userCreated = await _mockUserService.CreateUserAsync(newUser);
 
         //Assert.IsNotNull(userCreated);

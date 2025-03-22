@@ -1,18 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using SkillsHub.Domain.Models;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
+using System.Data;
 
 namespace SkillsHub.Domain.BaseModels;
 
 public class ApplicationUser : IdentityUser<Guid>
 {
-    public string Login { get; set; } //unique
-    public override string? UserName { get; set; }
-
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 
@@ -27,25 +23,28 @@ public class ApplicationUser : IdentityUser<Guid>
     [DefaultValue("CONVERT(date, GETDATE())")]
     public DateTime? RegistrationDate { get; set; } = DateTime.Now;
 
-    public List<ExternalConnection>? ExternalConnections { get => UserInfo?.ExternalConnections; }
     public List<NotificationUser>? Notifications { get; set; }
     public List<UserWorkingDay>? UserWorkingDays { get; set; }
 
     public string OwnHashedPassword { get; set; }
     [DefaultValue("0")]
     public bool IsDeleted { get; set; } = false;
-    [ForeignKey("UserTeacherId")] public virtual Teacher? UserTeacher { get; set; }   public Guid? UserTeacherId { get; set; }
-    [ForeignKey("UserStudentId")] public virtual Student? UserStudent { get; set; }  public Guid? UserStudentId { get; set; }
+    [ForeignKey("UserTeacherId")] public virtual Teacher? UserTeacher { get; set; }
+    public Guid? UserTeacherId { get; set; }
+    [ForeignKey("UserStudentId")] public virtual Student? UserStudent { get; set; }
+    public Guid? UserStudentId { get; set; }
 
 
     #region NotMapped
 
     [NotMapped]
-    public string? Roles { get; set; }
+    public string? RolesString { get => Roles == null ? "" : String.Join(";", Roles); }
+    [NotMapped]
+    public string[]? Roles { get; set; }
 
     [NotMapped]
     public string? Password { get; set; } //?
-    
+
     [DefaultValue("0")]
     public bool IsVerified { get; set; } = false; //need to del
 
@@ -55,7 +54,7 @@ public class ApplicationUser : IdentityUser<Guid>
     [NotMapped]
     public BaseUserInfo? UserInfo
     {
-        get => ConnectedUsersInfo?.FirstOrDefault(x => x.IsBase == true)?.BaseUserInfo;
+        get => ConnectedUsersInfo?.OrderByDescending(x=>x.DateCreated).FirstOrDefault(x => x.IsBase == true)?.BaseUserInfo;
         /*
         set
         {
@@ -65,19 +64,19 @@ public class ApplicationUser : IdentityUser<Guid>
     }
 
     [NotMapped]
-    public string? FullName { get => $"{UserInfo?.FullName}";}
+    public string? FullName { get => $"{UserInfo?.FullName}"; }
 
     //-----
     [NotMapped]
     public string? FirstName { get => UserInfo?.FirstName; }
     [NotMapped]
-    public string? LastName { get => UserInfo?.LastName; }
+    public string? MiddleName { get => UserInfo?.MiddleName; }
     [NotMapped]
     public string? Surname { get => UserInfo?.Surname; }
     [NotMapped]
     public string? Sex { get => UserInfo?.Sex; }
     [NotMapped]
-    public DateTime BirthDate { get { if (UserInfo == null) return DateTime.Now; else return UserInfo.BirthDate; }  }
+    public DateTime BirthDate { get { if (UserInfo == null) return DateTime.Now; else return UserInfo.BirthDate; } }
 
     [NotMapped]
     public string? Phones { get => UserInfo?.Phones; }
@@ -93,7 +92,7 @@ public class ApplicationUser : IdentityUser<Guid>
     public string? Phone { get => UserInfo?.Phone; set { var one = UserInfo?.PhonesArray.First(); one = value; } }
 
     #endregion
-    
+
 
 }
 

@@ -1,6 +1,4 @@
 ﻿using SkillsHub.Domain.BaseModels;
-using SkillsHub.Domain.Models;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SkillsHub.Domain.Models;
 

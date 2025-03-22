@@ -1,20 +1,16 @@
 ﻿using AutoMapper;
 using EmailProvider.Interfaces;
 using EmailProvider.Models;
-using MailKit.Search;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.DTO;
-using SkillsHub.Application.Services;
-using SkillsHub.Application.Services.Implementation;
+using SkillsHub.Application.Services.Implementation.User;
 using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
-using SkillsHub.Helpers;
 using SkillsHub.Helpers.SearchModels;
 using SkillsHub.Persistence;
-using static NuGet.Packaging.PackagingConstants;
 
 namespace SkillsHub.Controllers;
 
@@ -25,27 +21,25 @@ public class AccountController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IGroupService _groupService;
-    private readonly ISalaryService _salaryService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILessonService _lessonService;
-    private readonly IApplicationUserBaseUserInfoService _applicationUserBaseUserInfoService;
+   // private readonly IApplicationUserBaseUserInfoService _applicationUserBaseUserInfoService;
     private readonly IMailService _mailService;
     private readonly INotificationService _notificationService;
 
     public AccountController(IUserService userService,
-        ApplicationDbContext context, IMapper mapper, IGroupService groupService, ISalaryService salaryService
-        ,UserManager<ApplicationUser> userManager, ILessonService lessonService, IApplicationUserBaseUserInfoService applicationUserBaseUserInfoService, 
+        ApplicationDbContext context, IMapper mapper, IGroupService groupService
+        , UserManager<ApplicationUser> userManager, ILessonService lessonService,// IApplicationUserBaseUserInfoService applicationUserBaseUserInfoService,
         INotificationService notificationService
-        ,IMailService mailService)
+        , IMailService mailService)
     {
         _userService = userService;
         _context = context;
         _mapper = mapper;
         _groupService = groupService;
-        _salaryService = salaryService;
+        
         _userManager = userManager;
         _lessonService = lessonService;
-        _applicationUserBaseUserInfoService = applicationUserBaseUserInfoService;
         _mailService = mailService;
         _notificationService = notificationService;
 
@@ -64,32 +58,32 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> Item(Guid itemId, Guid id)
     {
-        
-        
+
+
         ApplicationUser? user;
         if (itemId == Guid.Empty) itemId = id;
 
-        user = await _userService.GetUserByIdAsync(itemId);
+        user = await _userService.GetById(itemId);
         if (user == null) user = await _userService.GetCurrentUserAsync();
         HttpContext.Session.SetString("page", "item");
 
         try
         {
-            if (user.UserTeacher != null)
-            {
-                
-                user.UserTeacher.MonthCalculatedPriceCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher);
-                user.UserTeacher.TotalCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher, true);
-            }
-            if (user.UserStudent != null)
-            {
-                user.UserStudent.CurrentCalculatedPrice = await _salaryService.GetStudentSalaryAsync(user.UserStudent);
-                user.UserStudent.TotalCalculatedPrice = await _salaryService.GetStudentSalaryAsync(user.UserStudent, true);
-            }
+            //if (user.UserTeacher != null)
+            //{
+
+            //    user.UserTeacher.MonthCalculatedPriceCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher);
+            //    user.UserTeacher.TotalCalculatedPrice = await _salaryService.GetTeacherSalaryAsync(user.UserTeacher, true);
+            //}
+            //if (user.UserStudent != null)
+            //{
+            //    user.UserStudent.CurrentCalculatedPrice = await _salaryService.GetStudentSalaryAsync(user.UserStudent);
+            //    user.UserStudent.TotalCalculatedPrice = await _salaryService.GetStudentSalaryAsync(user.UserStudent, true);
+            //}
         }
         catch (Exception ex) { }
 
-        return View(user);
+        return View("~/Views/Account/Item/Item.cshtml",user);
     }
 
 
@@ -100,19 +94,30 @@ public class AccountController : Controller
 
     public async Task<IActionResult> UsersTableList(UserFilterModel filters, OrderModel order)
     {
-        var users = await _userService.GetAllAsync();
-        users = await FilterMaster.FilterUsers(users, filters,order);
+        var users = await _userService.GetItems();
+        users = await FilterMaster.FilterUsers(users, filters, order);
         List<ApplicationUser> list = new List<ApplicationUser>();
-        
 
+        try
+        {
+            //var userAdmin = _context.Users.ToList().FirstOrDefault(x=>x.Id.ToString() == "7d04c9cd-9061-4457-5f45-08dd63b61760");
+            //_context.Users.Remove(userAdmin);
+            //_context.SaveChanges();
+           
+        }
+        catch(Exception ex)
+        {
+
+        }
+       
 
         if (!string.IsNullOrEmpty(filters.UserRole))
         {
-            foreach(var i in users)
+            foreach (var i in users)
             {
                 if ((await _userManager.IsInRoleAsync(i, filters.UserRole)))
                 {
-                    var us = await _userService.GetUserByIdAsync(i.Id);
+                    var us = await _userService.GetById(i.Id);
                     list.Add(us);
                 }
             }
@@ -129,7 +134,7 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> UsersList()
     {
-        var users = await _userService.GetAllAsync();
+        var users = await _userService.GetItems();
         //HttpContext.Session.SetString("page", "index");
         return PartialView("_UsersList", await users.ToListAsync());
     }
@@ -142,64 +147,57 @@ public class AccountController : Controller
     public async Task<IActionResult> Create(Guid id)
     {
         var user = await _userService.GetUserCreateDTOByIdAsync(id);
-        if (user == null) return View(new UserCreateDTO()); 
+        if (user == null) return View(new UserCreateDTO());
         return View(user);
 
     }
+    
     [HttpPost]
-    public async Task<IActionResult> Create(UserCreateDTO userCreateModel)
+    public async Task<IActionResult> Create(UserCreateDTO userCreateModel, string[] role = null)
     {
         ApplicationUser user;
-        
+
         try
         {
-            if(userCreateModel.Id != Guid.Empty)
+            if (userCreateModel.Id != Guid.Empty)
             {
-                var u = await _applicationUserBaseUserInfoService.UpdateAsync(userCreateModel, null);
-                var c = await u.FirstOrDefaultAsync(x => x.ApplicationUser.Login == userCreateModel.Login);
-                user = c?.ApplicationUser;
+                user = await _userService.UpdateAsync(userCreateModel, role.ToList());
+                //var c = await u.FirstOrDefaultAsync(x => x.ApplicationUser.UserName == userCreateModel.UserName);
+                //user = c?.ApplicationUser;
             }
             else
             {
-                var u = await _applicationUserBaseUserInfoService.CreateAsync(userCreateModel, null);
-                user = u.ApplicationUser;
-                if (userCreateModel.IsStudent)
-                {
-                    if (userCreateModel.IsTeacher) HttpContext.Session.SetString("isTeacher", "true");
-                    return RedirectToAction("Create", "Student", new { id = user.Id });
-                }
-                if (userCreateModel.IsTeacher) return RedirectToAction("Create", "Teachers", new { id = user.Id });
+                user = await _userService.CreateAsync(userCreateModel, role.ToList(), true);
+           
+                //if (userCreateModel.IsStudent)
+                //{
+                //    if (userCreateModel.IsTeacher) HttpContext.Session.SetString("isTeacher", "true");
+                //    return RedirectToAction("Create", "Student", new { id = user.Id });
+                //}
+                //if (userCreateModel.IsTeacher) return RedirectToAction("Create", "Teachers", new { id = user.Id });
             }
-            
+
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(userCreateModel); }
-                
+
         return RedirectToAction("Item", new { itemId = user.Id });
         //return View();
     }
-    /*
-    [HttpPost]
-    public async Task<IActionResult> UpdateMainBaseUserInfo(BaseUserInfo baseUserInfo)
-    {
-
-    }
-    */
     public async Task<IActionResult> WorkingSchedule(Guid? id)
     {
         if (id == null) return View(await _context.Users.FirstOrDefaultAsync());
-        
-        var user = await _userService.GetUserByIdAsync((Guid)id);
+
+        var user = await _userService.GetById((Guid)id);
         return View(user);
-        
+
     }
 
     [Route("/Account/GetWorkingScheduleAsync")]
-
     public async Task<IActionResult> GetWorkingScheduleAsync(Guid? id)
     {
         if (id == null) return View(await _context.Users.FirstOrDefaultAsync());
 
-        var user = await _userService.GetUserByIdAsync((Guid)id);
+        var user = await _userService.GetById((Guid)id);
         return Ok(user.UserWorkingDays ?? new List<UserWorkingDay>());
 
     }
@@ -208,7 +206,7 @@ public class AccountController : Controller
 
     public async Task<IActionResult> Restore(Guid id)
     {
-        var user = await _userService.GetUserByIdAsync(id);
+        var user = await _userService.GetById(id);
         user = await _userService.Restore(user);
 
         var returnUrl = HttpContext.Session.GetString("page");
@@ -223,31 +221,42 @@ public class AccountController : Controller
 
     public async Task<IActionResult> SoftDelete(Guid id)
     {
-        var user = await _userService.GetUserByIdAsync(id);
-        await _userService.SoftDeleteAsync(user);
+        await _userService.DeleteAsync(id,false);
         var returnUrl = HttpContext.Session.GetString("page");
 
         switch (returnUrl)
         {
             case "index": return RedirectToAction("Index");
-            case "item": return RedirectToAction("Item",new {id = user.Id});
-            default:return RedirectToAction("Index","CRM");
+            case "item": return RedirectToAction("Item", new { id = id });
+            default: return RedirectToAction("Index", "CRM");
         }
 
     }
 
     public async Task<IActionResult> HardDelete(Guid id)
     {
-        var user = await _userService.GetUserByIdAsync(id);
-        await _userService.HardDeleteAsync(user);
+        await _userService.DeleteAsync(id, true);
         var returnUrl = HttpContext.Session.GetString("page");
 
         switch (returnUrl)
         {
             case "index": return RedirectToAction("Index");
-            case "item": return RedirectToAction("Item", new { id = user.Id });
+            case "item": return RedirectToAction("Item", new { id = id });
             default: return RedirectToAction("Index", "CRM");
         }
+
+    }
+
+    public async Task<IActionResult> Delete(string[] multipleId, string isHardDelete = "false")
+    {
+        var result = isHardDelete == "true";
+        //return RedirectToAction("Index");
+        foreach (var i in multipleId)
+        {
+            Guid itemId;
+            if(Guid.TryParse(i,out itemId)) await _userService.DeleteAsync(itemId, result);
+        }
+        return RedirectToAction("Index");
 
     }
 
@@ -256,7 +265,7 @@ public class AccountController : Controller
     public async Task<IActionResult> GetNotifications()
     {
         var notifications = await _userService.GetCurrentUserNotifications();
-        return PartialView("_Chat", notifications.OrderByDescending(x=>x.DateCreated).ToList());
+        return PartialView("_Chat", notifications.OrderByDescending(x => x.DateCreated).ToList());
 
         //return Json(JsonSerializerToAjax.GetJsonByIQueriable(notifications));
     }
@@ -335,12 +344,12 @@ public class AccountController : Controller
     [HttpPost]
     public async Task<IActionResult> GetStudentGroupsByUser(Guid id, GroupFilterModel filters, OrderModel order)
     {
-        var user = await _userService.GetUserByIdAsync(id);
-        if (user.UserStudent == null) return PartialView("_StudentGroups", (user, new List<Group>(),new List<Lesson>()));
+        var user = await _userService.GetById(id);
+        if (user.UserStudent == null) return PartialView("~/Views/Account/Item/_StudentGroups", (user, new List<Group>(), new List<Lesson>()));
 
         var groups = user.UserStudent.Groups;
         List<Group> studentGroups = new List<Group>();
-        foreach(var gro in groups)
+        foreach (var gro in groups)
         {
             var group = await _groupService.GetAsync(gro.GroupId);
             studentGroups.Add(group);
@@ -356,19 +365,18 @@ public class AccountController : Controller
 
 
 
-        return PartialView("_StudentGroups", (user, rerer, new List<Lesson>()));
+        return PartialView("~/Views/Account/Item/_StudentGroups", (user, rerer, new List<Lesson>())); 
 
     }
 
     [HttpPost]
     public async Task<IActionResult> GetTeacherGroupsByUser(Guid id, GroupFilterModel filters, OrderModel order)
     {
-        var gr = _groupService.GetAll();
-        var user = await _userService.GetUserByIdAsync(id);
+        var user = await _userService.GetById(id);
 
-        if (user.UserTeacher == null) return PartialView("_TeacherGroups", (user, new List<Group>(), new List<Lesson>()));
+        if (user?.UserTeacher == null) return PartialView("~/Views/Account/Item/_TeacherGroups", (user, new List<Group>(), new List<Lesson>()));
 
-        var groups = user.UserTeacher.Groups.Where(x => x.Group != null && !x.Group.IsDeleted).ToList();
+        var groups = user.UserTeacher?.Groups?.Where(x => x.Group != null && !x.Group.IsDeleted).ToList();
         List<Group> teacherGroups = new List<Group>();
         foreach (var gro in groups)
         {
@@ -385,7 +393,7 @@ public class AccountController : Controller
            .Where(x => !teacherGroups.Select(x => x.Id).Contains(x.Group.Id)).ToList();*/
 
 
-        return PartialView("_TeacherGroups", (user, result, new List<Lesson>()));
+        return PartialView("~/Views/Account/Item/_TeacherGroups", (user, result, new List<Lesson>()));
 
     }
 
@@ -405,10 +413,9 @@ public class AccountController : Controller
         try
         {
             if (!ModelState.IsValid) { ModelState.AddModelError("", ModelState.Values.ToString()); return View(); }
-            await _userService.InitialCreateAsync();
             var userDb = await _userService.SignInAsync(user);
             if (userDb == null) return View();
-            return RedirectToAction("Index", "CRM");
+            return RedirectToAction("Index", "Home");
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
 
@@ -418,7 +425,7 @@ public class AccountController : Controller
     public async new Task<IActionResult> SignOut()
     {
         await _userService.SignOutAsync();
-        
+
         return RedirectToAction("Index", "Home");
 
     }

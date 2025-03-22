@@ -11,7 +11,7 @@ public class Teacher : BaseEntity
 
     public List<GroupTeacher>? Groups { get; set; }
     public List<LessonTeacher>? Lessons { get; set; }
-    public List<LessonTypeTeacher>? PossibleCources { get; set; }
+    //public List<LessonTypeTeacher>? PossibleCources { get; set; }
 
     public string? WorkingDays { get; set; }
     public decimal PaidAmount { get; set; }
@@ -19,16 +19,16 @@ public class Teacher : BaseEntity
 
     #region NotMapped
 
-    [NotMapped]
-    public List<LessonTypeTeacher>? CurrentPossibleCourses
-    {
-        get
-        {
-            if (PossibleCources == null) return null;
-            if (PossibleCources.Count < 0) return null;
-            return PossibleCources.Where(x => !x.IsDeleted && x.ParentId == null || x.ParentId == Guid.Empty).ToList();
-        }
-    }
+    //[NotMapped]
+    //public List<LessonTypeTeacher>? CurrentPossibleCourses
+    //{
+    //    get
+    //    {
+    //        if (PossibleCources == null) return null;
+    //        if (PossibleCources.Count < 0) return null;
+    //        return PossibleCources.Where(x => !x.IsDeleted && x.ParentId == null || x.ParentId == Guid.Empty).ToList();
+    //    }
+    //}
 
     [NotMapped]
     public decimal MonthCalculatedPriceCalculatedPrice { get; set; }
@@ -56,7 +56,7 @@ public class Teacher : BaseEntity
             }
             return 0;
         }
-    } 
+    }
     [NotMapped]
 
     public int TotalCountVisitedLessonsWithStatus3 { get; set; }

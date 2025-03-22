@@ -112,7 +112,7 @@
                                         if(teacherr != null)
                                         {
                                             teacherId = teacherr.ApplicationUserId;
-                                            teacherName = teacherr.ApplicationUser.FullName;
+                                            teacherName = teacherr.ApplicationUser?.FullName;
                                         }
 
                                         if (User.IsInRole("Admin") && teacherr != null)

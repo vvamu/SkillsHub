@@ -1,12 +1,5 @@
 ﻿using Moq;
-using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
-using SkillsHub.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkillsHub.Tests.UnitTests;
 
@@ -35,7 +28,7 @@ public class LessonManagerTests
 
     //    // Act
     //    //List<Lesson> existingLessons = lessonManager.GetExistingLessonsFromGroup(groupId);
-        
+
 
     //    // Assert
     //    //Assert.IsEmpty(existingLessons);

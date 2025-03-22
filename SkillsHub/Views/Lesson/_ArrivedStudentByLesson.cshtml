@@ -36,7 +36,7 @@
                                     <option value="3" selected="@(i.VisitStatus == 3)">Missed without the lesson debited</option>
                             </select>
 
-                            @i.Student.ApplicationUser.FirstName @i.Student.ApplicationUser.LastName @i.Student.ApplicationUser.Surname
+                            @i.Student.ApplicationUser.FirstName @i.Student.ApplicationUser.MiddleName @i.Student.ApplicationUser.Surname
 
                             <input type="button" class="btn btn-sm btn-danger" style="height:20px" onclick="RemoveArrivedStudent('@i.Student.ApplicationUser.Id')" />
                         </li>
@@ -65,7 +65,7 @@
 
                  <form style="display:flex">
                         <input type="checkbox" onchange="CreateArrivedStudent('@st.ApplicationUser.Id')" />
-                          @st.ApplicationUser.FirstName @st.ApplicationUser.LastName @st.ApplicationUser.Surname
+                          @st.ApplicationUser.FirstName @st.ApplicationUser.MiddleName @st.ApplicationUser.Surname
                 </form>
                 }
             }

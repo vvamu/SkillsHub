@@ -1,0 +1,197 @@
+﻿@model Course?
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
+
+@{
+    var item = Model ?? new Course();
+
+}
+<style>
+    .editCourseProperty{
+    border-color: #d3d3d3;
+    border-radius: 7px;
+    width: -webkit-fit-content
+    }
+    .textareaDesr{
+    max-width: 90%;
+    min-width: 80%;
+    height:200px;
+    min-height: 100px;
+    max-height: 350px
+    }
+</style>
+@if (string.IsNullOrEmpty(item.Name)){ return; }
+@if (!item.IsVisibleOnMainPage || string.IsNullOrEmpty(item.IdentityString)) { return; }
+
+@{
+    var itemId = item.Id.ToString();
+    var title = item.TitleToWebSite;
+    var altText = item.IdentityString.Trim().Replace("@0x.jpg", "").Replace(".jpg", "").Replace(".jpeg", "").Replace(".png", "");
+
+    var divId = "div" + item.Id.ToString();
+    var textAreaId = "textArea" + item.Id.ToString();
+    var beforeImageId = "beforeImage" + item.Id.ToString();
+    var beforeTitleId = "beforeTitle" + item.Id.ToString();
+
+    var linkToCourse = "linkToCourse" + item.Id.ToString();
+
+    var additionalContent = "additionalContent" + item.Id.ToString();
+    var containerCourse = "containerCourse" + item.Id.ToString();
+    var formId = "form" + item.Id.ToString();
+    var imgId = "img" + item.Id.ToString();
+    var uploadFileId = "uploadFile" + item.Id.ToString();
+    var jQueryUploadFileId =  "#uploadFile" + item.Id.ToString();
+
+}
+
+<!--  Cources For Adults  -->
+<div id="@linkToCourse"></div>
+<div class="row gy-4 p-3 align-items-center features-item containerCourse" data-aos="fade-up" style="margin-top: 20px; margin-bottom:20px; " id="@containerCourse">
+    @*  if (User.IsInRole("Admin"))
+        {
+    <div style="display:flex;justify-content:space-between;min-height:30px">
+        <p></p>
+
+            <button><svg style="width:15px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zm151 118.3C226 97.7 269.5 80 320 80c65.2 0 118.8 29.6 159.9 67.7C518.4 183.5 545 226 558.6 256c-12.6 28-36.6 66.8-70.9 100.9l-53.8-42.2c9.1-17.6 14.2-37.5 14.2-58.7c0-70.7-57.3-128-128-128c-32.2 0-61.7 11.9-84.2 31.5l-46.1-36.1zM394.9 284.2l-81.5-63.9c4.2-8.5 6.6-18.2 6.6-28.3c0-5.5-.7-10.9-2-16c.7 0 1.3 0 2 0c44.2 0 80 35.8 80 80c0 9.9-1.8 19.4-5.1 28.2zm9.4 130.3C378.8 425.4 350.7 432 320 432c-65.2 0-118.8-29.6-159.9-67.7C121.6 328.5 95 286 81.4 256c8.3-18.4 21.5-41.5 39.4-64.8L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5l-41.9-33zM192 256c0 70.7 57.3 128 128 128c13.3 0 26.1-2 38.2-5.8L302 334c-23.5-5.4-43.1-21.2-53.7-42.3l-56.1-44.2c-.2 2.8-.3 5.6-.3 8.5z" /></svg></button>
+
+    </div>
+    } *@
+
+    <div class="col-md-5 order-1 order-md-2" style="align-self:baseline;display:flex" id="@beforeImageId">
+
+        @if (User.IsInRole("Admin") && item.IsEditMode)
+        {
+            <form id="@formId" >
+
+                <img src="@item.PathToImage.ToString()" class="img-fluid" alt="@altText" id="@imgId" style="border:2px solid #5d88a3;border-radius:5px">
+                <button type="button" onclick="uploadImage('@jQueryUploadFileId','@itemId')">Upload image</button> <!--style="margin:-17.6%"-->
+            </form>
+           
+            <div>
+                <div style="border-radius:5px; position:absolute;margin:-2px -353px;display:flex">
+                    <input type="file" id="@uploadFileId" class="form-control col-lg-4 d-flex justify-content-center" accept=".png, .jpeg, .jpg" id="imgInp" onchange="loadFile(event,'@imgId')" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <img src="@item.PathToImage.ToString()" class="img-fluid" alt="@altText" id="@altText">
+        }
+       
+    </div>
+    <div class="col-md-7 order-2 order-md-1" id="@beforeTitleId">
+        <div style="display:flex;justify-content:space-between">
+            <h3>@title</h3>
+           
+        </div>
+        
+        <p class="fs-1">@item.Description</p>
+        <div class="list-conditions" id="@divId" style="font-size: 17px;">
+
+            @if (User.IsInRole("Admin") && item.IsEditMode)
+            {
+
+                <button onclick='getResult("@item.Id.ToString()")'>change to result view</button><br/>
+                <textarea class="textareaDesr" type='text' id="@textAreaId" >@item.DescriptionOnMainPage
+                </textarea>
+
+            }
+            else
+            {
+                @item.DescriptionOnMainPageHtml
+                @* <li>- Групповой формат <span>(до 8 человек)</li>
+                    <li>- Онлайн/оффлайн</li>
+                    <li>- Занятия проводятся 2 раза в неделю по 70 минут</li>
+                    <br />
+                    <li>- Индивидуальный формат</li>
+                    <li>- Онлайн/оффлайн</li>
+                    <li>- Занятия проводятся по 60 минут</li>
+                    <hr/>
+                    <li>- Длительность зависит от скорости обучения учеников</li> *@
+            }
+            <!--<li>- Групповые абонементы от занятий ((groupEnglishLT.StudentTotalCoursePrice)р)</li>-->
+            <!--
+            <li>
+            - Цена группового/индивидуального занятия: groupEnglishLT.StudentPricePerLesson р/individualEnglishLT.StudentPricePerLesson р
+            </li>
+            -->
+
+
+
+        </div>
+        <div id="@additionalContent"></div>
+        
+
+        <div>
+            @{
+                var textInBtn = item.PositionOnSite == "right" ? "Попробовать" : "Записаться";
+            }
+                 <a type="button" href="#booking" class="btn btn-primary">@textInBtn</a>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script type="text/javascript">
+
+        
+
+        let modelName = '@item.DisplayName';
+        let tempElement = document.createElement("div");
+        tempElement.innerHTML = modelName;
+        let decodedModelName = tempElement.innerText;
+
+        if (decodedModelName.toLowerCase().includes("английский") && decodedModelName.toLowerCase().includes("взросл")) {
+            let element = document.getElementById("английский-взросл-описание");
+            let id = "@additionalContent"
+            let additionalContent = document.getElementById(id)
+            additionalContent.innerHTML += element.innerHTML;
+            //element.style.contentVisibility = 'visible';
+        }
+
+        if (decodedModelName.toLowerCase().includes("английский") && decodedModelName.toLowerCase().includes("дет")) {
+            let element3 = document.getElementById("английский-дет-описание");
+            let additionalContent = document.getElementById("@additionalContent")
+            additionalContent.innerHTML += element3.innerHTML;
+            //element3.style.contentVisibility = 'visible';
+        }
+
+        if (decodedModelName.toLowerCase().includes("программирование") && decodedModelName.toLowerCase().includes("дет")) {
+            let element3 = document.getElementById("программирование-дет-описание");
+            let additionalContent = document.getElementById("@additionalContent")
+            additionalContent.innerHTML += element3.innerHTML;
+            //element3.style.contentVisibility = 'visible';
+        }
+
+
+        let modelPosition = '@item.PositionOnSite';
+        tempElement = document.createElement("div");
+        tempElement.innerHTML = modelPosition;
+        let decodedModelPosition = tempElement.innerText;
+
+        if (decodedModelPosition.toLowerCase().includes("left")) {
+            let element2 = document.getElementById("@beforeImageId");
+       
+            element2.classList.remove("order-1");
+            element2.classList.remove("order-md-2");
+
+        }
+  
+        // if("User.IsInRole("Admin")".toLowerCase() == "true") {
+        //     let element2 = document.getElementById("containerCourse");
+        //     let image = document.getElementById("altText")
+
+        //     image.style.border = "2px solid #5d88a3";
+        //     image.style.borderRadius = "5px";
+
+        // }
+
+       
+
+           
+
+              
+    
+    </script>

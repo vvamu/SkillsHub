@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Spire.Xls;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using DataTable = System.Data.DataTable;
 
 namespace SkillsHub.Application.Helpers;
@@ -16,9 +11,9 @@ public static class Reporter
         {
             var options = new JsonSerializerSettings()
             {
-                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                 NullValueHandling = NullValueHandling.Ignore,
-                 
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore,
+
             };
             var jsonEntities = JsonConvert.SerializeObject(entities, options);
             var dt = (DataTable)JsonConvert.DeserializeObject(jsonEntities, typeof(DataTable));

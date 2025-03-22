@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using SkillsHub.Application.Services.Implementation;
-using SkillsHub.Application.Services.Interfaces;
+﻿using SkillsHub.Application.Services.Interfaces;
 using SkillsHub.Domain.BaseModels;
 using SkillsHub.Persistence;
 
@@ -82,7 +78,7 @@ public class RepeatingService : BackgroundService
     {
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
-       // _context = context;
+        // _context = context;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -97,11 +93,11 @@ public class RepeatingService : BackgroundService
         }
         if (stoppingToken.IsCancellationRequested)
         {
-            
+
         }
     }
 
-  
+
 
     public async Task CompleteLessons()
     {
@@ -113,7 +109,7 @@ public class RepeatingService : BackgroundService
 
             _context.Groups.ToList();
             _context.Teachers.ToList();
-            _context.ApplicationUsers.ToList();
+            _context.Users.ToList();
 
             Lesson lessonR = null;
             foreach (var lesson in _context.Lessons.Where(x => x.IsDeleted == false))
@@ -125,12 +121,12 @@ public class RepeatingService : BackgroundService
                     await _context.SaveChangesAsync();
 
                 }
-            if (lessonR == null ||lessonR.Group == null) return;
+            if (lessonR == null || lessonR.Group == null) return;
 
             List<ApplicationUser> usersToSend = new List<ApplicationUser>();
             var group = lessonR.Group;
 
-            foreach(var teacher in group.GroupTeachers.Select(x=>x.Teacher).Select(x=>x.ApplicationUser))
+            foreach (var teacher in group.GroupTeachers.Select(x => x.Teacher).Select(x => x.ApplicationUser))
             {
                 usersToSend.Add(teacher);
                 var message = "In group " + group.Name + " lesson by time " +
@@ -141,7 +137,7 @@ public class RepeatingService : BackgroundService
             }
 
             //var admins = _userManager.GetUsersInRoleAsync("Admin").Result; usersToSend.AddRange(admins);
-            
+
         }
     }
 
@@ -154,11 +150,11 @@ public class RepeatingService : BackgroundService
             var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var _groupService = scope.ServiceProvider.GetRequiredService<IGroupService>();
 
-            var groups = _groupService.GetAll().Where(x=>x.IsUnlimitedLessonsCount);
+            var groups = _groupService.GetItems().Where(x => x.IsUnlimitedLessonsCount);
 
-            foreach(var group in groups)
+            foreach (var group in groups)
             {
-                if(group.Lessons.Where(x=>x.IsСompleted == false).Count() < 10)
+                if (group.Lessons.Where(x => x.IsСompleted == false).Count() < 10)
                 {
                     DateTime DateStart = DateTime.Now;
                     if (group.Lessons != null && group.Lessons.Count != 0)
@@ -166,7 +162,7 @@ public class RepeatingService : BackgroundService
                         DateStart = group.Lessons.OrderByDescending(x => x.EndTime).FirstOrDefault().EndTime.AddDays(1); //Where(x=>x.EndTime <  DateTime.Now)
                     }
 
-                   await _groupService.CreateLessonsBySchedule(group.DaySchedules, DateStart, 1,group, true);
+                    await _groupService.CreateLessonsBySchedule(group.DaySchedules, DateStart, 1, group, true);
                 }
             }
         }

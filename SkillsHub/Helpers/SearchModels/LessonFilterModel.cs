@@ -1,16 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SkillsHub.Application.DTO;
-using System.Linq;
-
-namespace SkillsHub.Helpers.SearchModels;
+﻿namespace SkillsHub.Helpers.SearchModels;
 public class LessonFilterModel
 {
     public string? Topic { get; set; }
     public Guid TeacherId { get; set; }
     public Guid StudentId { get; set; }
     public Guid GroupId { get; set; }
-    public string? Category {  get; set; }
+    public string? Category { get; set; }
     public DateTime? MinDateCreated { get; set; }
 
 

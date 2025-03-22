@@ -1,26 +1,9 @@
-using NUnit.Framework;
-using SkillsHub.Application.Services.Implementation;
-using SkillsHub.Application.Services.Interfaces;
-using SkillsHub.Domain.Models;
-using SkillsHub.Persistence;
-using Moq;
-using SkillsHub.Application.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using SkillsHub.Application.Helpers;
-using ICourseService = SkillsHub.Application.Helpers.AbstractLessonTypeLogModelService<SkillsHub.Domain.Models.Course>;
-using SkillsHub.Domain.BaseModels;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using AutoMapper;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using SkillsHub.Application.DTO;
-using AutoFixture;
+using Microsoft.AspNetCore.Identity;
+using Moq;
+using SkillsHub.Application.Services.Implementation;
+using SkillsHub.Domain.BaseModels;
+using SkillsHub.Persistence;
 
 namespace SkillsHub.Tests.UnitTests;
 

@@ -1,21 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NuGet.Frameworks;
-using NuGet.Protocol;
-using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Implementation;
+using SkillsHub.Application.Services.Implementation.User;
 using SkillsHub.Application.Services.Interfaces;
-using SkillsHub.Domain.Models;
 using SkillsHub.Helpers;
 using SkillsHub.Helpers.SearchModels;
 using SkillsHub.Persistence;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using System.Web;
 
 namespace SkillsHub.Controllers;
@@ -25,19 +17,19 @@ public class LessonController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IUserService _userService;
-    private readonly IRequestService _requestService;
     private readonly INotificationService _notificationService;
     private readonly ILessonService _lessonService;
+    private readonly IAbstractLogModelService<Student> _studentService;
     private readonly IGroupService _groupService;
 
-    public LessonController(ApplicationDbContext context, IUserService userService, IRequestService requestService, 
-        INotificationService notificationService,ILessonService lessonService, IGroupService groupService)
+    public LessonController(ApplicationDbContext context, IUserService userService, IAbstractLogModelService<Student> studentService,
+        INotificationService notificationService, ILessonService lessonService, IGroupService groupService)
     {
         _context = context;
         _userService = userService;
-        _requestService = requestService;
         _notificationService = notificationService;
         _lessonService = lessonService;
+        _studentService = studentService;
         _groupService = groupService;
     }
     [HttpGet]
@@ -51,11 +43,11 @@ public class LessonController : Controller
     [Route("/Lesson/FilterLessons")]
     public async Task<IActionResult> FilterLessons(LessonFilterModel filters, OrderModel order)
     {
-        var items =  _lessonService.GetGroupLessonsList();
+        var items = _lessonService.GetGroupLessonsList();
         //items = items.Where(x => x.Group.Id == id).Where(x => x.IsDeleted == false);
         items = await FilterMaster.GetAllLessons(items, filters, order);
-        
-       
+
+
         return PartialView("_LessonsList", items.ToList());
 
         //return View();
@@ -66,9 +58,9 @@ public class LessonController : Controller
     [Route("/Lessons/GetAllAsync")]
     public async Task<IActionResult> GetAllAsync()
     {
-        var items = _context.Lessons.Include(x=>x.Group).ThenInclude(x=>x.GroupTeachers)
-            .Include(x=>x.Group).ThenInclude(x=>x.GroupStudents)
-            .Include(x=>x.LessonTask)
+        var items = _context.Lessons.Include(x => x.Group).ThenInclude(x => x.GroupTeachers)
+            .Include(x => x.Group).ThenInclude(x => x.GroupStudents)
+            .Include(x => x.LessonTask)
             .AsQueryable();
 
         try
@@ -93,19 +85,19 @@ public class LessonController : Controller
     [HttpGet]
     public async Task<IActionResult> Create(Guid id)
     {
-         Lesson item = new Lesson();
+        Lesson item = new Lesson();
         var isEdit = await _context.Lessons.FindAsync(id);
         if (isEdit != null)
         {
-            item = await _lessonService.GetLastValueAsync(id,true);
-            var ku = _context.Lessons.Include(x => x.ArrivedStudents).Where(x=>x.Id == id).ToList();
+            item = await _lessonService.GetLastValueAsync(id, true);
+            var ku = _context.Lessons.Include(x => x.ArrivedStudents).Where(x => x.Id == id).ToList();
         }
         else
         {
             var group = await _groupService.GetAsync(id) ?? throw new Exception("Group not found");
             var duration = group.LessonType.LessonTimeInMinutes;
             item = new Lesson() { Group = group, GroupId = group.Id, StartTime = DateTime.Now, EndTime = DateTime.Now.AddMinutes(duration) };
-        }    
+        }
         return View("Item", item);
     }
 
@@ -116,7 +108,7 @@ public class LessonController : Controller
 
         try
         {
-            if(countLessons<1 || countLessons  > 30) { return PartialView("_MyError", "So much lessons"); }
+            if (countLessons < 1 || countLessons > 30) { return PartialView("_MyError", "So much lessons"); }
 
             var group = await _groupService.GetAsync(id);
             if (group == null) return RedirectToAction("Index", "Group");
@@ -137,7 +129,7 @@ public class LessonController : Controller
             //await _notificationService.СreateToUpdateCountLessonsInGroup(group,lessonsCount,lessonsCount+1,null);
         }
         catch (Exception ex) { }
-        return RedirectToAction("Item", "Group", new {id = id});
+        return RedirectToAction("Item", "Group", new { id = id });
     }
 
 
@@ -147,22 +139,23 @@ public class LessonController : Controller
         var lessonDb = await _context.Lessons.FindAsync(lesson.Id);
         try
         {
-            if(lessonDb != null)
+            if (lessonDb != null)
             {
-                lessonDb = await _lessonService.Edit(lesson, studentId, visitStatus,true);
+                lessonDb = await _lessonService.Edit(lesson, studentId, visitStatus, true);
             }
-            else {
+            else
+            {
                 lessonDb = await _lessonService.Create(lesson, studentId, visitStatus, true);
             }
         }
-        catch (Exception ex) 
-        { 
+        catch (Exception ex)
+        {
             ModelState.AddModelError("", ex.Message); lesson.Id = Guid.Empty;
             var groupDb = await _groupService.GetAsync((Guid)lesson.GroupId) ?? throw new Exception("Group not found");
             lesson.Group = groupDb;
-            return View("Item", lesson); 
+            return View("Item", lesson);
         }
-        
+
 
 
         return RedirectToAction("Create", "Lesson", new { id = lessonDb.Id });
@@ -186,7 +179,7 @@ public class LessonController : Controller
             {
                 try
                 {
-                    await _requestService.DeletePreviousRequests(lesson);
+                    //await _requestService.DeletePreviousRequests(lesson);
                     await _lessonService.Delete(lesson, true);
                 }
                 catch (Exception ex2) { }
@@ -196,7 +189,7 @@ public class LessonController : Controller
             catch (Exception ex) { }
         }
 
-        return RedirectToAction("Item","Group", new { id = id });
+        return RedirectToAction("Item", "Group", new { id = id });
 
     }
 
@@ -207,16 +200,16 @@ public class LessonController : Controller
         var lesson = _context.Lessons.AsNoTracking().FirstOrDefault(x => x.Id == id) ?? throw new Exception("Lesson not found");
         try
         {
-            await _requestService.DeletePreviousRequests(lesson);
+            //await _requestService.DeletePreviousRequests(lesson);
             //await _lessonService.DeleteLessonByGroup(group, lesson);
 
             await _lessonService.Delete(lesson, true);
         }
-        catch (Exception ex) { } 
+        catch (Exception ex) { }
         await _notificationService.СreateToEditLesson(lesson, null, null, 1);
-            await _context.SaveChangesAsync();
-        
-       
+        await _context.SaveChangesAsync();
+
+
 
         return RedirectToAction("Item", "Group", new { id = lesson.GroupId });
     }
@@ -234,12 +227,12 @@ public class LessonController : Controller
         var group = lesson.Group;
 
         #region Request
-        await _requestService.DeletePreviousRequests(lesson);
+        //await _requestService.DeletePreviousRequests(lesson);
         #endregion
-        
-        await _lessonService.Delete(lesson,true,true);
 
-        return RedirectToAction("Item","Group",new { id = lesson.GroupId });
+        await _lessonService.Delete(lesson, true, true);
+
+        return RedirectToAction("Item", "Group", new { id = lesson.GroupId });
     }
 
     /*
@@ -297,7 +290,7 @@ public class LessonController : Controller
     */
 
     [HttpPost]
-    public async Task ChangeArrivedStudentStatus(Guid id,  int neededStatus)
+    public async Task ChangeArrivedStudentStatus(Guid id, int neededStatus)
     {
         var item = await _context.LessonStudents.FirstOrDefaultAsync(x => x.Id == id);
         if (item == null) return;
@@ -330,8 +323,8 @@ public class LessonController : Controller
     [HttpGet]
     public async Task<IActionResult> Item(Guid id)
     {
-        var lesson = await  _lessonService.GetAsync(id);
-        ViewBag.GroupId =_context.Groups.FirstOrDefaultAsync(x=>x.Lessons.Select(x=>x.Id).Contains(id));
+        var lesson = await _lessonService.GetAsync(id);
+        ViewBag.GroupId = _context.Groups.FirstOrDefaultAsync(x => x.Lessons.Select(x => x.Id).Contains(id));
         return View(lesson);
 
     }
@@ -339,15 +332,15 @@ public class LessonController : Controller
     [HttpPost]
     public async Task<IActionResult> GetArrivedStudentsByLesson(Guid id)
     {
-        var lesson = await _context.Lessons.Include(x=>x.Group).ThenInclude(x=>x.GroupStudents).ThenInclude(x=>x.Student).ThenInclude(x=>x.ApplicationUser).Include(x=>x.ArrivedStudents).ThenInclude(x=>x.Student).ThenInclude(x=>x.ApplicationUser).FirstOrDefaultAsync(x=>x.Id == id);
-        
+        var lesson = await _context.Lessons.Include(x => x.Group).ThenInclude(x => x.GroupStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser).Include(x => x.ArrivedStudents).ThenInclude(x => x.Student).ThenInclude(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.Id == id);
+
         var groupSt = new List<Student>();//;
 
         if (lesson == null) return PartialView("_ArrivedStudentByLesson");
         var lessonStudents = lesson.ArrivedStudents;
         var stst = lessonStudents.Select(x => x.Student).ToList(); // Convert to List
 
-        var students = _context.Students.Include(x=>x.ApplicationUser);
+        var students = _context.Students.Include(x => x.ApplicationUser);
         //students.RemoveRange(stst);
 
         foreach (var i in stst)
@@ -359,7 +352,7 @@ public class LessonController : Controller
 
         if (lesson.Group.IsPermanentStaffGroup)
         {
-            var ccc = await _userService.GetAllStudentsAsync();
+            var ccc = _studentService.GetItems();
             ccc = ccc.Where(x => x.IsDeleted == false);
             ggg = ccc.ToList();
         }
@@ -369,7 +362,7 @@ public class LessonController : Controller
             if (!stst.Select(x => x.Id).Contains(student.Id))
                 groupSt.Add(student);
         }
-        
+
 
 
 
@@ -402,7 +395,7 @@ public class LessonController : Controller
     [HttpPost]
     public async Task<ActionResult> RemoveArrivedStudent(Guid lessonId, Guid userId)
     {
-        var users = await _userService.GetAllAsync();
+        var users = await _userService.GetItems();
         var student = await users.FirstOrDefaultAsync(x => x.Id == userId);
 
         var lessStudent = await _context.LessonStudents.FirstOrDefaultAsync(x => x.Lesson.Id == lessonId && x.Student.Id == student.UserStudent.Id);
@@ -420,14 +413,14 @@ public class LessonController : Controller
     //TODO
 
     [HttpPost]
-    public async Task<IActionResult> RequestFromStudentToMissLesson(Guid id,string message)
+    public async Task<IActionResult> RequestFromStudentToMissLesson(Guid id, string message)
     {
         var lesson = await _lessonService.GetAsync(id);
         var user = await _userService.GetCurrentUserAsync();
         var lessonStudent = lesson.ArrivedStudents.FirstOrDefault(x => x.StudentId == user.UserStudent.Id);
         //lessonStudent.IsVisit = false;
         _context.LessonStudents.Update(lessonStudent);
-        return RedirectToAction("Item", new{ id = id });
+        return RedirectToAction("Item", new { id = id });
 
     }
 

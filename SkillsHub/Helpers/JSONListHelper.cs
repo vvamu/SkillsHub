@@ -1,9 +1,5 @@
 ﻿using SkillsHub.Domain.BaseModels;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SkillsHub.Helpers;
 
@@ -22,7 +18,7 @@ public static class JSONListHelper
                 resourceId = 10,
                 description = model.Description ?? "de",
                 title = model.Name ?? "ti",
-                className =  model.ClassName
+                className = model.ClassName
             };
             eventlist.Add(myevent);
         }

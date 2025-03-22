@@ -1,7 +1,4 @@
-﻿using SkillsHub.Domain.BaseModels;
-using SkillsHub.Domain.Models;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SkillsHub.Domain.Models;
 
@@ -9,13 +6,15 @@ public class Group : BaseModels.BaseEntity
 {
     public string Name { get; set; }
     public string? EnglishLevel { get; set; }
-    public PaymentCategory PaymentCategory { get; set; } public Guid? PaymentCategoryId { get; set; }
-    public LessonType LessonType { get; set; } public Guid LessonTypeId { get; set; }
+    public PaymentCategory PaymentCategory { get; set; }
+    public Guid? PaymentCategoryId { get; set; }
+    public LessonType LessonType { get; set; }
+    public Guid LessonTypeId { get; set; }
     public List<GroupTeacher>? GroupTeachers { get; set; }
     public List<GroupStudent>? GroupStudents { get; set; }
     public List<Lesson>? Lessons { get; set; }
 
-    public List<GroupWorkingDay>? DaySchedules { get; set;}
+    public List<GroupWorkingDay>? DaySchedules { get; set; }
 
     //[NotMapped] public DurationType? DurationType { get; set; }
 
@@ -67,10 +66,11 @@ public class Group : BaseModels.BaseEntity
     }
 
     [NotMapped]
-    public List<GroupStudent>? CurrentGroupStudents {
+    public List<GroupStudent>? CurrentGroupStudents
+    {
         get
         {
-            if(GroupStudents == null) return new List<GroupStudent>();
+            if (GroupStudents == null) return new List<GroupStudent>();
             var res = GroupStudents?
             .GroupBy(x => x.StudentId).ToList();
             var res2 = res.Select(g => g.OrderByDescending(x => x.DateAdd).First()).ToList();
@@ -82,13 +82,13 @@ public class Group : BaseModels.BaseEntity
 
 
     [NotMapped]
-    public IQueryable<IGrouping<DateTime,GroupTeacher>>? LogGroupTeachers { get; set; }
+    public IQueryable<IGrouping<DateTime, GroupTeacher>>? LogGroupTeachers { get; set; }
     [NotMapped]
 
     public IQueryable<IGrouping<DateTime, GroupStudent>>? LogGroupStudents { get; set; }
 
     [NotMapped]
-    public bool IsCreateLessonsAlready {  get; set; }
+    public bool IsCreateLessonsAlready { get; set; }
     //public int CountWorkingHours { get; set; }
     [NotMapped]
     public string? PreparedDurationTextRu
@@ -127,8 +127,9 @@ public class Group : BaseModels.BaseEntity
     private int lessonsCount;
 
     [NotMapped]
-    public int LessonsCount 
-    { get
+    public int LessonsCount
+    {
+        get
         {
             if (LessonType == null) return 1;
             else return LessonType.PreparedLessonsCount;
@@ -231,7 +232,7 @@ public class Group : BaseModels.BaseEntity
 
 
 
-    
+
 
     [NotMapped]
     public Guid TeacherId { get; set; }
@@ -243,7 +244,7 @@ public class Group : BaseModels.BaseEntity
     {
         var other = obj as Group;
         if (other == null) return false;
-        if(Name == other.Name && DateStart == other.DateStart && IsLateDateStart && other.IsLateDateStart) return true;
+        if (Name == other.Name && DateStart == other.DateStart && IsLateDateStart && other.IsLateDateStart) return true;
         return false;
     }
 

@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json;
 
 namespace SkillsHub.Helpers;
 
 public static class JsonSerializerToAjax
 {
-    public static  Object GetJsonByIQueriable(IQueryable<Object> items)
+    public static Object GetJsonByIQueriable(IQueryable<Object> items)
     {
         string json = "";
 

@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using SkillsHub.Domain.BaseModels;
 using SkillsHub.Domain.Models;
 
 
@@ -28,11 +27,11 @@ public class LessonTypeValidator : AbstractValidator<LessonType>
         RuleFor(x => x.LessonTimeInMinutes).NotEmpty().WithMessage("Необходимо указать время урока");
         RuleFor(x => x.LessonTimeInMinutes).GreaterThan(0).WithMessage("Минимальное время урока 1 минута");
         RuleFor(x => x.LessonTimeInMinutes).LessThan(100).WithMessage("Максимальное время урока 100 минут");
-        RuleFor(x=>x.DurationTypeValue).GreaterThan(0).WithMessage("Минимальное количество единиц для длительности курса - 1.");
+        RuleFor(x => x.DurationTypeValue).GreaterThan(0).WithMessage("Минимальное количество единиц для длительности курса - 1.");
         RuleFor(x => x.DurationTypeName).NotEmpty().WithMessage("Тип длительности курса не выбран");
         RuleFor(x => x).Must(x => x.LessonTimeInMinutes < 150 || x.DurationTypeName == "hours").WithMessage("Выбрано слишком большое количество единиц для длительности курса.");
 
-        
+
     }
 }
 

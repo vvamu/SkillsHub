@@ -3,7 +3,7 @@
 public class LessonTypeFilterModel
 {
     public string? Name { get; set; } //filter-name
-    
+
     public Guid? SubjectId { get; set; } //filter-subjectId
     public Guid? CourseId { get; set; } //filter-courseId
     public Guid? GroupTypeId { get; set; } //filter-groupTypeId

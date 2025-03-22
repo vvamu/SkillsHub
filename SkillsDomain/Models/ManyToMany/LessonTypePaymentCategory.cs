@@ -1,5 +1,4 @@
 ﻿using SkillsHub.Domain.BaseModels;
-using SkillsHub.Domain.Models;
 
 namespace SkillsHub.Domain.Models;
 

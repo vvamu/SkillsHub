@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using SkillsHub.Domain.Models;
-using SkillsHub.Domain.BaseModels;
 using SkillsHub.Application.DTO;
+using SkillsHub.Domain.BaseModels;
+using SkillsHub.Domain.Models;
 
 namespace SkillsHub.Application.Helpers;
 

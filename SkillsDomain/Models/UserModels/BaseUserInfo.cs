@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using SkillsHub.Domain.Models;
+﻿using SkillsHub.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,19 +8,18 @@ namespace SkillsHub.Domain.BaseModels;
 public class BaseUserInfo : LogModel<BaseUserInfo>
 {
 
-    public new bool IsDeleted {  get; set; }
+    public new bool IsDeleted { get; set; }
     [NotMapped]
-    public string? FullName { get => $"{this?.LastName} {this?.FirstName} {this?.Surname}"; }
+    public string? FullName { get => $"{this?.MiddleName} {this?.FirstName} {this?.Surname}"; }
     public string FirstName { get; set; }
-    public string LastName { get; set; } 
-    public string Surname { get; set; } 
+    public string MiddleName { get; set; }
+    public string Surname { get; set; }
     public string Sex { get; set; } = "Male";
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     public DateTime BirthDate { get; set; } = DateTime.Now.AddDays(-1 * 365 * 20);
     public string? Phones { get; set; }
     public string? Emails { get; set; }
-    public List<ExternalConnection>? ExternalConnections { get; set; }
 
     public string? AdditionalInfo { get; set; }
     public List<ApplicationUserBaseUserInfo> ApplicationUsers { get; set; }
@@ -32,19 +30,23 @@ public class BaseUserInfo : LogModel<BaseUserInfo>
 
         BaseUserInfo other = (BaseUserInfo)obj;
         return FirstName == other.FirstName &&
-               LastName == other.LastName &&
-               Surname == other.Surname;
-               //Sex == other.Sex &&
-               //BirthDate == other.BirthDate &&
-               //Phones == other.Phones &&
-               //Emails == other.Emails &&
-               //AdditionalInfo == other.AdditionalInfo;
+               MiddleName == other.MiddleName &&
+               Surname == other.Surname &&
+               Sex == other.Sex &&
+               BirthDate == other.BirthDate &&
+               Emails == other.Emails &&
+               Phones == other.Phones;
+        //Sex == other.Sex &&
+        //BirthDate == other.BirthDate &&
+        //Phones == other.Phones &&
+        //Emails == other.Emails &&
+        //AdditionalInfo == other.AdditionalInfo;
     }
 
     #region NotMapped
 
     [NotMapped]
-    public string? Role {  get; set; }
+    public string? Role { get; set; }
     [NotMapped]
     public Guid ApplicationUserId { get; set; }
 

@@ -8,6 +8,12 @@
         text-wrap: nowrap
     }
 
+    .column {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 </style>
 
 @{
@@ -52,7 +58,7 @@
                                     <tr>
                                        <td>@item.Status</td>
                                         <td>@item.IsOfflineTextRu</td>
-                                        <td><form><a asp-action="Create" asp-controller="Location" asp-route-itemId="@item.Id" style="color:#7571f9">@item.Name</a></form></td>
+                                        <td class="column"><form><a asp-action="Create" asp-controller="Location" asp-route-itemId="@item.Id" style="color:#7571f9">@item.Name</a></form></td>
                                        <td>@item.Description</td>
                                        <td>@item.DateCreated</td>
                                         <td>@item.DateRegistration</td>

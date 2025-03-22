@@ -69,14 +69,14 @@
                                                 var userRoles = String.Join(";", translatedRoles);
                                         }
                                             <td>@userRoles</td>
-                                        <td>
+                                        <td style="display:flex;align-items:center">
                                             @{
                                                     var deletedStatus = item.IsDeleted ? "font-weight:900;color:red" : "font-weight:900;color:#7571f9";                                        
                                             }
-                                            
-                                            <a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.Id" style="@deletedStatus">  @item.Login </a>
+                                                <input type="checkbox" name="multipleId" value="@item.Id.ToString()" style="margin-right:10px" />
+                                            <a asp-action="Item" asp-controller="Account" asp-route-itemId="@item.Id" style="@deletedStatus">  @item.UserName </a>
 
-                                        </td>
+                                        </td >
                                         <td style="text-wrap:nowrap">@item?.FullName</td>
                                         
                                         @* <td>
@@ -145,15 +145,16 @@
                                         -->
                                         
 
-                                        @{var birhDateToString = "";}
-                                        @if(item!= null && item.UserInfo != null)
-                                        {
-                                            DateTime birthDate = DateTime.Now;
-                                            birhDateToString = birthDate.ToString();
-                                            if(birthDate == DateTime.Now) 
-                                            birhDateToString = (DateOnly.FromDateTime(birthDate).ToShortDateString());
+                                        @{ 
+                                            var birhDateToString = ""; 
+                                            if(item!= null && item.UserInfo != null)
+                                            {
+                                                DateTime birthDate = DateTime.Now;
+                                                birhDateToString = birthDate.ToString();
+                                                if(birthDate == DateTime.Now) 
+                                                birhDateToString = (DateOnly.FromDateTime(birthDate).ToShortDateString());
+                                            }
                                         }
-            
                                             
                                             <td>@item?.Sex</td>
                                             <td>@item?.Phone</td>
@@ -227,25 +228,7 @@
                                         {
                                             <th style="text-wrap:nowrap">@item</th>
                                         }
-
-                                            <!--
-                                            <th>Login</th>
-                                            <th>Full Name</th>
-                                            <th>Sex</th>
-                                            <th>Phone</th>
-                                            <th>Email</th>
-                                            <th>BirthDate and Age</th>
-                                            <th>Lessons teacher/student</th>
-                                            <th>Current groups teacher/student</th>
-                                            <th>Roles</th>
-                                            <th>Cources</th>
-                                            <th>Working days</th>
-                                            <th>Source Find Company</th>
-                                            
-                                            <th>Soft delete</th>
-                                                <th>Hard delete (from database)</th>-->
-
-                                                
+  
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -257,6 +240,7 @@
         </div>
 }
 
-    <script src="~/plugins/tables/js/jquery.dataTables.min.js"></script>
-    <script src="~/plugins/tables/js/datatable/dataTables.bootstrap4.min.js"></script>
-    <script src="~/plugins/tables/js/datatable-init/datatable-basic.min.js"></script>
+<script src="~/plugins/tables/js/jquery.dataTables.min.js"></script>
+<script src="~/plugins/tables/js/datatable/dataTables.bootstrap4.min.js"></script>
+<script src="~/plugins/tables/js/datatable-init/datatable-basic.min.js"></script>
+

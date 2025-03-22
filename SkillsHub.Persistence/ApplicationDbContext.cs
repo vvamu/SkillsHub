@@ -2,30 +2,22 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using SkillsHub.Domain.Models;
 using SkillsHub.Domain.BaseModels;
-using System.Collections.Generic;
-using System.Reflection.Emit;
-using System.Diagnostics.Metrics;
+using SkillsHub.Domain.Models;
 using SkillsHub.Domain.Models.NotInUse;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Runtime.Intrinsics.X86;
 
 namespace SkillsHub.Persistence;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRole<Guid>,Guid>
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
 
-    
-    public DbSet<ExternalConnection> ExternalConnections { get; set; }
+
     public DbSet<WorkingDay> DaySchedules { get; set; }
-    
+
     public DbSet<Group> Groups { get; set; }
     public DbSet<Lesson> Lessons { get; set; }
 
@@ -39,37 +31,35 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
     public DbSet<LessonTask> LessonTasks { get; set; }
 
     public DbSet<EmailMessage> EmailMessages { get; set; }
-    public DbSet<FinanceElement> Finances { get; set; }
     public DbSet<GroupWorkingDay> GroupWorkingDays { get; set; }
-    public DbSet<UserWorkingDay> UserWorkingDays { get; set; }
+    //public DbSet<UserWorkingDay> UserWorkingDays { get; set; }
 
 
     public DbSet<NotificationMessage> NotificationMessages { get; set; }
 
-    
 
-    public DbSet<RequestLesson> RequestLessons { get; set; }
+
+    //public DbSet<RequestLesson> RequestLessons { get; set; }
 
     #region Users
 
-    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public DbSet<BaseUserInfo> BaseUserInfo { get; set; }
     public DbSet<Student> Students { get; set; }
     public DbSet<Teacher> Teachers { get; set; }
-    
+
 
     #region ManyToMany
-        public DbSet<GroupStudent> GroupStudents { get; set; }
-        public DbSet<GroupTeacher> GroupTeachers { get; set; }
-        public DbSet<LessonStudent> LessonStudents { get; set; }
-        public DbSet<LessonTeacher> LessonTeachers { get; set; }
-        public DbSet<LessonTypeTeacher> LessonTypeTeachers { get; set; }
-        public DbSet<LessonTypeStudent> LessonTypeStudents { get; set; }
-        public DbSet<ApplicationUserBaseUserInfo> ApplicationUserBaseUserInfo { get; set; }
+    public DbSet<GroupStudent> GroupStudents { get; set; }
+    public DbSet<GroupTeacher> GroupTeachers { get; set; }
+    public DbSet<LessonStudent> LessonStudents { get; set; }
+    public DbSet<LessonTeacher> LessonTeachers { get; set; }
+    public DbSet<LessonTypeTeacher> LessonTypeTeachers { get; set; }
+    public DbSet<LessonTypeStudent> LessonTypeStudents { get; set; }
+    public DbSet<ApplicationUserBaseUserInfo> ApplicationUserBaseUserInfo { get; set; }
 
-        public DbSet<LessonTypePaymentCategory> LessonTypePaymentCategories { get; set; }
+    public DbSet<LessonTypePaymentCategory> LessonTypePaymentCategories { get; set; }
 
-    
+
 
     #endregion
     #endregion
@@ -102,10 +92,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser,IdentityRo
 
 
 
-        
-        builder.Entity<Teacher>().HasOne(x=>x.ApplicationUser).WithOne(x => x.UserTeacher).HasForeignKey<ApplicationUser>(x=>x.UserTeacherId).OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Teacher>().HasOne(x => x.ApplicationUser).WithOne(x => x.UserTeacher).HasForeignKey<ApplicationUser>(x => x.UserTeacherId).OnDelete(DeleteBehavior.Cascade);
         builder.Entity<Student>().HasOne(x => x.ApplicationUser).WithOne(x => x.UserStudent).HasForeignKey<ApplicationUser>(x => x.UserStudentId).OnDelete(DeleteBehavior.Cascade);
-        
+
 
         #region ManyToMany
         builder.Entity<GroupTeacher>().HasKey(ct => ct.Id);

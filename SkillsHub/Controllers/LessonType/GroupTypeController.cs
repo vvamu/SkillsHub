@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Helpers;
 using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
-using SkillsHub.Helpers;
+using SkillsHub.Helpers.SearchModels;
 using SkillsHub.Persistence;
 
 namespace SkillsHub.Controllers;
@@ -12,7 +12,7 @@ public class GroupTypeController : Controller
     private readonly AbstractLessonTypeLogModelService<GroupType>? _groupService;
     private readonly ApplicationDbContext _context;
 
-	public GroupTypeController(ApplicationDbContext context, IAbstractLogModel<GroupType> groupService)
+    public GroupTypeController(ApplicationDbContext context, IAbstractLogModelService<GroupType> groupService)
     {
         _groupService = groupService as GroupTypeService;
         _context = context;
@@ -22,7 +22,7 @@ public class GroupTypeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var items = _groupService.GetAllItemsToList();
+        var items = _groupService.GetItems(onlyCurrent:true);
         var result = await items.ToListAsync();
         return PartialView(result);
     }
@@ -30,7 +30,7 @@ public class GroupTypeController : Controller
     [HttpGet]
     public async Task<IActionResult> Create(Guid? itemId)
     {
-        var res = await _groupService.GetLastValueAsync(itemId);
+        var res = await _groupService.GetLastValueAsync(itemId, withParents: true);
         return View(res);
     }
     [HttpPost]
@@ -45,7 +45,7 @@ public class GroupTypeController : Controller
         }
         catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(item); }
 
-        return View(result);
+        return RedirectToAction("Create",new {itemId = result.Id});
     }
 
     public async Task<IActionResult> Remove(GroupType item)
@@ -62,7 +62,7 @@ public class GroupTypeController : Controller
 
     public async Task<IActionResult> OptionsList(string groupTypeId)
     {
-        var items =  _context.GroupTypes.AsAsyncQueryable();
+        var items = _context.GroupTypes.AsAsyncQueryable();
         var idVal = Guid.TryParse(groupTypeId?.ToString(), out var result) ? result : Guid.Empty;
 
         return PartialView((items, idVal));

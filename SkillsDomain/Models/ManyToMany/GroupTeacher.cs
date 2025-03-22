@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace SkillsHub.Domain.Models;
 
-public class GroupTeacher  : BaseEntity
+public class GroupTeacher : BaseEntity
 {
     public Guid GroupId { get; set; }
     public Group Group { get; set; }

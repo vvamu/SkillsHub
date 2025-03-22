@@ -17,50 +17,53 @@
 }
 
 <section class=" text-center " style="padding:0.7%">
-   <div class="login-form-bg h-100">
-   <div class="container h-100">
-      <div class="row justify-content-center h-100" >
-         <div class="col-xl-10">
-            <div class="form-input-content">
-               <div class="card login-form mb-0">
-                  <div class="card-body pt-5">
-                  <form>
-
-                  @if(isEdit)
+    <div class="login-form-bg h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100" >
+                <div class="col-xl-10">
+                    <div class="form-input-content">
+                        <div class="card login-form mb-0">
+                            <div class="card-body pt-5">
+                                <form>
+                                    
+                                    @if(isEdit)
                                     {
-                  <input type="hidden" asp-for="@item.Id" value="@item.Id" name="Id" />
-                  <input type="hidden" asp-for="@item.StringId" value="@item.Id.ToString()" />
+                                        
+                                        <input type="hidden" asp-for="@item.Id" value="@item.Id" name="Id" />
+                                        <input type="hidden" asp-for="@item.StringId" value="@item.Id.ToString()" />
 
-                     <div class="text-center" style="min-height:80px; display:flex;justify-content:space-between"> 
-                        <h3>@restTextAndName</h3>
-                        <div class="text-center" xstyle="display:flex;justify-content:space-between;grid-gap:10%">
-                            <span class="table-cell" style="flex-wrap:nowrap">@item.DateCreated</span>
-                            <a asp-action="InstitutionSetting" asp-controller="CRM" style="color:#7571f9">Назад</a>
-                            @if(item.IsDeleted)
-                            {
-                              <input type="hidden" name="isRemove" value="false" />
-                              <input type="submit" class="btn btn-info" asp-action="ChangeActiveStatus" asp-controller="Course" formmethod="post" value="◯" style="height:50%" />
-                            }
-                            else
-                            {
-                              <input type="hidden" name="isRemove" value="true" />
-                              <input type="submit" class="btn btn-danger" asp-action="ChangeActiveStatus" asp-controller="Course" formmethod="post" value="Х" style="height:50%" />
-                            }
-                             
-                          </div>
-                     </div>
+                                        <div class="text-center" style="min-height:80px; display:flex;justify-content:space-between"> 
+                                            <h3>@restTextAndName</h3>
+                                            <div class="text-center" xstyle="display:flex;justify-content:space-between;grid-gap:10%">
+                                                <span class="table-cell" style="flex-wrap:nowrap">@item.DateCreated</span>
+                                                <a asp-action="InstitutionSetting" asp-controller="CRM" style="color:#7571f9">Назад</a>
+                                                @if(item.IsDeleted)
+                                                {
+                                                    <input type="hidden" name="isRemove" value="false" />
+                                                    <input type="submit" class="btn btn-info" asp-action="ChangeActiveStatus" asp-controller="Course" formmethod="post" value="◯" style="height:50%" />
+                                                }
+                                                else
+                                                {
+                                                    <input type="hidden" name="isRemove" value="true" />
+                                                    <input type="submit" class="btn btn-danger" asp-action="ChangeActiveStatus" asp-controller="Course" formmethod="post" value="Х" style="height:50%" />
+                                                }
+
+                                            </div>
+                                        </div>
                                     }
-                  else
-                  {
-                      <div class="text-center" style="min-height:80px; display:flex;justify-content:space-between"> 
-                      <h3>
-                        @resText 
-                        </h3>
-                        <a asp-action="InstitutionSetting" asp-controller="CRM" >Назад</a>
-                     </div>
-                  }
+                                    else
+                                    {
+                                        <div class="text-center" style="min-height:80px; display:flex;justify-content:space-between"> 
+                                            <h3>
+                                                @resText 
+                                            </h3>
+                                            <a asp-action="InstitutionSetting" asp-controller="CRM" >Назад</a>
+                                        </div>
+                                    }
                                     <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
-
+                                    <input type="hidden" asp-for="@item.PathToImage" value="@item.PathToImage" />
+                                    <input type="hidden" asp-for="@item.PathToIcon" value="@item.PathToIcon" />
+                                    <input type="hidden" asp-for="@item.DescriptionOnMainPageMore" value="@item.DescriptionOnMainPageMore" />
 
                                     <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
@@ -68,7 +71,7 @@
                                         </label>
                                         <div class="col-lg-6">
                                             <!--<input class="form-control" asp-for="@item.Subject" min="1" type="text" name="Subject" required  placeholder="Английский"/>-->
-                                           
+
                                             <select class="form-select" asp-for="@item.Subject">
                                                 <!--<option value="минуты" selected>Минуты</option>-->
                                                 <option value="English" selected="@(item.SubjectRu == "Английский" ? "selected" : null)">Английский</option>
@@ -83,30 +86,95 @@
                                             Направление<span class="text-danger">*</span>
                                         </label>
                                         <div class="col-lg-6">
-                                            <input class="form-control" asp-for="@item.Name" type="text" placeholder="Для организаций" required />
+                                            <input class="form-control" asp-for="@item.Name" type="text" placeholder="для организаций" required />
                                         </div>
                                     </div>
-                                    
-                                    
+
                                     <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
-                                            Описание
+                                            Краткое описание
                                         </label>
                                         <div class="col-lg-6">
                                             <input class="form-control" asp-for="@item.Description" type="text" placeholder="Курсы английского языка для специфики вашей работы" />
                                         </div>
                                     </div>
+
+                                    <div class="form-group row ">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Показывать на главной странице
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <input type="checkbox" asp-for="@item.IsVisibleOnMainPage" id="IsVisibleOnMainPage" onchange="hidePropertiesToMainPage()" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row main-page-prop">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Идентификатор для главной страницы<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <input class="form-control main-page-prop-require" asp-for="@item.IdentityString" type="text" placeholder="english-organization" />
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                    <div class="form-group row main-page-prop">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Порядок на странице<span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <input class=" form-control main-page-prop-require" type="number" max="50" min="0" asp-for=@item.OrderOnMainPage />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row main-page-prop">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Описание на сайте
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <textarea asp-for="@item.DescriptionOnMainPage" class=" form-control" type='text' style="min-height:200px">@item.DescriptionOnMainPage</textarea>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                    
                                     <!--
                                     <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
-                                            Детальное описание
+                                            Описание на сайте
                                         </label>
                                         <div class="col-lg-6">
-                                            <textarea class="form-control" type="text" name="Description" rows="4" placeholder="Основная цель этого курса - получение навыков и практики эффективного общения на английском языке в вашей профессиональной области. Программа курса подбирается и согласовывается под конкретную сферу деятельности организации, ее цели и задачи." > </textarea>
+                                            <textarea asp-for="item.DescriptionOnMainPageMore" class="textareaDesr form-control" type='text' id="english-adults-descr-input">item.DescriptionOnMainPageMore</textarea>
                                         </div>
+                                    </div>
+                                    -->
+                                    <!--
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Фотография
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <select asp-for='item.PathToImage'>
+                                                <option value="~/images/adult_cources_english@0x.jpg">Курсы английского для взрослых</option>
+                                                <option value="~/images/cources_children@0x.jpg">Курсы английского для детей</option>
+                                                <option value="~/images/cources_organization_english@0x.jpg">Курсы английского для организации</option>
+                                                <option value="~/images/cources_express_english@0x.jpg">Курсы английского - экспресс</option>
+                                                <option value="~/images/english_communicate@0x.jpg">Курсы английского для разговорного клуба</option>
+                                                <option value="~/images/programming_cources@0x.jpg">Курсы для программирования</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    -->
+                                    <!--
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label" for="val-skill">
+                                    Детальное описание
+                                    </label>
+                                    <div class="col-lg-6">
+                                    <textarea class="form-control" type="text" name="Description" rows="4" placeholder="Основная цель этого курса - получение навыков и практики эффективного общения на английском языке в вашей профессиональной области. Программа курса подбирается и согласовывается под конкретную сферу деятельности организации, ее цели и задачи." > </textarea>
+                                    </div>
                                     </div>-->
                                     <input type="submit" asp-action="Create" asp-controller="Course" formmethod="post"  class="btn login-form__btn submit w-100" value="@resText" />
-                                 </form>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -118,28 +186,38 @@
 
 @if (isEdit && Model.Parents != null && Model.Parents?.Count() != 0)
 {
-<section style="padding-top:0%" >
-    <div class="login-form-bg h-100">
-        <div class="container h-100">
-            <div class="row justify-content-center h-100">
+    <section style="padding-top:0%" >
+        <div class="login-form-bg h-100">
+            <div class="container h-100">
+                <div class="row justify-content-center h-100">
                     <div class="col-xl-10" >
-                    <div class="form-input-content">
-                        <div class="card login-form mb-0">
-                            <div class="card-body pt-5">
-                            @foreach(var par in Model.Parents)
-                            {
+                        <div class="form-input-content">
+                            <div class="card login-form mb-0">
+                                <div class="card-body pt-5">
+                                    @foreach(var par in Model.Parents)
+                                    {
+                                        var title = par.Name.Contains("\"") ? @par.Name.Replace("\"", "") : @par?.SubjectRu + " " + par?.Name;
+
                                         <div class="col" style="background-color:rgb(117 113 249 / 30%)">
-                                <div class="card" >
-                                    <div class="card-body">
+                                            <div class="card" >
+                                                <div class="card-body">
                                                     <div >
-                                            <!--HEADER LESSON-->
-                                            <div class="row">
-                                            <div>@par.DisplayName @par.Description - @par.DateCreated</div>
-                                            </div>
+                                                        <!--HEADER LESSON-->
+                                                        <div class="row">
+                                                            <div>@title  - @par.DateCreated</div>
+                                                            @if (!string.IsNullOrEmpty(par.DescriptionOnMainPage))
+                                                            {
+                                                                <div>Характеристики на сайте : @par.DescriptionOnMainPage</div>
+                                                            }
+                                                            @if (!string.IsNullOrEmpty(par.DescriptionOnMainPageMore))
+                                                            {
+                                                                <div>Описание на сайте : @par.DescriptionOnMainPageMore</div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
                             }
                             </div>
                         </div>
@@ -150,3 +228,47 @@
     </div>
 </section>
 }
+
+
+<script>
+
+    function hidePropertiesToMainPage() {
+        const checkbox = document.getElementById("IsVisibleOnMainPage");
+        const mainPageProps = document.querySelectorAll('.main-page-prop');
+        const mainPagePropsRequire = document.querySelectorAll('.main-page-prop-require');
+        
+
+        if (checkbox.checked) {
+            mainPageProps.forEach(element => {
+                if (element.hasAttribute('hidden')) {
+                    element.removeAttribute('hidden');
+                }
+            });
+
+            
+            mainPagePropsRequire.forEach(element => {
+                if (!element.hasAttribute('required')) {
+                    element.setAttribute('required', 'true');
+                }
+            });
+
+        } else {
+            mainPageProps.forEach(element => {
+                if (!element.hasAttribute('hidden')) {
+                    element.setAttribute('hidden', 'true');
+                }
+            });
+            mainPagePropsRequire.forEach(element => {
+                if (element.hasAttribute('required')) {
+                    element.removeAttribute('required');
+                }
+            });
+        }
+    }
+
+    window.onload = function(e){
+      const delay = ms => new Promise(res => setTimeout(res, ms));
+      hidePropertiesToMainPage()
+    }
+
+</script>

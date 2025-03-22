@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SkillsHub.Application.DTO;
-using System.Linq;
 
 namespace SkillsHub.Helpers.SearchModels;
 
@@ -19,8 +16,8 @@ public class StudentFilterModel
     public int MinCountGroups { get; set; }
 
     public DateTime? MinDateCreated { get; set; }
-   
-    
+
+
     public string? PossibleCourse { get; set; }
     public int IsDeleted { get; set; } = -100;
 }

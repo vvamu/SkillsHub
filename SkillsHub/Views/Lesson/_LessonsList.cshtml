@@ -4,7 +4,6 @@
 @{
     var lessons = @Model;
     lessons = lessons.Where(x => x.ParentId == null).ToList();
-
     _context.Groups.ToList();
 }
 @{
@@ -129,7 +128,7 @@ else
                                                                             <ul>
                                                                        @foreach (var user in arrivedStudents)
                                                                        {
-                                                                         <li><a asp-route-id="@user.Id" asp-action="Item" asp-controller="Account" style="font-size:large;font-weight:900;color:#7571f9">@(arrivedStudents.IndexOf(user)+2). @user.Student.ApplicationUser.FullName</a> -
+                                                                         <li><a asp-route-id="@user.Id" asp-action="Item" asp-controller="Account" style="font-size:large;font-weight:900;color:#7571f9">@(arrivedStudents.IndexOf(user)+2). @user.Student.ApplicationUser?.FullName</a> -
                                                                          @{
                                                                                                                                                      
                                                                                         @if(item != null && !item.IsСompleted)

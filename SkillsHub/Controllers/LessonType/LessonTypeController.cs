@@ -1,22 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SkillsHub.Application.Helpers;
-using SkillsHub.Application.Services.Implementation;
 using SkillsHub.Application.Services.Interfaces;
-using SkillsHub.Domain.BaseModels;
-using SkillsHub.Domain.Models;
-using SkillsHub.Helpers;
 using SkillsHub.Helpers.SearchModels;
 using SkillsHub.Persistence;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 
 namespace SkillsHub.Controllers;
 
-[Authorize]
+
 
 public class LessonTypeController : Controller
 {
@@ -37,9 +28,9 @@ public class LessonTypeController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var items =  _lessonTypeService.GetAll().Where(x=>x.ParentId == null || x.ParentId == Guid.Empty).OrderByDescending(x=>x.IsActive).ThenBy(x=>x.IsDeleted);
+        var items = _lessonTypeService.GetItems(onlyCurrent: true,touchFullInclude:true);
         var result = await items.ToListAsync();
-        return PartialView( result);
+        return PartialView(result);
 
     }
 
@@ -47,7 +38,7 @@ public class LessonTypeController : Controller
     [HttpGet]
     public async Task<IActionResult> OptionsList(LessonTypeFilterModel filters, OrderModel? order) // ,string lessonTypeId
     {
-        var lessonTypes = await  _lessonTypeService.GetAll().Where(x=>x.ParentId == null && !x.IsDeleted).ToListAsync();
+        var lessonTypes = await _lessonTypeService.GetAll().Where(x => x.ParentId == null && !x.IsDeleted).ToListAsync();
         //lessonTypes = await FilterMaster.FilterLessonTypes(lessonTypes, filters, order);
         //var idVal = Guid.TryParse(lessonTypeId?.ToString(), out var result) ? result : Guid.Empty;
 
@@ -64,7 +55,7 @@ public class LessonTypeController : Controller
 
     public async Task<IActionResult> Item(Guid id)
     {
-        var item =  await _lessonTypeService.GetAsync(id,true);
+        var item = await _lessonTypeService.GetLastValueAsync(id, true);
         return View(item);
     }
 
@@ -124,21 +115,21 @@ public class LessonTypeController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(LessonType item, Guid[]? paymentCategories) 
+    public async Task<IActionResult> Create(LessonType item, Guid[]? paymentCategories)
     {
         LessonType result = null;
         try
         {
             var isEdit = await _context.LessonTypes.FindAsync(item.Id);
-            if(isEdit == null) result = await _lessonTypeService.CreateAsync(item,paymentCategories);   
-            else result = await _lessonTypeService.UpdateAsync(item,paymentCategories);
+            if (isEdit == null) result = await _lessonTypeService.CreateAsync(item, paymentCategories);
+            else result = await _lessonTypeService.UpdateAsync(item, paymentCategories);
 
         }
         catch (Exception ex)
         {
-           ModelState.AddModelError("", ex.Message); return View("Create",item);
+            ModelState.AddModelError("", ex.Message); return View("Create", item);
         }
-        if(result == null) return RedirectToAction("InstitutionSetting", "CRM");
+        if (result == null) return RedirectToAction("InstitutionSetting", "CRM");
         result = await _lessonTypeService.GetLastValueAsync(result.Id, true);
         return View(result);
 
@@ -152,10 +143,10 @@ public class LessonTypeController : Controller
         LessonType lessonType;
         try
         {
-            if(!item.IsDeleted) lessonType = await _lessonTypeService.RemoveAsync(item.Id);
+            if (!item.IsDeleted) lessonType = await _lessonTypeService.RemoveAsync(item.Id);
             else lessonType = await _lessonTypeService.RestoreAsync(item.Id);
         }
-        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View("Create",item); }
+        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View("Create", item); }
         return RedirectToAction("InstitutionSetting", "CRM");
     }
 

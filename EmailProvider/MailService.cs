@@ -73,7 +73,7 @@ public class MailService : IMailService
         //smtp.ServerCertificateValidationCallback = (sender, certificate, chain, errors) => true;
 
         smtp.Connect(_mailOptions.Host, _mailOptions.Port, SecureSocketOptions.SslOnConnect);
-        smtp.Authenticate(_mailOptions.Email, _mailOptions.Password);  
+        smtp.Authenticate(_mailOptions.Email, _mailOptions.Password);
         await smtp.SendAsync(email);
         smtp.Disconnect(true);
     }

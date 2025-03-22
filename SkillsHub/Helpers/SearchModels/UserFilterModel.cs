@@ -1,12 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SkillsHub.Application.DTO;
-using System.Linq;
-
-namespace SkillsHub.Helpers.SearchModels;
+﻿namespace SkillsHub.Helpers.SearchModels;
 
 public class UserFilterModel
 {
-    public string? FIO {  get; set; }
+    public string? FIO { get; set; }
     public string? TeacherWorkingDay { get; set; }
     public string? StudentWorkingDay { get; set; }
 
@@ -41,6 +37,6 @@ public class UserOrderModel
 {
     public int CountPayedLessons { get; set; } = -100;
     public int CountGroups { get; set; } = -100;
-   // public int CountLessons { get; set; } = -100;
+    // public int CountLessons { get; set; } = -100;
 
 }

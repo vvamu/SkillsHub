@@ -1,0 +1,142 @@
+﻿@model List<Course>;
+@{
+    var items = Model ?? new List<Course> { 
+        new Course() { Id= Guid.Empty, Name = "1" ,DescriptionOnMainPageMore="1", IdentityString = "1", PathToIcon = "assets/img/icons/admission.png"},
+        new Course() { Id= Guid.Empty, Name = "2" ,DescriptionOnMainPageMore="2", IdentityString = "2", PathToIcon = "assets/img/icons/admission.png"},
+        new Course() { Id= Guid.Empty, Name = "3" ,DescriptionOnMainPageMore="3", IdentityString = "3", PathToIcon = "assets/img/icons/admission.png"}
+    };
+
+    //src="assets/img/icons/admission.png"
+}
+@foreach(var item in items)
+{    
+    var itemId = item.Id.ToString();
+    var iconHref = "#" + item.IdentityString;
+    var altItem = "icon_" + item.IdentityString;
+    var iconId = "icon_" + item.Id.ToString();
+    var uploadFileIconId = "uploadFileIcon" + item.Id.ToString();
+    var jQueryUploadFileIconId = "#uploadFileIcon" + item.Id.ToString();
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow px-4 px-md-2 px-lg-3 card-span pt-4">
+            <div class="text-center text-md-start card-hover">
+                @if (User.IsInRole("Admin") && item.IsEditMode)
+                {
+                    <form style="display:flex">
+                        <img class=" icons" src="@item.PathToIcon" id="@iconId" alt="@altItem" style="border:2px solid #5d88a3;border-radius:5px;zoom:80%;height:80px;width:80px" />
+                        <div style="border-radius:5px; display:flex;">
+                            <input style="width:85%" type="file" id="@uploadFileIconId" class="form-control col-lg-4 d-flex justify-content-center" accept=".png, .jpeg, .jpg" onchange="loadFile(event,'@iconId')" />
+                            <button type="button" onclick="uploadIcon('@jQueryUploadFileIconId','@itemId')">Upload icon</button>
+                        </div>
+                         <!--style="margin:-17.6%"-->
+                    </form>
+
+                }
+                else
+                {
+                    <img class="ps-3 icons" src="@item.PathToIcon" height="60" id="@iconId" alt="@altItem" />
+                }
+                    
+
+                    <div class="card-body">  
+                        <h6 class=" fs-1 heading-color">@item.TitleToWebSite</h6>
+                        <p class="mt-3 mb-md-0 mb-lg-3">@item.DescriptionOnMainPageMore </p>
+                        <a class="btn btn-lg ps-0 pe-3 text-primary" href="@iconHref" role="button">
+                            Узнать больше
+                            <svg class="bi bi-arrow-right-short" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+   
+}
+
+@* <div class="col-md-4 mb-4">
+    <div class="card h-100 shadow px-4 px-md-2 px-lg-3 card-span pt-4">
+        <div class="text-center text-md-start card-hover">
+            <img class="ps-3 icons" src="assets/img/icons/career.png" height="60" alt="services" />
+            <div class="card-body">
+                <h5 class=" fs-1 heading-color">Английский для <br/> детей</h5>
+                <p class="mt-3 mb-md-0 mb-lg-3">Для детей изучение английского языка проходят в игровой форме, что позволяет ребенку легко запоминать материал.</p>
+                <a class="btn btn-lg ps-0 pe-3 text-primary" href="#english-children" role="button">
+                    Узнать больше
+                    <svg class="bi bi-arrow-right-short" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-4 mb-4">
+    <div class="card h-100 shadow px-4 px-md-2 px-lg-3 card-span pt-4">
+        <div class="text-center text-md-start card-hover">
+            <img class="ps-3 icons" src="assets/img/icons/visa.png" height="60" alt="services" />
+            <div class="card-body">
+                <h6 class=" fs-1 heading-color">Английский для организаций</h6>
+                <p class="mt-3 mb-md-0 mb-lg-3">Корпоративные курсы с учетом специфики бизнеса. Создаем возможности работать с иностранными компаниями. </p>
+                <a class="btn btn-lg ps-0 pe-3 text-primary" href="#english-business" role="button">
+                    Узнать больше
+                    <svg class="bi bi-arrow-right-short" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-4 mb-4">
+    <div class="card h-100 shadow px-4 px-md-2 px-lg-3 card-span pt-4">
+        <div class="text-center text-md-start card-hover">
+            <img class="ps-3 icons" src="assets/img/icons/clock.png" height="60" alt="services" />
+            <div class="card-body">
+                <h6 class=" fs-1 heading-color">Экспресс-английский</h6>
+                <p class="mt-3 mb-md-0 mb-lg-3">Курсы с выбранной вами спецификой. Смотреть фильмы, играть, читать научную литературу - выбирать тебе. </p>
+                <a class="btn btn-lg ps-0 pe-3 text-primary" href="#english-express" role="button">
+                    Узнать больше
+                    <svg class="bi bi-arrow-right-short" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-4 mb-4">
+    <div class="card h-100 shadow px-4 px-md-2 px-lg-3 card-span pt-4">
+        <div class="text-center text-md-start card-hover">
+            <img class="ps-3 icons" src="assets/img/icons/departure.png" height="60" alt="services" />
+            <div class="card-body">
+                <h6 class=" fs-1 heading-color">Разговорный клуб</h6>
+                <p class="mt-3 mb-md-0 mb-lg-3">Занятия с упором на свободное общение. Совершенствуйте свои разговорные навыки вместе с носителями языка.</p>
+                <a class="btn btn-lg ps-0 pe-3 text-primary" href="#english-speaking" role="button">
+                    Узнать больше
+                    <svg class="bi bi-arrow-right-short" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-4 mb-4">
+    <div class="card h-100 shadow px-4 px-md-2 px-lg-3 card-span pt-4">
+        <div class="text-center text-md-start card-hover">
+            <img class="ps-3 icons" src="assets/img/icons/toy2.png" height="60" alt="services" />
+            <div class="card-body">
+                <h6 class=" fs-1 heading-color">Программирование <br />для детей</h6>
+                <p class="mt-3 mb-md-0 mb-lg-3">Освойте навыки программирования и проложите свой путь к успеху.</p>
+                <a class="btn btn-lg ps-0 pe-3 text-primary" href="#programming" role="button">
+                    Узнать больше
+                    <svg class="bi bi-arrow-right-short" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+ *@
