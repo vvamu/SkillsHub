@@ -16,7 +16,7 @@ public class CourseValidator : AbstractValidator<Course>
            .WithMessage("Course can't be visible on page if identity not defined");
 
         RuleFor(x => x)
-            .Must(x => !x.IsVisibleOnMainPage || (x.OrderOnMainPage > 0 && x.OrderOnMainPage < 50))
+            .Must(x => !x.IsVisibleOnMainPage || (x.OrderOnMainPage >= 0 && x.OrderOnMainPage < 50))
             .WithMessage("If Course is visible on the main page, OrderOnMainPage must be greater than 0 and less than 50");
 
     }

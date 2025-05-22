@@ -22,6 +22,7 @@ public class UserCreateDTO
     public DateTime BirthDate { get; set; }
     public string[] PhonesArray { get; set; } = new string[5];
     public string[] EmailsArray { get; set; } = new string[5];
+    public string[]? Roles { get; set; }
     public string? SourceFindCompany { get; set; }
     public string Password { get; set; } //?
     public string? PasswordChanged { get; set; }
@@ -33,7 +34,7 @@ public class UserCreateDTO
     public bool IsTeacher { get; set; }
     public bool IsStudent { get; set; }
 
-    public string[]? Roles { get; set; }
+    
 
     public List<Group> Groups { get; set; }
 

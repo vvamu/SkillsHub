@@ -112,7 +112,7 @@ public class HomeController : Controller
         if (string.IsNullOrEmpty(editorValue)) return "";
 
         var firstSymbol = editorValue.Substring(0, 2).ToString();
-        var str = editorValue.Substring(2).ToString().Replace("----","<br><br>").Replace("--", "<hr/>").Replace("- -", "<br/> -").Replace("-", "<br/>-").Replace("<hr/><br/>", "<hr/>").Replace("\n","<br/>");
+        var str = editorValue.Substring(2).ToString().Replace("\n", "").Replace("----","<br><br>").Replace("--", "<hr/>").Replace("- -", "<br/> -").Replace("-", "<br/>-").Replace("<hr/><br/>", "<hr/>").Replace("\n","<br/>");
         var val = new Microsoft.AspNetCore.Html.HtmlString(firstSymbol + str);
         return val.Value;
     }
@@ -144,14 +144,14 @@ public class HomeController : Controller
         return Json("Compete successfully");
     }
 
+    #endregion
+
     [HttpGet]
     [Route("website")]
     public async Task<IActionResult> GetWebsite()
     {
         return View("./Views/Home/Index/Index.cshtml");
     }
-
-    #endregion
 
     [HttpGet]
     public async Task<IActionResult> InstitutionSetting()

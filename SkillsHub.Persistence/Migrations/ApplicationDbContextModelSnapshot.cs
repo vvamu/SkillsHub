@@ -173,9 +173,6 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("EnglishLevel")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -213,9 +210,6 @@ namespace SkillsHub.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SourceFindCompany")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -273,9 +267,15 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<string>("Emails")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("EnglishLevel")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("ImageBytes")
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -290,11 +290,17 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("PathToImage")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Phones")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Sex")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SourceFindCompany")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Surname")
@@ -396,8 +402,14 @@ namespace SkillsHub.Persistence.Migrations
                     b.Property<string>("DescriptionOnMainPageMore")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte[]>("IconBytes")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("IdentityString")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("ImageBytes")
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");

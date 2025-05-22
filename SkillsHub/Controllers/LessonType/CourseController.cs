@@ -10,23 +10,26 @@ namespace SkillsHub.Controllers;
 
 public class CourseController : Controller
 {
-    private readonly IAbstractLogModelService<Course> _courseService;
+    private readonly ICourseService _courseService;
     private readonly ApplicationDbContext _context;
-    private readonly IUploadImageService<Course> _uploadImageService;
-    private readonly IUploadIconService<Course> _uploadIconService;
-
-    public CourseController(ApplicationDbContext context, 
-        IAbstractLogModelService<Course> courseService, IUploadImageService<Course> uploadImageService,IUploadIconService<Course> uploadIconService)
+    public CourseController(ApplicationDbContext context,ICourseService courseService)
     {
         _context = context;
-        _courseService = courseService as CourseService;
-        
-        _uploadImageService = uploadImageService;
-        _uploadIconService = uploadIconService;
+        _courseService = courseService;
     }
+
+    public async Task<IActionResult> Index()
+    {
+        var items = _courseService.GetItems(onlyCurrent: true);
+        var result = await items.ToListAsync();
+        return PartialView(result);
+    }
+
+    #region CoursesListOnMainPage
+
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetCourseByName(string? name, string? position, string? imagePath, bool isEditMode = false)
+    public async Task<IActionResult> GetCourseByName(string? name, string? position, bool isEditMode = false) // string? imagePath, 
     {
         if (string.IsNullOrEmpty(name)) return PartialView("./Views/Home/Index/Courses/Course.cshtml", new Course());
 
@@ -39,13 +42,14 @@ public class CourseController : Controller
 
         var item = items.FirstOrDefault();
         if (item == null) return null;
+        item = await _courseService.GetLastValueAsync(item.Id, touchFullInclude: false);
         if (!string.IsNullOrEmpty(position)) item.PositionOnSite = position;
         item.IsEditMode = isEditMode;
         item.IsVisibleOnMainPage = true;
 
         #region image and string identity
         var itemName = item.DisplayName.ToLower();
-        var newPathToImage = item.PathToImage;
+        //var newPathToImage = item.PathToImage;
         var newImageIdentity = item.IdentityString;
 
 
@@ -108,20 +112,120 @@ public class CourseController : Controller
 
         //}
         #endregion
-        item.IdentityString = newImageIdentity;
+        //item.IdentityString = newImageIdentity;
         _context.Courses.Update(item); _context.SaveChanges();
 
 
         //if (string.IsNullOrEmpty(item?.DescriptionOnMainPageMore) && item != null) item.DescriptionOnMainPage = " Групповой формат (до 8 человек) \n- Онлайн/оффлайн \n- Занятия проводятся 2 раза в неделю по 70 минут\n- \n- Индивидуальный формат \n- Онлайн/оффлайн \n- Занятия проводятся по 60 минут \n--\n- Длительность зависит от скорости обучения учеников";
         return PartialView("./Views/Home/Index/Courses/Course.cshtml", item ?? new Course());
     }
-    
-    [HttpGet]
 
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetCourses()
+    {
+        var items = _context.Courses.Where(x => (x.ParentId == null || x.ParentId == Guid.Empty) && !string.IsNullOrEmpty(x.IdentityString)).Where(x => x.IsVisibleOnMainPage).OrderBy(x => x.OrderOnMainPage).ToList();
+        return PartialView("./Views/Home/Index/Courses/Courses.cshtml", items ?? new List<Course>());
+    }
+
+    public async Task<string> ChangeVisibleStatusOnPage(string id)
+    {
+        Guid itemId;
+        if (!Guid.TryParse(id, out itemId)) return "";
+        var item = await _context.Courses.Where(x => x.ParentId == null).FirstOrDefaultAsync(x => x.Id == itemId);
+        item.IsVisibleOnMainPage = false;
+        _context.Courses.Update(item);
+        await _context.SaveChangesAsync();
+        return item.IdentityString;
+
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UploadImage(Course item)
+    {
+        try
+        {
+            await _courseService.UploadImageAsync(item);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+
+        return Json("Compete successfully");
+    }
+
+    #endregion
+
+    #region CoursesEditor
+
+    [HttpGet]
+    public async Task<IActionResult> GetCoursesEditor()
+    {
+        var items = _context.Courses.Where(x => (x.ParentId == null || x.ParentId == Guid.Empty) 
+        && !string.IsNullOrEmpty(x.IdentityString)).OrderBy(x => x.OrderOnMainPage).ToList() ?? new List<Course>();
+        return PartialView("./Views/Home/Index/Courses/CoursesEditor.cshtml", items ?? new List<Course>());
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ChangeCourseVisability(string? id,int position,bool isVisible)
+    {
+        Guid itemId;
+        if (!Guid.TryParse(id, out itemId)) return BadRequest(new { error = "Not passed id" });
+
+        var items = _context.Courses.Where(x => (x.ParentId == null || x.ParentId == Guid.Empty) && !string.IsNullOrEmpty(x.IdentityString)).OrderBy(x => x.OrderOnMainPage).ToList() ?? new List<Course>();
+        var item = items.FirstOrDefault(x => x.Id == itemId);
+        if (item == null) return BadRequest(new { error = "Not found item" });
+
+        item.OrderOnMainPage = Convert.ToInt32(position);
+        item.IsVisibleOnMainPage = Convert.ToBoolean(isVisible);
+        if (!item.IsVisibleOnMainPage) { item.OrderOnMainPage = 0; }
+
+        _context.Courses.Update(item);
+        await _context.SaveChangesAsync();
+
+        return Json("Compete successfully");
+    }
+
+    //[HttpGet]
+    //public async Task<IActionResult> ChangeCourseAsync()
+    //{
+
+    //    Guid itemId;
+    //    string? id = "";
+    //    string position = "";
+    //    string isVisible = "";
+    //    if (Guid.TryParse(id, out itemId)) return BadRequest(new { error = "Not passed id" });
+
+    //    var items = _context.Courses.Where(x => (x.ParentId == null || x.ParentId == Guid.Empty) && !string.IsNullOrEmpty(x.IdentityString)).Where(x => x.IsVisibleOnMainPage).OrderBy(x => x.OrderOnMainPage).ToList() ?? new List<Course>();
+    //    var item = items.FirstOrDefault(x => x.Id == itemId);
+    //    if(item == null) return BadRequest(new { error = "Not found item" });
+
+    //    item.OrderOnMainPage = Convert.ToInt32(position);
+    //    item.IsVisibleOnMainPage = Convert.ToBoolean(isVisible);
+    //    if(item.IsVisibleOnMainPage) { item.OrderOnMainPage = 0; }
+
+    //    _context.Courses.Update(item);
+    //    await _context.SaveChangesAsync();
+
+    //    return Json("Compete successfully");
+    //}
+
+    #endregion
+
+    #region CoursesOverviewBlock
+
+    [HttpGet]
     public async Task<IActionResult> GetCoursesOverview(bool isEditMode = false)
     {
         var items = _context.Courses.Where(x => (x.ParentId == null || x.ParentId == Guid.Empty) && !string.IsNullOrEmpty(x.IdentityString)).Where(x => x.IsVisibleOnMainPage).OrderBy(x => x.OrderOnMainPage).ToList();
-        items.ForEach(x => x.IsEditMode = isEditMode);
+        List<Course> result = new List<Course>();
+        foreach (var item in items)
+        {
+            var res = await _courseService.GetLastValueAsync(item.Id, touchFullInclude: false);
+            result.Add(res);
+        }
+        result.ForEach(x => x.IsEditMode = isEditMode);
         //foreach(var i in items)
         //{
         //    string parentDirectory = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
@@ -136,53 +240,17 @@ public class CourseController : Controller
         //    var imageDbLenght = Path.Exists(fileNameDb) ? new System.IO.FileInfo(fileNameDb).Length : 0;
         //    if (imageDbLenght == 0) i.PathToIcon = "/images/icon_course/error.png";
         //}
-        
-        return PartialView("./Views/Home/Index/Courses/CoursesOverviewBlock.cshtml", items ?? null);
-    }
 
-    public async Task<IActionResult> Index()
-    {
-        var items = _courseService.GetItems(onlyCurrent: true);
-        var result = await items.ToListAsync();
-        return PartialView(result);
-    }
-
-    public async Task<string> ChangeVisibleStatusOnPage(string id)
-    {
-        Guid itemId;
-        if (!Guid.TryParse(id, out itemId)) return "";
-        var item = await _context.Courses.Where(x => x.ParentId == null).FirstOrDefaultAsync(x=>x.Id == itemId);
-        item.IsVisibleOnMainPage = false;
-        _context.Courses.Update(item);
-        await _context.SaveChangesAsync();
-        return item.IdentityString;
-
+        return PartialView("./Views/Home/Index/Courses/CoursesOverviewBlock.cshtml", result ?? null);
     }
 
     [HttpPost]
-    public async Task<IActionResult> UploadImage(Course item)
-    {
-        try
-        {
-            await _uploadImageService.UploadImage(item);
-        }
-        catch(Exception ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
-        
-        return Json("Compete successfully");
-    }
-
-    
-
-        [HttpPost]
     public async Task<IActionResult> UploadIcon(Course item)
     {
         try
         {
             Console.Write("");
-            await _uploadIconService.UploadIcon(item);
+            await _courseService.UploadIconAsync(item);
         }
         catch (Exception ex)
         {
@@ -192,6 +260,7 @@ public class CourseController : Controller
         return Json("Compete successfully");
     }
 
+    #endregion
 
     [HttpGet]
     public async Task<IActionResult> Create(Guid? itemId)

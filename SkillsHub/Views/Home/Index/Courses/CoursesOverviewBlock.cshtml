@@ -6,6 +6,7 @@
         new Course() { Id= Guid.Empty, Name = "3" ,DescriptionOnMainPageMore="3", IdentityString = "3", PathToIcon = "assets/img/icons/admission.png"}
     };
 
+
     //src="assets/img/icons/admission.png"
 }
 @foreach(var item in items)
@@ -16,14 +17,18 @@
     var iconId = "icon_" + item.Id.ToString();
     var uploadFileIconId = "uploadFileIcon" + item.Id.ToString();
     var jQueryUploadFileIconId = "#uploadFileIcon" + item.Id.ToString();
+    var base64 = Convert.ToBase64String(item.IconBytes ?? new byte[0]);
+    var imgSrc = base64 == null ? "/images/empty.jpg" : String.Format("data:image/gif;base64,{0}", base64);
 
     <div class="col-md-4 mb-4">
         <div class="card h-100 shadow px-4 px-md-2 px-lg-3 card-span pt-4">
             <div class="text-center text-md-start card-hover">
                 @if (User.IsInRole("Admin") && item.IsEditMode)
                 {
+                   
+
                     <form style="display:flex">
-                        <img class=" icons" src="@item.PathToIcon" id="@iconId" alt="@altItem" style="border:2px solid #5d88a3;border-radius:5px;zoom:80%;height:80px;width:80px" />
+                        <img class=" icons" src="@imgSrc" id="@iconId" alt="@altItem" style="border:2px solid #5d88a3;border-radius:5px;zoom:80%;height:80px;width:80px" />
                         <div style="border-radius:5px; display:flex;">
                             <input style="width:85%" type="file" id="@uploadFileIconId" class="form-control col-lg-4 d-flex justify-content-center" accept=".png, .jpeg, .jpg" onchange="loadFile(event,'@iconId')" />
                             <button type="button" onclick="uploadIcon('@jQueryUploadFileIconId','@itemId')">Upload icon</button>
@@ -34,7 +39,7 @@
                 }
                 else
                 {
-                    <img class="ps-3 icons" src="@item.PathToIcon" height="60" id="@iconId" alt="@altItem" />
+                    <img class="ps-3 icons" src="@imgSrc" height="60" id="@iconId" alt="@altItem" />
                 }
                     
 

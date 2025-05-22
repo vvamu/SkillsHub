@@ -1,0 +1,63 @@
+﻿@model List<Course>
+@inject SkillsHub.Persistence.ApplicationDbContext _context;
+
+@{
+    var visibleItems = Model.Select(x => x.IdentityString).ToArray(); //"'" +   + "'"
+    var visibleItemsString = String.Join(",", visibleItems);
+}
+
+<script>
+
+    let tempElement = document.createElement("div");
+    tempElement.innerHTML = "@visibleItemsString";
+    let decodedModelPosition = tempElement.innerText;
+
+    let coursers = decodedModelPosition.split(",") //["english-adults","english-organization",  "english-children", "english-express", "english-speaking", "programming-children"];//["английский-взросл",  "английский-дет", "английский-организац", "английский-экспресс", "английский-разговорный", "программирование-дет"]
+
+    function loadCourse(index, resolve) {
+        if(index <= coursers.length)
+        {
+            let name = "preloader" + index;
+            $('#courses-all').append(` <div id="${name}" class="preloaders-icons" style="display: flex; align-items: center; justify-content: center"> <img src="/images/loader.svg" width="60" height="60" alt="image format png" /> </div> `);
+        }
+
+        let position = 'right';
+        if (index % 2 === 0) {
+            position = 'left';
+        }
+
+        let isEditMode = document.getElementById('flexSwitchCheckDefault'); //$("#flexSwitchCheckDefault")
+        if (isEditMode == null) {
+            isEditMode = document.createElement("input");
+            isEditMode .type = 'checkbox';
+        }
+
+        console.log('/Course/GetCourseByName?name=' + coursers[index] + '&position=' + position + '&isEditMode=' + isEditMode.checked);
+        $.ajax({
+            url: '/Course/GetCourseByName?name=' + coursers[index] + '&position=' + position + '&isEditMode=' + isEditMode.checked,
+            success: function(data) {
+                $('#courses-all').append(data);
+                $('#preloader' + index).remove();
+                // Load the next course if available
+
+                if (index + 1 < coursers.length) {
+                    loadCourse(index + 1,resolve);
+                }
+                else
+                {
+                    resolve();
+                    console.log("RESOLVE")
+                    return;
+                }
+            }
+        });
+        }
+        function loadCourss(){
+            return new Promise((res, reject) => {
+               loadCourse(0,res);
+
+            });
+        }
+
+        loadCourss();
+</script>

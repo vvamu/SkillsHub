@@ -44,9 +44,46 @@ public class AccountController : Controller
         _notificationService = notificationService;
 
     }
+
+    #region Authorizing
+
+    
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult SignIn()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    public async Task<IActionResult> SignIn(UserLoginDTO? user)
+    {
+        try
+        {
+            if (!ModelState.IsValid) { ModelState.AddModelError("", ModelState.Values.ToString()); return View(); }
+            var userDb = await _userService.SignInAsync(user);
+            if (userDb == null) return View();
+            return RedirectToAction("Index", "Home");
+        }
+        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
+
+    }
+    [HttpGet]
+    [AllowAnonymous]
+    public async new Task<IActionResult> SignOut()
+    {
+        await _userService.SignOutAsync();
+
+        return RedirectToAction("Index", "Home");
+
+    }
+    #endregion
+
     #region Get
 
     [HttpGet]
+    [Authorize(Roles ="Admin")]
     public async Task<IActionResult> Index()
     {
         //var users = await _userService.GetAllAsync();
@@ -56,6 +93,7 @@ public class AccountController : Controller
 
     }
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Item(Guid itemId, Guid id)
     {
 
@@ -91,6 +129,7 @@ public class AccountController : Controller
 
     [HttpPost]
     [Route("/Account/UsersTableList")]
+    [Authorize(Roles = "Admin")]
 
     public async Task<IActionResult> UsersTableList(UserFilterModel filters, OrderModel order)
     {
@@ -139,11 +178,68 @@ public class AccountController : Controller
         return PartialView("_UsersList", await users.ToListAsync());
     }
 
+    [HttpPost]
+    public async Task<IActionResult> GetStudentGroupsByUser(Guid id, GroupFilterModel filters, OrderModel? order)
+    {
+        var user = await _userService.GetById(id);
+        if (user?.UserStudent == null) return PartialView("~/Views/Account/Item/_StudentGroups.cshtml", (user, new List<Group>(), new List<Lesson>()));
+
+        var groups = user.UserStudent.Groups;
+        List<Group> studentGroups = new List<Group>();
+        foreach (var gro in groups)
+        {
+            var group = await _groupService.GetAsync(gro.GroupId);
+            studentGroups.Add(group);
+        }
+
+        var ress = await FilterMaster.FilterGroups(studentGroups.AsQueryable(), filters, order);
+        var rerer = ress.ToList();
+
+        var otherLessons = _context.LessonStudents.Where(x => x.StudentId == user.UserStudent.Id);//.Where(x=>)
+        /*var otherLessons = _lessonService.GetAll()
+            .Where(x => x.ArrivedStudents.Select(x => x.StudentId).Contains(user.UserStudent.Id))
+            .Where(x => !studentGroups.Select(x => x.Id).Contains(x.GroupId));*/
+
+
+
+        return PartialView("~/Views/Account/Item/_StudentGroups.cshtml", (user, rerer, new List<Lesson>()));
+
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetTeacherGroupsByUser(Guid id, GroupFilterModel filters, OrderModel? order)
+    {
+        var user = await _userService.GetById(id);
+
+        if (user?.UserTeacher == null) return PartialView("~/Views/Account/Item/_TeacherGroups.cshtml", (user, new List<Group>(), new List<Lesson>()));
+
+        var groups = user.UserTeacher?.Groups?.Where(x => x.Group != null && !x.Group.IsDeleted).ToList();
+        List<Group> teacherGroups = new List<Group>();
+        foreach (var gro in groups)
+        {
+            var group = await _groupService.GetAsync(gro.GroupId);
+            teacherGroups.Add(group);
+        }
+
+
+        var ress = await FilterMaster.FilterGroups(teacherGroups.AsQueryable(), filters, order);
+        var result = ress.ToList();
+        /*
+        var otherLessons = _lessonService.GetAll()
+           .Where(x => x.Teacher.Id == user.UserTeacher.Id)
+           .Where(x => !teacherGroups.Select(x => x.Id).Contains(x.Group.Id)).ToList();*/
+
+
+        return PartialView("~/Views/Account/Item/_TeacherGroups.cshtml", (user, result, new List<Lesson>()));
+
+    }
+
     #endregion
 
 
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Create(Guid id)
     {
         var user = await _userService.GetUserCreateDTOByIdAsync(id);
@@ -153,7 +249,8 @@ public class AccountController : Controller
     }
     
     [HttpPost]
-    public async Task<IActionResult> Create(UserCreateDTO userCreateModel, string[] role = null)
+    [Authorize]
+    public async Task<IActionResult> Create(UserCreateDTO userCreateModel)
     {
         ApplicationUser user;
 
@@ -161,13 +258,14 @@ public class AccountController : Controller
         {
             if (userCreateModel.Id != Guid.Empty)
             {
-                user = await _userService.UpdateAsync(userCreateModel, role.ToList());
+                
+                user = await _userService.UpdateAsync(userCreateModel);
                 //var c = await u.FirstOrDefaultAsync(x => x.ApplicationUser.UserName == userCreateModel.UserName);
                 //user = c?.ApplicationUser;
             }
             else
             {
-                user = await _userService.CreateAsync(userCreateModel, role.ToList(), true);
+                user = await _userService.CreateAsync(userCreateModel, true);
            
                 //if (userCreateModel.IsStudent)
                 //{
@@ -183,24 +281,8 @@ public class AccountController : Controller
         return RedirectToAction("Item", new { itemId = user.Id });
         //return View();
     }
-    public async Task<IActionResult> WorkingSchedule(Guid? id)
-    {
-        if (id == null) return View(await _context.Users.FirstOrDefaultAsync());
 
-        var user = await _userService.GetById((Guid)id);
-        return View(user);
-
-    }
-
-    [Route("/Account/GetWorkingScheduleAsync")]
-    public async Task<IActionResult> GetWorkingScheduleAsync(Guid? id)
-    {
-        if (id == null) return View(await _context.Users.FirstOrDefaultAsync());
-
-        var user = await _userService.GetById((Guid)id);
-        return Ok(user.UserWorkingDays ?? new List<UserWorkingDay>());
-
-    }
+    
 
 
 
@@ -219,33 +301,7 @@ public class AccountController : Controller
         }
     }
 
-    public async Task<IActionResult> SoftDelete(Guid id)
-    {
-        await _userService.DeleteAsync(id,false);
-        var returnUrl = HttpContext.Session.GetString("page");
 
-        switch (returnUrl)
-        {
-            case "index": return RedirectToAction("Index");
-            case "item": return RedirectToAction("Item", new { id = id });
-            default: return RedirectToAction("Index", "CRM");
-        }
-
-    }
-
-    public async Task<IActionResult> HardDelete(Guid id)
-    {
-        await _userService.DeleteAsync(id, true);
-        var returnUrl = HttpContext.Session.GetString("page");
-
-        switch (returnUrl)
-        {
-            case "index": return RedirectToAction("Index");
-            case "item": return RedirectToAction("Item", new { id = id });
-            default: return RedirectToAction("Index", "CRM");
-        }
-
-    }
 
     public async Task<IActionResult> Delete(string[] multipleId, string isHardDelete = "false")
     {
@@ -341,94 +397,56 @@ public class AccountController : Controller
 
 
 
-    [HttpPost]
-    public async Task<IActionResult> GetStudentGroupsByUser(Guid id, GroupFilterModel filters, OrderModel order)
-    {
-        var user = await _userService.GetById(id);
-        if (user.UserStudent == null) return PartialView("~/Views/Account/Item/_StudentGroups", (user, new List<Group>(), new List<Lesson>()));
-
-        var groups = user.UserStudent.Groups;
-        List<Group> studentGroups = new List<Group>();
-        foreach (var gro in groups)
-        {
-            var group = await _groupService.GetAsync(gro.GroupId);
-            studentGroups.Add(group);
-        }
-
-        var ress = await FilterMaster.FilterGroups(studentGroups.AsQueryable(), filters, order);
-        var rerer = ress.ToList();
-
-        var otherLessons = _context.LessonStudents.Where(x => x.StudentId == user.UserStudent.Id);//.Where(x=>)
-        /*var otherLessons = _lessonService.GetAll()
-            .Where(x => x.ArrivedStudents.Select(x => x.StudentId).Contains(user.UserStudent.Id))
-            .Where(x => !studentGroups.Select(x => x.Id).Contains(x.GroupId));*/
 
 
 
-        return PartialView("~/Views/Account/Item/_StudentGroups", (user, rerer, new List<Lesson>())); 
 
-    }
+    //public async Task<IActionResult> SoftDelete(Guid id)
+    //{
+    //    await _userService.DeleteAsync(id,false);
+    //    var returnUrl = HttpContext.Session.GetString("page");
 
-    [HttpPost]
-    public async Task<IActionResult> GetTeacherGroupsByUser(Guid id, GroupFilterModel filters, OrderModel order)
-    {
-        var user = await _userService.GetById(id);
+    //    switch (returnUrl)
+    //    {
+    //        case "index": return RedirectToAction("Index");
+    //        case "item": return RedirectToAction("Item", new { id = id });
+    //        default: return RedirectToAction("Index", "CRM");
+    //    }
 
-        if (user?.UserTeacher == null) return PartialView("~/Views/Account/Item/_TeacherGroups", (user, new List<Group>(), new List<Lesson>()));
+    //}
 
-        var groups = user.UserTeacher?.Groups?.Where(x => x.Group != null && !x.Group.IsDeleted).ToList();
-        List<Group> teacherGroups = new List<Group>();
-        foreach (var gro in groups)
-        {
-            var group = await _groupService.GetAsync(gro.GroupId);
-            teacherGroups.Add(group);
-        }
+    //public async Task<IActionResult> HardDelete(Guid id)
+    //{
+    //    await _userService.DeleteAsync(id, true);
+    //    var returnUrl = HttpContext.Session.GetString("page");
 
+    //    switch (returnUrl)
+    //    {
+    //        case "index": return RedirectToAction("Index");
+    //        case "item": return RedirectToAction("Item", new { id = id });
+    //        default: return RedirectToAction("Index", "CRM");
+    //    }
 
-        var ress = await FilterMaster.FilterGroups(teacherGroups.AsQueryable(), filters, order);
-        var result = ress.ToList();
-        /*
-        var otherLessons = _lessonService.GetAll()
-           .Where(x => x.Teacher.Id == user.UserTeacher.Id)
-           .Where(x => !teacherGroups.Select(x => x.Id).Contains(x.Group.Id)).ToList();*/
+    //}
 
+    //public async Task<IActionResult> WorkingSchedule(Guid? id)
+    //{
+    //    if (id == null) return View(await _context.Users.FirstOrDefaultAsync());
 
-        return PartialView("~/Views/Account/Item/_TeacherGroups", (user, result, new List<Lesson>()));
+    //    var user = await _userService.GetById((Guid)id);
+    //    return View(user);
 
-    }
+    //}
 
+    //[Route("/Account/GetWorkingScheduleAsync")]
+    //public async Task<IActionResult> GetWorkingScheduleAsync(Guid? id)
+    //{
+    //    if (id == null) return View(await _context.Users.FirstOrDefaultAsync());
 
+    //    var user = await _userService.GetById((Guid)id);
+    //    return Ok(user.UserWorkingDays ?? new List<UserWorkingDay>());
 
-    [HttpGet]
-    [AllowAnonymous]
-    public IActionResult SignIn()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    [AllowAnonymous]
-    public async Task<IActionResult> SignIn(UserLoginDTO? user)
-    {
-        try
-        {
-            if (!ModelState.IsValid) { ModelState.AddModelError("", ModelState.Values.ToString()); return View(); }
-            var userDb = await _userService.SignInAsync(user);
-            if (userDb == null) return View();
-            return RedirectToAction("Index", "Home");
-        }
-        catch (Exception ex) { ModelState.AddModelError("", ex.Message); return View(); }
-
-    }
-    [HttpGet]
-    [AllowAnonymous]
-    public async new Task<IActionResult> SignOut()
-    {
-        await _userService.SignOutAsync();
-
-        return RedirectToAction("Index", "Home");
-
-    }
+    //}
 
 
 }

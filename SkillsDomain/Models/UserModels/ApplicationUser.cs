@@ -13,11 +13,8 @@ public class ApplicationUser : IdentityUser<Guid>
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 
     public List<ApplicationUserBaseUserInfo>? ConnectedUsersInfo { get; set; }
-    [DefaultValue("A1")]
-    public string? EnglishLevel { get; set; } = "A1";
 
-
-    public string? SourceFindCompany { get; set; }
+    
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     [DefaultValue("CONVERT(date, GETDATE())")]
@@ -74,7 +71,7 @@ public class ApplicationUser : IdentityUser<Guid>
     [NotMapped]
     public string? Surname { get => UserInfo?.Surname; }
     [NotMapped]
-    public string? Sex { get => UserInfo?.Sex; }
+    public string? Sex { get => UserInfo?.Sex;  }
     [NotMapped]
     public DateTime BirthDate { get { if (UserInfo == null) return DateTime.Now; else return UserInfo.BirthDate; } }
 
@@ -85,6 +82,8 @@ public class ApplicationUser : IdentityUser<Guid>
     public string[] PhonesArray { get => UserInfo?.PhonesArray; }
     [NotMapped]
     public string[] EmailsArray { get => UserInfo?.EmailsArray; }
+    [NotMapped]
+    public string EnglishLevel { get => UserInfo?.EnglishLevel; }
 
     [NotMapped]
     public string? Email { get => UserInfo?.Email; set { var one = UserInfo?.EmailsArray.First(); one = value; } }

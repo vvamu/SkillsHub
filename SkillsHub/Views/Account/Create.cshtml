@@ -1,14 +1,17 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using SkillsHub.Application.DTO
 @using SkillsHub.Domain.BaseModels
 
 @inject SignInManager<ApplicationUser> _signInManager;
 @inject SkillsHub.Persistence.ApplicationDbContext _context;
 
 
-@model SkillsHub.Application.DTO.UserCreateDTO;
+@model UserCreateDTO;
 
 @{
     var resText = "Создать";
+    var item = Model == null || Model.Id == Guid.Empty ? new SkillsHub.Application.DTO.UserCreateDTO() : Model;
+    var isEdit = item.Id != Guid.Empty;
     if (Model != null && Model.Id != Guid.Empty) resText = "Редактировать";
     ViewData["Title"] = resText + " пользователя ";
 }
@@ -19,7 +22,11 @@
     font-size : inherit
     }
 
+
+
 </style>
+
+
 
 <!-- Section: Design Block -->
 <section class=" text-center " style="padding:0.7%">
@@ -47,15 +54,21 @@
                         <div class="card login-form mb-0">
                             <div class="card-body pt-5">
 
-                                <form class="mt-5 mb-5 login-input" method="post" name="userCreateModel">
+                                <form class="mt-5 mb-5" method="post" name="userCreateModel">
                                     <input type="hidden" asp-for="IsBase" value="@true" />
 
                                     <div class="text-center" style="min-height:80px; display:flex;justify-content:space-between"> <h3>
                                             @if(Model !=null)
                                             {
+                                                var isAdmin = User.IsInRole("Admin") ? false : true;
                                                 <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
                                                 <input type="hidden" asp-for="@Model.IsDeleted" value="@Model.IsDeleted" />
                                                 <input type="hidden" asp-for="@Model.BaseUserInfoId" value="@Model.BaseUserInfoId"/>
+
+
+                                                <input type="hidden" asp-for="@Model.IsCheckPassword" class="form-control" value="@isAdmin">
+
+
                                             }
                                             @resText пользователя
                                         </h3>
@@ -67,14 +80,18 @@
 
                                     <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
 
+                                    @{
+                                        var notChangedLogin = Model?.Id == Guid.Empty ? false : true;
+                                    }
                                     <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
                                             Логин<span class="text-danger">*</span>
                                         </label>
                                         <div class="col-lg-6" id="first-col">
-                                            <input type="text" asp-for="UserName" name="UserName" class="form-control"  placeholder="Логин*" required>
+                                            <input type="text" asp-for="UserName" name="UserName" disabled=@notChangedLogin class="form-control" placeholder="Логин*" required id="login">
                                         </div>
                                     </div>
+
                                     <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
                                             Фамилия<span class="text-danger">*</span>
@@ -123,92 +140,86 @@
                                         </div>
                                     </div>
 
-                                    @if(Model?.PhonesArray !=null && !Model.PhonesArray.All(s => string.IsNullOrEmpty(s)))
-                                    {
-                                        <div class="form-group row" id="phones">
-                                            <label class="col-lg-4 col-form-label">
-                                                Телефон<span class="text-danger">*</span>
-                                            </label>
-                                            @foreach (var item in Model?.PhonesArray)
+
+                                    <div class="form-group row" id="phones">
+                                        <label class="col-lg-4 col-form-label">
+                                            Телефон<span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <div class="col-lg-6">
+                                            @if (item.PhonesArray.Where(x=>x != null).Count() == 0)
                                             {
-                                                if (Array.IndexOf(Model.PhonesArray, item) == 0)
-                                                {
-                                                    <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
-                                                        <input type="text" name="PhonesArray[0]" class="col-lg-11 form-control" placeholder="+375447074007" pattern="(\+?\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)" title="Please enter a valid mobile phone number with 12 or 13 digits" required value="@item">
+                                                <div style="display:flex;flex-wrap:nowrap;">
+                                                    <input type="text" name="PhonesArray[0]" class="col-lg-11 form-control" placeholder="+375447074007" pattern="(\+?\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)" title="Please enter a valid mobile phone number with 12 or 13 digits" required>
+                                                    <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addPhone()" />
+                                                    <div class="validate"></div>
+                                                </div>
+                                            }
+                                            @for (int i = 0; i < item.PhonesArray.Where(x => x != null).Count(); i++)
+                                            {
+                                                var phone = item.PhonesArray[i];
+
+
+                                                <div style="display:flex;flex-wrap:nowrap;" >
+                                                    <input type="text" name="PhonesArray[@i]" class="col-lg-11 form-control" placeholder="+375447074007" pattern="(\+?\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)" title="Please enter a valid mobile phone number with 12 or 13 digits" required value="@phone">
+                                                    @if(i == 0)
+                                                    {
                                                         <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addPhone()" />
-                                                        <div class="validate"></div>
-                                                    </div>
-                                                }
-                                                else{
-                                                    <label class="col-lg-4 col-form-label" for="val-skill"></label>
-                                                    <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
-                                                        <input type="text" name="PhonesArray[0]" class="col-lg-11 form-control" placeholder="+375447074007" pattern="(\+?\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)" title="Please enter a valid mobile phone number with 12 or 13 digits" required value="@item">
-                                                        <input type="button" class="col-lg-1 btn btn-danger" value="Х" onclick="removePhone()" />
-                                                        <div class="validate"></div>
-                                                    </div>
-                                                }
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="button" class="col-lg-1 btn btn-danger" value="Х" onclick="removePhone(this)" />
+                                                    }
+                                                    
+                                                    <div class="validate"></div>
+                                                </div>
                                             }
+                                            <div id="phoneList"></div>
                                         </div>
-                                    }
-                                    else{
-                                        <div class="form-group row" id="phones">
-                                            <label class="col-lg-4 col-form-label">
-                                                Телефон<span class="text-danger">*</span>
-                                            </label>
-                                            <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
-                                                <input type="text" name="PhonesArray[0]" class="col-lg-11 form-control" placeholder="+375447074007" pattern="(\+?\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d\s*\d)" title="Please enter a valid mobile phone number with 12 or 13 digits" required>
-                                                <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addPhone()"/>
+                                    </div>
+
+
+
+
+
+                                    <div class="form-group row" id="emails">
+                                        <label class="col-lg-4 col-form-label">
+                                            Почта
+                                        </label>
+                                        <div class="col-lg-6">
+                                        @if (item.EmailsArray.Where(x=>x != null).Count() == 0)
+                                        {
+                                            <div style="display:flex;flex-wrap:nowrap;" >
+                                                <input type="email" name="EmailsArray[0]" class="col-lg-11 form-control" placeholder="Почта" pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{{|}}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" >                                                <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addPhone()" />
                                                 <div class="validate"></div>
                                             </div>
-                                        </div>
-                                    }
+                                        }
+                                        @for (int i = 0; i <item.EmailsArray.Where(x=>x != null).Count();i++)
+                                        {
+                                            var email = item.EmailsArray[i];
 
-
-                                    <div id="phoneList"></div>
-
-
-
-
-                                    @if(Model?.EmailsArray !=null && !Model.EmailsArray.All(s => string.IsNullOrEmpty(s)))
-                                    {
-                                        <div class="form-group row" id="emails">
-                                            <label class="col-lg-4 col-form-label">
-                                                Почта
-                                            </label>
-                                            @foreach (var item in Model?.EmailsArray)
-                                            {
-                                                if (Array.IndexOf(Model.EmailsArray, item) == 0)
+                                            <div style="display:flex;flex-wrap:nowrap;">
+                                                <input type="email" name="EmailsArray[@i]" class="col-lg-11 form-control" placeholder="Почта" pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{{|}}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" value="@email">
+                                                @if (i == 0)
                                                 {
-                                                    <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
-                                                        <input type="email" name="EmailsArray[0]" class="col-lg-11 form-control" placeholder="Почта" pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{{|}}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" value="@item">
-                                                        <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addEmail()" />
-                                                        <div class="validate"></div>
-                                                    </div>
+                                                    <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addEmail()" />
                                                 }
-                                                else{
-                                                    <label class="col-lg-4 col-form-label" for="val-skill"></label>
-                                                    <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
-                                                        <input type="email" name="EmailsArray[@Array.IndexOf(Model.EmailsArray, item)]" class="col-lg-11 form-control" placeholder="Почта"   pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{{|}}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" value="@item">
-                                                        <input type="button" class="col-lg-1 btn btn-danger" value="Х" onclick="removePhone()" />
-                                                        <div class="validate"></div>
-                                                    </div>
+                                                else
+                                                {
+                                                    <input type="button" class="col-lg-1 btn btn-danger" value="Х" onclick="removeEmail(this)" />
                                                 }
-                                            }
-                                        </div>
-                                    }
-                                    else{
-                                        <div class="form-group row" id="emails">
-                                            <label class="col-lg-4 col-form-label">
-                                                Почта
-                                            </label>
-                                            <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
-                                                <input type="email" name="EmailsArray[0]" class="col-lg-11 form-control" placeholder="Почта"   pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{{|}}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$">
-                                                <input type="button" class="col-lg-1 btn btn-success" value="+" onclick="addEmail()"/>
+
+                                               
                                                 <div class="validate"></div>
                                             </div>
+                                            
+                                        }
+                                        <div id="emailList"></div>
                                         </div>
-                                    }
-                                    <div id="emailList"></div>
+                                    </div>
+
+                                    
 
 
 
@@ -218,25 +229,22 @@
                                             Уровень владения английским<span class="text-danger">*</span>
                                         </label>
                                         <div class="col-lg-6">
-                                            @if (User.IsInRole("Admin") || Model == null || Model.Id == Guid.Empty)
+                                            @if (User.IsInRole("Admin") || item.Id == Guid.Empty)
                                             {
                                                 <select asp-for="EnglishLevel" name="EnglishLevel" class="form-select">
                                                     @{
                                                         string selectedEnglishLevel = "";
-                                                        if (Model != null && Model.EnglishLevel != null)
-                                                            selectedEnglishLevel = Model.EnglishLevel;
-                                                        var englishLevels = new List
-                                                        <string>
-                                                        () { "A1.1", "A1.2", "A2", "B1", "B2", "C1", "C2" };
-                                                        foreach (var item in englishLevels)
+                                                        if (item?.EnglishLevel != null) selectedEnglishLevel = item.EnglishLevel;
+                                                        var englishLevels = new List<string> () { "A1.1", "A1.2", "A2", "B1", "B2", "C1", "C2" };
+                                                        foreach (var englishLevel in englishLevels)
                                                         {
-                                                            if (item == selectedEnglishLevel)
+                                                            if (englishLevel == selectedEnglishLevel)
                                                             {
-                                                                <option selected>@item</option>
+                                                                <option value="@englishLevel" selected>@englishLevel</option>
                                                             }
                                                             else
                                                             {
-                                                                <option>@item</option>
+                                                                <option value="@englishLevel">@englishLevel</option>
                                                             }
                                                         }
                                                     }
@@ -244,14 +252,14 @@
                                             }
                                             else {
                                                 <select asp-for="EnglishLevel" name="EnglishLevel" class="form-select" disabled>
-                                                    <option>@Model.EnglishLevel</option>
+                                                    <option value="@item.EnglishLevel">@item.EnglishLevel</option>
                                                 </select>
                                             }
                                         </div>
                                     </div>
 
-
-                                    @if (User?.Identity?.Name != Model?.UserName && User.IsInRole("Admin"))
+                                    <!--
+                                    if (User?.Identity?.Name != Model?.UserName && User.IsInRole("Admin"))
                                     { 
                                         <div class="form-group row">
                                             <label class="col-lg-4 col-form-label" for="val-skill">
@@ -263,21 +271,23 @@
                                             </div>
                                         </div>
                                     }
+                                    -->
 
+                                    <!--PASSWORD-->
                                     <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
                                             Изменить пароль?
                                         </label>
                                         <div class="col-lg-6">
-                                            <input type="checkbox" asp-for="IsChangePassword" class="form-control" placeholder="Пароль" onchange="hidePropertiesToChangePassword()">
+                                            <input type="checkbox" style="border:1px solid #a8a8a8" asp-for="@Model.IsChangePassword" class="form-check-input" id="isChangePassword" onchange="hidePropertiesToChangePassword()">
                                         </div>
                                     </div>
-                                    
                                     @if (User.IsInRole("Admin"))
                                     {
 
-                                        <input type="hidden" asp-for="IsCheckPassword" name="CheckPasswordString" class="form-control" value=@false>
-                                        <div class="form-group row" hidden>
+
+
+                                        <div class="form-group row main-page-prop" hidden>
                                             <label class="col-lg-4 col-form-label" for="val-skill">
                                                 Новый пароль<span class="text-danger">*</span>
                                             </label>
@@ -288,32 +298,33 @@
                                     }
                                     else
                                     {
-                                        <input type="hidden" asp-for="IsCheckPassword" name="CheckPasswordString" class="form-control" value=@true>
-                                        <div class="form-group row">
+
+                                        <div class="form-group row main-page-prop" >
                                             <label class="col-lg-4 col-form-label" for="val-skill">
-                                                Пароль<span class="text-danger">*</span>
+                                                Текущий пароль<span class="text-danger">*</span>
                                             </label>
                                             <div class="col-lg-6">
-                                                <input type="password" asp-for="Password" name="Password" class="form-control" placeholder="Пароль" required>
+                                                <input type="password" asp-for="Password" name="Password" class="form-control" placeholder="Пароль" required >
                                             </div>
                                         </div>
-                                        <div class="form-group row" hidden>
+                                        <div class="form-group row main-page-prop " hidden>
                                             <label class="col-lg-4 col-form-label" for="val-skill">
                                                 Новый пароль<span class="text-danger">*</span>
                                             </label>
                                             <div class="col-lg-6">
-                                                <input type="password" asp-for="PasswordChanged" name="PasswordChanged" class="form-control" placeholder="Измененный пароль">
+                                                <input type="password" asp-for="PasswordChanged" name="PasswordChanged" class="form-control main-page-prop-require" placeholder="Измененный пароль" >
                                             </div>
                                         </div>
-                                         <div class="form-group row"hidden>
+                                        <div class="form-group row main-page-prop" hidden>
                                             <label class="col-lg-4 col-form-label" for="val-skill">
                                                 Повторно новый пароль<span class="text-danger">*</span>
                                             </label>
                                             <div class="col-lg-6">
-                                                <input type="password" asp-for="PasswordChangedConfirm" name="PasswordChangedConfirm" class="form-control" placeholder="Повторите пароль">
+                                                <input type="password" asp-for="PasswordChangedConfirm" name="PasswordChangedConfirm" class="form-control main-page-prop-require" placeholder="Повторите пароль">
                                             </div>
                                         </div>
                                     }
+                                    <!--ROLES-->
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <div class="col-lg-12">
@@ -339,18 +350,27 @@
 
                                                                 <div class="form-check mb-3">
                                                                     <label class="form-check-label">
-                                                                        <input type="checkbox" name="role" value="@role" class="form-check-input" @isChecked>
+                                                                        <input type="checkbox" name="Roles[@i]" value="@role" class="form-check-input" @isChecked>
                                                                         @totalRoles[i]
                                                                     </label>
                                                                 </div>
                                                             }
-                                           </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                     </div>
-                                  </div>
-                               </div>
-                           }
-                           
+                                    }
+                                    else
+                                    {
+
+                                        for (int i = 0; i < item?.Roles?.Count(); i++)
+                                        {
+                                            var role = item?.Roles[i];
+                                            <input type="hidden" name="Roles[@i]" value="@role"/>
+                                        } 
+                                    }
+
                                         
 
                             <input type="submit" asp-action="Create" asp-controller="Account" class="btn login-form__btn submit w-100" value="@resText" />
@@ -391,10 +411,10 @@
             const phoneList = document.getElementById('phoneList');
 
             const newPhone = document.createElement('div');
-            newPhone.className = 'form-group row';
+            //newPhone.className = 'form-group row';
             newPhone.innerHTML = `
-                    <label class="col-lg-4 col-form-label" for="val-skill"></label>
-                    <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                    
+                    <div style="display:flex;flex-wrap:nowrap;">
                         <input type="text"  name="PhonesArray[${phoneIndex}]" class="col-lg-11 form-control" placeholder="Телефон*" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
                         <input type="button" class="col-lg-1 btn btn-danger" value="X" onclick="removePhone(this)">
                         <div class="validate"></div>
@@ -406,7 +426,7 @@
 
         function removePhone(element) {
             phoneIndex--;
-            element.parentNode.parentNode.remove();
+            element.parentNode.remove();
         }
 
         function addEmail() {
@@ -416,10 +436,10 @@
             const phoneList = document.getElementById('emailList');
 
             const newPhone = document.createElement('div');
-            newPhone.className = 'form-group row';
+            //newPhone.className = 'form-group row';
             newPhone.innerHTML = `
-                            <label class="col-lg-4 col-form-label" for="val-skill"></label>
-                            <div style="display:flex;flex-wrap:nowrap;" class="col-lg-6">
+                           
+                            <div style="display:flex;flex-wrap:nowrap;">
                                 <input type="email"  name="EmailsArray[${emailIndex}]" class="col-lg-11 form-control" placeholder="Почта" pattern="(\+\d{4,}|\d{4,})" title="Please enter a valid phone number" required>
                                 <input type="button" class="col-lg-1 btn btn-danger" value="X" onclick="removeEmail(this)">
                                 <div class="validate"></div>
@@ -431,23 +451,21 @@
 
         function removeEmail(element) {
             emailIndex--;
-            element.parentNode.parentNode.remove();
+            element.parentNode.remove();
         }
 
         function hidePropertiesToChangePassword() {
-            const checkbox = document.getElementById("IsVisibleOnMainPage");
+            const checkbox = document.getElementById("isChangePassword");
             const mainPageProps = document.querySelectorAll('.main-page-prop');
             const mainPagePropsRequire = document.querySelectorAll('.main-page-prop-require');
 
-
+            console.log(checkbox.checked)
             if (checkbox.checked) {
                 mainPageProps.forEach(element => {
                     if (element.hasAttribute('hidden')) {
                         element.removeAttribute('hidden');
                     }
                 });
-
-
                 mainPagePropsRequire.forEach(element => {
                     if (!element.hasAttribute('required')) {
                         element.setAttribute('required', 'true');
@@ -455,6 +473,7 @@
                 });
 
             } else {
+                
                 mainPageProps.forEach(element => {
                     if (!element.hasAttribute('hidden')) {
                         element.setAttribute('hidden', 'true');
@@ -469,8 +488,20 @@
         }
 
         window.onload = function(e){
-          const delay = ms => new Promise(res => setTimeout(res, ms));
-          hidePropertiesToChangePassword()
+
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+            hidePropertiesToChangePassword()
+
+            let login = document.getElementById("login");
+            
+            var value = login.value;
+            if (value != '') {
+                login.removeAttr('disabled');
+            } else {
+                login.attr('disabled', 'disabled');
+            }
+                // submitLanguage.attr('enabled', 'enabled');
+            
         }
    </script>
 </section>

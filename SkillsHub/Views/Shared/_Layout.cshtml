@@ -72,8 +72,31 @@
         });
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/96558122" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+    <!-- Event snippet for Contact conversion page -->
+    <script>
+        gtag('event', 'conversion', {'send_to': 'AW-17022741245/U2HNCJbSgLwaEP3VibU_'});
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17022741245">
+    </script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'AW-17022741245');
+    </script>
+
+    <style>
+
+        input[type="checkbox"]:after {
+            border: 1px solid #614c4c !important
+        }
+    </style>
 
 </head>
 
@@ -81,253 +104,236 @@
     <div class="container panel-collapse collapse" style="z-index:10;margin-right:5%" id="err">
     </div>
 
+
+
     @{
+
         if (User.Identity.IsAuthenticated && @Context.Request.Path.Value != "/website" && @Context.Request.Path.Value != "/thanks")
         {
+
             #region AuthorizedHeader;
 
-
-
             @using SkillsHub.Domain.BaseModels;
-            @inject SkillsHub.Persistence.ApplicationDbContext _context;
-            @inject SignInManager<ApplicationUser> _signInManager;
+            @inject SkillsHub.Persistence.ApplicationDbContext _context;           
             @inject UserManager<ApplicationUser> _userManager;
 
-            <meta name="theme-name" content="quixlab" />
-            <link href="~/plugins/pg-calendar/css/pignose.calendar.min.css" rel="stylesheet">
+            var user = _context.Users.FirstOrDefault(x => x.UserName == User.Identity.Name) ?? new ApplicationUser() { UserName = "empty" };
+            //var appUserBaseUserInfo = _context.ApplicationUserBaseUserInfo.Where(x => x.ApplicationUserId == user.Id).Where(x => x.IsBase == true).ToList();
+            //user.ConnectedUsersInfo = appUserBaseUserInfo;
+            var appUserBaseUserInfo = _context.ApplicationUserBaseUserInfo.Where(x => x.ApplicationUserId == user.Id).FirstOrDefault(x => x.IsBase == true);
+            var baseUserInfo = _context.BaseUserInfo.FirstOrDefault(x => x.Id == appUserBaseUserInfo.BaseUserInfoId) ?? new BaseUserInfo();
+            IList<string> userRolesList = await _userManager.GetRolesAsync(user);
+            baseUserInfo.UserRoles = String.Join(";", userRolesList);
+            user.Roles = userRolesList.ToArray();
+
+            <link rel="stylesheet" href="~/plugins/pg-calendar/css/pignose.calendar.min.css" >
             <link rel="stylesheet" href="~/plugins/chartist/css/chartist.min.css">
             <link rel="stylesheet" href="~/plugins/chartist-plugin-tooltips/css/chartist-plugin-tooltip.css">
-            <!-- Custom Stylesheet -->
-            //
-            <link href="~/plugins/fullcalendar/css/fullcalendar.min.css" rel="stylesheet">
             <link href="~/css/style.css" rel="stylesheet">
+            <link href="~/plugins/fullcalendar/css/fullcalendar.min.css" rel="stylesheet">
+
+        <style>
 
 
+            .btn-primary {
+            background-color: #5da6d6;
+            border: none;
+            }
 
+            .btn-outline-primary, button {
+            border-color: #5da6d6;
+            color: #5da6d6;
+            }
 
-            <style>
+            .btn-outline-primary:hover, button:hover {
+            background-color: #53ACF8 !important;
+            border: none;
+            }
 
+            .navbar-light .navbar-brand {
+            color: #5da6d6 !important;
+            }
 
-                .btn-primary {
-                background-color: #5da6d6;
-                border: none;
-                }
+            .nav-link, .nav-link:active {
+            color: #091E40 !important;
+            }
 
-                .btn-outline-primary, button {
-                border-color: #5da6d6;
-                color: #5da6d6;
-                }
+            .list-unstyled div p, .levels-english div p {
+            padding-left: 4.2%;
+            font-size: 16px;
+            }
 
-                .btn-outline-primary:hover, button:hover {
-                background-color: #53ACF8 !important;
-                border: none;
-                }
+            .direction-educations span {
+            color: #4c82a6;
+            }
 
-                .navbar-light .navbar-brand {
-                color: #5da6d6 !important;
-                }
+            .levels-english li a {
+            color: #091E40;
+            }
 
-                .nav-link, .nav-link:active {
-                color: #091E40 !important;
-                }
+            .list-conditions li {
+            font-size: 17px;
+            }
 
-                .list-unstyled div p, .levels-english div p {
-                padding-left: 4.2%;
-                font-size: 16px;
-                }
+            .chat-window {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: auto;
+            }
 
-                .direction-educations span {
-                color: #4c82a6;
-                }
+            .chat {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            }
 
-                .levels-english li a {
-                color: #091E40;
-                }
+            .chat li {
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            }
 
-                .list-conditions li {
-                font-size: 17px;
-                }
+            .chat li.left .chat-body {
+            margin-left: 60px;
+            }
 
-                .chat-window {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                width: 350px;
-                height: 500px;
-                background-color: white;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                overflow: auto;
-                }
+            .chat li.right .chat-body {
+            margin-right: 60px;
+            }
 
-                .chat {
-                list-style: none;
-                margin: 0;
-                padding: 0;
-                }
+            .chat li .chat-body p {
+            margin: 0;
+            color: #777777;
+            }
 
-                .chat li {
-                margin-bottom: 10px;
-                padding-bottom: 5px;
-                }
+            .panel .slidedown .glyphicon, .chat .glyphicon {
+            margin-right: 5px;
+            }
 
-                .chat li.left .chat-body {
-                margin-left: 60px;
-                }
+            .panel-body {
+            overflow-y: scroll;
+            height: 500px;
+            }
 
-                .chat li.right .chat-body {
-                margin-right: 60px;
-                }
+            .panel-body {
+            overflow-y: scroll;
+            height: 500px;
+            }
 
-                .chat li .chat-body p {
-                margin: 0;
-                color: #777777;
-                }
+            ::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+            }
 
-                .panel .slidedown .glyphicon, .chat .glyphicon {
-                margin-right: 5px;
-                }
+            ::-webkit-scrollbar {
+            width: 12px;
+            }
 
-                .panel-body {
-                overflow-y: scroll;
-                height: 500px;
-                }
+            ::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+            background-color: #555;
+            }
 
-                .panel-body {
-                overflow-y: scroll;
-                height: 500px;
-                }
+        </style>
+        <header>
+            <nav class="navbar-expand-lg navbar-light fixed-top py-3" style="background-color: rgb(255, 255, 255); padding:0px 4% ">
 
-                ::-webkit-scrollbar-track {
-                -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-                }
+                <div class="" style="display:flex;align-items:flex-start;justify-content:space-between">
 
-                ::-webkit-scrollbar {
-                width: 12px;
-                }
+                    <a class="navbar-brand d-flex align-items-center fw-semi-bold fs-3" asp-controller="Home" asp-action="Index">
+                        <img class="me-3" src="~/images/logo.svg" alt="" style="width:40px" /> 
+                    </a>
 
-                ::-webkit-scrollbar-thumb {
-                -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-                background-color: #555;
-                }
+                    <div>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse mt-4 mt-lg-0" id="navbarSupportedContent">
+                            <ul class="navbar-nav mx-auto pt-2 pt-lg-0 font-base">
 
-            </style>
+                                <li class="nav-item px-2" data-anchor="data-anchor">
+                                    <a class="nav-link" style="text-wrap:nowrap" asp-action="Index" asp-controller="Home">Главная</a>
+                                </li>
+                                @if(User.IsInRole("Admin"))
+                                {
+                                    <li class="nav-item dropdown px-2">
+                                        <a class="nav-link" class="nav-link" style="text-wrap:nowrap" asp-action="InstitutionSetting" asp-controller="Home" role="button">Курсы</a>
 
+                                    </li>
 
-
-            <header>
-                <nav class="navbar-expand-lg navbar-light fixed-top py-3" style="background-color: rgb(255, 255, 255); padding:0px 4% ">
-
-                    <div class="" style="display:flex;align-items:flex-start;justify-content:space-between">
-
-                        <a class="navbar-brand d-flex align-items-center fw-semi-bold fs-3" asp-controller="Home" asp-action="Index">
-                            <img class="me-3" src="~/images/logo.svg" alt="" style="width:40px" /> 
-                        </a>
-
-                        <div>
-                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                                <span class="navbar-toggler-icon"></span>
-                            </button>
-                            <div class="collapse navbar-collapse mt-4 mt-lg-0" id="navbarSupportedContent">
-                                <ul class="navbar-nav mx-auto pt-2 pt-lg-0 font-base">
 
                                     <li class="nav-item px-2" data-anchor="data-anchor">
-                                        <a class="nav-link" style="text-wrap:nowrap" asp-action="Index" asp-controller="Home">Главная</a>
+                                        <a class="nav-link" style="text-wrap:nowrap" asp-action="Index" asp-controller="Account">| Пользователи</a>
                                     </li>
+                                }
+                                @if (User.IsInRole("Programmer"))
+                                {
                                     <li class="nav-item px-2" data-anchor="data-anchor">
-                                        <a class="nav-link" style="text-wrap:nowrap" asp-action="Item" asp-controller="Account">Личный кабинет</a>
-                                    </li>
-                                    @if(User.IsInRole("Admin"))
-                                    {
-                                        <li class="nav-item dropdown px-2">
-                                            <a class="nav-link" class="nav-link" style="text-wrap:nowrap" asp-action="InstitutionSetting" asp-controller="Home" role="button">Курсы</a>
-
-                                        </li>
-                                    }
-                                    
-                                        <li class="nav-item px-2" data-anchor="data-anchor">
-                                            <a class="nav-link" style="text-wrap:nowrap" asp-action="Index" asp-controller="Account">| Пользователи</a>
-                                        </li>
-                                    @if (User.IsInRole("Programmer"))
-                                    {
-                                        <li class="nav-item px-2" data-anchor="data-anchor">
-                                            <form>
-                                                <a class="nav-link" target="_blank" rel="noopener noreferrer" asp-action="Index" asp-controller="Group" style="display:flex;white-space:nowrap;align-items:anchor-center">
-                                                     <svg xmlns="http://www.w3.org/2000/svg" height="15px" width="22px" fill="currentColor" class="bi bi-files" viewBox="0 0 16 16">
-                                                        <path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z" />
-                                                    </svg>
+                                        <form>
+                                            <a class="nav-link" target="_blank" rel="noopener noreferrer" asp-action="Index" asp-controller="Group" style="display:flex;white-space:nowrap;align-items:anchor-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="15px" width="22px" fill="currentColor" class="bi bi-files" viewBox="0 0 16 16">
+                                                    <path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z" />
+                                                </svg>
                                                 Группы</a>
-                                            </form>
-                                        </li>
-                                    }
-                                    <li class="nav-item px-2" data-anchor="data-anchor">
-                                        <a class="nav-link" href="/website" aria-expanded="false" style="display:flex;white-space:nowrap;align-items:anchor-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 20 26" height="18px" width="23px" fill="#7571f9">
+                                        </form>
+                                    </li>
+                                }
+                                <li class="nav-item px-2" data-anchor="data-anchor" style="display:flex">
+                                        <a class="nav-link" href="/website" aria-expanded="false" style="display:flex;white-space:nowrap;align-items:anchor-center;font-size:18pt">
+                                        <svg style="margin-left:-7px"
+                                        xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 20 26" height="18px" width="23px" fill="#7571f9">
                                             <path d="M15.5,0h-7c-2.481,0-4.5,2.019-4.5,4.5v15c0,2.481,2.019,4.5,4.5,4.5h7c2.481,0,4.5-2.019,4.5-4.5V4.5c0-2.481-2.019-4.5-4.5-4.5Zm-.693,1l-.325,.974c-.205,.614-.777,1.026-1.423,1.026h-2.117c-.646,0-1.218-.412-1.423-1.026l-.325-.974h5.613Zm4.193,18.5c0,1.93-1.57,3.5-3.5,3.5h-7c-1.93,0-3.5-1.57-3.5-3.5V4.5c0-1.81,1.387-3.287,3.151-3.465l.418,1.255c.341,1.022,1.294,1.709,2.372,1.709h2.117c1.078,0,2.031-.687,2.372-1.709l.418-1.255c1.764,.178,3.151,1.654,3.151,3.465v15Z" />
                                             <path d="M13.5,20h-3c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h3c.276,0,.5-.224,.5-.5s-.224-.5-.5-.5Z" />
                                         </svg>
-                                        <span class="nav-text" style="color:#7571f9">
-                                                Сайт
+                                        <span class="" style="color:#7571f9;font-size:18px">
+                                            Сайт
                                         </span>
                                     </a>
-                                    </li>
-                                    <li>
-                                        <div style="display:flex;grid-gap:5%;margin-left:10px; margin-top:4%;margin-right:10px;margin-bottom:3%">
-                                            <span>Язык: </span>
-                                            <span id="google_translate_element"></span>
-                                        </div>
-                                    </li>
-                                    <li class="nav-item px-2" data-anchor="data-anchor">
-                                        <div style="display:flex;align-items:center;font-size:13px">
-                                            @{
-                                                var user = _context.Users.FirstOrDefault(x => x.UserName == User.Identity.Name) ?? new ApplicationUser() { UserName = "empty" };
-                                                IList<string> userRolesList = await _userManager.GetRolesAsync(user);
-                                                var translatedRoles = userRolesList.Select(role =>
+                                </li>
+                                    <li class="nav-item px-2" style="display:flex">
+                                    <div style="display:flex;grid-gap:5%;margin-left:10px; margin-right:10px;align-items:center">
+                                        <span>Язык: </span>
+                                        <span id="google_translate_element"></span>
+                                    </div>
+                                </li>
+                                <li class="nav-item px-2" data-anchor="data-anchor">
+                                    <div style="display:flex;align-items:center;font-size:13px">
+                                        @{
+                                               
+                                            var translatedRoles = userRolesList.Select(role =>
+                                            {
+                                                switch (role)
                                                 {
-                                                    switch (role)
-                                                    {
-                                                        case "Student":
-                                                            return "Студ";
-                                                        case "Teacher":
-                                                            return "Учит";
-                                                        case "Admin":
-                                                            return "Админ";
-                                                        default:
-                                                            return role;
-                                                    }
-                                                }).ToList();
-                                                var userRoles = String.Join(",", translatedRoles);
-                                            }
+                                                    case "Student":
+                                                        return "Студ";
+                                                    case "Teacher":
+                                                        return "Учит";
+                                                    case "Admin":
+                                                        return "Админ";
+                                                    default:
+                                                        return role;
+                                                }
+                                            }).ToList();
+                                            var userRoles = translatedRoles.Count < 1 ? "" : String.Join(",", translatedRoles) + " - ";
+                                                
+                                        }
                                             <span style="padding-top:-5px; margin-right:5%">
                                                 <!--<i class="icon-user"></i>-->
-                                                <a asp-action="Item" asp-controller="Account" style="zoom:120%;text-wrap:nowrap">@userRoles - @User.Identity.Name</a>
+                                                <a asp-action="Item" asp-controller="Account" style="zoom:125%;text-wrap:nowrap">@userRoles  @User.Identity.Name</a>
                                             </span>
 
 
                                             <div class="user-img c-pointer position-relative" data-toggle="dropdown">
-                                                <!--<span class="activity active"></span>-->
-                                                @{
-
-
-                                                    @if (User.IsInRole("Admin"))
-                                                    {
-                                                        <img class="mr-3" src="~/images/anastasia@1x.jpg" height="40" width="40" alt="">
-                                                    }
-                                                    else if (user.Sex == "Woman" || user.Sex == "Женский")
-                                                    {
-                                                        <img class="mr-3" src="~/images/womanIcon.jpg" height="40" width="40" alt="">
-                                                    }
-                                                    else
-                                                    {
-                                                        <img class="mr-3" src="~/images/manIcon.jpg" height="40" width="40" alt="">
-                                                    }
-
-
-                                                }
+                                                    <img class="mr-3" src="@baseUserInfo.ImagePath" height="40" width="40" alt="" />
                                             </div>
                                             <span style="font-size:initial;color:#ad71ff;font-weight:900"></span>
 
+                                            <!--
                                             <div class="drop-down dropdown-profile animated fadeIn dropdown-menu">
                                                 <div class="dropdown-content-body">
                                                     <ul style="margin-bottom:5px">
@@ -340,8 +346,13 @@
 
                                                 </div>
                                             </div>
+                                            -->
                                         </div>
                                     </li>
+                                <li class="nav-item px-2" data-anchor="data-anchor">
+                                    <a class="nav-link" style="text-wrap:nowrap" asp-action="SignOut" asp-controller="Account">Выйти</a>
+                                </li>
+
                                 </ul>
                                    
                             </div>
@@ -357,9 +368,9 @@
                 <!--
                 <div class="container" style="z-index:100;">
                             <a onclick="toggleCollapse()" id="countNotifications" type="button" class="chat-window"
-                                  style="width:90px;height:90px;
-                                           background-color:deeppink;border-color:white;border-width:15px;border-radius: 30px;
-                                           text-align:center;color:white;font-size:30px;padding-top:8px">
+                                    style="width:90px;height:90px;
+                                            background-color:deeppink;border-color:white;border-width:15px;border-radius: 30px;
+                                            text-align:center;color:white;font-size:30px;padding-top:8px">
                         
                     </a>
                     
@@ -368,9 +379,9 @@
 
                     <div class="container" style="z-index:100;">
                             <a onclick="toggleCollapseAdmin()" id="countNotificationsAdmin" type="button" class="chat-window"
-                                  style="width:90px;height:90px;margin-right:95px;
-                                               background-color:black;border-color:white;border-width:15px;border-radius: 30px;
-                                               text-align:center;color:white;font-size:30px;padding-top:8px">
+                                    style="width:90px;height:90px;margin-right:95px;
+                                                background-color:black;border-color:white;border-width:15px;border-radius: 30px;
+                                                text-align:center;color:white;font-size:30px;padding-top:8px">
                         
                     </a>
                     
@@ -387,9 +398,7 @@
                     -->
             </header>
 
-            
-                
-                <div class="content-body" style="padding-top:5%;margin:0px">
+            <div class="content-body" style="padding-top:5%;margin:0px">
                     <div id="preloader">
                         <div class="loader">
                             <svg class="circular" viewBox="25 25 50 50">
@@ -397,10 +406,14 @@
                             </svg>
                         </div>
                     </div>
+            <!--
+                <script type="text/javascript" src="~/Scripts/bootstrap-5.2.3-dist/js/bootstrap.bundle.min.js"></script>
+                <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+                <script type="text/javascript" src="~/Scripts/jquery-1.10.2.js"></script>
+                      
+                    -->
 
-
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-                <script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
+                <script type="text/javascript" src="~/Scripts/bootstrap-5.2.3-dist/js/bootstrap.bundle.min.js"></script>
                 <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
                 <script type="text/javascript" src="~/Scripts/jquery-1.10.2.js"></script>
 
@@ -409,103 +422,122 @@
                 <script src="~/js/settings.js"></script>
                 <script src="~/js/gleek.js"></script>
                 <script src="~/js/styleSwitcher.js"></script>
+                   
 
-                    <main>
-                        @RenderBody()
-                    </main>
-
-                
-
-                    <script>
-                        // function toggleCollapse() {
-                        //     var lessonsCountInput = document.querySelector('#kuku')
-
-                        //     console.log("ok2222");
-                        //     $('#kuku').toggleClass('show'); Toggle the collapse state of the div
-
-                        //     $("#kuku").load("/Account/GetNotifications", function () {
-                        //         var notificationCount = $("#notifications").children().length;
-                        //         $("#countNotifications").text(notificationCount);
-
-                        //     });
-                        // }
-                        // toggleCollapse();
-                        // toggleCollapse();
-
-                        // function toggleCollapseAdmin() {
-                        //     var lessonsCountInput = document.querySelector('#kukuAdmin')
+                <main>
+                    @RenderBody()
+                </main>
 
 
-                        //     console.log("ok2222");
-                        //     $('#kukuAdmin').toggleClass('show'); Toggle the collapse state of the div
+                <script>
+                    // function toggleCollapse() {
+                    //     var lessonsCountInput = document.querySelector('#kuku')
 
-                        //     $("#kukuAdmin").load("/Account/GetEmails", function () {
-                        //         var notificationCount = $("#notificationsAdmin").children().length;
-                        //         $("#countNotificationsAdmin").text(notificationCount);
+                    //     console.log("ok2222");
+                    //     $('#kuku').toggleClass('show'); Toggle the collapse state of the div
 
-                        //     });
-                        // }
-                        // toggleCollapseAdmin();
-                        // toggleCollapseAdmin();
+                    //     $("#kuku").load("/Account/GetNotifications", function () {
+                    //         var notificationCount = $("#notifications").children().length;
+                    //         $("#countNotifications").text(notificationCount);
 
-                        function SendMessage() {
-                            var valData = $("#sendMessage").serialize(); // Serialize form data
-                            console.log(valData);
+                    //     });
+                    // }
+                    // toggleCollapse();
+                    // toggleCollapse();
 
-                            $.ajax({
-                                url: "/Account/SendMessage",
-                                type: "POST",
-                                data: valData, // Sending serialized form data
-                                success: function (data) {
-                                    alert("Сообщение было отправлено!")
-                                    toggleCollapseAdmin();
-                                    toggleCollapseAdmin();
-                                    if (Array.isArray(data)) {
-                                        // Handle response data if it's an array
-                                    } else {
-                                        // Handle response data if it's not an array
-                                    }
-                                },
-                                error: function (jqXHR, textStatus, errorThrown) {
-                                    alert("Сообщение некорректно.")
+                    // function toggleCollapseAdmin() {
+                    //     var lessonsCountInput = document.querySelector('#kukuAdmin')
+
+
+                    //     console.log("ok2222");
+                    //     $('#kukuAdmin').toggleClass('show'); Toggle the collapse state of the div
+
+                    //     $("#kukuAdmin").load("/Account/GetEmails", function () {
+                    //         var notificationCount = $("#notificationsAdmin").children().length;
+                    //         $("#countNotificationsAdmin").text(notificationCount);
+
+                    //     });
+                    // }
+                    // toggleCollapseAdmin();
+                    // toggleCollapseAdmin();
+
+                    function SendMessage() {
+                        var valData = $("#sendMessage").serialize(); // Serialize form data
+                        console.log(valData);
+
+                        $.ajax({
+                            url: "/Account/SendMessage",
+                            type: "POST",
+                            data: valData, // Sending serialized form data
+                            success: function (data) {
+                                alert("Сообщение было отправлено!")
+                                toggleCollapseAdmin();
+                                toggleCollapseAdmin();
+                                if (Array.isArray(data)) {
+                                    // Handle response data if it's an array
+                                } else {
+                                    // Handle response data if it's not an array
                                 }
-                            });
-                        }
-                    </script>
-
-
-
-
-                </div>
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                alert("Сообщение некорректно.")
+                            }
+                        });
+                    }
+                </script>
+            </div>
             
 
-            #endregion
-        }
-        else
-        {
+        #endregion
+    }
+    else
+    {
+            
+        <script type="text/javascript" src="~/Scripts/bootstrap-5.2.3-dist/js/bootstrap.bundle.min.js"></script>
+        <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="~/Scripts/jquery-1.10.2.js"></script>
+        <style>
+            .mainId {
+                padding-bottom: 0px !important
+            }
+        </style>
+        <div>
+            <main role="main"  class="mainId pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+
+         
+
+     
+
+
             <style>
                 .mainId {
                     padding-bottom: 0px !important
                 }
             </style>
-                <div>
-                    <main role="main"  class="mainId pb-3">
-                    
 
-                        @RenderBody()
-                    </main>
-
-                    <script>
-                       
-                    </script>
-                </div>
-                
-        }
+          
+            <div>
+                <main role="main" class="mainId pb-3">
+                    @RenderBody()
+                </main>
+            </div>
     }
-    
-    <!--<script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>-->
+}
+
+    <!--
+    <script src="https:cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
 
+    <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/bootstrap.min.js"></script>
+    
+    -->
+
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script type="text/javascript">
 
         function googleTranslateElementInit() {
@@ -524,10 +556,24 @@
             }
         }
 
-        var clr = setInterval(delGoogleTranslateElements, 1500);
+        new Promise((resolve, reject) => {
+            const delay = ms => new Promise(resolve => { 
+                setTimeout(resolve, ms);
+            });
+			
+			delay(3000) // Delay for 3000 milliseconds (3 seconds) before resolving
+				.then(() => {
+                    googleTranslateElementInit()
+                    console.log("resolve init google translator")
+				});
+		}).then(() => {
+            delGoogleTranslateElements()
+            console.log("resolve remove google translator")
+		});
+   
     </script>
 
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+   
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

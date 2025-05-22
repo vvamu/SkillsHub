@@ -28,16 +28,9 @@ public class Course : LessonTypePropertyModel<Course>, IUploadImageModel
     #region MainPage
 
     public int OrderOnMainPage { get; set; }
-    public string? PathToImage { get; set; }
-    public string? PathToIcon { get; set; }
 
-    [NotMapped]
-    public List<IFormFile>? ImagesFiles { get; set; }
 
-    [NotMapped]
-    public List<IFormFile>? IconsFiles { get; set; }
-
-    public string? IdentityString { get; set; } 
+    public string? IdentityString { get; set; }
     public bool IsVisibleOnMainPage { get; set; } = true;
 
     public string? DescriptionOnMainPage { get; set; }
@@ -52,8 +45,13 @@ public class Course : LessonTypePropertyModel<Course>, IUploadImageModel
             if (string.IsNullOrEmpty(DescriptionOnMainPage)) return new HtmlString("");
 
             //var firstSymbol = DescriptionOnMainPage.Substring(0, 2).ToString();
-            var str = DescriptionOnMainPage.Substring(2).ToString().Replace("\n","").Replace("----", "<br><br>").Replace("--", "<hr/>").Replace("- -", "<br/> -").Replace("-", "<br/>-").Replace("<hr/><br/>", "<hr/>");
-            var val = new Microsoft.AspNetCore.Html.HtmlString(str);
+            //var str = DescriptionOnMainPage.Substring(2).ToString().Replace("\n","").Replace("----", "<br><br>").Replace("--", "<hr/>").Replace("- -", "<br/> -").Replace("-", "<br/>-").Replace("<hr/><br/>", "<hr/>");
+            //var val = new Microsoft.AspNetCore.Html.HtmlString(str);
+
+            var firstSymbol = DescriptionOnMainPage.Substring(0, 2).ToString();
+            var str = DescriptionOnMainPage.Substring(2).ToString().Replace("\n", "").Replace("----", "<br><br>").Replace("--", "<hr/>").Replace("- -", "<br/> -").Replace("-", "<br/>-").Replace("<hr/><br/>", "<hr/>").Replace("\n", "<br/>");
+            var val = new Microsoft.AspNetCore.Html.HtmlString(firstSymbol + str);
+
             return val;
         }
     }
@@ -79,6 +77,22 @@ public class Course : LessonTypePropertyModel<Course>, IUploadImageModel
 
     [NotMapped]
     public string? TitleToWebSite { get => string.IsNullOrEmpty(Name) ? "" : Name.Contains("\"") ? Name.Replace("\"", "") : this?.SubjectRu + " " + Name; }
+
+    #region Image
+    public string? PathToImage { get; set; }
+    [NotMapped]
+    public List<IFormFile>? ImagesFiles { get; set; }
+    public byte[]? ImageBytes { get; set; }
+    #endregion
+
+    #region Icon
+    [NotMapped]
+    public List<IFormFile>? IconsFiles { get; set; }
+    public string? PathToIcon { get; set; }
+    public byte[]? IconBytes { get; set; }
+    #endregion
+
+
 
     #endregion
 

@@ -1,4 +1,5 @@
-﻿using SkillsHub.Domain.Models;
+﻿using Microsoft.AspNetCore.Http;
+using SkillsHub.Domain.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,6 +24,12 @@ public class BaseUserInfo : LogModel<BaseUserInfo>
 
     public string? AdditionalInfo { get; set; }
     public List<ApplicationUserBaseUserInfo> ApplicationUsers { get; set; }
+
+    [System.ComponentModel.DefaultValue("A1")]
+    public string? EnglishLevel { get; set; } = "A1";
+
+    public string? SourceFindCompany { get; set; }
+
     public override bool Equals(object obj)
     {
         if (obj == null || GetType() != obj.GetType())
@@ -44,6 +51,19 @@ public class BaseUserInfo : LogModel<BaseUserInfo>
     }
 
     #region NotMapped
+    [NotMapped]
+    public string ImagePath { get => UserRoles == null ? "/images/manIcon.jpg" : UserRoles.Contains("Admin") ? "/images/anastasia@1x.jpg" : Sex == "Женский" ? "/images/womanIcon.jpg" : "/images/manIcon.jpg"; }
+
+
+    #region Image
+    public string? PathToImage { get; set; }
+    [NotMapped]
+    public List<IFormFile>? ImagesFiles { get; set; }
+    public byte[]? ImageBytes { get; set; }
+    #endregion
+
+    [NotMapped]
+    public string? UserRoles { get; set; }
 
     [NotMapped]
     public string? Role { get; set; }

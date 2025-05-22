@@ -171,7 +171,7 @@ public class UserService : AbstractTransactionService, IUserService
     #endregion
 
 
-    public async Task<ApplicationUser> CreateAsync(UserCreateDTO item, List<string>? roles , bool baseUserInfoIsBase = false)
+    public async Task<ApplicationUser> CreateAsync(UserCreateDTO item, bool baseUserInfoIsBase = false)
     {
         BaseUserInfo userInfoDb;
         var userInfo = _mapper.Map<BaseUserInfo>(item) ?? throw new Exception("Not correct model");
@@ -193,7 +193,7 @@ public class UserService : AbstractTransactionService, IUserService
                 await _context.SaveChangesAsync();
 
 
-                await UpdateRoles(userDb, roles);
+                await UpdateRoles(userDb, item?.Roles?.ToList());
 
                 var res = await GetById(userDb.Id);
                 await CommitAsync(transaction);
@@ -209,7 +209,7 @@ public class UserService : AbstractTransactionService, IUserService
         return await GetById(userDb.Id);
     }
 
-    public async Task<ApplicationUser> UpdateAsync(UserCreateDTO item, List<string>? roles)
+    public async Task<ApplicationUser> UpdateAsync(UserCreateDTO item)
     {
         if (item == null) throw new Exception("Model not set");
         //if (item.IsStudent == true && user.UserStudent == null) user.UserStudent = new Student() { ApplicationUser = user, IsDeleted = true };
@@ -224,12 +224,21 @@ public class UserService : AbstractTransactionService, IUserService
                 BaseUserInfo newUserInfo = _mapper.Map<BaseUserInfo>(item);
                 newUserInfo.Id = item.BaseUserInfoId;
 
-                var updatedUserInfo = await _baseUserInfoRepository.UpdateAsync(newUserInfo);
-
-                ApplicationUser userDb = _context.Users.AsNoTracking().FirstOrDefault( x=>x.Id ==item.Id);
-                await UpdateRoles(userDb, roles);
                 try
                 {
+                    newUserInfo = await _baseUserInfoRepository.UpdateAsync(newUserInfo);
+                }
+                
+                catch(Exception ex)
+                {
+                    if (!ex.Message.Equals("Entity with those properties already defined")) throw new Exception(ex.Message);
+                }
+
+                ApplicationUser userDb = _context.Users.AsNoTracking().FirstOrDefault( x=>x.Id ==item.Id);
+                await UpdateRoles(userDb, item.Roles.ToList());
+                try
+                {
+                    
                     userDb = await _userRepository.UpdateAsync(item);
                     _context.SaveChanges();
                     
@@ -247,7 +256,7 @@ public class UserService : AbstractTransactionService, IUserService
                 //if (itemsByBaseUserInfo.Count() == 0) throw new Exception("No info of connected account in database");
 
                 
-                var i = new ApplicationUserBaseUserInfo() { ApplicationUserId = item.Id, BaseUserInfoId = updatedUserInfo.Id ,IsBase = true};
+                var i = new ApplicationUserBaseUserInfo() { ApplicationUserId = item.Id, BaseUserInfoId = newUserInfo.Id ,IsBase = true};
                 _context.ApplicationUserBaseUserInfo.Update(i);
                 await _context.SaveChangesAsync();
                 //var itemsToUpdate = _context.ApplicationUserBaseUserInfo.Where(x => x.BaseUserInfoId == dbUserInfo.Id); //поменялся baseUserInfo -> появился новый элемент -> все связи надо обновить на новые
@@ -258,7 +267,7 @@ public class UserService : AbstractTransactionService, IUserService
                 //    await _context.SaveChangesAsync();
                 //}
 
-                await CommitAsync(transaction);
+                
             }
             catch (Exception ex)
             {
@@ -568,13 +577,22 @@ public class UserService : AbstractTransactionService, IUserService
 
         try
         {
-            userDb = await CreateAsync(user,new List<string>() { "Admin" },true);
+            user.Roles = new[] { "Admin" };
+            userDb = await CreateAsync(user,true);
         }
         catch (Exception ex)
         {
 
         }
     }
+
+
+
+    #region ImageUpload
+
+
+
+    #endregion
     //public Task<Lesson> ChangeLessonTime()
     //public Task<Lesson> ApproveChangeLessonTime()
     //public Task<Group> ApproveAddTeacherToGroup()

@@ -1,0 +1,87 @@
+﻿@model List<Course> 
+
+@{
+    var items = Model ?? new List<Course>();
+}
+
+<div class="container panel-collapse div_ChangeCoursePosition" style="z-index:10;margin-right:5%;height:60%">
+    <div class="chat-window" style="margin-right:10%;height:70%;">
+        <div>
+            <div class="panel panel-primary">
+                <div class="panel-heading" id="accordion" style="display:flex;justify-content:space-between;padding:5%">
+                    <h3>Курсы</h3>
+                    <button class="form-control btn-danger" style="width:2%;display:flex;align-items:center;justify-content:center" onclick="toggleChangeCoursePosition()">X</button>
+
+
+
+                </div>
+                <div class="panel-collapse " id="collapseOne">
+                    <!--collapse-->
+                    <div class="panel-body" style="padding:0px 5%">
+
+                        <ul class="chat">
+                            @{
+                                foreach (var item in items)
+                                {
+                                    var id = item.Id.ToString();
+                                    var selectId = "selectPositionNumber" + id;
+                                    var isVisibleId = "isVisible" + id;
+
+                                    <li style="display:flex;grid-gap:15px; justify-content:space-between;">
+                                        <div style="display:flex;zoom:80%;grid-gap:15px;width:55%">
+                                            <div>@item.TitleToWebSite</div>
+
+                                        </div>
+                                        <div style="display:flex;grid-gap:15px">
+                                        @{
+                                            var isVisible = item.IsVisibleOnMainPage;
+                                        }
+                                            <input type="checkbox" id="@isVisibleId" onchange='ChangeCourse("@item.Id.ToString()","@selectId","@isVisibleId")' checked="@isVisible" />
+                                            
+
+                                            @if (isVisible)
+                                            {
+                                                <select class="form-control selectCoursePosition" id="@selectId" onchange='ChangeCourse("@item.Id.ToString()","@selectId","@isVisibleId")'>
+
+                                                    @for (int i = 0; i <= items.Count(); i++)
+                                                    {
+                                                        var isSelectedOption = i == item.OrderOnMainPage;
+                                                        <option selected="@isSelectedOption" value="@i">@(i == 0 ? "-" : i.ToString())</option>
+                                                    }
+                                                </select>
+                                            }
+                                            else
+                                            {
+                                                <select disabled class="form-control selectCoursePosition" id="@selectId" onchange='ChangeCourse("@item.Id.ToString()","@selectId","@isVisibleId")'>
+
+                                                   
+                                                        <option>-</option>
+                                                    
+                                                </select>
+                                            }
+                                            
+                                            
+                                            
+                                        </div>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                       @*  <div class="panel-footer">
+                            <div class="input-group">
+                                <div class="php-email-form" data-aos="fade-up" data-aos-delay="100">
+
+                                    <div class="text-center " style="margin-top: 10%; align-items:start; display:flex;gap:10px; ">
+                                        <input type="button" onclick="toggleEditMode()" value="Обновить" class="btn btn-primary" id="btnToggleEditMode" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div> *@
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>  

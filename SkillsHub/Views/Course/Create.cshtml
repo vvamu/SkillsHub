@@ -3,6 +3,7 @@
 @model Course;
 
 
+
 @{
 
     var item = Model ?? new Course();
@@ -25,10 +26,10 @@
                         <div class="card login-form mb-0">
                             <div class="card-body pt-5">
                                 <form>
-                                    
+
                                     @if(isEdit)
                                     {
-                                        
+
                                         <input type="hidden" asp-for="@item.Id" value="@item.Id" name="Id" />
                                         <input type="hidden" asp-for="@item.StringId" value="@item.Id.ToString()" />
 
@@ -60,10 +61,13 @@
                                             <a asp-action="InstitutionSetting" asp-controller="CRM" >Назад</a>
                                         </div>
                                     }
+
+
                                     <div class="validation text-center" asp-validation-summary="ModelOnly" style="color:red;font-weight:400;"></div>
-                                    <input type="hidden" asp-for="@item.PathToImage" value="@item.PathToImage" />
-                                    <input type="hidden" asp-for="@item.PathToIcon" value="@item.PathToIcon" />
-                                    <input type="hidden" asp-for="@item.DescriptionOnMainPageMore" value="@item.DescriptionOnMainPageMore" />
+
+
+
+
 
                                     <div class="form-group row">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
@@ -116,24 +120,73 @@
                                             <input class="form-control main-page-prop-require" asp-for="@item.IdentityString" type="text" placeholder="english-organization" />
                                         </div>
                                     </div>
-                                    
-                                    
+                                    <input class=" form-control main-page-prop-require" hidden type="number" max="50" min="0" asp-for=@item.OrderOnMainPage value=@item.OrderOnMainPage />
+
+                                    <!--
                                     <div class="form-group row main-page-prop">
-                                        <label class="col-lg-4 col-form-label" for="val-skill">
-                                            Порядок на странице<span class="text-danger">*</span>
-                                        </label>
-                                        <div class="col-lg-6">
-                                            <input class=" form-control main-page-prop-require" type="number" max="50" min="0" asp-for=@item.OrderOnMainPage />
-                                        </div>
+                                    <label class="col-lg-4 col-form-label" for="val-skill">
+                                    Порядок на странице<span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-lg-6">
                                     </div>
+                                    </div>
+                                    -->
                                     <div class="form-group row main-page-prop">
                                         <label class="col-lg-4 col-form-label" for="val-skill">
                                             Описание на сайте
                                         </label>
                                         <div class="col-lg-6">
-                                            <textarea asp-for="@item.DescriptionOnMainPage" class=" form-control" type='text' style="min-height:200px">@item.DescriptionOnMainPage</textarea>
+                                            <textarea asp-for="@item.DescriptionOnMainPage" class=" form-control" type='text' style="min-height:200px;max-height:500px">@item.DescriptionOnMainPage</textarea>
                                         </div>
                                     </div>
+
+                                    <div class="form-group row main-page-prop">
+                                        <label class="col-lg-4 col-form-label" for="val-skill">
+                                            Описание на сайте возле иконки
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <textarea asp-for="@item.DescriptionOnMainPageMore" class=" form-control" type='text' style="min-height:50px;max-height:500px">@item.DescriptionOnMainPage</textarea>
+                                        </div>
+                                    </div>
+
+
+                                    <!-- #IMAGES AND ICONS -->
+                                    @{
+                                        var base64 = Convert.ToBase64String(item.ImageBytes ?? new byte[0]);
+                                        var imgSrc = String.IsNullOrEmpty(base64) ? "/images/empty.jpg" : String.Format("data:image/gif;base64,{0}", base64);
+
+                                        var iconBase64 = Convert.ToBase64String(item.IconBytes ?? new byte[0]);
+                                        var iconSrc = String.IsNullOrEmpty(iconBase64) ? "/images/emptyIcon.jpg" : String.Format("data:image/gif;base64,{0}", iconBase64);
+
+
+                                        <input type="hidden" asp-for="@item.PathToImage" value="@item.PathToImage" />
+                                        <input type="hidden" asp-for="@item.PathToIcon" value="@item.PathToIcon" />
+                                        <input type="hidden" asp-for="@item.DescriptionOnMainPageMore" value="@item.DescriptionOnMainPageMore" />
+
+                                        @if (isEdit)
+                                        {
+                                            <div style="display:flex;justify-content:space-around;margin-bottom:10px" class="main-page-prop">
+                                                <div style="display:flex;align-items:center;justify-content:center">
+                                                    <img src="@imgSrc" class="img-fluid" style="width:360px;height:360px;border:2px solid #5d88a3;border-radius:5px;">
+                                                </div>
+                                                <div style="display:flex;align-items:center;justify-content:center"><img src="@iconSrc" style="zoom:80%;height:80px;width:80px;border:2px solid #5d88a3;border-radius:5px;" class="img-fluid"></div>
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div style="display:flex;justify-content:space-around;margin-bottom:10px" class="main-page-prop">
+                                                <div style="display:flex;align-items:center;justify-content:center">
+                                                    <img src="@imgSrc" class="img-fluid" style="width:360px;height:360px;border:2px solid #5d88a3;border-radius:5px;">
+
+                                                </div>
+                                                <div style="display:flex;align-items:center;justify-content:center"><img src="@iconSrc" style="zoom:80%;height:80px;width:80px;border:2px solid #5d88a3;border-radius:5px;" class="img-fluid"></div>
+
+                                            </div>
+                                        }
+
+                                        
+                                    }
                                     
                                     
                                     
@@ -231,6 +284,59 @@
 
 
 <script>
+
+    function uploadImage(uploadFileId,itemId){
+
+        var data = new FormData();
+        data.append("ImagesFiles", $(uploadFileId)[0].files[0]);
+        data.append("Id", itemId )
+                
+
+        $.ajax({
+            type: 'post',
+            url: "/Course/UploadImage",
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                        
+                alert("success")
+            },
+            error:function (err){
+                       
+                alert(err.responseJSON.error)
+            }
+        });
+
+    }
+
+    function uploadIcon(uploadFileId,itemId){ 
+
+        var data = new FormData();
+        data.append("IconsFiles", $(uploadFileId)[0].files[0]);
+        data.append("Id", itemId )
+
+        $.ajax({
+            type: 'post',
+            url: "/Course/UploadIcon",
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                        
+                alert("success")
+            },
+            error:function (err){
+                       
+                alert(err.responseJSON.error)
+            }
+        }).then( () => {
+                loadIcons();
+        });
+
+                
+
+    }
 
     function hidePropertiesToMainPage() {
         const checkbox = document.getElementById("IsVisibleOnMainPage");

@@ -2,6 +2,9 @@ global using SkillsHub.Domain.Models;
 
 using EmailProvider;
 using EmailProvider.Options;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.Helpers;
@@ -32,7 +35,7 @@ public class Program
         //builder.Services.AddDistributedMemoryCache();
         //builder.Services.AddSession(options =>
         //{
-        //    options.IdleTimeout = TimeSpan.FromDays(30); // Установите время простоя сеанса на 30 дней
+        //    options.IdleTimeout = TimeSpan.FromDays(30); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 30 пїЅпїЅпїЅпїЅ
         //});
         //builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme)
         //.AddCookie(options =>
@@ -44,14 +47,35 @@ public class Program
 
         builder.Services.AddDistributedMemoryCache();
 
-        builder.Services.AddSession(options =>
+        var environment = builder.Services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
+        builder.Services.AddDataProtection().SetApplicationName($"my-app-{environment.EnvironmentName}")
+                    .PersistKeysToFileSystem(new DirectoryInfo($@"{environment.ContentRootPath}\keys"));
+
+        //builder.Services.AddSession(options =>
+        //{
+        //    options.Cookie.Name = "skills.Session";
+        //    options.IdleTimeout = TimeSpan.FromDays(10);
+        //    options.Cookie.IsEssential = true;
+        //});
+        builder.Services.AddSession();
+        builder.Services.ConfigureApplicationCookie(options =>
         {
-
-
-            options.Cookie.Name = ".AdventureWorks.Session";
-            options.IdleTimeout = TimeSpan.FromDays(10);
-            options.Cookie.IsEssential = true;
+            options.Cookie.Name = ".AspNetCore.Identity.Application";
+            options.ExpireTimeSpan = TimeSpan.FromDays(10); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ 10 пїЅпїЅпїЅпїЅ
+            options.SlidingExpiration = true; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+           
+                                              
         });
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.Cookie.Name = ".AdventureWorks.Session";
+            options.ExpireTimeSpan = TimeSpan.FromDays(10); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ 10 пїЅпїЅпїЅпїЅ
+            options.SlidingExpiration = true; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+                                              // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ .AdventureWorks.Session
+        });
+
+
+
 
 
         var services = builder.Services;
@@ -149,8 +173,7 @@ public class Program
         //    opt.Webhook = "https://localhost:7150/Viber/Get";
         //});
 
-        builder.Services.AddTransient<EmailProvider.Interfaces.IMailService, MailService>();
-
+        builder.Services.AddTransient<EmailProvider.Interfaces.IMailService, MailService>();  
         builder.Services.AddTransient<IUserRepository, UserRepository>();
         builder.Services.AddTransient<IAbstractLogModelService<BaseUserInfo>, BaseUserInfoRepository>();
         builder.Services.AddTransient<IUserService, UserService>();
@@ -174,10 +197,7 @@ public class Program
         builder.Services.AddScoped<IAbstractLogModelService<PaymentCategory>, PaymentCategoryService>();
         builder.Services.AddScoped<IAbstractLogModelService<AgeType>, AgeTypeService>();
         builder.Services.AddScoped<IAbstractLogModelService<GroupType>, GroupTypeService>();
-        builder.Services.AddScoped<IAbstractLogModelService<Course>, CourseService>();
-        builder.Services.AddScoped<IUploadImageService<Course>, CourseService>();
-        builder.Services.AddScoped<IUploadIconService<Course>, CourseService>();
-
+        builder.Services.AddScoped<ICourseService, CourseService>();
         builder.Services.AddScoped<IAbstractLogModelService<Location>, LocationService>();
 
 
@@ -197,7 +217,6 @@ public class Program
         var app = builder.Build();
         //FOR SESSION
 
-
         //app.UseCookiePolicy(new CookiePolicyOptions
         //{
         //    MinimumSameSitePolicy = SameSiteMode.None,
@@ -207,7 +226,6 @@ public class Program
 
         if (app.Environment.IsDevelopment())
         {
-            //app.UseExceptionHandler("/Home/Error");\
             app.UseDeveloperExceptionPage();
             app.UseHsts();
         }
@@ -236,8 +254,6 @@ public class Program
 
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "text/html";
-
-                    // Перенаправление на страницу Home/Error
                     context.Response.Redirect("/Home/Error");
                 });
             });
@@ -246,35 +262,43 @@ public class Program
 
 
         app.UseRouting();
-        //app.UseStatusCodePagesWithReExecute("/Account/SignIn", "?statusCode={0}");
         app.UseAuthentication();
         app.UseAuthorization();
-        app.UseSession(); // use this before .UseEndpoints or .MapControllerRoute
-
-        app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
-
-
-        app.MapControllerRoute(
-        name: "ThanksRoute",
-        pattern: "{controller=Home}/{action=Thanks}",
-        defaults: new { controller = "Home", action = "Thanks" }
-        );
-
-		app.MapControllerRoute(name: "thanks",
-                pattern: "thanks/",
-                defaults: new { controller = "Home", action = "Thanks" });
-
+        //app.UseCookiePolicy(new CookiePolicyOptions
+        //{
+        //    MinimumSameSitePolicy = SameSiteMode.None,
+        //    Secure = CookieSecurePolicy.Always,
+        //    HttpOnly = HttpOnlyPolicy.None,
+        //    ExpireTimeSpan = TimeSpan.FromDays(10), // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ 10 пїЅпїЅпїЅпїЅ
+        //    SlidingExpiration = true // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        //});
+        //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ.
+        app.UseSession(); // use this before .UseEndpoints or .MapControllerRoute //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.
         
         app.UseEndpoints(endpoints =>
 		{
-			endpoints.MapGet("/CRM/InstitutionSetting", context =>
+            endpoints.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            endpoints.MapControllerRoute(
+                name: "ThanksRoute",
+                pattern: "{controller=Home}/{action=Thanks}",
+                defaults: new { controller = "Home", action = "Thanks" });
+
+
+            endpoints.MapGet("/CRM/InstitutionSetting", context =>
 			{
 				context.Response.Redirect("/Home/InstitutionSetting");
 				return Task.CompletedTask;
 			});
-		});
+
+            endpoints.MapControllerRoute(
+                name: "thanks",
+                pattern: "thanks/",
+                defaults: new { controller = "Home", action = "Thanks" });
+
+        });
 
 
 		#region Roles

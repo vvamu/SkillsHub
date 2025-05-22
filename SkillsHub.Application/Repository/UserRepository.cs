@@ -60,7 +60,7 @@ public class UserRepository : IUserRepository
         var userInfo = _mapper.Map<BaseUserInfo>(item);
 
         #region Validators
-        var userRegisterValidator = new UserCreateDTOValidator();
+        var userRegisterValidator = new UserCreateDTOValidator(string.Empty);
         var userValidationResult = await userRegisterValidator.ValidateAsync(item);
         if (!userValidationResult.IsValid)
         {
@@ -92,8 +92,9 @@ public class UserRepository : IUserRepository
 
         var connectedUserInfo = dbUser;
         var user = _mapper.Map<ApplicationUser>(item);
+
         #region Validators
-        var userRegisterValidator = new UserCreateDTOValidator();
+        var userRegisterValidator = new UserCreateDTOValidator(dbUser.OwnHashedPassword);
         var userValidationResult = await userRegisterValidator.ValidateAsync(item);
         if (!userValidationResult.IsValid)
         {
@@ -106,19 +107,11 @@ public class UserRepository : IUserRepository
 
         user.SecurityStamp = Guid.NewGuid().ToString();
 
-        if (item.IsCheckPassword) 
-            if(string.IsNullOrEmpty(item.Password) || !HashProvider.VerifyHash(item.Password.Trim(), dbUser.OwnHashedPassword))
-                throw new Exception("Password not set or not equals"); //replace to validator
-            //else user.OwnHashedPassword = HashProvider.ComputeHash(item.Password.Trim());
-
-       
-
-
+        if (item.IsCheckPassword) user.OwnHashedPassword = HashProvider.ComputeHash(item.Password.Trim());
         if (!string.IsNullOrEmpty(item.PasswordChanged)) user.OwnHashedPassword = HashProvider.ComputeHash(item.PasswordChanged.Trim());
-  
 
-        dbUser = user;
-        var result = _context.Users.Update(dbUser);
+  
+        var result = _context.Users.Update(user);
         var saved = false;
         while (!saved)
         {

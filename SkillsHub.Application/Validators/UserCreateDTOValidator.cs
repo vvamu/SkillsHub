@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using SkillsHub.Application.DTO;
+using SkillsHub.Application.Helpers;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -7,7 +9,7 @@ namespace SkillsHub.Application.Validators;
 
 public class UserCreateDTOValidator : AbstractValidator<UserCreateDTO>
 {
-    public UserCreateDTOValidator()
+    public UserCreateDTOValidator(string? passwordHash)
     {
 
         RuleFor(x => x.UserName).NotEmpty().WithMessage("Login is required.");
@@ -21,6 +23,17 @@ public class UserCreateDTOValidator : AbstractValidator<UserCreateDTO>
             .WithMessage("PasswordChangedConfirm must be equal to PasswordChanged if PasswordChanged is not null.");
 
 
+        // Custom validation rule for checking password if IsCheckPassword is true
+        RuleFor(x => x).Custom((item, context) =>
+        {
+            if (!string.IsNullOrEmpty(passwordHash) && item.IsCheckPassword)
+            {
+                if (string.IsNullOrEmpty(item.Password) || !HashProvider.VerifyHash(item.Password.Trim(), passwordHash))
+                {
+                    context.AddFailure("Password", "Password not set or does not match the hashed password.");
+                }
+            }
+        });
         //RuleFor(x => x.EmailsArray).NotEmpty().WithMessage("Email is required.").Must(x => x.Any(email => !string.IsNullOrEmpty(email))).WithMessage("Email is required.").Must(x => x.All(email => new EmailAddressAttribute().IsValid(email))).WithMessage("Invalid email format.");
 
 
