@@ -46,14 +46,10 @@ li {
     font-size: 17px;
 }
 
-@font-face {
-    font-family: 'times new roman';
-    font-style: normal;
-    font-weight: 400;
-}
+
 
 *, body {
-    font-family: "times new roman", times, roman, serif !important;
+    font-weight: 400;
 }
 
 .chat-window {

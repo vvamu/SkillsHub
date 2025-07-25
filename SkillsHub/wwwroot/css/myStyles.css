@@ -1,6 +1,36 @@
 ﻿
-#top{
-    padding-bottom:0px !important 
+@media (max-width: 499px) {
+    .hidden-navbar-by-width {
+        display: none !important;
+    }
+}
+
+@media (max-width: 1000px) {
+    .hidden-navbar-by-width-two {
+        display: none !important;
+    }
+}
+
+.flex-content{
+    display:flex;
+    grid-gap:6%;
+    flex-wrap:nowrap;
+    align-items:center;
+    justify-content:space-around
+
+}
+
+
+.nav-link:hover {
+    color: #53ACF8 !important;
+}
+
+.dropdown-item {
+    color: #333 !important
+}
+
+#top {
+    padding-bottom: 0px !important
 }
 p {
     font-size: 19.2px;

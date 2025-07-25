@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+		<!--	created with www.mysitemapgenerator.com	-->
+		<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<url>
+	<loc>https://skillshub.by/</loc>
+	<lastmod>2025-07-24T16:36:09+01:00</lastmod>
+	<changefreq>always</changefreq>
+	<priority>1.0</priority>
+	<image:image>
+			<image:loc>https://skillshub.by/images/logo.svg</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/assets/img/icons/4.png</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/assets/img/icons/5.png</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/assets/img/icons/6.png</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/assets/img/icons/7.png</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/images/about_us%400x.jpg</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/images/camp_english_native%400x.jpg</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/images/camp_eating%400x.jpg</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/images/camp_neon_park%400x.jpg</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/images/camp_nature%400x.jpg</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/images/camp_testing%400x.jpg</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/images/camp_board_games%400x.jpg</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/images/camp_programming%400x.jpg</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/images/camp_joing%400x.jpg</image:loc>
+	</image:image>
+	<image:image>
+			<image:loc>https://skillshub.by/images/camp_communication%400x.jpg</image:loc>
+	</image:image>
+</url>
+<url>
+	<loc>https://skillshub.by/documents/CampSchedule2025.pdf</loc>
+	<lastmod>2025-07-24T16:36:09+01:00</lastmod>
+	<changefreq>always</changefreq>
+	<priority>0.8</priority>
+</url>
+<url>
+	<loc>https://skillshub.by/documents/%D0%9E%D1%84%D0%B5%D1%80%D1%82%D0%B0.pdf</loc>
+	<lastmod>2025-07-24T16:36:09+01:00</lastmod>
+	<changefreq>always</changefreq>
+	<priority>0.8</priority>
+</url>
+</urlset>
